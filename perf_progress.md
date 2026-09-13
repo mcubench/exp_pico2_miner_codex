@@ -240,3 +240,28 @@ BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=direct-
 TEMP:BOOT source=rp2350-internal-adc approximate=1 temp_mc=-1479794 temp_raw=4095 adc_cs=00004703 adc_clock_hz=24000000
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=direct-unrolled-o3-lazy-result-tempdiag24 arch=ARM-M33 clock_hz=150000000 hashes=589000 elapsed_us=2002790 hash_rate_hs=294090 checksum=cc temp_start_mc=-1479794 temp_end_mc=-1479794 temp_start_raw=4095 temp_end_raw=4095
 ```
+
+## 2026-09-13 — E00 RP2350B channel-8 attempt: invalid temperature
+
+- Experiment: `E00-rp2350b-channel8-arm-01`
+- Change: select a repository-local RP2350B board definition, assert nine ADC
+  channels and temperature channel 8 at compile time, use the normal 48 MHz
+  ADC clock, and reject ADC errors/saturated samples before benchmarking.
+- Build: ARM and RISC-V passed without warnings; ARM was flashed at 150 MHz.
+- Temperature result: **invalid**. All 32 boot samples were raw **4095**;
+  raw minimum/maximum were also 4095. ADC status `0x00008703` showed channel 8
+  selected and both current/sticky conversion errors.
+- Performance: **not measured**. The new validity gate emitted `FAULT` and
+  stopped before the KAT/benchmark, as designed.
+- Decision: E00 remains incomplete. Channel 8 selection alone did not repair
+  the physical conversion failure; diagnose package/board-specific ADC setup
+  before any speed experiment.
+- Firmware UF2 SHA-256:
+  `360c65f853597331583b4d8753897b345ec002536d27c1d345c5c565072e1a64`
+- Archived serial log: `logs/E00-rp2350b-arm-invalid-temperature.log`
+
+```text
+BOOT app=pico2_bitcoin_miner board=miner_rp2350b package=RP2350B arch=ARM-M33 engine=RP2350-SHA256 adc_temp_channel=8
+TEMP:BOOT source=rp2350-internal-adc approximate=1 temp_valid=0 temp_mc=-1479794 temp_raw=4095 temp_raw_min=4095 temp_raw_max=4095 adc_cs=00008703 adc_clock_hz=48000000 adc_channel=8
+FAULT type=temperature boot=1 temp_valid=0
+```

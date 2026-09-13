@@ -10,6 +10,11 @@
 #include "pico/sha256.h"
 #include "pico/stdlib.h"
 
+_Static_assert(PICO_RP2350A == 0, "miner target must use the RP2350B package");
+_Static_assert(NUM_ADC_CHANNELS == 9, "RP2350B must expose nine ADC mux inputs");
+_Static_assert(ADC_TEMPERATURE_CHANNEL_NUM == 8,
+               "RP2350B temperature sensor must be ADC channel 8");
+
 #ifdef __riscv
 #define CPU_ARCH "RISCV-HAZARD3"
 #else
@@ -25,7 +30,16 @@
 #define MINER_SYS_CLOCK_KHZ 150000u
 #define TEMPERATURE_SAMPLES 32u
 
-static uint16_t temperature_last_raw;
+typedef struct temperature_measurement {
+    int32_t temp_mc;
+    uint32_t adc_cs;
+    uint16_t raw_mean;
+    uint16_t raw_min;
+    uint16_t raw_max;
+    bool valid;
+} temperature_measurement_t;
+
+static bool temperature_clock_configured;
 
 // Bitcoin genesis block header in the serialized byte order hashed by miners.
 static const uint8_t genesis_header[BITCOIN_HEADER_BYTES] = {
@@ -80,33 +94,58 @@ static void print_bitcoin_hash(const uint8_t hash[HASH_BYTES]) {
 }
 
 static void temperature_init(void) {
-    (void)clock_configure(clk_adc,
-                          0u,
-                          CLOCKS_CLK_ADC_CTRL_AUXSRC_VALUE_CLKSRC_PLL_USB,
-                          USB_CLK_HZ,
-                          USB_CLK_HZ / 2u);
+    temperature_clock_configured = clock_configure(
+        clk_adc,
+        0u,
+        CLOCKS_CLK_ADC_CTRL_AUXSRC_VALUE_CLKSRC_PLL_USB,
+        USB_CLK_HZ,
+        USB_CLK_HZ);
     adc_init();
     adc_set_temp_sensor_enabled(true);
     adc_select_input(ADC_TEMPERATURE_CHANNEL_NUM);
     sleep_us(200u);
     (void)adc_read();
+    hw_set_bits(&adc_hw->cs, ADC_CS_ERR_STICKY_BITS);
 }
 
 // The RP2350 SDK documents this uncalibrated approximation:
 // T = 27 - (ADC_voltage - 0.706) / 0.001721.
-static int32_t read_die_temperature_mc(void) {
+static temperature_measurement_t read_die_temperature(void) {
+    temperature_measurement_t measurement = {
+        .raw_min = UINT16_MAX,
+    };
     uint32_t raw_sum = 0u;
     adc_select_input(ADC_TEMPERATURE_CHANNEL_NUM);
+    hw_set_bits(&adc_hw->cs, ADC_CS_ERR_STICKY_BITS);
     for (uint32_t i = 0; i < TEMPERATURE_SAMPLES; ++i) {
-        raw_sum += adc_read();
+        const uint16_t raw = adc_read();
+        const uint32_t sample_cs = adc_hw->cs;
+        raw_sum += raw;
+        if (raw < measurement.raw_min) {
+            measurement.raw_min = raw;
+        }
+        if (raw > measurement.raw_max) {
+            measurement.raw_max = raw;
+        }
+        measurement.adc_cs |= sample_cs;
     }
-    const uint32_t raw = (raw_sum + TEMPERATURE_SAMPLES / 2u)
-                         / TEMPERATURE_SAMPLES;
-    temperature_last_raw = (uint16_t)raw;
-    const int32_t voltage_uv = (int32_t)(((uint64_t)raw * 3300000ull + 2048u)
-                                         / 4096u);
+    measurement.adc_cs |= adc_hw->cs;
+    measurement.raw_mean = (uint16_t)((raw_sum + TEMPERATURE_SAMPLES / 2u)
+                                      / TEMPERATURE_SAMPLES);
+    const uint64_t adc_denominator = (uint64_t)TEMPERATURE_SAMPLES * 4096ull;
+    const int32_t voltage_uv = (int32_t)(
+        ((uint64_t)raw_sum * 3300000ull + adc_denominator / 2ull)
+        / adc_denominator);
     const int64_t voltage_delta_uv = (int64_t)voltage_uv - 706000ll;
-    return 27000 - (int32_t)((voltage_delta_uv * 1000ll) / 1721ll);
+    measurement.temp_mc = 27000
+                          - (int32_t)((voltage_delta_uv * 1000ll) / 1721ll);
+    measurement.valid = temperature_clock_configured
+                        && adc_get_selected_input() == ADC_TEMPERATURE_CHANNEL_NUM
+                        && (measurement.adc_cs
+                            & (ADC_CS_ERR_BITS | ADC_CS_ERR_STICKY_BITS)) == 0u
+                        && measurement.raw_min > 0u
+                        && measurement.raw_max < 4095u;
+    return measurement;
 }
 
 // Hash through RP2350's hardware SHA-256 peripheral. DMA is intentionally
@@ -310,14 +349,21 @@ static bool run_known_answer_tests(void) {
     return passed;
 }
 
-static void run_benchmark(void) {
+static bool run_benchmark(void) {
     bitcoin_hasher_t hasher;
     uint32_t nonce = 0u;
     uint64_t hashes = 0u;
     volatile uint8_t checksum = 0u;
     bitcoin_hasher_begin(&hasher, genesis_header);
-    const int32_t temperature_start_mc = read_die_temperature_mc();
-    const uint16_t temperature_start_raw = temperature_last_raw;
+    const temperature_measurement_t temperature_start = read_die_temperature();
+    if (!temperature_start.valid) {
+        printf("FAULT type=temperature benchmark=start temp_valid=0"
+               " raw_mean=%u raw_min=%u raw_max=%u adc_cs=%08" PRIx32 "\n",
+               temperature_start.raw_mean, temperature_start.raw_min,
+               temperature_start.raw_max, temperature_start.adc_cs);
+        bitcoin_hasher_end(&hasher);
+        return false;
+    }
 
     const uint64_t started_us = time_us_64();
     uint64_t elapsed_us;
@@ -326,7 +372,7 @@ static void run_benchmark(void) {
             if (!bitcoin_hasher_hash_nonce(&hasher, nonce++)) {
                 printf("FAULT type=sha256_hardware benchmark=1\n");
                 bitcoin_hasher_end(&hasher);
-                return;
+                return false;
             }
             checksum ^= (uint8_t)(sha256_hw->sum[0] >> 24u);
             ++hashes;
@@ -334,19 +380,30 @@ static void run_benchmark(void) {
         elapsed_us = time_us_64() - started_us;
     } while (elapsed_us < BENCHMARK_MIN_US);
     bitcoin_hasher_end(&hasher);
-    const int32_t temperature_end_mc = read_die_temperature_mc();
-    const uint16_t temperature_end_raw = temperature_last_raw;
+    const temperature_measurement_t temperature_end = read_die_temperature();
+    if (!temperature_end.valid) {
+        printf("FAULT type=temperature benchmark=end temp_valid=0"
+               " raw_mean=%u raw_min=%u raw_max=%u adc_cs=%08" PRIx32 "\n",
+               temperature_end.raw_mean, temperature_end.raw_min,
+               temperature_end.raw_max, temperature_end.adc_cs);
+        return false;
+    }
 
     const uint64_t rate = (hashes * 1000000ull + elapsed_us / 2u) / elapsed_us;
     printf("BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256"
            " path=direct-unrolled-o3-lazy-result-tempdiag24"
            " arch=%s clock_hz=%" PRIu32 " hashes=%" PRIu64
            " elapsed_us=%" PRIu64 " hash_rate_hs=%" PRIu64
-           " checksum=%02x temp_start_mc=%" PRId32 " temp_end_mc=%" PRId32
-           " temp_start_raw=%u temp_end_raw=%u\n",
+           " checksum=%02x temp_valid=1 temp_start_mc=%" PRId32
+           " temp_end_mc=%" PRId32 " temp_start_raw=%u temp_end_raw=%u"
+           " temp_start_raw_min=%u temp_start_raw_max=%u"
+           " temp_end_raw_min=%u temp_end_raw_max=%u\n",
            CPU_ARCH, clock_get_hz(clk_sys), hashes, elapsed_us, rate, checksum,
-           temperature_start_mc, temperature_end_mc,
-           temperature_start_raw, temperature_end_raw);
+           temperature_start.temp_mc, temperature_end.temp_mc,
+           temperature_start.raw_mean, temperature_end.raw_mean,
+           temperature_start.raw_min, temperature_start.raw_max,
+           temperature_end.raw_min, temperature_end.raw_max);
+    return true;
 }
 
 static void mine_forever(uint led_pin) {
@@ -389,12 +446,23 @@ static void mine_forever(uint led_pin) {
             const uint64_t elapsed_us = now_us - report_started_us;
             const uint64_t rate = ((uint64_t)since_report * 1000000ull
                                    + elapsed_us / 2u) / elapsed_us;
-            const int32_t temperature_mc = read_die_temperature_mc();
+            const temperature_measurement_t temperature = read_die_temperature();
+            if (!temperature.valid) {
+                printf("FAULT type=temperature mining=1 temp_valid=0"
+                       " raw_mean=%u raw_min=%u raw_max=%u adc_cs=%08" PRIx32
+                       "\n",
+                       temperature.raw_mean, temperature.raw_min,
+                       temperature.raw_max, temperature.adc_cs);
+                bitcoin_hasher_end(&hasher);
+                return;
+            }
             printf("MINING:PROGRESS arch=%s nonce=%" PRIu32
                    " total_hashes=%" PRIu64 " hash_rate_hs=%" PRIu64
-                   " temp_mc=%" PRId32 " temp_raw=%u\n",
-                   CPU_ARCH, nonce, total_hashes, rate, temperature_mc,
-                   temperature_last_raw);
+                   " temp_valid=1 temp_mc=%" PRId32
+                   " temp_raw=%u temp_raw_min=%u temp_raw_max=%u\n",
+                   CPU_ARCH, nonce, total_hashes, rate, temperature.temp_mc,
+                   temperature.raw_mean, temperature.raw_min,
+                   temperature.raw_max);
             since_report = 0u;
             report_started_us = now_us;
             led_on = !led_on;
@@ -423,12 +491,25 @@ int main(void) {
             sleep_ms(100u);
         }
     }
-    printf("BOOT app=pico2_bitcoin_miner arch=%s engine=RP2350-SHA256\n", CPU_ARCH);
-    const int32_t boot_temperature_mc = read_die_temperature_mc();
-    printf("TEMP:BOOT source=rp2350-internal-adc approximate=1 temp_mc=%" PRId32
-           " temp_raw=%u adc_cs=%08" PRIx32 " adc_clock_hz=%" PRIu32 "\n",
-           boot_temperature_mc, temperature_last_raw, adc_hw->cs,
-           clock_get_hz(clk_adc));
+    printf("BOOT app=pico2_bitcoin_miner board=miner_rp2350b package=RP2350B"
+           " arch=%s engine=RP2350-SHA256 adc_temp_channel=%u\n",
+           CPU_ARCH, ADC_TEMPERATURE_CHANNEL_NUM);
+    const temperature_measurement_t boot_temperature = read_die_temperature();
+    printf("TEMP:BOOT source=rp2350-internal-adc approximate=1 temp_valid=%u"
+           " temp_mc=%" PRId32 " temp_raw=%u temp_raw_min=%u temp_raw_max=%u"
+           " adc_cs=%08" PRIx32 " adc_clock_hz=%" PRIu32
+           " adc_channel=%u\n",
+           boot_temperature.valid, boot_temperature.temp_mc,
+           boot_temperature.raw_mean, boot_temperature.raw_min,
+           boot_temperature.raw_max, boot_temperature.adc_cs,
+           clock_get_hz(clk_adc), adc_get_selected_input());
+    if (!boot_temperature.valid) {
+        printf("FAULT type=temperature boot=1 temp_valid=0\n");
+        while (true) {
+            gpio_xor_mask64(1ull << led_pin);
+            sleep_ms(100u);
+        }
+    }
 
     if (!run_known_answer_tests()) {
         printf("TEST:SUMMARY pass=0 fail=1\n");
@@ -439,7 +520,12 @@ int main(void) {
     }
     printf("TEST:SUMMARY pass=4 fail=0\n");
 
-    run_benchmark();
+    if (!run_benchmark()) {
+        while (true) {
+            gpio_xor_mask64(1ull << led_pin);
+            sleep_ms(100u);
+        }
+    }
     mine_forever(led_pin);
     return 0;
 }
