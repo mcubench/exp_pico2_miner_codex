@@ -1,6 +1,8 @@
 # Pico 2 agentic development loop
 
-This project builds the same USB-serial LED blinker for both RP2350 CPU architectures and gives VS Code/Codex finite commands for build, flash, and hardware feedback.
+This project builds a hardware-accelerated Bitcoin proof-of-work engine for both RP2350 CPU architectures and gives VS Code/Codex finite commands for build, flash, and hardware feedback. It uses RP2350's native SHA-256 peripheral for both rounds of every Bitcoin header hash. The mining loop retains the SHA peripheral lock and directly feeds three pre-padded 64-byte blocks per nonce, avoiding high-level API setup and padding overhead inside the hot path.
+
+At boot the firmware validates the engine against SHA-256 known-answer vectors, the Bitcoin genesis block hash, and a real compact-target nonce search. It then measures double-SHA-256 hashes per second and continuously scans the genesis header's difficulty-1 nonce space. The ongoing work is deliberately standalone and stale; it demonstrates genuine proof-of-work calculations but does not connect to a pool or the Bitcoin peer-to-peer network.
 
 ## Commands
 
@@ -13,7 +15,9 @@ This project builds the same USB-serial LED blinker for both RP2350 CPU architec
 ./tools/monitor --seconds 30
 ```
 
-`cycle` always builds both architectures before flashing the selected one. Runtime output contains `BOOT`, `TEST:PASS`, and `HEARTBEAT` records that Codex can evaluate reliably.
+`cycle` always builds both architectures before flashing the selected one. Runtime output contains machine-readable `BOOT`, `TEST`, `BENCHMARK`, `MINING`, `SHARE`, and `FAULT` records that Codex can evaluate reliably.
+
+Measured on the connected Pico 2 at the stock 150 MHz clock, the optimized path reaches 103,800 H/s on ARM Cortex-M33 and 86,300 H/s on Hazard3 RISC-V. These are complete Bitcoin double-SHA-256 header hashes, not individual SHA-256 compression rounds. See [`perf_progress.md`](perf_progress.md) for baselines, optimization history, exact samples, and continuous-mining rates.
 
 The scripts discover extension-managed dependencies below `~/.pico-sdk`. These environment variables can override discovery: `PICO_HOME`, `PICO_SDK_PATH`, `ARM_TOOLCHAIN`, `RISCV_TOOLCHAIN`, `PICOTOOL`, and `PICO_PORT`.
 

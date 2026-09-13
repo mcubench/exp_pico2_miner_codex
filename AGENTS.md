@@ -24,6 +24,8 @@ After changing platform-independent source:
 5. Treat `TEST:FAIL`, `FAULT`, a timeout, or any nonzero command status as failure.
 6. Diagnose, edit, and repeat until the hardware test passes.
 
+Runtime output uses `TEST:PASS`, `TEST:FAIL`, and `TEST:SUMMARY` for known-answer tests; `BENCHMARK:PASS` for measured Bitcoin double-SHA-256 throughput; `MINING:START`, `MINING:PROGRESS`, and `SHARE:FOUND` for mining work; and `FAULT` for runtime failures.
+
 Safety constraints:
 
 - Never run `picotool otp`, `picotool erase`, or commands that alter boot security, OTP, flash partition tables, or machine configuration.

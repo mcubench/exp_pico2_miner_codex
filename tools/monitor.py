@@ -104,7 +104,9 @@ def main() -> int:
                 raw, pending = pending.split(b"\n", 1)
                 line = raw.rstrip(b"\r").decode("utf-8", errors="replace")
                 print(line, flush=True)
-                saw_health = saw_health or line.startswith(("TEST:PASS", "HEARTBEAT"))
+                saw_health = saw_health or line.startswith(
+                    ("TEST:PASS", "HEARTBEAT", "BENCHMARK:PASS", "MINING:PROGRESS")
+                )
                 if line.startswith("TEST:FAIL") or line.startswith("FAULT"):
                     return 4
     finally:
