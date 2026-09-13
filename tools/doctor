@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+set -u
+source "$(dirname -- "$0")/common.sh"
+
+failures=0
+check() {
+    local label="$1"
+    shift
+    local value
+    if value="$($@ 2>/dev/null)" && [[ -n "${value}" ]]; then
+        printf 'PASS %-20s %s\n' "${label}" "${value}"
+    else
+        printf 'FAIL %-20s missing\n' "${label}"
+        failures=$((failures + 1))
+    fi
+}
+
+check "Pico SDK" find_sdk
+check "CMake" find_cmake
+check "Ninja" find_ninja
+check "ARM compiler" find_toolchain arm-none-eabi "${ARM_TOOLCHAIN:-}"
+check "RISC-V compiler" find_toolchain riscv32-unknown-elf "${RISCV_TOOLCHAIN:-}"
+check "picotool" find_picotool
+
+if compgen -G '/dev/ttyACM*' >/dev/null; then
+    for port in /dev/ttyACM*; do
+        printf 'INFO %-20s %s (%s)\n' "USB serial" "${port}" "$(stat -c '%U:%G %A' "${port}" 2>/dev/null || true)"
+    done
+else
+    printf 'FAIL %-20s no /dev/ttyACM* device\n' "USB serial"
+    failures=$((failures + 1))
+fi
+
+if id -nG | tr ' ' '\n' | grep -qx dialout; then
+    printf 'PASS %-20s user is a member\n' "dialout group"
+else
+    printf 'FAIL %-20s user is not a member\n' "dialout group"
+    failures=$((failures + 1))
+fi
+
+if (( failures > 0 )); then
+    printf 'DOCTOR:FAIL count=%d\n' "${failures}"
+    exit 1
+fi
+printf 'DOCTOR:PASS\n'

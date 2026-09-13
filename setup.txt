@@ -1,0 +1,487 @@
+Yes. The setup you want is practical on a Pico 2/RP2350, including switching between the Cortex-M33 and Hazard3 RISC-V builds. The key is to treat the Pico VS Code extension as the human-facing toolchain installer/debugger, while giving Codex a small command-line interface to the hardware.
+
+The resulting loop should be:
+
+Codex edits → build ARM + RISC-V → flash selected image → wait for USB serial → capture structured test output → diagnose → edit → repeat
+
+The official Pico tooling supports rp2350-arm-s and rp2350-riscv as separate RP2350 build platforms, and Raspberry Pi's VS Code tooling includes support for both Pico 2 variants.
+
+1. Install the basic stack
+
+Install VS Code, the Raspberry Pi Pico extension, and the OpenAI Codex VS Code extension.
+
+The Pico extension is useful because it manages the SDK, ARM compiler, RISC-V compiler, CMake, Ninja, picotool, OpenOCD and debugging support. Raspberry Pi explicitly describes it as managing the SDK/toolchain environment for you.
+
+Create a normal C/C++ Pico 2 project. I would use this layout:
+
+pico2-agent/
+├── CMakeLists.txt
+├── pico_sdk_import.cmake
+├── src/
+│   └── main.c
+├── tools/
+│   ├── build
+│   ├── flash
+│   ├── monitor.py
+│   └── cycle
+├── build/
+│   ├── arm/
+│   └── riscv/
+├── logs/
+└── AGENTS.md
+
+The important part is two build directories. Do not reconfigure the same CMake directory between ARM and RISC-V because the platform/compiler gets cached. Raspberry Pi itself says that switching to rp2350-riscv requires configuring CMake fresh.
+
+2. Make USB stdio mandatory in the firmware
+
+Your firmware needs to remain visible to picotool while running. That's what allows the agent to flash repeatedly without you touching BOOTSEL.
+
+A minimal CMakeLists.txt is:
+
+cmake_minimum_required(VERSION 3.13)
+
+include(pico_sdk_import.cmake)
+
+project(agent_pico C CXX ASM)
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+
+pico_sdk_init()
+
+add_executable(agent_pico
+    src/main.c
+)
+
+target_link_libraries(agent_pico
+    pico_stdlib
+)
+
+# This is important for the agentic flash/logging loop.
+pico_enable_stdio_usb(agent_pico 1)
+pico_enable_stdio_uart(agent_pico 0)
+
+# Helpful if main() ever exits.
+target_compile_definitions(agent_pico PRIVATE
+    PICO_ENTER_USB_BOOT_ON_EXIT=1
+)
+
+pico_add_extra_outputs(agent_pico)
+
+And start with something like:
+
+#include <stdio.h>
+#include "pico/stdlib.h"
+
+int main(void) {
+    stdio_init_all();
+
+    // Give USB CDC time to enumerate.
+    sleep_ms(1500);
+
+#ifdef __riscv
+    printf("BOOT arch=RISCV\n");
+#else
+    printf("BOOT arch=ARM-M33\n");
+#endif
+
+    printf("TEST:PASS startup\n");
+
+    while (true) {
+        printf("heartbeat\n");
+        sleep_ms(1000);
+    }
+}
+
+That pico_enable_stdio_usb(... 1) plus stdio_init_all() is especially important. picotool -f can force a running Pico SDK application into its bootloader when it is using USB stdio, so you can reprogram the device without manually pressing BOOTSEL.
+
+3. Give Codex deterministic ARM and RISC-V build commands
+
+For ARM:
+
+cmake -S . -B build/arm -G Ninja \
+    -DPICO_BOARD=pico2 \
+    -DPICO_PLATFORM=rp2350-arm-s \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DPICO_TOOLCHAIN_PATH="$ARM_TOOLCHAIN"
+
+cmake --build build/arm
+
+For RISC-V:
+
+cmake -S . -B build/riscv -G Ninja \
+    -DPICO_BOARD=pico2 \
+    -DPICO_PLATFORM=rp2350-riscv \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DPICO_TOOLCHAIN_PATH="$RISCV_TOOLCHAIN"
+
+cmake --build build/riscv
+
+Raspberry Pi's own Pico VS Code tests use essentially this scheme: PICO_BOARD=pico2, separate rp2350-arm-s and rp2350-riscv platforms, and different ARM/RISC-V toolchain paths.
+
+The RISC-V compiler is not just a generic ARM compiler mode; it is a separate toolchain. Raspberry Pi distributes RP2350-compatible prebuilt RISC-V toolchains for Windows, macOS and Linux.
+
+I would hide all this from Codex behind:
+
+./tools/build arm
+./tools/build riscv
+
+For example:
+
+#!/usr/bin/env bash
+set -euo pipefail
+
+ARCH="${1:?usage: tools/build arm|riscv}"
+
+case "$ARCH" in
+    arm)
+        PLATFORM=rp2350-arm-s
+        TOOLCHAIN="$ARM_TOOLCHAIN"
+        ;;
+    riscv)
+        PLATFORM=rp2350-riscv
+        TOOLCHAIN="$RISCV_TOOLCHAIN"
+        ;;
+    *)
+        echo "Unknown architecture: $ARCH" >&2
+        exit 2
+        ;;
+esac
+
+cmake -S . -B "build/$ARCH" -G Ninja \
+    -DPICO_BOARD=pico2 \
+    -DPICO_PLATFORM="$PLATFORM" \
+    -DPICO_TOOLCHAIN_PATH="$TOOLCHAIN" \
+    -DPICO_SDK_PATH="$PICO_SDK_PATH" \
+    -DCMAKE_BUILD_TYPE=Debug
+
+cmake --build "build/$ARCH"
+
+Make it executable:
+
+chmod +x tools/build
+
+Your environment then only needs:
+
+export PICO_SDK_PATH=/path/to/pico-sdk
+export ARM_TOOLCHAIN=/path/to/arm-toolchain
+export RISCV_TOOLCHAIN=/path/to/riscv-toolchain
+
+If you use the Pico VS Code-managed copies, they normally live under ~/.pico-sdk/; the extension's own generated configuration uses paths below ~/.pico-sdk/sdk, ~/.pico-sdk/toolchain, and ~/.pico-sdk/picotool.
+
+4. Make flashing one command
+
+picotool is ideal for the single-USB-cable setup.
+
+Create tools/flash:
+
+#!/usr/bin/env bash
+set -euo pipefail
+
+ARCH="${1:?usage: tools/flash arm|riscv}"
+
+UF2="build/${ARCH}/agent_pico.uf2"
+
+if [[ ! -f "$UF2" ]]; then
+    echo "Missing $UF2" >&2
+    exit 1
+fi
+
+picotool load \
+    -f \
+    -u \
+    -v \
+    -x \
+    "$UF2"
+
+Those options mean:
+
+-f   force a running USB-stdio application into boot mode
+-u   only update changed flash sectors
+-v   verify what was written
+-x   execute the image after programming
+
+Those are native current picotool capabilities.
+
+So after the first manual BOOTSEL installation, the normal Codex operation becomes:
+
+./tools/build arm
+./tools/flash arm
+
+or:
+
+./tools/build riscv
+./tools/flash riscv
+
+No unplugging and no BOOTSEL button.
+
+picotool can also explicitly reboot an RP2350 selecting arm or riscv with picotool reboot -c arm / -c riscv, which is useful if you later build more complicated boot configurations.
+
+5. Give Codex a finite serial capture command
+
+Don't have Codex run minicom forever. Give it a program that captures output for, say, 8 seconds, exits, and returns the output to the agent.
+
+Install:
+
+python -m pip install pyserial
+
+tools/monitor.py:
+
+#!/usr/bin/env python3
+
+import argparse
+import os
+import sys
+import time
+
+import serial
+from serial.tools import list_ports
+
+
+def find_pico():
+    explicit = os.environ.get("PICO_PORT")
+    if explicit:
+        return explicit
+
+    candidates = []
+
+    for p in list_ports.comports():
+        # Raspberry Pi USB VID.
+        if p.vid == 0x2E8A:
+            candidates.append(p.device)
+
+    if not candidates:
+        raise RuntimeError("No Raspberry Pi USB serial device found")
+
+    if len(candidates) > 1:
+        raise RuntimeError(
+            "Multiple Raspberry Pi serial devices found: "
+            + ", ".join(candidates)
+            + ". Set PICO_PORT."
+        )
+
+    return candidates[0]
+
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--seconds", type=float, default=8.0)
+args = parser.parse_args()
+
+deadline = time.time() + args.seconds
+port = None
+
+# The device disappears and reappears while flashing.
+while time.time() < deadline:
+    try:
+        port = find_pico()
+        break
+    except RuntimeError:
+        time.sleep(0.2)
+
+if port is None:
+    print("ERROR: serial device did not appear", file=sys.stderr)
+    sys.exit(2)
+
+print(f"SERIAL_PORT={port}")
+
+with serial.Serial(port, 115200, timeout=0.25) as ser:
+    while time.time() < deadline:
+        raw = ser.readline()
+        if raw:
+            print(raw.decode("utf-8", errors="replace").rstrip())
+
+Then Codex can do:
+
+python tools/monitor.py --seconds 8
+
+On Linux the Pico USB CDC device will usually look like /dev/ttyACM0; macOS typically uses a /dev/cu.usbmodem... name and Windows exposes a COM port. Raspberry Pi documents USB serial specifically for this use case.
+
+For automation, make the device emit machine-readable events rather than prose:
+
+BOOT arch=ARM-M33 version=17
+TEST:BEGIN spi
+TEST:PASS spi
+TEST:BEGIN sensor
+TEST:FAIL sensor expected=42 actual=39
+FAULT type=hardfault pc=0x100034d8
+TEST:SUMMARY pass=7 fail=1
+
+That dramatically improves Codex's ability to debug autonomously.
+
+6. Combine it into the command Codex actually uses
+
+Create tools/cycle:
+
+#!/usr/bin/env bash
+set -euo pipefail
+
+ARCH="${1:?usage: tools/cycle arm|riscv}"
+
+mkdir -p logs
+
+./tools/build "$ARCH"
+./tools/flash "$ARCH"
+
+python tools/monitor.py --seconds 8 \
+    | tee "logs/${ARCH}-latest.log"
+
+Now the entire hardware feedback loop is:
+
+./tools/cycle arm
+
+or:
+
+./tools/cycle riscv
+
+And verifying portability across both ISAs is:
+
+./tools/build arm && ./tools/build riscv
+
+That last command is particularly useful. Every time Codex changes common code, require both builds to succeed before it touches the hardware.
+
+7. Tell Codex explicitly how it is allowed to operate
+
+Put an AGENTS.md at the repository root along these lines:
+
+# Pico 2 development instructions
+
+Target hardware is Raspberry Pi Pico 2 / RP2350.
+
+Supported CPU architectures:
+- ARM Cortex-M33: rp2350-arm-s
+- Hazard3 RISC-V: rp2350-riscv
+
+Never manually invoke compiler binaries. Use the repository tools.
+
+Commands:
+
+Build both architectures:
+    ./tools/build arm
+    ./tools/build riscv
+
+Build, flash, and capture runtime output:
+    ./tools/cycle arm
+    ./tools/cycle riscv
+
+After modifying platform-independent source code:
+1. Build ARM.
+2. Build RISC-V.
+3. Fix all compiler errors/warnings.
+4. Run the requested target on hardware.
+5. Inspect serial output.
+6. If tests fail, diagnose them, modify the code, and repeat.
+
+Runtime output uses:
+    TEST:PASS
+    TEST:FAIL
+    TEST:SUMMARY
+    FAULT
+
+Treat TEST:FAIL, FAULT, timeout, or a non-zero tool exit status as failure.
+
+Do not run:
+    picotool otp
+    picotool erase
+    sudo
+or commands modifying boot security, OTP, partition tables, or machine configuration.
+
+Do not modify anything outside this repository.
+
+Do not flash unless both ARM and RISC-V builds currently compile successfully,
+unless explicitly asked to investigate an architecture-specific failure.
+
+That gives Codex a clear closed loop instead of forcing it to infer your embedded workflow.
+
+Codex permissions
+
+There is one complication: USB and serial devices live outside the project workspace. Codex's local sandbox is designed primarily around project files, so accessing /dev/ttyACM*, libusb/picotool, OpenOCD, etc. may require approval or a less restrictive local execution mode. OpenAI's current Codex tooling supports read-only, workspace-oriented automatic operation, and Full Access modes, with approvals governing operations outside the sandbox.
+
+I would not give it unrestricted machine access initially. Let it automatically edit/build inside the repository, and approve these hardware wrappers:
+
+./tools/flash arm
+./tools/flash riscv
+./tools/cycle arm
+./tools/cycle riscv
+python tools/monitor.py ...
+
+If your OS sandbox still prevents the underlying USB/libusb device access, then the local Codex session will need Full Access while doing hardware runs. Keep the restrictions in AGENTS.md regardless.
+
+Linux permissions
+
+Make sure your normal user, without sudo, can run:
+
+picotool info
+
+and can open:
+
+/dev/ttyACM0
+
+If not, fix udev/group permissions first. Don't build an agentic workflow around sudo; it creates both automation and security problems.
+
+For actual debugging, add a Debug Probe
+
+There's an important limit to the single-USB setup.
+
+With just:
+
+PC ──USB── Pico 2
+
+Codex can do a very good:
+
+compile
+flash
+printf logging
+automated tests
+crash reporting
+repeat
+
+But it cannot conveniently do normal source-level halt/breakpoint/register/memory debugging through that same USB stdio connection.
+
+For that, add a Raspberry Pi Debug Probe:
+
+                    ┌── USB ── Pico 2 USB/stdout
+PC
+                    └── USB ── Debug Probe
+                                 │
+                                 ├── SWDIO
+                                 ├── SWCLK
+                                 └── GND
+                                      │
+                                   Pico 2
+
+The official Debug Probe works with OpenOCD and GDB and supports hands-off ELF flashing/debugging over SWD. Raspberry Pi's VS Code extension integrates this debugging stack.
+
+You can then expose additional commands to Codex:
+
+./tools/gdb-arm
+./tools/gdb-riscv
+./tools/dump-registers
+./tools/backtrace
+
+and even use RTT instead of USB serial. Raspberry Pi's current SDK/OpenOCD stack supports pico_enable_stdio_rtt() and reading the RTT channel through OpenOCD, which is extremely attractive for an autonomous debugger because the logging channel does not disappear every time USB resets.
+
+The setup I would actually use
+
+For serious agentic embedded development, I'd use this architecture:
+
+                         VS Code
+                 ┌─────────┴─────────┐
+                 │                   │
+          Raspberry Pi Pico       Codex
+             extension               │
+                 │                   │
+        human debug/UI          tools/cycle
+                                     │
+                         ┌───────────┼───────────┐
+                         │           │           │
+                       CMake      picotool    test parser
+                         │           │           │
+                ARM + RISC-V         │       serial/RTT
+                    builds           │           │
+                         └───────────┬───────────┘
+                                     │
+                              physical Pico 2
+
+And I'd make ./tools/cycle arm / ./tools/cycle riscv the only interface Codex needs to know about.
+
+That gets you very close to a genuine embedded coding agent: it can write a driver, compile it for both RP2350 architectures, discover a compiler regression, program real silicon, observe its behavior, change the implementation, and repeat without human interaction.

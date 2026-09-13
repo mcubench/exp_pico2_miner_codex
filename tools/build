@@ -1,0 +1,42 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+source "$(dirname -- "$0")/common.sh"
+
+arch="${1:-}"
+case "${arch}" in
+    arm)
+        platform=rp2350-arm-s
+        triple=arm-none-eabi
+        explicit_toolchain="${ARM_TOOLCHAIN:-}"
+        ;;
+    riscv)
+        platform=rp2350-riscv
+        triple=riscv32-unknown-elf
+        explicit_toolchain="${RISCV_TOOLCHAIN:-}"
+        ;;
+    *)
+        die "usage: tools/build arm|riscv"
+        ;;
+esac
+
+sdk="$(find_sdk)" || die "Pico SDK not found. Set PICO_SDK_PATH or install it under ${PICO_HOME}/sdk."
+cmake_bin="$(find_cmake)" || die "CMake not found."
+ninja_bin="$(find_ninja)" || die "Ninja not found."
+toolchain="$(find_toolchain "${triple}" "${explicit_toolchain}")" || die "${triple} toolchain not found."
+build_dir="${PROJECT_ROOT}/build/${arch}"
+
+printf 'CONFIG arch=%s platform=%s\n' "${arch}" "${platform}"
+printf 'CONFIG sdk=%s\n' "${sdk}"
+printf 'CONFIG toolchain=%s\n' "${toolchain}"
+
+"${cmake_bin}" -S "${PROJECT_ROOT}" -B "${build_dir}" -G Ninja \
+    -DCMAKE_MAKE_PROGRAM="${ninja_bin}" \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DPICO_BOARD=pico2 \
+    -DPICO_PLATFORM="${platform}" \
+    -DPICO_SDK_PATH="${sdk}" \
+    -DPICO_TOOLCHAIN_PATH="${toolchain}"
+
+"${cmake_bin}" --build "${build_dir}"
+printf 'BUILD:PASS arch=%s uf2=%s\n' "${arch}" "${build_dir}/pico2_agent.uf2"

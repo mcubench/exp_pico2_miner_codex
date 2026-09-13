@@ -1,0 +1,62 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Pico 2: Build ARM M33",
+            "type": "shell",
+            "command": "${workspaceFolder}/tools/build",
+            "args": ["arm"],
+            "group": {"kind": "build", "isDefault": true},
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "Pico 2: Build RISC-V",
+            "type": "shell",
+            "command": "${workspaceFolder}/tools/build",
+            "args": ["riscv"],
+            "group": "build",
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "Pico 2: Flash ARM M33",
+            "type": "shell",
+            "command": "${workspaceFolder}/tools/flash",
+            "args": ["arm"],
+            "problemMatcher": []
+        },
+        {
+            "label": "Pico 2: Flash RISC-V",
+            "type": "shell",
+            "command": "${workspaceFolder}/tools/flash",
+            "args": ["riscv"],
+            "problemMatcher": []
+        },
+        {
+            "label": "Pico 2: Cycle ARM M33",
+            "type": "shell",
+            "command": "${workspaceFolder}/tools/cycle",
+            "args": ["arm"],
+            "problemMatcher": []
+        },
+        {
+            "label": "Pico 2: Cycle RISC-V",
+            "type": "shell",
+            "command": "${workspaceFolder}/tools/cycle",
+            "args": ["riscv"],
+            "problemMatcher": []
+        },
+        {
+            "label": "Pico 2: Monitor USB serial",
+            "type": "shell",
+            "command": "${workspaceFolder}/tools/monitor",
+            "args": ["--seconds", "30"],
+            "problemMatcher": []
+        },
+        {
+            "label": "Pico 2: Doctor",
+            "type": "shell",
+            "command": "${workspaceFolder}/tools/doctor",
+            "problemMatcher": []
+        }
+    ]
+}

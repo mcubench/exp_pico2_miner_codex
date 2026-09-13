@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+source "$(dirname -- "$0")/common.sh"
+
+arch="${1:-}"
+case "${arch}" in
+    arm|riscv) ;;
+    *) die "usage: tools/flash arm|riscv" ;;
+esac
+
+uf2="${PROJECT_ROOT}/build/${arch}/pico2_agent.uf2"
+[[ -f "${uf2}" ]] || die "${uf2} is missing; run ./tools/build ${arch} first."
+picotool_bin="$(find_picotool)" || die "picotool not found."
+
+printf 'FLASH image=%s\n' "${uf2}"
+if ! "${picotool_bin}" load -f -u -v -x "${uf2}"; then
+    die "Flashing failed. Check USB passthrough and Linux udev permissions; see ./tools/doctor."
+fi
+printf 'FLASH:PASS arch=%s\n' "${arch}"

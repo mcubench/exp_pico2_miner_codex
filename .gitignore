@@ -1,0 +1,10 @@
+/build/
+/logs/
+/.cache/
+__pycache__/
+*.pyc
+*.uf2
+*.elf
+*.bin
+*.hex
+*.map
