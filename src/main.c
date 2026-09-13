@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "hardware/adc.h"
 #include "hardware/clocks.h"
 #include "pico/bootrom/lock.h"
 #include "pico/sha256.h"
@@ -21,6 +22,10 @@
 #define BENCHMARK_MIN_US 2000000ull
 #define BENCHMARK_BATCH 1000u
 #define MINING_REPORT_INTERVAL 100000u
+#define MINER_SYS_CLOCK_KHZ 150000u
+#define TEMPERATURE_SAMPLES 32u
+
+static uint16_t temperature_last_raw;
 
 // Bitcoin genesis block header in the serialized byte order hashed by miners.
 static const uint8_t genesis_header[BITCOIN_HEADER_BYTES] = {
@@ -68,17 +73,40 @@ typedef struct bitcoin_hasher {
     bool locked;
 } bitcoin_hasher_t;
 
-static void write_le32(uint8_t *destination, uint32_t value) {
-    destination[0] = (uint8_t)value;
-    destination[1] = (uint8_t)(value >> 8u);
-    destination[2] = (uint8_t)(value >> 16u);
-    destination[3] = (uint8_t)(value >> 24u);
-}
-
 static void print_bitcoin_hash(const uint8_t hash[HASH_BYTES]) {
     for (int i = (int)HASH_BYTES - 1; i >= 0; --i) {
         printf("%02x", hash[i]);
     }
+}
+
+static void temperature_init(void) {
+    (void)clock_configure(clk_adc,
+                          0u,
+                          CLOCKS_CLK_ADC_CTRL_AUXSRC_VALUE_CLKSRC_PLL_USB,
+                          USB_CLK_HZ,
+                          USB_CLK_HZ / 2u);
+    adc_init();
+    adc_set_temp_sensor_enabled(true);
+    adc_select_input(ADC_TEMPERATURE_CHANNEL_NUM);
+    sleep_us(200u);
+    (void)adc_read();
+}
+
+// The RP2350 SDK documents this uncalibrated approximation:
+// T = 27 - (ADC_voltage - 0.706) / 0.001721.
+static int32_t read_die_temperature_mc(void) {
+    uint32_t raw_sum = 0u;
+    adc_select_input(ADC_TEMPERATURE_CHANNEL_NUM);
+    for (uint32_t i = 0; i < TEMPERATURE_SAMPLES; ++i) {
+        raw_sum += adc_read();
+    }
+    const uint32_t raw = (raw_sum + TEMPERATURE_SAMPLES / 2u)
+                         / TEMPERATURE_SAMPLES;
+    temperature_last_raw = (uint16_t)raw;
+    const int32_t voltage_uv = (int32_t)(((uint64_t)raw * 3300000ull + 2048u)
+                                         / 4096u);
+    const int64_t voltage_delta_uv = (int64_t)voltage_uv - 706000ll;
+    return 27000 - (int32_t)((voltage_delta_uv * 1000ll) / 1721ll);
 }
 
 // Hash through RP2350's hardware SHA-256 peripheral. DMA is intentionally
@@ -96,17 +124,28 @@ static bool hardware_sha256(const uint8_t *data, size_t size, uint8_t hash[HASH_
     return true;
 }
 
-static void sha256_process_words(const uint32_t *words,
-                                 size_t word_count,
-                                 sha256_result_t *result) {
-    sha256_err_not_ready_clear();
-    sha256_start();
-    for (size_t i = 0; i < word_count; ++i) {
-        sha256_wait_ready_blocking();
-        sha256_put_word(words[i]);
-    }
-    sha256_wait_valid_blocking();
-    sha256_get_result(result, SHA256_BIG_ENDIAN);
+static inline __attribute__((always_inline)) void sha256_write_block(
+    const uint32_t words[16]) {
+    // WDATA_RDY remains asserted while a block's first 15 words are written
+    // and drops after word 16 starts compression. Poll once per block, not
+    // once per word, and unroll the MMIO writes to remove loop overhead.
+    sha256_wait_ready_blocking();
+    sha256_put_word(words[0]);
+    sha256_put_word(words[1]);
+    sha256_put_word(words[2]);
+    sha256_put_word(words[3]);
+    sha256_put_word(words[4]);
+    sha256_put_word(words[5]);
+    sha256_put_word(words[6]);
+    sha256_put_word(words[7]);
+    sha256_put_word(words[8]);
+    sha256_put_word(words[9]);
+    sha256_put_word(words[10]);
+    sha256_put_word(words[11]);
+    sha256_put_word(words[12]);
+    sha256_put_word(words[13]);
+    sha256_put_word(words[14]);
+    sha256_put_word(words[15]);
 }
 
 static void bitcoin_hasher_begin(bitcoin_hasher_t *hasher,
@@ -125,6 +164,7 @@ static void bitcoin_hasher_begin(bitcoin_hasher_t *hasher,
     bootrom_acquire_lock_blocking(BOOTROM_LOCK_SHA_256);
     hasher->locked = true;
     sha256_set_bswap(true);
+    sha256_err_not_ready_clear();
 }
 
 static void bitcoin_hasher_end(bitcoin_hasher_t *hasher) {
@@ -134,26 +174,33 @@ static void bitcoin_hasher_end(bitcoin_hasher_t *hasher) {
     }
 }
 
-static bool bitcoin_hasher_hash_nonce(bitcoin_hasher_t *hasher,
-                                      uint32_t nonce,
-                                      uint8_t hash[HASH_BYTES]) {
-    sha256_result_t first_hash;
-    sha256_result_t final_hash;
-    uint8_t *header_bytes = (uint8_t *)hasher->header_blocks;
-    uint8_t *second_bytes = (uint8_t *)hasher->second_block;
+static inline __attribute__((always_inline)) bool bitcoin_hasher_hash_nonce(
+    bitcoin_hasher_t *hasher,
+    uint32_t nonce) {
+    // The RP2350 bus and serialized Bitcoin nonce are both little-endian.
+    hasher->header_blocks[NONCE_OFFSET / sizeof(uint32_t)] = nonce;
 
-    write_le32(&header_bytes[NONCE_OFFSET], nonce);
-    sha256_process_words(hasher->header_blocks, 32u, &first_hash);
-    if (sha256_err_not_ready()) {
-        return false;
+    sha256_start();
+    sha256_write_block(&hasher->header_blocks[0]);
+    sha256_write_block(&hasher->header_blocks[16]);
+    sha256_wait_valid_blocking();
+    for (size_t i = 0; i < 8u; ++i) {
+        // Store digest bytes in SHA-256's conventional big-endian order so
+        // BSWAP converts the next block correctly as it enters the engine.
+        hasher->second_block[i] = __builtin_bswap32(sha256_hw->sum[i]);
     }
-    memcpy(second_bytes, first_hash.bytes, HASH_BYTES);
-    sha256_process_words(hasher->second_block, 16u, &final_hash);
-    if (sha256_err_not_ready()) {
-        return false;
+
+    sha256_start();
+    sha256_write_block(hasher->second_block);
+    sha256_wait_valid_blocking();
+    return !sha256_err_not_ready();
+}
+
+static inline __attribute__((always_inline)) void capture_current_hash(
+    sha256_result_t *hash) {
+    for (size_t i = 0; i < 8u; ++i) {
+        hash->words[i] = __builtin_bswap32(sha256_hw->sum[i]);
     }
-    memcpy(hash, final_hash.bytes, HASH_BYTES);
-    return true;
 }
 
 // Expand Bitcoin's nBits representation into a little-endian uint256 target.
@@ -184,13 +231,16 @@ static bool compact_to_target_le(uint32_t compact, uint8_t target[HASH_BYTES]) {
 }
 
 // The hardware digest byte array is Bitcoin's little-endian uint256 storage.
-static bool hash_meets_target(const uint8_t hash[HASH_BYTES],
-                              const uint8_t target_le[HASH_BYTES]) {
-    for (int i = (int)HASH_BYTES - 1; i >= 0; --i) {
-        if (hash[i] < target_le[i]) {
+static inline __attribute__((always_inline)) bool current_hash_meets_target(
+    const sha256_result_t *target_le) {
+    // Compare the most-significant little-endian word first. Nearly every
+    // difficulty-1 candidate is rejected after reading only SUM7.
+    for (int i = 7; i >= 0; --i) {
+        const uint32_t hash_word = __builtin_bswap32(sha256_hw->sum[i]);
+        if (hash_word < target_le->words[i]) {
             return true;
         }
-        if (hash[i] > target_le[i]) {
+        if (hash_word > target_le->words[i]) {
             return false;
         }
     }
@@ -211,22 +261,24 @@ static bool check_vector(const char *name,
 static bool run_known_answer_tests(void) {
     bool passed = true;
     static const uint8_t abc[] = {'a', 'b', 'c'};
-    uint8_t hash[HASH_BYTES] = {0};
-    uint8_t target[HASH_BYTES];
+    sha256_result_t hash = {0};
+    sha256_result_t target;
     bitcoin_hasher_t hasher;
 
     passed &= check_vector("nist_empty", NULL, 0u, sha256_empty);
     passed &= check_vector("nist_abc", abc, sizeof(abc), sha256_abc);
 
     bitcoin_hasher_begin(&hasher, genesis_header);
-    const bool genesis_passed = bitcoin_hasher_hash_nonce(&hasher, 2083236893u, hash)
-                                && memcmp(hash, genesis_hash_raw, HASH_BYTES) == 0;
+    const bool genesis_hashed = bitcoin_hasher_hash_nonce(&hasher, 2083236893u);
+    capture_current_hash(&hash);
+    const bool genesis_passed = genesis_hashed
+                                && memcmp(hash.bytes, genesis_hash_raw, HASH_BYTES) == 0;
     printf("TEST:%s kat=bitcoin_genesis hash=", genesis_passed ? "PASS" : "FAIL");
-    print_bitcoin_hash(hash);
+    print_bitcoin_hash(hash.bytes);
     printf("\n");
     passed &= genesis_passed;
 
-    const bool target_valid = compact_to_target_le(0x1d00ffffu, target);
+    const bool target_valid = compact_to_target_le(0x1d00ffffu, target.bytes);
     const uint32_t first_nonce = 2083236800u;
     const uint32_t expected_nonce = 2083236893u;
     uint32_t found_nonce = 0u;
@@ -235,22 +287,23 @@ static bool run_known_answer_tests(void) {
     if (target_valid) {
         for (uint32_t nonce = first_nonce; nonce <= expected_nonce; ++nonce) {
             ++attempts;
-            if (!bitcoin_hasher_hash_nonce(&hasher, nonce, hash)) {
+            if (!bitcoin_hasher_hash_nonce(&hasher, nonce)) {
                 break;
             }
-            if (hash_meets_target(hash, target)) {
+            if (current_hash_meets_target(&target)) {
                 found_nonce = nonce;
                 found = true;
+                capture_current_hash(&hash);
                 break;
             }
         }
     }
     const bool mining_passed = found && found_nonce == expected_nonce
-                               && memcmp(hash, genesis_hash_raw, HASH_BYTES) == 0;
+                               && memcmp(hash.bytes, genesis_hash_raw, HASH_BYTES) == 0;
     printf("TEST:%s kat=bitcoin_nonce_search nonce=%" PRIu32
            " attempts=%" PRIu32 " hash=",
            mining_passed ? "PASS" : "FAIL", found_nonce, attempts);
-    print_bitcoin_hash(hash);
+    print_bitcoin_hash(hash.bytes);
     printf("\n");
     passed &= mining_passed;
     bitcoin_hasher_end(&hasher);
@@ -258,41 +311,47 @@ static bool run_known_answer_tests(void) {
 }
 
 static void run_benchmark(void) {
-    uint8_t hash[HASH_BYTES];
     bitcoin_hasher_t hasher;
     uint32_t nonce = 0u;
     uint64_t hashes = 0u;
     volatile uint8_t checksum = 0u;
     bitcoin_hasher_begin(&hasher, genesis_header);
+    const int32_t temperature_start_mc = read_die_temperature_mc();
+    const uint16_t temperature_start_raw = temperature_last_raw;
 
     const uint64_t started_us = time_us_64();
     uint64_t elapsed_us;
     do {
         for (uint32_t i = 0; i < BENCHMARK_BATCH; ++i) {
-            if (!bitcoin_hasher_hash_nonce(&hasher, nonce++, hash)) {
+            if (!bitcoin_hasher_hash_nonce(&hasher, nonce++)) {
                 printf("FAULT type=sha256_hardware benchmark=1\n");
                 bitcoin_hasher_end(&hasher);
                 return;
             }
-            checksum ^= hash[0];
+            checksum ^= (uint8_t)(sha256_hw->sum[0] >> 24u);
             ++hashes;
         }
         elapsed_us = time_us_64() - started_us;
     } while (elapsed_us < BENCHMARK_MIN_US);
     bitcoin_hasher_end(&hasher);
+    const int32_t temperature_end_mc = read_die_temperature_mc();
+    const uint16_t temperature_end_raw = temperature_last_raw;
 
     const uint64_t rate = (hashes * 1000000ull + elapsed_us / 2u) / elapsed_us;
     printf("BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256"
-           " path=direct-padded-blocks"
+           " path=direct-unrolled-o3-lazy-result-tempdiag24"
            " arch=%s clock_hz=%" PRIu32 " hashes=%" PRIu64
            " elapsed_us=%" PRIu64 " hash_rate_hs=%" PRIu64
-           " checksum=%02x\n",
-           CPU_ARCH, clock_get_hz(clk_sys), hashes, elapsed_us, rate, checksum);
+           " checksum=%02x temp_start_mc=%" PRId32 " temp_end_mc=%" PRId32
+           " temp_start_raw=%u temp_end_raw=%u\n",
+           CPU_ARCH, clock_get_hz(clk_sys), hashes, elapsed_us, rate, checksum,
+           temperature_start_mc, temperature_end_mc,
+           temperature_start_raw, temperature_end_raw);
 }
 
 static void mine_forever(uint led_pin) {
-    uint8_t hash[HASH_BYTES];
-    uint8_t target[HASH_BYTES];
+    sha256_result_t hash;
+    sha256_result_t target;
     bitcoin_hasher_t hasher;
     uint32_t nonce = 0u;
     uint32_t since_report = 0u;
@@ -300,7 +359,7 @@ static void mine_forever(uint led_pin) {
     uint64_t report_started_us = time_us_64();
     bool led_on = false;
 
-    if (!compact_to_target_le(0x1d00ffffu, target)) {
+    if (!compact_to_target_le(0x1d00ffffu, target.bytes)) {
         printf("FAULT type=invalid_compact_target bits=1d00ffff\n");
         return;
     }
@@ -309,7 +368,7 @@ static void mine_forever(uint led_pin) {
     printf("MINING:START header=bitcoin-genesis target_bits=1d00ffff start_nonce=0"
            " note=standalone-stale-work\n");
     while (true) {
-        if (!bitcoin_hasher_hash_nonce(&hasher, nonce, hash)) {
+        if (!bitcoin_hasher_hash_nonce(&hasher, nonce)) {
             printf("FAULT type=sha256_hardware nonce=%" PRIu32 "\n", nonce);
             bitcoin_hasher_end(&hasher);
             return;
@@ -317,9 +376,10 @@ static void mine_forever(uint led_pin) {
         ++total_hashes;
         ++since_report;
 
-        if (hash_meets_target(hash, target)) {
+        if (current_hash_meets_target(&target)) {
+            capture_current_hash(&hash);
             printf("SHARE:FOUND nonce=%" PRIu32 " hash=", nonce);
-            print_bitcoin_hash(hash);
+            print_bitcoin_hash(hash.bytes);
             printf(" total_hashes=%" PRIu64 "\n", total_hashes);
         }
         ++nonce;
@@ -329,9 +389,12 @@ static void mine_forever(uint led_pin) {
             const uint64_t elapsed_us = now_us - report_started_us;
             const uint64_t rate = ((uint64_t)since_report * 1000000ull
                                    + elapsed_us / 2u) / elapsed_us;
+            const int32_t temperature_mc = read_die_temperature_mc();
             printf("MINING:PROGRESS arch=%s nonce=%" PRIu32
-                   " total_hashes=%" PRIu64 " hash_rate_hs=%" PRIu64 "\n",
-                   CPU_ARCH, nonce, total_hashes, rate);
+                   " total_hashes=%" PRIu64 " hash_rate_hs=%" PRIu64
+                   " temp_mc=%" PRId32 " temp_raw=%u\n",
+                   CPU_ARCH, nonce, total_hashes, rate, temperature_mc,
+                   temperature_last_raw);
             since_report = 0u;
             report_started_us = now_us;
             led_on = !led_on;
@@ -341,7 +404,9 @@ static void mine_forever(uint led_pin) {
 }
 
 int main(void) {
+    const bool clock_configured = set_sys_clock_khz(MINER_SYS_CLOCK_KHZ, false);
     stdio_init_all();
+    temperature_init();
 
     const uint led_pin = PICO_DEFAULT_LED_PIN;
     gpio_init(led_pin);
@@ -351,7 +416,19 @@ int main(void) {
     // Give the host time to enumerate USB CDC and attach the monitor. A fixed
     // delay also keeps headless operation independent of host DTR behaviour.
     sleep_ms(3500u);
+    if (!clock_configured) {
+        printf("FAULT type=system_clock requested_khz=%u\n", MINER_SYS_CLOCK_KHZ);
+        while (true) {
+            gpio_xor_mask(1u << led_pin);
+            sleep_ms(100u);
+        }
+    }
     printf("BOOT app=pico2_bitcoin_miner arch=%s engine=RP2350-SHA256\n", CPU_ARCH);
+    const int32_t boot_temperature_mc = read_die_temperature_mc();
+    printf("TEMP:BOOT source=rp2350-internal-adc approximate=1 temp_mc=%" PRId32
+           " temp_raw=%u adc_cs=%08" PRIx32 " adc_clock_hz=%" PRIu32 "\n",
+           boot_temperature_mc, temperature_last_raw, adc_hw->cs,
+           clock_get_hz(clk_adc));
 
     if (!run_known_answer_tests()) {
         printf("TEST:SUMMARY pass=0 fail=1\n");
