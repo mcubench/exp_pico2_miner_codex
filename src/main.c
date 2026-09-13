@@ -6,6 +6,7 @@
 
 #include "hardware/adc.h"
 #include "hardware/clocks.h"
+#include "hardware/structs/sysinfo.h"
 #include "pico/bootrom/lock.h"
 #include "pico/sha256.h"
 #include "pico/stdlib.h"
@@ -491,9 +492,19 @@ int main(void) {
             sleep_ms(100u);
         }
     }
+    const uint32_t chip_id = sysinfo_hw->chip_id;
+    const uint32_t package_sel = sysinfo_hw->package_sel;
     printf("BOOT app=pico2_bitcoin_miner board=miner_rp2350b package=RP2350B"
-           " arch=%s engine=RP2350-SHA256 adc_temp_channel=%u\n",
-           CPU_ARCH, ADC_TEMPERATURE_CHANNEL_NUM);
+           " arch=%s engine=RP2350-SHA256 adc_temp_channel=%u"
+           " sysinfo_package_sel=%" PRIu32 " chip_id=%08" PRIx32
+           " silicon_revision=%u\n",
+           CPU_ARCH, ADC_TEMPERATURE_CHANNEL_NUM, package_sel, chip_id,
+           rp2350_chip_version());
+    if (package_sel != 0u) {
+        printf("FAULT type=package_mismatch expected_sysinfo_package_sel=0"
+               " actual_sysinfo_package_sel=%" PRIu32 "\n",
+               package_sel);
+    }
     const temperature_measurement_t boot_temperature = read_die_temperature();
     printf("TEMP:BOOT source=rp2350-internal-adc approximate=1 temp_valid=%u"
            " temp_mc=%" PRId32 " temp_raw=%u temp_raw_min=%u temp_raw_max=%u"
