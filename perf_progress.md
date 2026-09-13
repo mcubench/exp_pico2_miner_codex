@@ -265,3 +265,27 @@ BOOT app=pico2_bitcoin_miner board=miner_rp2350b package=RP2350B arch=ARM-M33 en
 TEMP:BOOT source=rp2350-internal-adc approximate=1 temp_valid=0 temp_mc=-1479794 temp_raw=4095 temp_raw_min=4095 temp_raw_max=4095 adc_cs=00008703 adc_clock_hz=48000000 adc_channel=8
 FAULT type=temperature boot=1 temp_valid=0
 ```
+
+## 2026-09-13 — E00 hardware package-identity check: RP2350A reported
+
+- Experiment: `E00-sysinfo-package-identity-arm-02`
+- Change: read the RP2350's `SYSINFO.CHIP_ID` and `SYSINFO.PACKAGE_SEL`
+  registers directly at boot, before accepting the compile-time board target.
+- Build: ARM and RISC-V passed without warnings; ARM was flashed at 150 MHz.
+- Hardware identity result: `PACKAGE_SEL=1`, which the RP2350 datasheet defines
+  as QFN-60 / RP2350A. QFN-80 / RP2350B would report zero. Chip ID was
+  `0x30004927`; the SDK decoded silicon revision as `3`.
+- Performance and temperature: **not measured** in this attempt. The strict
+  package check emitted `FAULT` before temperature sampling or benchmarking.
+- Decision: the connected silicon's package identity conflicts with the stated
+  RP2350B target and explains why channel 8 produces conversion errors. Stop E00
+  until the physical board/chip identity is confirmed; do not bypass the check
+  or optimize against knowingly mismatched ADC/package configuration.
+- Firmware UF2 SHA-256:
+  `5acc7af668e0977e6f1b1844d7887a9834467381503085d9b6b287b3c85165c1`
+- Archived serial log: `logs/E00-sysinfo-package-identity-arm.log`
+
+```text
+BOOT app=pico2_bitcoin_miner board=miner_rp2350b package=RP2350B arch=ARM-M33 engine=RP2350-SHA256 adc_temp_channel=8 sysinfo_package_sel=1 chip_id=30004927 silicon_revision=3
+FAULT type=package_mismatch expected_sysinfo_package_sel=0 actual_sysinfo_package_sel=1
+```
