@@ -1,4 +1,16 @@
 #!/usr/bin/env bash
 
 set -euo pipefail
-exec python3 "$(dirname -- "$0")/monitor.py" "$@"
+
+monitor_script="$(cd -- "$(dirname -- "$0")" && pwd)/monitor.py"
+
+# Group changes normally require a new login. If the account has already been
+# added to dialout but this parent process predates that change, enter the group
+# just for the finite monitor command.
+if ! id -nG | tr ' ' '\n' | grep -qx dialout \
+    && id -nG "$(id -un)" | tr ' ' '\n' | grep -qx dialout; then
+    printf -v monitor_command '%q ' python3 "${monitor_script}" "$@"
+    exec sg dialout -c "${monitor_command}"
+fi
+
+exec python3 "${monitor_script}" "$@"

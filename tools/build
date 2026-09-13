@@ -12,7 +12,7 @@ case "${arch}" in
         ;;
     riscv)
         platform=rp2350-riscv
-        triple=riscv32-unknown-elf
+        triple=riscv32-pico-elf
         explicit_toolchain="${RISCV_TOOLCHAIN:-}"
         ;;
     *)
@@ -24,6 +24,8 @@ sdk="$(find_sdk)" || die "Pico SDK not found. Set PICO_SDK_PATH or install it un
 cmake_bin="$(find_cmake)" || die "CMake not found."
 ninja_bin="$(find_ninja)" || die "Ninja not found."
 toolchain="$(find_toolchain "${triple}" "${explicit_toolchain}")" || die "${triple} toolchain not found."
+picotool_bin="$(find_picotool)" || die "picotool not found."
+export PATH="$(dirname "${picotool_bin}"):${PATH}"
 build_dir="${PROJECT_ROOT}/build/${arch}"
 
 printf 'CONFIG arch=%s platform=%s\n' "${arch}" "${platform}"
@@ -33,6 +35,7 @@ printf 'CONFIG toolchain=%s\n' "${toolchain}"
 "${cmake_bin}" -S "${PROJECT_ROOT}" -B "${build_dir}" -G Ninja \
     -DCMAKE_MAKE_PROGRAM="${ninja_bin}" \
     -DCMAKE_BUILD_TYPE=Debug \
+    -DPICO_AGENT_DUAL_BUILD=ON \
     -DPICO_BOARD=pico2 \
     -DPICO_PLATFORM="${platform}" \
     -DPICO_SDK_PATH="${sdk}" \

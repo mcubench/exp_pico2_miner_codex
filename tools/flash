@@ -15,6 +15,6 @@ picotool_bin="$(find_picotool)" || die "picotool not found."
 
 printf 'FLASH image=%s\n' "${uf2}"
 if ! "${picotool_bin}" load -f -u -v -x "${uf2}"; then
-    die "Flashing failed. Check USB passthrough and Linux udev permissions; see ./tools/doctor."
+    die "Flashing failed. Check Linux permissions and, in a VM, capture both Pico runtime and BOOTSEL USB identities; see README.md."
 fi
 printf 'FLASH:PASS arch=%s\n' "${arch}"

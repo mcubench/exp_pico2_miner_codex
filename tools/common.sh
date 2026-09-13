@@ -64,5 +64,14 @@ find_picotool() {
         printf '%s\n' "${PICOTOOL}"
         return
     fi
-    find_program picotool "${PICO_HOME}/picotool/*/picotool"
+    if command -v picotool >/dev/null 2>&1; then
+        command -v picotool
+        return
+    fi
+    local managed
+    managed="$(newest_match "${PICO_HOME}/picotool/*/picotool/picotool")"
+    if [[ -z "${managed}" ]]; then
+        managed="$(newest_match "${PICO_HOME}/picotool/*/picotool")"
+    fi
+    [[ -n "${managed}" ]] && printf '%s\n' "${managed}"
 }

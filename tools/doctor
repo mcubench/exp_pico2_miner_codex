@@ -8,7 +8,7 @@ check() {
     local label="$1"
     shift
     local value
-    if value="$($@ 2>/dev/null)" && [[ -n "${value}" ]]; then
+    if value="$("$@" 2>/dev/null)" && [[ -n "${value}" ]]; then
         printf 'PASS %-20s %s\n' "${label}" "${value}"
     else
         printf 'FAIL %-20s missing\n' "${label}"
@@ -20,7 +20,7 @@ check "Pico SDK" find_sdk
 check "CMake" find_cmake
 check "Ninja" find_ninja
 check "ARM compiler" find_toolchain arm-none-eabi "${ARM_TOOLCHAIN:-}"
-check "RISC-V compiler" find_toolchain riscv32-unknown-elf "${RISCV_TOOLCHAIN:-}"
+check "RISC-V compiler" find_toolchain riscv32-pico-elf "${RISCV_TOOLCHAIN:-}"
 check "picotool" find_picotool
 
 if compgen -G '/dev/ttyACM*' >/dev/null; then
@@ -32,7 +32,7 @@ else
     failures=$((failures + 1))
 fi
 
-if id -nG | tr ' ' '\n' | grep -qx dialout; then
+if id -nG "$(id -un)" | tr ' ' '\n' | grep -qx dialout; then
     printf 'PASS %-20s user is a member\n' "dialout group"
 else
     printf 'FAIL %-20s user is not a member\n' "dialout group"

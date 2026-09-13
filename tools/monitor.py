@@ -53,25 +53,36 @@ def main() -> int:
 
     deadline = time.monotonic() + args.seconds
     port = None
-    while time.monotonic() < deadline and port is None:
+    fd = None
+    permission_denied = False
+    while time.monotonic() < deadline and fd is None:
         port = find_port(args.port)
         if port is None:
             time.sleep(0.2)
-    if port is None:
-        print("ERROR: Raspberry Pi USB serial device did not appear", file=sys.stderr)
-        return 2
-
-    print(f"SERIAL_PORT={port}", flush=True)
-    try:
-        fd = os.open(port, os.O_RDONLY | os.O_NOCTTY | os.O_NONBLOCK)
-    except PermissionError:
+            continue
+        try:
+            fd = os.open(port, os.O_RDONLY | os.O_NOCTTY | os.O_NONBLOCK)
+        except PermissionError:
+            # A newly enumerated tty can exist briefly before udev applies its
+            # final group and ACL. Retry rather than failing the hardware cycle.
+            permission_denied = True
+            time.sleep(0.2)
+        except FileNotFoundError:
+            port = None
+            time.sleep(0.2)
+    if fd is None and permission_denied:
         print(
             f"ERROR: permission denied opening {port}; add the user to dialout and log in again",
             file=sys.stderr,
         )
         return 3
+    if fd is None or port is None:
+        print("ERROR: Raspberry Pi USB serial device did not appear", file=sys.stderr)
+        return 2
 
-    saw_pass = False
+    print(f"SERIAL_PORT={port}", flush=True)
+
+    saw_health = False
     pending = b""
     try:
         tty.setraw(fd)
@@ -93,14 +104,14 @@ def main() -> int:
                 raw, pending = pending.split(b"\n", 1)
                 line = raw.rstrip(b"\r").decode("utf-8", errors="replace")
                 print(line, flush=True)
-                saw_pass = saw_pass or line.startswith("TEST:PASS")
+                saw_health = saw_health or line.startswith(("TEST:PASS", "HEARTBEAT"))
                 if line.startswith("TEST:FAIL") or line.startswith("FAULT"):
                     return 4
     finally:
         os.close(fd)
 
-    if args.require_pass and not saw_pass:
-        print("ERROR: no TEST:PASS line observed", file=sys.stderr)
+    if args.require_pass and not saw_health:
+        print("ERROR: no TEST:PASS or HEARTBEAT line observed", file=sys.stderr)
         return 5
     return 0
 

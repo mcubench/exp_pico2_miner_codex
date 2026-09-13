@@ -1,0 +1,13 @@
+{
+    "cmake.configureOnOpen": false,
+    "cmake.generator": "Ninja",
+    "raspberry-pi-pico.cmakeAutoConfigure": true,
+    "raspberry-pi-pico.useCmakeTools": false,
+    "raspberry-pi-pico.cmakePath": "${userHome}/.pico-sdk/cmake/v4.3.4/bin/cmake",
+    "raspberry-pi-pico.ninjaPath": "${userHome}/.pico-sdk/ninja/v1.13.2/ninja",
+    "terminal.integrated.env.linux": {
+        "PICO_SDK_PATH": "${env:HOME}/.pico-sdk/sdk/2.3.1",
+        "PICO_TOOLCHAIN_PATH": "${env:HOME}/.pico-sdk/toolchain/15_2_Rel1",
+        "PATH": "${env:HOME}/.pico-sdk/toolchain/15_2_Rel1/bin:${env:HOME}/.pico-sdk/picotool/2.3.1/picotool:${env:HOME}/.pico-sdk/cmake/v4.3.4/bin:${env:HOME}/.pico-sdk/ninja/v1.13.2:${env:PATH}"
+    }
+}
