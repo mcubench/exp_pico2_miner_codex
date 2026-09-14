@@ -1272,3 +1272,27 @@ TEST:SUMMARY pass=7 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=nonce-prep-overlap-e04b-e04e arch=RISCV-HAZARD3 clock_hz=150000000 hashes=660000 elapsed_us=2002235 hash_rate_hs=329632 checksum=16 temperature=disabled
 MINING:PROGRESS arch=RISCV-HAZARD3 nonce=700000 total_hashes=700000 hash_rate_hs=321048 temperature=disabled
 ```
+
+## 2026-09-14 — Retained E04-e RISC-V confirmation
+
+- Experiment: `E04e-retained-riscv-11-confirm`
+- Recovery/configuration: after reverting rejected E04-b, rebuilt both ISAs
+  and reproduced the accepted RISC-V E04-e UF2 byte-for-byte, then flashed it.
+- Validation: all seven test groups passed, including sticky-error semantics,
+  **4,096/4,096** oracle cases and **10/10** target cases; cycle passed.
+- Kernel benchmark: **330,357 H/s**, 661,000 hashes in 2,000,867 us, checksum
+  `6f` (first accepted run: 330,356 H/s).
+- Sustained mining: **321,051 H/s** at 600,000 hashes (first accepted run:
+  321,050 H/s).
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Firmware UF2 SHA-256:
+  `71731c6e02b1559165f59f6328d9be3b42509a0f463230a0ec5aaf3ce3e58c41`
+- Archived serial log: `logs/E04e-retained-riscv-confirm.log`
+- Decision: retain. The repeated result confirms the E04-e Hazard3 gain and
+  leaves the board running the known-good 150 MHz image.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-error-batched-e04e arch=RISCV-HAZARD3 clock_hz=150000000 hashes=661000 elapsed_us=2000867 hash_rate_hs=330357 checksum=6f temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=600000 total_hashes=600000 hash_rate_hs=321051 temperature=disabled
+```
