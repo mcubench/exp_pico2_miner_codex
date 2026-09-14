@@ -2288,3 +2288,28 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=38000 elapsed_us=2036924 hash_rate_hs=18656 checksum=1c temperature=disabled
 MINING:PROGRESS arch=RISCV-HAZARD3 worker_core=1 nonce=11400000 total_hashes=11400000 hash_rate_hs=340106 temperature=disabled
 ```
+
+## 2026-09-14 — E09-a portable software midstate, ARM baseline
+
+- Experiment: `E09a-software-midstate-arm-30`.
+- Same candidate commit `dc11e82` and exact two-compression workload as the
+  RISC-V run. All 4,096 host-oracle vectors matched hardware and software; all
+  7 suites and the full cycle passed without faults.
+- Software benchmark: **18,946 H/s**, `38000` hashes in `2005701 us`, checksum
+  `1c`. This is only **1.55%** faster than RISC-V's 18,656 H/s.
+- Hardware benchmark: **330,354 H/s**. Sustained core1 hardware mining remained
+  **327,471 H/s** through 11.1 million hashes.
+- Candidate ARM UF2 SHA-256:
+  `3b65af6c048498d5022df1d0437ee260fdaa9ed7ebf7106986b43662c3ecc39a`.
+- Code-size cost versus E08 ARM: 1,624 bytes of ELF text.
+- Archived serial log: `logs/E09a-software-midstate-arm.log`.
+- Decision: retain the correct E09-a reference implementation, but optimize
+  it before dual-worker integration. The portable round/schedule loop leaves
+  substantial CPU opportunity on both ISAs.
+
+```text
+TEST:PASS kat=optimized_oracle engines=hardware,software-midstate cases=4096 fixture_sha256=4cf1f1db9d05f9208b74edec0f616497a286269e73a1e89747fed60ac5648f98
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=38000 elapsed_us=2005701 hash_rate_hs=18946 checksum=1c temperature=disabled
+MINING:PROGRESS arch=ARM-M33 worker_core=1 nonce=11000000 total_hashes=11000000 hash_rate_hs=327475 temperature=disabled
+```
