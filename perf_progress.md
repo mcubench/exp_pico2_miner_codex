@@ -1244,3 +1244,31 @@ TEST:SUMMARY pass=7 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=nonce-prep-overlap-e04b-e04e arch=ARM-M33 clock_hz=150000000 hashes=658000 elapsed_us=2000590 hash_rate_hs=328903 checksum=bb temperature=disabled
 MINING:PROGRESS arch=ARM-M33 nonce=700000 total_hashes=700000 hash_rate_hs=313715 temperature=disabled
 ```
+
+## 2026-09-14 — E04-b next-nonce preparation overlap: RISC-V at 150 MHz
+
+- Experiment: `E04b-nonce-overlap-riscv-10-reject`
+- Configuration: matched nonce-preparation overlap candidate on Hazard3, with
+  E04-e report-boundary sticky-error checks retained.
+- Validation: all seven test groups passed, including **4,096/4,096** oracle
+  cases and **10/10** target cases; cycle `CYCLE:PASS`.
+- Kernel benchmark: **329,632 H/s**, 660,000 hashes in 2,002,235 us, checksum
+  `16`; estimated **455.05 cycles/hash**.
+- Sustained mining: **321,048 H/s** at 700,000 hashes.
+- Relative to accepted E04-e RISC-V (330,356 benchmark; 321,050 sustained):
+  **-0.22% benchmark, -0.001% sustained**.
+- Interpretation: explicit next-nonce preparation does not expose a useful
+  compression gap on Hazard3; sustained code was already effectively
+  overlapped and benchmark layout became slightly worse.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Firmware UF2 SHA-256:
+  `dd5944577b52144bfa9a3b29ea53e068db157fca84fd24154140a50f2e3129f6`
+- Archived serial log: `logs/E04b-nonce-overlap-riscv.log`
+- Decision: reject E04-b for both architectures and revert to the accepted
+  E04-e implementation.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=nonce-prep-overlap-e04b-e04e arch=RISCV-HAZARD3 clock_hz=150000000 hashes=660000 elapsed_us=2002235 hash_rate_hs=329632 checksum=16 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=700000 total_hashes=700000 hash_rate_hs=321048 temperature=disabled
+```
