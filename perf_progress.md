@@ -266,6 +266,39 @@ TEMP:BOOT source=rp2350-internal-adc approximate=1 temp_valid=0 temp_mc=-1479794
 FAULT type=temperature boot=1 temp_valid=0
 ```
 
+## 2026-09-14 — E00 all-channel ADC isolation: ADC subsystem unavailable
+
+- Experiment: `E00-rp2350a-all-adc-arm-04`
+- Change: sample every RP2350A ADC mux input (GPIO channels 0–3 and internal
+  temperature channel 4), eight conversions per channel, after disabling the
+  corresponding GPIO digital functions. Record status before and during each
+  acquisition.
+- Build: ARM and RISC-V passed without warnings; ARM was flashed at 150 MHz.
+- Result: **all five channels failed identically**. Every conversion returned
+  raw 4095 and set both current/sticky ADC conversion errors. Channel 3, which
+  is VSYS/3 on an official Pico 2, failed exactly like the temperature channel.
+- Temperature: **unavailable** (`temperature_valid=0`); no temperature value is
+  accepted from these samples.
+- Performance: **not measured** because this diagnostic still used the strict
+  boot thermal gate.
+- Conclusion: the failure is ADC-wide, not a temperature mux/channel bug.
+  Likely physical causes include absent/incorrect ADC_AVDD/reference wiring on
+  the carrier or faulty ADC hardware. Continue stock-150-MHz software/hash
+  experiments with explicit invalid-temperature telemetry, but block thermal
+  qualification and all further overclocking until hardware ADC operation is
+  restored or an external sensor is provided.
+- Firmware UF2 SHA-256:
+  `ff0f4e8544ddeb82bdc824eaa60db479659985830167d50711d4238af7dbe138`
+- Archived serial log: `logs/E00-rp2350a-all-adc-channels-invalid.log`
+
+```text
+ADC:DIAG channel=0 kind=gpio samples=8 raw_mean=4095 raw_min=4095 raw_max=4095 cs_before=00000703 cs_or=00000703
+ADC:DIAG channel=1 kind=gpio samples=8 raw_mean=4095 raw_min=4095 raw_max=4095 cs_before=00001703 cs_or=00001703
+ADC:DIAG channel=2 kind=gpio samples=8 raw_mean=4095 raw_min=4095 raw_max=4095 cs_before=00002703 cs_or=00002703
+ADC:DIAG channel=3 kind=gpio samples=8 raw_mean=4095 raw_min=4095 raw_max=4095 cs_before=00003703 cs_or=00003703
+ADC:DIAG channel=4 kind=temperature samples=8 raw_mean=4095 raw_min=4095 raw_max=4095 cs_before=00004703 cs_or=00004703
+```
+
 ## 2026-09-13 — E00 hardware package-identity check: RP2350A reported
 
 - Experiment: `E00-sysinfo-package-identity-arm-02`
