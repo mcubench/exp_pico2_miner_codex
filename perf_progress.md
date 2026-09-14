@@ -1114,6 +1114,33 @@ TEST:FAIL kat=sha_error_sticky cases=3 latched=0 survived_start=0 cleared=1
 TEST:FAIL kat=sha_error_sticky cases=4 observed_not_ready=1 latched=0 survived_start=0 cleared=1
 ```
 
+## 2026-09-14 — Sticky-error self-test fix attempt 2 failed on ARM
+
+- Experiment: `sticky-error-stimulus-fix2-arm-fail`
+- Candidate commit: `a6092cd`.
+- Change: after observing `WDATA_RDY=0` and issuing the deliberate invalid
+  store, poll `ERR_WDATA_NOT_RDY` up to 1,024 times; wait for ready before the
+  subsequent START persistence check.
+- Build/flash: both builds passed without warnings; ARM flash and verify
+  passed.
+- Runtime result: identical failure,
+  `observed_not_ready=1 latched=0 survived_start=0 cleared=1`; therefore **no
+  valid benchmark**.
+- Diagnosis: a single CPU store is not a reliable error stimulus even when
+  software observes the ready bit low. The installed Pico SDK 2.3.1 test uses
+  a long unpaced burst (2,500 word stores from a 10,000-byte buffer) and only
+  checks the flag after waiting for ready. Reproduce that documented SDK test
+  pattern with a bounded local burst rather than relying on a single store.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- ARM UF2 SHA-256:
+  `e955fe54cf8d2472ded57edbe1d29dbebceb1a277a65d5bd7947564234a9a231`
+- Archived serial log: `logs/sticky-error-latch-poll-arm-fail.log`
+- Decision: reject fix attempt 2 and switch to the SDK's tested error stimulus.
+
+```text
+TEST:FAIL kat=sha_error_sticky cases=4 observed_not_ready=1 latched=0 survived_start=0 cleared=1
+```
+
 ## 2026-09-14 — E05 source-only LTO: RISC-V at 150 MHz
 
 - Experiment: `E05-source-lto-riscv-03`
