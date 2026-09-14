@@ -1424,6 +1424,36 @@ BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-
 MINING:PROGRESS arch=RISCV-HAZARD3 nonce=500000 total_hashes=500000 hash_rate_hs=333171 temperature=disabled
 ```
 
+## 2026-09-14 — E04 post-START ready-poll removal, ARM confirmation
+
+- Experiment: `E04-start-ready-poll-removal-19-arm-confirm-retain`
+- Artifact: identical commit `60aa7ec` and UF2 to ARM run 1.
+- Validation: both builds passed without warnings. All seven ARM test groups,
+  the sticky-error proof, **4,096/4,096** oracle cases and **10/10** target
+  cases passed again; cycle passed with no SHA fault.
+- Kernel benchmark: **331,819 H/s**, 664,000 hashes in 2,001,092 us, checksum
+  `37`; within 1 H/s of run 1 and **+2.43%** over the retained predecessor.
+- Sustained mining: **321,791 H/s** at 500,000 hashes; within 2 H/s of run 1
+  and **+0.43%** over the retained predecessor.
+- Paired retained result: RISC-V repeated at 339,326–339,327 H/s kernel and
+  333,152–333,171 H/s sustained; ARM repeated at 331,818–331,819 H/s kernel
+  and 321,789–321,791 H/s sustained.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- ARM UF2 SHA-256:
+  `69aa6d486464bdc411aa5c661021b8483b67ddd557d4cbc657e95020c5f593e2`
+- RISC-V UF2 SHA-256:
+  `046d49334a9648833b3b58668124e09e52c8acbc82bfd46f724fc93ecbfa7f71`
+- Archived serial log: `logs/E04-start-ready-poll-removal-arm-confirm.log`
+- Decision: retain on both architectures. Explicit START plus ordered MMIO
+  establishes the first-write state; inter-block/valid waits and sticky error
+  detection remain. Both architectures reproduce the gain without errors.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=150000000 hashes=664000 elapsed_us=2001092 hash_rate_hs=331819 checksum=37 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=500000 total_hashes=500000 hash_rate_hs=321791 temperature=disabled
+```
+
 ## 2026-09-14 — E05 Hazard3 branch-cost hint, run 1
 
 - Experiment: `E05-riscv-branch-cost1-13-run1`
