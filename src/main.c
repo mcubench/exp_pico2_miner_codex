@@ -740,7 +740,11 @@ static MINING_LOOP_OPTIONS void mining_worker_core1(void) {
                 multicore_fifo_push_blocking(hash.words[word]);
             }
         }
-        ++nonce;
+        nonce += 2u;
+        if (nonce == 0u) {
+            bitcoin_hasher_end(&hasher);
+            mining_worker_fault(3u, nonce, since_report);
+        }
 
         if (since_report == MINING_REPORT_INTERVAL) {
 #ifdef __riscv
@@ -766,21 +770,66 @@ static MINING_LOOP_OPTIONS void mining_worker_core1(void) {
 
 static void mine_forever(uint led_pin) {
     bool led_on = false;
+    sha256_result_t software_hash;
+    sha256_result_t target;
+    software_bitcoin_hasher_t software_hasher;
+    uint32_t software_nonce = 1u;
+    uint64_t software_hashes = 0u;
+    uint64_t hardware_hashes = 0u;
+    uint64_t software_started_us;
+
+    if (!compact_to_target_le(0x1d00ffffu, target.bytes)) {
+        printf("FAULT type=invalid_compact_target worker_core=0\n");
+        return;
+    }
+    software_bitcoin_hasher_begin(&software_hasher, genesis_header);
     multicore_fifo_drain();
-    printf("MINING:START header=bitcoin-genesis target_bits=1d00ffff start_nonce=0"
-           " worker_core=1 note=standalone-stale-work\n");
+    printf("MINING:START header=bitcoin-genesis target_bits=1d00ffff"
+           " hardware_core=1 hardware_nonce_start=0 hardware_nonce_stride=2"
+           " software_core=0 software_nonce_start=1 software_nonce_stride=2"
+           " note=standalone-stale-work\n");
     multicore_launch_core1(mining_worker_core1);
+    software_started_us = time_us_64();
 
     while (true) {
+        software_bitcoin_hash_nonce(&software_hasher, software_nonce,
+                                    software_hash.bytes);
+        ++software_hashes;
+        if (hash_words_meet_target(&software_hash, &target)) {
+            printf("SHARE:FOUND worker=software core=0 nonce=%" PRIu32 " hash=",
+                   software_nonce);
+            print_bitcoin_hash(software_hash.bytes);
+            printf(" software_hashes=%" PRIu64 "\n", software_hashes);
+        }
+        software_nonce += 2u;
+        if (software_nonce == 1u) {
+            printf("FAULT type=nonce_exhausted worker=software core=0\n");
+            return;
+        }
+        if (!multicore_fifo_rvalid()) {
+            continue;
+        }
+
         const uint32_t message = multicore_fifo_pop_blocking();
         if (message == MINING_MESSAGE_PROGRESS) {
             const uint32_t nonce = multicore_fifo_pop_blocking();
-            const uint64_t total_hashes = mining_fifo_pop_u64();
-            const uint64_t rate = mining_fifo_pop_u64();
-            printf("MINING:PROGRESS arch=%s worker_core=1 nonce=%" PRIu32
+            hardware_hashes = mining_fifo_pop_u64();
+            const uint64_t hardware_rate = mining_fifo_pop_u64();
+            const uint64_t software_elapsed_us =
+                time_us_64() - software_started_us;
+            const uint64_t software_rate =
+                (software_hashes * 1000000ull + software_elapsed_us / 2u)
+                / software_elapsed_us;
+            printf("MINING:PROGRESS arch=%s hardware_core=1 hardware_nonce=%" PRIu32
+                   " hardware_hashes=%" PRIu64 " hardware_rate_hs=%" PRIu64
+                   " software_core=0 software_nonce=%" PRIu32
+                   " software_hashes=%" PRIu64 " software_rate_hs=%" PRIu64
                    " total_hashes=%" PRIu64 " hash_rate_hs=%" PRIu64
                    " temperature=disabled\n",
-                   CPU_ARCH, nonce, total_hashes, rate);
+                   CPU_ARCH, nonce, hardware_hashes, hardware_rate,
+                   software_nonce, software_hashes, software_rate,
+                   hardware_hashes + software_hashes,
+                   hardware_rate + software_rate);
             led_on = !led_on;
             gpio_put(led_pin, led_on);
         } else if (message == MINING_MESSAGE_SHARE) {
@@ -790,7 +839,8 @@ static void mine_forever(uint led_pin) {
             for (size_t word = 0u; word < 8u; ++word) {
                 hash.words[word] = multicore_fifo_pop_blocking();
             }
-            printf("SHARE:FOUND nonce=%" PRIu32 " hash=", nonce);
+            printf("SHARE:FOUND worker=hardware core=1 nonce=%" PRIu32 " hash=",
+                   nonce);
             print_bitcoin_hash(hash.bytes);
             printf(" total_hashes=%" PRIu64 "\n", total_hashes);
         } else if (message == MINING_MESSAGE_FAULT) {
@@ -799,7 +849,9 @@ static void mine_forever(uint led_pin) {
             const uint32_t invalid_batch = multicore_fifo_pop_blocking();
             printf("FAULT type=%s worker_core=1 nonce=%" PRIu32
                    " invalid_batch=%" PRIu32 "\n",
-                   code == 1u ? "invalid_compact_target" : "sha256_hardware",
+                   code == 1u ? "invalid_compact_target"
+                              : (code == 2u ? "sha256_hardware"
+                                            : "nonce_exhausted"),
                    nonce, invalid_batch);
             while (true) {
                 gpio_xor_mask64(1ull << led_pin);
