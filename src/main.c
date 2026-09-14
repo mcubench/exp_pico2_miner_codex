@@ -14,8 +14,10 @@ _Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
 
 #ifdef __riscv
 #define CPU_ARCH "RISCV-HAZARD3"
+#define BENCHMARK_PATH "sticky-error-batched-e04e"
 #else
 #define CPU_ARCH "ARM-M33"
+#define BENCHMARK_PATH "batched-accounting-e04c"
 #endif
 
 #define BITCOIN_HEADER_BYTES 80u
@@ -470,15 +472,25 @@ static bool run_benchmark(void) {
     uint64_t elapsed_us;
     do {
         for (uint32_t i = 0; i < BENCHMARK_BATCH; ++i) {
+#ifdef __riscv
             bitcoin_hasher_hash_nonce_unchecked(&hasher, nonce++);
+#else
+            if (!bitcoin_hasher_hash_nonce(&hasher, nonce++)) {
+                printf("FAULT type=sha256_hardware benchmark=1\n");
+                bitcoin_hasher_end(&hasher);
+                return false;
+            }
+#endif
             checksum ^= (uint8_t)(sha256_hw->sum[0] >> 24u);
         }
+#ifdef __riscv
         if (sha256_err_not_ready()) {
             printf("FAULT type=sha256_hardware benchmark=1"
                    " invalid_batch=%u\n", BENCHMARK_BATCH);
             bitcoin_hasher_end(&hasher);
             return false;
         }
+#endif
         hashes += BENCHMARK_BATCH;
         elapsed_us = time_us_64() - started_us;
     } while (elapsed_us < BENCHMARK_MIN_US);
@@ -486,7 +498,7 @@ static bool run_benchmark(void) {
 
     const uint64_t rate = (hashes * 1000000ull + elapsed_us / 2u) / elapsed_us;
     printf("BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256"
-           " path=sticky-error-batched-e04e"
+           " path=" BENCHMARK_PATH
            " arch=%s clock_hz=%" PRIu32 " hashes=%" PRIu64
            " elapsed_us=%" PRIu64 " hash_rate_hs=%" PRIu64
            " checksum=%02x temperature=disabled\n",
