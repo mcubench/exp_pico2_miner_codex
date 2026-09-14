@@ -2437,3 +2437,29 @@ MINING:PROGRESS arch=ARM-M33 worker_core=1 nonce=3000000 total_hashes=3000000 ha
 TEST:SUMMARY pass=7 fail=0
 MINING:PROGRESS arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=9000000 hardware_hashes=4500000 hardware_rate_hs=336758 software_core=0 software_nonce=524241 software_hashes=262120 software_rate_hs=19608 total_hashes=4762120 hash_rate_hs=356366 temperature=disabled
 ```
+
+## 2026-09-14 — E10-a independent hardware + software workers, ARM
+
+- Experiment: `E10a-dual-worker-arm-36`.
+- Same candidate commit `61a3913`; hardware uses even nonces on core 1 and
+  software uses odd nonces on core 0. Both builds were clean, all 4,096
+  cross-engine oracle cases and all 7 suites passed, and no fault occurred.
+- Representative sustained rates: hardware **323,961 H/s**, software
+  **24,526 H/s**, aggregate **348,487 H/s**. Most settled aggregate reports are
+  approximately 348.4–348.5 kH/s.
+- Versus E08 ARM hardware-only sustained 327,469 H/s: aggregate **+6.42%**
+  (+21,018 H/s). The hardware worker loses about 1.1%, while the active
+  software/control core contributes about 24.5 kH/s net.
+- Startup isolated benchmarks: hardware **331,083 H/s**, software
+  **26,444 H/s**.
+- Candidate ARM UF2 SHA-256:
+  `b846356adc884b59e201eb58268e5b294d36253c298a3d19b706aafc2e3800fb`.
+- Archived serial log: `logs/E10a-dual-worker-arm.log`.
+- Decision: retain E10-a for both architectures. RISC-V remains the fastest
+  homogeneous aggregate at about 356.4 kH/s; revisit SRAM placement because
+  the dual-core XIP workload now introduces the contention absent in E07.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+MINING:PROGRESS arch=ARM-M33 hardware_core=1 hardware_nonce=9000000 hardware_hashes=4500000 hardware_rate_hs=323961 software_core=0 software_nonce=681461 software_hashes=340730 software_rate_hs=24526 total_hashes=4840730 hash_rate_hs=348487 temperature=disabled
+```
