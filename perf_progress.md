@@ -2313,3 +2313,28 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=38000 elapsed_us=2005701 hash_rate_hs=18946 checksum=1c temperature=disabled
 MINING:PROGRESS arch=ARM-M33 worker_core=1 nonce=11000000 total_hashes=11000000 hash_rate_hs=327475 temperature=disabled
 ```
+
+## 2026-09-14 — E09-b1 software round-loop unrolling, RISC-V
+
+- Experiment: `E09b1-unroll-riscv-31`.
+- Candidate commit: `9b1c228`. Only `software_sha256_compress()` receives the
+  compiler's `unroll-loops` function option; algorithm and workload are
+  unchanged from E09-a.
+- Both architectures built cleanly. All 4,096 hardware/software oracle cases
+  and all 7 test suites passed on RISC-V; no fault occurred.
+- Software benchmark: **19,005 H/s**, `39000` hashes in `2052070 us`, checksum
+  `2c`. Versus E09-a RISC-V 18,656 H/s: **+1.87%** (+349 H/s).
+- Hardware benchmark: **344,780 H/s**; sustained hardware mining remained
+  **340,120 H/s**.
+- Candidate RISC-V UF2 SHA-256:
+  `94809f10022dd767c328d0fe2571bc2d7abed69baaf2c1674125ca3f5f3ff18d`.
+- Text-size increase over E09-a: 248 bytes on RISC-V, 160 bytes on ARM.
+- Archived serial log: `logs/E09b1-unroll-riscv.log`.
+- Decision: provisional retain; small positive gain at low complexity. Measure
+  ARM before making the attribute architecture-specific or shared.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=39000 elapsed_us=2052070 hash_rate_hs=19005 checksum=2c temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 worker_core=1 nonce=3000000 total_hashes=3000000 hash_rate_hs=340118 temperature=disabled
+```
