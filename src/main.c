@@ -69,8 +69,6 @@ static const uint8_t sha256_abc[HASH_BYTES] = {
 typedef struct bitcoin_hasher {
     // An 80-byte Bitcoin header occupies two padded SHA-256 blocks.
     uint32_t header_blocks[32];
-    // The intermediate 32-byte digest occupies one padded SHA-256 block.
-    uint32_t second_block[16];
     bool locked;
 } bitcoin_hasher_t;
 
@@ -130,8 +128,6 @@ static void bitcoin_hasher_begin(bitcoin_hasher_t *hasher,
     }
     hasher->header_blocks[20] = 0x80000000u;
     hasher->header_blocks[31] = BITCOIN_HEADER_BYTES * 8u;
-    hasher->second_block[8] = 0x80000000u;
-    hasher->second_block[15] = HASH_BYTES * 8u;
 
     bootrom_acquire_lock_blocking(BOOTROM_LOCK_SHA_256);
     hasher->locked = true;
@@ -158,14 +154,35 @@ static inline __attribute__((always_inline)) bool bitcoin_hasher_hash_nonce(
     sha256_write_block(&hasher->header_blocks[0]);
     sha256_write_block(&hasher->header_blocks[16]);
     sha256_wait_valid_blocking();
-    for (size_t i = 0; i < 8u; ++i) {
-        // SUM already holds numeric SHA words, exactly the representation
-        // required by the second compression when hardware BSWAP is disabled.
-        hasher->second_block[i] = sha256_hw->sum[i];
-    }
+    // Preserve the complete first digest before START resets the engine. The
+    // explicit locals allow both compilers to keep the handoff in registers.
+    const uint32_t digest0 = sha256_hw->sum[0];
+    const uint32_t digest1 = sha256_hw->sum[1];
+    const uint32_t digest2 = sha256_hw->sum[2];
+    const uint32_t digest3 = sha256_hw->sum[3];
+    const uint32_t digest4 = sha256_hw->sum[4];
+    const uint32_t digest5 = sha256_hw->sum[5];
+    const uint32_t digest6 = sha256_hw->sum[6];
+    const uint32_t digest7 = sha256_hw->sum[7];
 
     sha256_start();
-    sha256_write_block(hasher->second_block);
+    sha256_wait_ready_blocking();
+    sha256_put_word(digest0);
+    sha256_put_word(digest1);
+    sha256_put_word(digest2);
+    sha256_put_word(digest3);
+    sha256_put_word(digest4);
+    sha256_put_word(digest5);
+    sha256_put_word(digest6);
+    sha256_put_word(digest7);
+    sha256_put_word(0x80000000u);
+    sha256_put_word(0u);
+    sha256_put_word(0u);
+    sha256_put_word(0u);
+    sha256_put_word(0u);
+    sha256_put_word(0u);
+    sha256_put_word(0u);
+    sha256_put_word(HASH_BYTES * 8u);
     sha256_wait_valid_blocking();
     return !sha256_err_not_ready();
 }
@@ -403,7 +420,7 @@ static bool run_benchmark(void) {
 
     const uint64_t rate = (hashes * 1000000ull + elapsed_us / 2u) / elapsed_us;
     printf("BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256"
-           " path=direct-numeric-words-e03a"
+           " path=direct-register-handoff-e03b"
            " arch=%s clock_hz=%" PRIu32 " hashes=%" PRIu64
            " elapsed_us=%" PRIu64 " hash_rate_hs=%" PRIu64
            " checksum=%02x temperature=disabled\n",
