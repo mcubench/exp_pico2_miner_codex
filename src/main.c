@@ -11,10 +11,10 @@
 #include "pico/sha256.h"
 #include "pico/stdlib.h"
 
-_Static_assert(PICO_RP2350A == 0, "miner target must use the RP2350B package");
-_Static_assert(NUM_ADC_CHANNELS == 9, "RP2350B must expose nine ADC mux inputs");
-_Static_assert(ADC_TEMPERATURE_CHANNEL_NUM == 8,
-               "RP2350B temperature sensor must be ADC channel 8");
+_Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
+_Static_assert(NUM_ADC_CHANNELS == 5, "RP2350A must expose five ADC mux inputs");
+_Static_assert(ADC_TEMPERATURE_CHANNEL_NUM == 4,
+               "RP2350A temperature sensor must be ADC channel 4");
 
 #ifdef __riscv
 #define CPU_ARCH "RISCV-HAZARD3"
@@ -95,12 +95,9 @@ static void print_bitcoin_hash(const uint8_t hash[HASH_BYTES]) {
 }
 
 static void temperature_init(void) {
-    temperature_clock_configured = clock_configure(
-        clk_adc,
-        0u,
-        CLOCKS_CLK_ADC_CTRL_AUXSRC_VALUE_CLKSRC_PLL_USB,
-        USB_CLK_HZ,
-        USB_CLK_HZ);
+    // Pico SDK runtime initialization already configures clk_adc from the
+    // 48 MHz USB PLL. Avoid perturbing that known-good clock tree here.
+    temperature_clock_configured = clock_get_hz(clk_adc) == USB_CLK_HZ;
     adc_init();
     adc_set_temp_sensor_enabled(true);
     adc_select_input(ADC_TEMPERATURE_CHANNEL_NUM);
@@ -494,14 +491,14 @@ int main(void) {
     }
     const uint32_t chip_id = sysinfo_hw->chip_id;
     const uint32_t package_sel = sysinfo_hw->package_sel;
-    printf("BOOT app=pico2_bitcoin_miner board=miner_rp2350b package=RP2350B"
+    printf("BOOT app=pico2_bitcoin_miner board=pico2 package=RP2350A"
            " arch=%s engine=RP2350-SHA256 adc_temp_channel=%u"
            " sysinfo_package_sel=%" PRIu32 " chip_id=%08" PRIx32
            " silicon_revision=%u\n",
            CPU_ARCH, ADC_TEMPERATURE_CHANNEL_NUM, package_sel, chip_id,
            rp2350_chip_version());
-    if (package_sel != 0u) {
-        printf("FAULT type=package_mismatch expected_sysinfo_package_sel=0"
+    if (package_sel != 1u) {
+        printf("FAULT type=package_mismatch expected_sysinfo_package_sel=1"
                " actual_sysinfo_package_sel=%" PRIu32 "\n",
                package_sel);
     }

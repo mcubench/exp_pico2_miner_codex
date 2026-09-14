@@ -17,12 +17,9 @@ if (EXISTS ${picoVscode} AND NOT PICO_AGENT_DUAL_BUILD)
 endif()
 # ====================================================================================
 
-# These cache defaults remain overrideable by tools/build. The local board
-# header preserves the flash/LED settings already proven on the attached board
-# while selecting the correct RP2350B package definition.
-set(PICO_BOARD_HEADER_DIRS "${CMAKE_CURRENT_LIST_DIR}/boards" CACHE STRING
-    "Additional Pico board-header directories")
-set(PICO_BOARD miner_rp2350b CACHE STRING "Target board")
+# These cache defaults remain overrideable by tools/build. SYSINFO.PACKAGE_SEL
+# on the connected device identifies its package as QFN-60 / RP2350A.
+set(PICO_BOARD pico2 CACHE STRING "Target board")
 set(PICO_PLATFORM rp2350-arm-s CACHE STRING "RP2350 CPU architecture")
 
 include(pico_sdk_import.cmake)

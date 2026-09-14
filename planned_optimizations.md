@@ -1,8 +1,8 @@
-# RP2350B Bitcoin miner: optimization roadmap
+# RP2350A Bitcoin miner: optimization roadmap
 
 Date: 2026-09-13. Status: **plan only; none of the experiments below was implemented or measured while writing this document.**
 
-The user identifies the attached chip as **RP2350B**, not RP2350A. Treat that correction as authoritative. The exact carrier-board model, flash part, supply/reference arrangement, and silicon stepping still need identification. The package suffix B is not the silicon revision number. Do not assume this is the official Raspberry Pi Pico 2 board merely because the repository and USB workflow use that name.
+The connected chip is now treated as **RP2350A / QFN-60**. This supersedes the original RP2350B assumption: direct firmware readout reported `SYSINFO.PACKAGE_SEL=1`, which the RP2350 datasheet defines as QFN-60. The exact carrier-board model, supply/reference arrangement, and silicon stepping still matter. Package suffix A is distinct from the reported silicon revision `3`.
 
 Objective: maximize **correct, unique Bitcoin double-SHA-256 nonce evaluations per second**, with working USB control, reproducible validation, and valid temperature telemetry. Retain both `rp2350-arm-s` and `rp2350-riscv` builds. Report hash-kernel throughput separately from sustained mining throughput and from any microbenchmark.
 
@@ -26,7 +26,7 @@ Current code facts, from [src/main.c](src/main.c), [CMakeLists.txt](CMakeLists.t
 - Existing optimizations already include pre-padding, aligned nonce updates, 16 unrolled writes per block, readiness polling once per block, inlining, `-O3`, and reading only the necessary final-result words. Do not present these as new ideas.
 - Eight intermediate digest words are byte-swapped and copied through RAM. The benchmark performs a volatile byte checksum and 64-bit accounting. Mining does target checks, 64-bit accounting, ADC sampling, and USB printing on the same CPU.
 - Current system-clock default is 150 MHz. The benchmark lasts approximately two seconds; mining reports every 100,000 attempts. Startup has a fixed 3.5-second USB enumeration delay.
-- Both the CMake default and build wrapper select `PICO_BOARD=pico2`. SDK 2.3.1's `boards/pico2.h` defines `PICO_RP2350A=1`. This selects the wrong temperature channel for the user's RP2350B.
+- Both the CMake default and build wrapper select `PICO_BOARD=pico2`. SDK 2.3.1's `boards/pico2.h` defines `PICO_RP2350A=1`, matching the hardware package register. Temperature is therefore on ADC channel 4.
 - The wrapper specifies `Debug`, while the target adds `-O3`. Inspect actual compile/link commands, not just the build-type label. The historical log's introductory stock-clock claim and initial `Release` label are not reliable descriptions of every later experiment.
 - Current tests cover SHA empty/`abc`, genesis hashing, and genesis nonce search. The first two use the SDK path, not the optimized Bitcoin kernel. More coverage is needed before delicate optimizations.
 - `tools/monitor.py --require-pass` currently accepts a single health line. It does not require a complete test summary, the expected benchmark, or valid temperatures. A printed `CYCLE:PASS` alone is insufficient evidence.
@@ -35,7 +35,7 @@ Current code facts, from [src/main.c](src/main.c), [CMakeLists.txt](CMakeLists.t
 
 ### 2.1 Package, memory, CPUs, and instruction sets
 
-RP2350B's extra GPIO/ADC inputs do not provide extra SHA engines. It has two active processor sockets, not four simultaneously active CPUs. Homogeneous M33 or Hazard3 operation is the normal SDK workflow; mixed M33/Hazard3 operation is a separate advanced boot experiment. SRAM is 520 KiB: two 256 KiB striped groups plus two 4 KiB scratch banks. RP2040 unstriped aliases must not be copied into an RP2350 linker script. See the [RP2350 datasheet, sections 2.2.3 and 3.9](https://datasheets.raspberrypi.com/rp2350/rp2350-datasheet.pdf).
+RP2350A has 30 package GPIOs and five ADC mux inputs including the temperature sensor. It has two active processor sockets, not four simultaneously active CPUs. Homogeneous M33 or Hazard3 operation is the normal SDK workflow; mixed M33/Hazard3 operation is a separate advanced boot experiment. SRAM is 520 KiB: two 256 KiB striped groups plus two 4 KiB scratch banks. RP2040 unstriped aliases must not be copied into an RP2350 linker script. See the [RP2350 datasheet, sections 2.2.3 and 3.9](https://datasheets.raspberrypi.com/rp2350/rp2350-datasheet.pdf).
 
 Use the installed SDK's CPU configuration. Its RISC-V toolchain selection tries `-mcpu=hazard3-rp2350`, then supported `-march` alternatives. Useful RP2350 Hazard3 extensions include Zba, Zbb, Zbs, Zbkb, Zcb, and Zcmp. Zbkb is **not** a SHA-256 round instruction extension. Do not enable Zknh, RVV, or optional upstream Hazard3 features absent from this silicon. M33 has useful scalar rotate/byte-reverse instructions, but not NEON/MVE or Arm application-profile SHA instructions. Verify generated instructions and register pressure rather than guessing from architecture names. Consult the [Hazard3 implementation documentation](https://github.com/Wren6991/Hazard3) and installed SDK toolchain files listed in section 9.
 
@@ -97,7 +97,7 @@ Append a filled-in version to `perf_progress.md`; angle-bracket values below are
 ```text
 Date/time/timezone; experiment=<E04-b>; run=<unique ID>
 Hypothesis and exact change; parent baseline ID
-Board=<confirmed model or unknown>; package=RP2350B; silicon_revision=<observed/unknown>
+Board=<confirmed model or unknown>; package=RP2350A; silicon_revision=<observed/unknown>
 Architecture; SDK/toolchain versions; effective compile/link flags
 Source revision plus patch identity; firmware SHA-256; archived build/serial logs
 Actual sys/peri/ADC/USB clocks; flash clock/divider; requested regulator setting
@@ -118,7 +118,7 @@ Potential below is a hypothesis about opportunity, not a promised gain. Complete
 
 | ID | Work | Prerequisites | Opportunity / effort | Stop or advance rule |
 | --- | --- | --- | --- | --- |
-| E00 | Correct RP2350B board and temperature configuration | Board information | Required correctness / small–medium | No thermal qualification until valid |
+| E00 | Confirm RP2350A board and temperature configuration | Board information | Required correctness / small–medium | No thermal qualification until valid |
 | E01 | Strong oracle, benchmark harness, failure gates | E00 | Required confidence / medium | Reject unverifiable results |
 | E02 | Matched ARM/RISC-V baseline and cycle profile | E01 | Finds actual bottleneck / small–medium | Rank next variants by measured costs |
 | E03 | Endian representation and register-only digest transfer | E02 | Promising low-level savings / small–medium | Keep only correct, repeatable gains |
@@ -140,18 +140,18 @@ Potential below is a hypothesis about opportunity, not a promised gain. Complete
 
 Files to inspect/change later: `CMakeLists.txt`, `tools/build`, relevant `.vscode` configuration, `src/main.c`; optionally a new repository-local board header under `boards/`. Do not change `AGENTS.md` without a specific reason/authorization.
 
-1. Ask for the carrier-board model/photo/schematic if repository/device information cannot identify it. Confirm flash part/capacity, crystal, LED pin/polarity, ADC reference, and any external memory. RP2350B alone does not identify these. USB VID `2e8a` does not identify the package or carrier board.
-2. Select a matching installed SDK board definition only if its actual hardware matches. Otherwise create a custom board header with verified parameters, for example `boards/miner_rp2350b.h`, select `PICO_BOARD=miner_rp2350b`, and supply the repository's `boards` directory through `PICO_BOARD_HEADER_DIRS` before SDK initialization. Do not select a WeAct/Waveshare/Pimoroni header just because it says RP2350B. Do not guess PSRAM presence, chip select, or flash size.
-3. Remove the conflicting `pico2` selections consistently from wrapper/default/editor configuration. The installed `pico2.h` unconditionally sets the A-package macro; adding a competing command-line `-DPICO_RP2350A=0` is not a clean fix.
-4. Add compile-time assertions for this target: `PICO_RP2350A == 0`, `NUM_ADC_CHANNELS == 9`, `ADC_TEMPERATURE_CHANNEL_NUM == 8`. Print board/package/channel in `BOOT`. Use the SDK macro in sampling code rather than scattering literal channel numbers. Audit LED/error signaling too: existing `1u << led_pin` masks are invalid for a pin above 31. For a verified high GPIO use the SDK's per-pin API or `gpio_xor_mask64` with a correctly sized mask; account for LED polarity.
+1. Confirm the carrier-board model if possible. Preserve the already working official Pico 2 flash and LED settings, and verify the ADC reference/supply arrangement if temperature remains invalid. USB VID `2e8a` alone does not identify the carrier board.
+2. Select the installed `pico2` definition, consistent with the direct QFN-60 package readout. Do not override its package macro from the command line.
+3. Keep the selection consistent in wrapper/default/editor configuration.
+4. Add compile-time assertions for this target: `PICO_RP2350A == 1`, `NUM_ADC_CHANNELS == 5`, `ADC_TEMPERATURE_CHANNEL_NUM == 4`. Print compile-time and hardware package identity plus channel in `BOOT`. Use the SDK macro in sampling code rather than scattering literal channel numbers; account for LED polarity.
 5. Initialize ADC and enable the temperature sensor; select its channel and allow settling. At 150 MHz system clock, establish a normal ADC configuration first. Verify all clock API return values; report actual ADC clock and selected channel. Only retain the 24 MHz diagnostic setting if measurements justify it.
 6. Sample 32 conversions, checking conversion error flags rather than merely averaging returned numbers. Clear sticky flags using documented semantics before the acquisition. Reject rail/saturated/error samples. Keep raw sum/count through conversion to avoid prematurely rounding away averaged resolution.
 7. Use sufficiently wide arithmetic. With nominal 3.3 V reference, calculate voltage from the averaged 12-bit ADC value, then `T_C = 27 - (V - 0.706) / 0.001721`. Label it uncalibrated/approximate. Store fixed-point millidegrees if useful, but display sensible precision. See the [official ADC API and channel mapping](https://www.raspberrypi.com/documentation/pico-sdk/hardware.html#group_hardware_adc).
 8. Record startup, idle, and loaded temperatures with raw values and error flags. Require a plausible response over time, not a particular room-temperature number. If possible, compare with an independent thermometer and the actual ADC reference; do not invent calibration from a single assumed ambient value.
-9. If channel 8 still fails, check actual board configuration, ADC register selection, sensor enable/settling, reference/supply, and documented silicon errata. Stop clock experiments until explained; do not try random channel/voltage writes.
-10. Add a new historical-correction entry to `perf_progress.md` identifying the previous thermal samples as invalid and explaining the package mismatch. Preserve old raw records. Qualify the stale global stock-clock/build-label wording rather than silently rewriting historical measurements.
+9. If channel 4 still fails, check ADC_AVDD/reference wiring, ADC register selection, sensor enable/settling, and documented silicon errata. Stop clock experiments until explained; do not try random channels or voltage writes.
+10. Preserve the historical RP2350B/channel-8 attempts as rejected evidence and append the authoritative RP2350A correction. Qualify stale global stock-clock/build-label wording rather than silently rewriting historical measurements.
 
-Acceptance: both builds are warning-free, boot identifies B/channel 8, all existing KATs pass, temperatures are explicitly valid with no ADC errors under idle and load, and failure injection into the telemetry validator is rejected. A speed increase is not required.
+Acceptance: both builds are warning-free, boot identifies A/channel 4 and hardware `PACKAGE_SEL=1`, all existing KATs pass, temperatures are explicitly valid with no ADC errors under idle and load, and failure injection into the telemetry validator is rejected. A speed increase is not required.
 
 ### E01 — Establish an independent oracle and reproducible measurement contract
 
@@ -384,7 +384,7 @@ Time-box each idea to an initial written dependency/cost model and, only if prom
 | DMA ring/chaining/self-trigger | Amortize descriptor setup for known block transfers and queues | Does not solve SHA state reset, completion detection, or result dependencies by itself |
 | SRAM banks / pinned XIP lines | Isolate hot software kernel, DMA buffers, and stacks under measured contention | No new memory bandwidth benefit if the current tight loop already hits in cache |
 | Multiple header midstates with a shared tail schedule | Software-only, ASICBoost-style schedule sharing across distinct permitted header versions; precompute compatible midstates and process the same tail words through several states | Needs legitimately distinct job headers and measured schedule savings; hardware hides its schedule and cannot accept restored midstates; do not change unauthorized version bits |
-| Extra GPIO on RP2350B | Optional timing markers, measured reference/temperature instrumentation, or a future external accelerator | Requires actual board pin mapping and possibly equipment; extra pins alone do not raise H/s |
+| Available RP2350A GPIO | Optional timing markers, measured reference/temperature instrumentation, or a future external accelerator | Requires actual board pin mapping and possibly equipment; GPIO alone does not raise H/s |
 | Power/clock gating unused blocks | Improve energy efficiency after throughput is stable | Preserve USB, timer, ADC, SHA, DMA, and recovery dependencies; do not claim throughput from a power-only change |
 
 Mixed-ISA feasibility specifically: hardware supports per-socket selection, but an implementation must first prove a minimal mixed-core heartbeat with documented RAM/boot behavior, matching shared-data layout, and a reversible normal boot path. No security/OTP/partition changes are permitted. Do not start this complex branch unless the homogeneous measurements predict a worthwhile net gain. See the [RP2350 architecture-switching documentation](https://datasheets.raspberrypi.com/rp2350/rp2350-datasheet.pdf), section 3.9.2.
@@ -415,7 +415,7 @@ After E03, prioritize E04/E05 for cheap wins. Promote E06 only if feeding/contro
 
 ## 7. Completion checklist for future implementation
 
-- [ ] Correct carrier-board configuration for RP2350B, including sensor channel 8.
+- [ ] Correct carrier-board configuration for RP2350A, including sensor channel 4.
 - [ ] Valid, explicitly approximate temperatures and recorded reference assumptions.
 - [ ] Independent full-digest and target oracle coverage for every enabled fast path.
 - [ ] No warnings; both architectures build via wrappers.
