@@ -2359,3 +2359,29 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=39000 elapsed_us=2037175 hash_rate_hs=19144 checksum=2c temperature=disabled
 MINING:PROGRESS arch=ARM-M33 worker_core=1 nonce=3000000 total_hashes=3000000 hash_rate_hs=327468 temperature=disabled
 ```
+
+## 2026-09-14 — E09-b2 expanded software schedule, RISC-V
+
+- Experiment: `E09b2-expanded-schedule-riscv-33`.
+- Candidate commit: `8bf57fa`. Replace the 16-word circular schedule and
+  per-round wrapped indexing with a 64-word expanded schedule. SHA rounds,
+  nonce work, checksumming, and the E09-b1 unroll setting remain unchanged.
+- Both architectures built cleanly. All 4,096 hardware/software oracle cases
+  and all 7 suites passed on RISC-V; no fault occurred.
+- Software benchmark: **24,126 H/s**, `49000` hashes in `2031001 us`, checksum
+  `ce`. Versus retained E09-b1 RISC-V 19,005 H/s: **+26.94%** (+5,121 H/s).
+- Hardware benchmark: **344,782 H/s**; sustained hardware remained about
+  **340,120 H/s**.
+- Candidate RISC-V UF2 SHA-256:
+  `e46d8f3029f62b6853c4f678362b0c724c822d32a9565811dc62612ce20f6de9`.
+- Resource delta versus E09-b1: +556 bytes ELF text and +192 bytes temporary
+  stack per compression invocation; calls are sequential, not nested.
+- Archived serial log: `logs/E09b2-expanded-schedule-riscv.log`.
+- Decision: retain for RISC-V. The large gain justifies the small memory cost;
+  measure ARM next.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=49000 elapsed_us=2031001 hash_rate_hs=24126 checksum=ce temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 worker_core=1 nonce=3300000 total_hashes=3300000 hash_rate_hs=340123 temperature=disabled
+```
