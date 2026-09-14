@@ -1185,3 +1185,33 @@ TEST:SUMMARY pass=7 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-error-batched-e04e arch=ARM-M33 clock_hz=150000000 hashes=658000 elapsed_us=2000600 hash_rate_hs=328901 checksum=bb temperature=disabled
 MINING:PROGRESS arch=ARM-M33 nonce=700000 total_hashes=700000 hash_rate_hs=315032 temperature=disabled
 ```
+
+## 2026-09-14 — E05 ARM 32-byte label alignment
+
+- Experiment: `E05-arm-align-labels32-08-reject`
+- Change: compile only `src/main.c` on ARM with
+  `-falign-labels=32:31`. This placed the benchmark and mining back-edge
+  targets on 64-byte addresses but also aligned many non-hot labels.
+- Validation: both architecture builds passed without warnings. RISC-V stayed
+  byte-identical to its accepted E04-e image. ARM passed all seven test groups,
+  **4,096/4,096** oracle cases and **10/10** target cases; cycle passed.
+- Code size: ARM text increased from 176,108 to **178,108 bytes** (+2,000).
+- Kernel benchmark: **317,074 H/s**, 635,000 hashes in 2,002,684 us, checksum
+  `f6`; estimated **473.08 cycles/hash**.
+- Sustained mining: **306,026 H/s** at 700,000 hashes.
+- Relative to E04-c ARM baseline: **-2.33% benchmark, -4.49% sustained**.
+- Interpretation: broadly aligning labels increases XIP footprint/fetch cost
+  more than favorable placement helps. Address alignment by itself is not a
+  performance guarantee on this flash-resident image.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Firmware UF2 SHA-256:
+  `7b4cda7247fcd8151beda13811b6a3cc772c6e7c406581090a5ea5b50ccfff44`
+- Archived serial log: `logs/E05-arm-align-labels32.log`
+- Decision: reject and remove `-falign-labels=32:31`. Do not apply broad
+  alignment flags to the full miner translation unit.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-error-batched-e04e arch=ARM-M33 clock_hz=150000000 hashes=635000 elapsed_us=2002684 hash_rate_hs=317074 checksum=f6 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=700000 total_hashes=700000 hash_rate_hs=306026 temperature=disabled
+```
