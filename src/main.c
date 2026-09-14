@@ -10,6 +10,7 @@
 #endif
 #include "hardware/structs/sysinfo.h"
 #include "pico/bootrom/lock.h"
+#include "pico/multicore.h"
 #include "pico/sha256.h"
 #include "pico/stdlib.h"
 
@@ -31,6 +32,10 @@ _Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
 #define BENCHMARK_MIN_US 2000000ull
 #define BENCHMARK_BATCH 1000u
 #define MINING_REPORT_INTERVAL 100000u
+
+#ifndef MINER_USE_CORE1
+#define MINER_USE_CORE1 1
+#endif
 
 #if MINER_SYS_CLOCK_KHZ > 150000
 #define CLOCK_PROFILE "experimental-overclock"
@@ -548,6 +553,7 @@ static bool run_benchmark(void) {
     return true;
 }
 
+#if !MINER_USE_CORE1
 static MINING_LOOP_OPTIONS void mine_forever(uint led_pin) {
     sha256_result_t hash;
     sha256_result_t target;
@@ -630,6 +636,151 @@ static MINING_LOOP_OPTIONS void mine_forever(uint led_pin) {
         }
     }
 }
+#else
+enum mining_message {
+    MINING_MESSAGE_PROGRESS = 0x50524752u,
+    MINING_MESSAGE_SHARE = 0x53485245u,
+    MINING_MESSAGE_FAULT = 0x4641554cu,
+};
+
+static void mining_fifo_push_u64(uint64_t value) {
+    multicore_fifo_push_blocking((uint32_t)value);
+    multicore_fifo_push_blocking((uint32_t)(value >> 32u));
+}
+
+static uint64_t mining_fifo_pop_u64(void) {
+    const uint64_t low = multicore_fifo_pop_blocking();
+    return low | ((uint64_t)multicore_fifo_pop_blocking() << 32u);
+}
+
+static void mining_worker_fault(uint32_t code, uint32_t nonce,
+                                uint32_t invalid_batch) {
+    multicore_fifo_push_blocking(MINING_MESSAGE_FAULT);
+    multicore_fifo_push_blocking(code);
+    multicore_fifo_push_blocking(nonce);
+    multicore_fifo_push_blocking(invalid_batch);
+    while (true) {
+        tight_loop_contents();
+    }
+}
+
+static MINING_LOOP_OPTIONS void mining_worker_core1(void) {
+    sha256_result_t hash;
+    sha256_result_t target;
+    bitcoin_hasher_t hasher;
+    uint32_t nonce = 0u;
+    uint32_t since_report = 0u;
+    uint64_t total_hashes = 0u;
+    uint64_t report_started_us = time_us_64();
+
+    if (!compact_to_target_le(0x1d00ffffu, target.bytes)) {
+        mining_worker_fault(1u, nonce, 0u);
+    }
+    bitcoin_hasher_begin(&hasher, genesis_header);
+
+    while (true) {
+#ifdef __riscv
+        bitcoin_hasher_hash_nonce_unchecked(&hasher, nonce);
+#else
+        if (!bitcoin_hasher_hash_nonce(&hasher, nonce)) {
+            bitcoin_hasher_end(&hasher);
+            mining_worker_fault(2u, nonce, 1u);
+        }
+#endif
+        ++since_report;
+        const bool candidate = current_hash_meets_target(&target);
+
+        if (candidate) {
+#ifdef __riscv
+            if (sha256_err_not_ready()) {
+                bitcoin_hasher_end(&hasher);
+                mining_worker_fault(2u, nonce, since_report);
+            }
+#endif
+            capture_current_hash(&hash);
+            multicore_fifo_push_blocking(MINING_MESSAGE_SHARE);
+            multicore_fifo_push_blocking(nonce);
+            mining_fifo_push_u64(total_hashes + since_report);
+            for (size_t word = 0u; word < 8u; ++word) {
+                multicore_fifo_push_blocking(hash.words[word]);
+            }
+        }
+        ++nonce;
+
+        if (since_report == MINING_REPORT_INTERVAL) {
+#ifdef __riscv
+            if (sha256_err_not_ready()) {
+                bitcoin_hasher_end(&hasher);
+                mining_worker_fault(2u, nonce, MINING_REPORT_INTERVAL);
+            }
+#endif
+            const uint64_t now_us = time_us_64();
+            const uint64_t elapsed_us = now_us - report_started_us;
+            const uint64_t rate = ((uint64_t)since_report * 1000000ull
+                                   + elapsed_us / 2u) / elapsed_us;
+            total_hashes += since_report;
+            multicore_fifo_push_blocking(MINING_MESSAGE_PROGRESS);
+            multicore_fifo_push_blocking(nonce);
+            mining_fifo_push_u64(total_hashes);
+            mining_fifo_push_u64(rate);
+            since_report = 0u;
+            report_started_us = now_us;
+        }
+    }
+}
+
+static void mine_forever(uint led_pin) {
+    bool led_on = false;
+    multicore_fifo_drain();
+    printf("MINING:START header=bitcoin-genesis target_bits=1d00ffff start_nonce=0"
+           " worker_core=1 note=standalone-stale-work\n");
+    multicore_launch_core1(mining_worker_core1);
+
+    while (true) {
+        const uint32_t message = multicore_fifo_pop_blocking();
+        if (message == MINING_MESSAGE_PROGRESS) {
+            const uint32_t nonce = multicore_fifo_pop_blocking();
+            const uint64_t total_hashes = mining_fifo_pop_u64();
+            const uint64_t rate = mining_fifo_pop_u64();
+            printf("MINING:PROGRESS arch=%s worker_core=1 nonce=%" PRIu32
+                   " total_hashes=%" PRIu64 " hash_rate_hs=%" PRIu64
+                   " temperature=disabled\n",
+                   CPU_ARCH, nonce, total_hashes, rate);
+            led_on = !led_on;
+            gpio_put(led_pin, led_on);
+        } else if (message == MINING_MESSAGE_SHARE) {
+            sha256_result_t hash;
+            const uint32_t nonce = multicore_fifo_pop_blocking();
+            const uint64_t total_hashes = mining_fifo_pop_u64();
+            for (size_t word = 0u; word < 8u; ++word) {
+                hash.words[word] = multicore_fifo_pop_blocking();
+            }
+            printf("SHARE:FOUND nonce=%" PRIu32 " hash=", nonce);
+            print_bitcoin_hash(hash.bytes);
+            printf(" total_hashes=%" PRIu64 "\n", total_hashes);
+        } else if (message == MINING_MESSAGE_FAULT) {
+            const uint32_t code = multicore_fifo_pop_blocking();
+            const uint32_t nonce = multicore_fifo_pop_blocking();
+            const uint32_t invalid_batch = multicore_fifo_pop_blocking();
+            printf("FAULT type=%s worker_core=1 nonce=%" PRIu32
+                   " invalid_batch=%" PRIu32 "\n",
+                   code == 1u ? "invalid_compact_target" : "sha256_hardware",
+                   nonce, invalid_batch);
+            while (true) {
+                gpio_xor_mask64(1ull << led_pin);
+                sleep_ms(100u);
+            }
+        } else {
+            printf("FAULT type=multicore_protocol message=%08" PRIx32 "\n",
+                   message);
+            while (true) {
+                gpio_xor_mask64(1ull << led_pin);
+                sleep_ms(100u);
+            }
+        }
+    }
+}
+#endif
 
 int main(void) {
     const bool clock_configured = set_sys_clock_khz(MINER_SYS_CLOCK_KHZ, false);
