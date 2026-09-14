@@ -17,12 +17,14 @@ _Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
 
 #ifdef __riscv
 #define CPU_ARCH "RISCV-HAZARD3"
-#define BENCHMARK_PATH "persistent-first-block-dma-e06a"
+#define BENCHMARK_PATH "first-block-dma-main-sram-e07"
 #define MINING_LOOP_OPTIONS __attribute__((optimize("unroll-loops")))
+#define MAIN_PLACEMENT(name) __not_in_flash_func(name)
 #else
 #define CPU_ARCH "ARM-M33"
 #define BENCHMARK_PATH "batched-accounting-e04c"
 #define MINING_LOOP_OPTIONS __attribute__((optimize("unroll-loops")))
+#define MAIN_PLACEMENT(name) name
 #endif
 
 #define BITCOIN_HEADER_BYTES 80u
@@ -631,7 +633,7 @@ static MINING_LOOP_OPTIONS void mine_forever(uint led_pin) {
     }
 }
 
-int main(void) {
+int MAIN_PLACEMENT(main)(void) {
     const bool clock_configured = set_sys_clock_khz(MINER_SYS_CLOCK_KHZ, false);
     stdio_init_all();
 
