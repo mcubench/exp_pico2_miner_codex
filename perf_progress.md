@@ -2027,3 +2027,28 @@ TEST:SUMMARY pass=7 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persistent-first-block-dma-e06a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=690000 elapsed_us=2001251 hash_rate_hs=344784 checksum=92 temperature=disabled
 MINING:PROGRESS arch=RISCV-HAZARD3 nonce=2000000 total_hashes=2000000 hash_rate_hs=335421 temperature=disabled
 ```
+
+## 2026-09-14 — E06a persistent first-block DMA, RISC-V confirmed
+
+- Experiment: `E06a-persistent-first-block-dma-riscv-23-confirm`.
+- Artifact: byte-identical RISC-V UF2
+  `493193f79243ae533efed0114c335ecc72d4a7825b2fb4d3c754e8496de74250`.
+- Validation: both architectures rebuilt without warnings before flashing;
+  all 7 RISC-V device tests passed again.
+- Kernel benchmark: **344,783 H/s** (`690000` hashes in `2001260 us`, checksum
+  `92`), within 1 H/s of run 1 and **+1.61%** over the retained 339,327 H/s.
+- Sustained mining: **335,420 H/s** at 1,000,000 hashes, within 1 H/s of run 1
+  and **+0.68%** over the retained 333,166 H/s.
+- Archived serial log:
+  `logs/E06a-persistent-first-block-dma-riscv-confirm.log`.
+- Decision: retain for Hazard3 despite being below the nominal 2% gate. The
+  byte-identical repeat is stable, it establishes the fastest stock-clock
+  result, correctness coverage is complete, and the implementation uses one
+  persistent channel with bounded ownership. Restore the CPU feeder on ARM,
+  where the same change regressed both metrics.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persistent-first-block-dma-e06a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=690000 elapsed_us=2001260 hash_rate_hs=344783 checksum=92 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=1000000 total_hashes=1000000 hash_rate_hs=335420 temperature=disabled
+```
