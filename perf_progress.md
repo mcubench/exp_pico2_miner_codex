@@ -1209,7 +1209,8 @@ MINING:PROGRESS arch=RISCV-HAZARD3 nonce=800000 total_hashes=800000 hash_rate_hs
   `e8`; **-1.30%** versus the 330,357 H/s no-flag baseline.
 - Sustained mining: **324,527 H/s** at 700,000 hashes; **+1.08%** versus the
   retained 321,051 H/s result.
-- Code/artifact impact: RISC-V UF2 grew/changed to 371,200 bytes. Global
+- Code/artifact impact: RISC-V UF2 grew from 367,616 to 371,200 bytes
+  (**+3,584 bytes, +0.98%**). Global
   unrolling creates a reproducible trade toward the mining-loop layout but
   slows the primary bounded kernel and increases flash footprint.
 - Temperature: intentionally **disabled**, not measured and not inferred.
