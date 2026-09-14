@@ -1256,6 +1256,36 @@ BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-
 MINING:PROGRESS arch=RISCV-HAZARD3 nonce=700000 total_hashes=700000 hash_rate_hs=326646 temperature=disabled
 ```
 
+## 2026-09-14 — E05 targeted Hazard3 mining-loop unrolling confirmed
+
+- Experiment: `E05-riscv-targeted-mining-unroll-17-confirm-retain`
+- Candidate commit: `1225980`; identical artifact to run 1.
+- Validation: both builds passed without warnings. RISC-V again passed the
+  sticky-error proof, all seven test groups, **4,096/4,096** oracle cases and
+  **10/10** target cases; cycle passed.
+- Kernel benchmark: **330,357 H/s**, 661,000 hashes in 2,000,863 us, checksum
+  `6f`; exact retained baseline rate.
+- Sustained mining: **326,649 H/s** at 700,000 hashes; **+1.74%** versus the
+  321,051 H/s baseline and within 3 H/s of run 1.
+- Artifact cost: RISC-V UF2 is 368,128 bytes, **+512 bytes (+0.14%)**; ARM UF2
+  remains byte-identical to its retained image.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Firmware UF2 SHA-256:
+  `e056f2ec011d16359cae2259d40f55477cfe9e4c310f908a316ea1e21613d832`
+- Archived serial log:
+  `logs/E05-riscv-targeted-mining-unroll-confirm.log`
+- Decision: retain. Although the gain is just below the nominal 2% screening
+  threshold, two identical-artifact runs agree within 3 H/s, bounded kernel
+  performance is preserved, and maintenance cost is one ISA-specific function
+  attribute. The board is left running this stock-clock RISC-V image.
+
+```text
+TEST:PASS kat=sha_error_sticky cases=3 burst_words=2500 latched=1 survived_start=1 cleared=1
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-error-batched-e04e arch=RISCV-HAZARD3 clock_hz=150000000 hashes=661000 elapsed_us=2000863 hash_rate_hs=330357 checksum=6f temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=700000 total_hashes=700000 hash_rate_hs=326649 temperature=disabled
+```
+
 ## 2026-09-14 — E05 Hazard3 branch-cost hint, run 1
 
 - Experiment: `E05-riscv-branch-cost1-13-run1`
