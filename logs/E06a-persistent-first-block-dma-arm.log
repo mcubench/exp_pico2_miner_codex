@@ -1,0 +1,53 @@
+SERIAL_PORT=/dev/ttyACM0
+BOOT app=pico2_bitcoin_miner board=pico2 package=RP2350A arch=ARM-M33 engine=RP2350-SHA256 temperature=disabled clock_profile=stock requested_clock_khz=150000 actual_clock_hz=150000000 sysinfo_package_sel=1 chip_id=30004927 silicon_revision=3
+TEST:PASS kat=nist_empty engine=RP2350-SHA256
+TEST:PASS kat=nist_abc engine=RP2350-SHA256
+TEST:PASS kat=sha_error_sticky cases=3 burst_words=2500 latched=1 survived_start=1 cleared=1
+TEST:PASS kat=optimized_oracle cases=4096 fixture_sha256=4cf1f1db9d05f9208b74edec0f616497a286269e73a1e89747fed60ac5648f98
+TEST:PASS kat=target_boundaries cases=10
+TEST:PASS kat=bitcoin_genesis hash=000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
+TEST:PASS kat=bitcoin_nonce_search nonce=2083236893 attempts=94 hash=000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persistent-first-block-dma-e06a arch=ARM-M33 clock_hz=150000000 hashes=663000 elapsed_us=2002494 hash_rate_hs=331087 checksum=cb temperature=disabled
+MINING:START header=bitcoin-genesis target_bits=1d00ffff start_nonce=0 note=standalone-stale-work
+MINING:PROGRESS arch=ARM-M33 nonce=100000 total_hashes=100000 hash_rate_hs=323959 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=200000 total_hashes=200000 hash_rate_hs=324524 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=300000 total_hashes=300000 hash_rate_hs=324556 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=400000 total_hashes=400000 hash_rate_hs=324557 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=500000 total_hashes=500000 hash_rate_hs=324566 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=600000 total_hashes=600000 hash_rate_hs=324567 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=700000 total_hashes=700000 hash_rate_hs=324560 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=800000 total_hashes=800000 hash_rate_hs=324562 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=900000 total_hashes=900000 hash_rate_hs=324566 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=1000000 total_hashes=1000000 hash_rate_hs=324568 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=1100000 total_hashes=1100000 hash_rate_hs=324565 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=1200000 total_hashes=1200000 hash_rate_hs=324567 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=1300000 total_hashes=1300000 hash_rate_hs=324565 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=1400000 total_hashes=1400000 hash_rate_hs=324566 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=1500000 total_hashes=1500000 hash_rate_hs=324565 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=1600000 total_hashes=1600000 hash_rate_hs=324568 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=1700000 total_hashes=1700000 hash_rate_hs=324559 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=1800000 total_hashes=1800000 hash_rate_hs=324562 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=1900000 total_hashes=1900000 hash_rate_hs=324564 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=2000000 total_hashes=2000000 hash_rate_hs=324567 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=2100000 total_hashes=2100000 hash_rate_hs=324566 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=2200000 total_hashes=2200000 hash_rate_hs=324564 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=2300000 total_hashes=2300000 hash_rate_hs=324565 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=2400000 total_hashes=2400000 hash_rate_hs=324568 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=2500000 total_hashes=2500000 hash_rate_hs=324566 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=2600000 total_hashes=2600000 hash_rate_hs=324560 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=2700000 total_hashes=2700000 hash_rate_hs=324559 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=2800000 total_hashes=2800000 hash_rate_hs=324566 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=2900000 total_hashes=2900000 hash_rate_hs=324564 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=3000000 total_hashes=3000000 hash_rate_hs=324565 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=3100000 total_hashes=3100000 hash_rate_hs=324566 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=3200000 total_hashes=3200000 hash_rate_hs=324564 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=3300000 total_hashes=3300000 hash_rate_hs=324565 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=3400000 total_hashes=3400000 hash_rate_hs=324566 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=3500000 total_hashes=3500000 hash_rate_hs=324565 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=3600000 total_hashes=3600000 hash_rate_hs=324563 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=3700000 total_hashes=3700000 hash_rate_hs=324567 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=3800000 total_hashes=3800000 hash_rate_hs=324565 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=3900000 total_hashes=3900000 hash_rate_hs=324564 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=4000000 total_hashes=4000000 hash_rate_hs=324565 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=4100000 total_hashes=4100000 hash_rate_hs=324565 temperature=disabled

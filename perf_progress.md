@@ -1969,3 +1969,33 @@ TEST:SUMMARY pass=7 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-error-batched-e04e arch=RISCV-HAZARD3 clock_hz=150000000 hashes=679000 elapsed_us=2001019 hash_rate_hs=339327 checksum=32 temperature=disabled
 MINING:PROGRESS arch=RISCV-HAZARD3 nonce=600000 total_hashes=600000 hash_rate_hs=333166 temperature=disabled
 ```
+
+## 2026-09-14 — E06a persistent first-block DMA, ARM
+
+- Experiment: `E06a-persistent-first-block-dma-arm-22`.
+- Candidate commit: `a930ac8`, based on retained commit `c66b434`.
+- Change: claim and configure one 32-bit DMA channel once per hashing job and
+  reuse it to feed the invariant first 64-byte header block to SHA WDATA. The
+  tail block, intermediate-digest handoff, and second hash remain CPU-fed.
+- Configuration: RP2350A, ARM Cortex-M33, stock 150 MHz, DMA paced by
+  `DREQ_SHA256`, temperature disabled. ARM and RISC-V builds passed without
+  warnings before flashing.
+- Validation: all 7 tests passed, including 4,096 independent oracle vectors,
+  10 target-boundary cases, genesis digest/search, and the sticky-error proof.
+- Kernel benchmark: **331,087 H/s** (`663000` hashes in `2002494 us`, checksum
+  `cb`), **-0.22%** versus the retained ARM result of 331,819 H/s.
+- Sustained mining: **324,568 H/s** at 1,000,000 hashes, about **-0.20%** versus
+  the retained ARM result of 325,207 H/s.
+- Firmware: ARM UF2 SHA-256
+  `a133cd562cdb6219673b337ee2d4f8c1ceccc35e2440983b4432805fe3044987`,
+  344,576 bytes.
+- Archived serial log: `logs/E06a-persistent-first-block-dma-arm.log`.
+- Decision: reject for ARM on measured performance, but measure the identical
+  Hazard3 image before reverting because DMA setup/polling costs are
+  architecture-dependent.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persistent-first-block-dma-e06a arch=ARM-M33 clock_hz=150000000 hashes=663000 elapsed_us=2002494 hash_rate_hs=331087 checksum=cb temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=1000000 total_hashes=1000000 hash_rate_hs=324568 temperature=disabled
+```
