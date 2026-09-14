@@ -1086,6 +1086,31 @@ BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-
 MINING:PROGRESS arch=RISCV-HAZARD3 nonce=800000 total_hashes=800000 hash_rate_hs=323115 temperature=disabled
 ```
 
+## 2026-09-14 — Unconditional sticky-error proof paired ARM pass
+
+- Experiment: `sticky-error-stimulus-fix4-arm-pass`
+- Candidate commit: `c195377`.
+- Validation: the unconditional 2,500-word SDK-pattern stimulus passed on ARM,
+  completing paired runtime validation of the shared self-test. All seven test
+  groups, **4,096/4,096** oracle cases, and **10/10** target cases passed;
+  cycle passed.
+- ARM kernel benchmark: **323,934 H/s**, 648,000 hashes in 2,000,405 us,
+  checksum `2a`; exact retained kernel rate.
+- ARM sustained mining: **320,415 H/s** at 800,000 hashes; exact retained rate.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- ARM UF2 SHA-256:
+  `6e8718d3c606287143a8e4bb4a5eadab16b4cbe5a4bbdbe8ddf1676618a21f35`
+- Archived serial log: `logs/sticky-error-unconditional-arm-pass.log`
+- Decision: retain the deterministic startup proof. It now passes both ISAs
+  and does not measurably perturb the timed ARM path.
+
+```text
+TEST:PASS kat=sha_error_sticky cases=3 burst_words=2500 latched=1 survived_start=1 cleared=1
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=150000000 hashes=648000 elapsed_us=2000405 hash_rate_hs=323934 checksum=2a temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=800000 total_hashes=800000 hash_rate_hs=320415 temperature=disabled
+```
+
 ## 2026-09-14 — E05 Hazard3 branch-cost hint, run 1
 
 - Experiment: `E05-riscv-branch-cost1-13-run1`
