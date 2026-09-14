@@ -555,3 +555,66 @@ TEST:SUMMARY pass=6 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=direct-numeric-words-e03a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=598000 elapsed_us=2001511 hash_rate_hs=298774 checksum=97 temperature=disabled
 MINING:PROGRESS arch=RISCV-HAZARD3 nonce=700000 total_hashes=700000 hash_rate_hs=294576 temperature=disabled
 ```
+
+## 2026-09-14 — E03-b register-only digest handoff: ARM
+
+- Experiment: `E03b-register-handoff-arm-01`
+- Change: preserve all eight first-hash `SUM` words in explicit locals before
+  reset, then feed those values and constant padding directly to WDATA; remove
+  the 64-byte second-hash SRAM block. Clock remained stock 150 MHz. Source
+  checkpoint: `b03dc0b`.
+- Assembly: ARM retained seven digest words in registers and spilled/reloaded
+  only the eighth (2 SRAM operations rather than E03-a's 16). The mining stack
+  frame shrank from 300 to 268 bytes.
+- Build/validation: ARM and RISC-V passed without warnings. On ARM all six test
+  groups passed, including **4,096/4,096** optimized-path oracle cases and
+  **10/10** target-boundary cases; cycle result `CYCLE:PASS`.
+- Kernel benchmark: **308,608 H/s**, 618,000 complete Bitcoin double hashes in
+  2,002,542 us, checksum `3e`; estimated **486.05 cycles/hash**.
+- Sustained mining: converged to **306,029 H/s** at 700,000 total hashes.
+- Relative to E03-a ARM: **+1.85%** benchmark and **+2.67%** sustained, saving
+  about **8.99 cycles/hash**. Relative to E01: **+4.94%** benchmark and
+  **+5.73%** sustained, saving about **23.99 cycles/hash**.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Decision: retain E03-b on ARM and test identical source on Hazard3.
+- Firmware UF2 SHA-256:
+  `df0dc567bc2abd04f7dbb2bcdfcd224c20d197516f3ac7fe53789bba2a59d24b`
+- Archived serial log: `logs/E03b-register-handoff-arm.log`
+
+```text
+TEST:PASS kat=optimized_oracle cases=4096 fixture_sha256=4cf1f1db9d05f9208b74edec0f616497a286269e73a1e89747fed60ac5648f98
+TEST:SUMMARY pass=6 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=direct-register-handoff-e03b arch=ARM-M33 clock_hz=150000000 hashes=618000 elapsed_us=2002542 hash_rate_hs=308608 checksum=3e temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=700000 total_hashes=700000 hash_rate_hs=306029 temperature=disabled
+```
+
+## 2026-09-14 — E03-b register-only digest handoff: RISC-V
+
+- Experiment: `E03b-register-handoff-riscv-02`
+- Build/workload: identical E03-b checkpoint `b03dc0b`, fixtures, and stock
+  150 MHz clock as the ARM run; Hazard3 RISC-V target.
+- Assembly: Hazard3 retained all eight intermediate digest words in registers;
+  there were no SRAM spills in the handoff.
+- Validation: all six test groups passed, including **4,096/4,096** oracle
+  cases and **10/10** target-boundary cases; cycle result `CYCLE:PASS`.
+- Kernel benchmark: **313,774 H/s**, 628,000 complete Bitcoin double hashes in
+  2,001,442 us, checksum `32`; estimated **478.05 cycles/hash**.
+- Sustained mining: converged to **304,119 H/s** at 700,000 total hashes.
+- Relative to E03-a RISC-V: **+5.02%** benchmark and **+3.24%** sustained,
+  saving about **24.00 cycles/hash**. Relative to E01: **+7.95%** benchmark and
+  **+6.08%** sustained, saving about **38.00 cycles/hash**.
+- Cross-architecture: E03-b RISC-V benchmark is **1.67% faster** than ARM, but
+  ARM's short sustained sample is **0.63% faster**. Keep reporting both paths.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Decision: accept E03-b as the new common kernel baseline. Proceed to E04
+  subvariants one at a time at 150 MHz before any clock sweep.
+- Firmware UF2 SHA-256:
+  `4ff352a9eb782a19d272598363d9fb07baafa8585e179e820e2e8211feb5346c`
+- Archived serial log: `logs/E03b-register-handoff-riscv.log`
+
+```text
+TEST:PASS kat=optimized_oracle cases=4096 fixture_sha256=4cf1f1db9d05f9208b74edec0f616497a286269e73a1e89747fed60ac5648f98
+TEST:SUMMARY pass=6 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=direct-register-handoff-e03b arch=RISCV-HAZARD3 clock_hz=150000000 hashes=628000 elapsed_us=2001442 hash_rate_hs=313774 checksum=32 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=700000 total_hashes=700000 hash_rate_hs=304119 temperature=disabled
+```
