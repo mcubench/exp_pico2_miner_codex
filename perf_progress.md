@@ -1226,6 +1226,36 @@ BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-
 MINING:PROGRESS arch=RISCV-HAZARD3 nonce=700000 total_hashes=700000 hash_rate_hs=324527 temperature=disabled
 ```
 
+## 2026-09-14 — E05 targeted Hazard3 mining-loop unrolling, run 1
+
+- Experiment: `E05-riscv-targeted-mining-unroll-17-run1`
+- Candidate commit: `1225980`.
+- Change: apply GCC `optimize("unroll-loops")` only to RISC-V
+  `mine_forever()`. The separate benchmark function and all ARM code retain
+  their normal options.
+- Isolation: ARM UF2 remains byte-identical. RISC-V UF2 grows only from
+  367,616 to 368,128 bytes (**+512 bytes, +0.14%**), versus +3,584 bytes for
+  the rejected global flag.
+- Validation: both builds passed without warnings. RISC-V passed the
+  sticky-error proof, all seven test groups, **4,096/4,096** oracle cases and
+  **10/10** target cases; cycle passed.
+- Kernel benchmark: **330,356 H/s**, 661,000 hashes in 2,000,871 us, checksum
+  `6f`; effectively unchanged from 330,357 H/s.
+- Sustained mining: **326,646 H/s** at 700,000 hashes; **+1.74%** versus the
+  retained 321,051 H/s baseline.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Firmware UF2 SHA-256:
+  `e056f2ec011d16359cae2259d40f55477cfe9e4c310f908a316ea1e21613d832`
+- Archived serial log: `logs/E05-riscv-targeted-mining-unroll-run1.log`
+- Decision: promising but below the nominal 2% gate; repeat the identical
+  artifact. The complexity cost is one ISA-specific function attribute.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-error-batched-e04e arch=RISCV-HAZARD3 clock_hz=150000000 hashes=661000 elapsed_us=2000871 hash_rate_hs=330356 checksum=6f temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=700000 total_hashes=700000 hash_rate_hs=326646 temperature=disabled
+```
+
 ## 2026-09-14 — E05 Hazard3 branch-cost hint, run 1
 
 - Experiment: `E05-riscv-branch-cost1-13-run1`
