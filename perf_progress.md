@@ -2259,3 +2259,32 @@ TEST:SUMMARY pass=7 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=150000000 hashes=663000 elapsed_us=2002515 hash_rate_hs=331084 checksum=cb temperature=disabled
 MINING:PROGRESS arch=ARM-M33 worker_core=1 nonce=9500000 total_hashes=9500000 hash_rate_hs=327473 temperature=disabled
 ```
+
+## 2026-09-14 — E09-a portable software midstate, RISC-V baseline
+
+- Experiment: `E09a-software-midstate-riscv-29`.
+- Candidate commit: `dc11e82`. Added an independent portable 32-bit SHA-256
+  compression path. It caches the first 64-byte Bitcoin-header midstate and
+  performs exactly two software compressions per nonce.
+- Correctness: all 4,096 deterministic host-oracle cases matched both the
+  retained hardware kernel and the new software-midstate kernel. All 7 test
+  suites passed, including genesis digest/search and target/error tests.
+- Software benchmark: **18,656 H/s**, `38000` complete double hashes in
+  `2036924 us`, checksum `1c`.
+- Hardware benchmark in the same image: **344,781 H/s**. Sustained core1
+  hardware mining remained **340,101 H/s**, showing no regression while the
+  software code is idle.
+- Candidate RISC-V UF2 SHA-256:
+  `d93e1a0e4e03b614b3784ec585497c5c99df79c10ab61e33defef01f2685bcca`.
+- Code-size cost versus E08 RISC-V: 2,520 bytes of ELF text.
+- Archived serial log: `logs/E09a-software-midstate-riscv.log`.
+- Interpretation: unoptimized portable software is only 5.5% of the hardware
+  worker's rate, but could raise dual-core aggregate throughput to about
+  358.8 kH/s before contention. Proceed to ARM measurement and E09-b tuning.
+
+```text
+TEST:PASS kat=optimized_oracle engines=hardware,software-midstate cases=4096 fixture_sha256=4cf1f1db9d05f9208b74edec0f616497a286269e73a1e89747fed60ac5648f98
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=38000 elapsed_us=2036924 hash_rate_hs=18656 checksum=1c temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 worker_core=1 nonce=11400000 total_hashes=11400000 hash_rate_hs=340106 temperature=disabled
+```
