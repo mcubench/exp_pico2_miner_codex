@@ -674,3 +674,53 @@ TEST:SUMMARY pass=6 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=constant-header-tail-e04a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=643000 elapsed_us=2002111 hash_rate_hs=321161 checksum=fe temperature=disabled
 MINING:PROGRESS arch=RISCV-HAZARD3 nonce=700000 total_hashes=700000 hash_rate_hs=307877 temperature=disabled
 ```
+
+## 2026-09-14 — E04-d fast zero-top-word target rejection: ARM
+
+- Experiment: `E04d-fast-target-reject-arm-01`
+- Change: when target word 7 is zero, reject any nonzero raw `SUM7` before byte
+  reversal and the ordered uint256 loop; preserve the complete comparator for
+  equality, candidates, and targets with a nonzero top word. Stock 150 MHz;
+  source checkpoint `a1b8709`.
+- Validation: both builds passed; ARM passed all six test groups, **4,096/4,096**
+  oracle cases and the known genesis nonce search; cycle `CYCLE:PASS`.
+- Kernel benchmark (does not run target comparison): **316,422 H/s**, 633,000
+  hashes in 2,000,495 us, checksum `84`; **-0.21%** versus E04-a, treated as
+  minor run/layout variation rather than the objective of this subvariant.
+- Sustained mining: converged to **315,026 H/s** at 700,000 hashes, **+1.26%**
+  versus E04-a ARM and **+8.84%** versus E01 ARM.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Decision: retain on ARM; measure identical source on Hazard3.
+- Firmware UF2 SHA-256:
+  `8f90e464fbfc72872bf4ec5b9caa60e863db609a345a4a8ed1361751c0e2bfb8`
+- Archived serial log: `logs/E04d-fast-target-reject-arm.log`
+
+```text
+TEST:SUMMARY pass=6 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=fast-zero-msw-reject-e04d arch=ARM-M33 clock_hz=150000000 hashes=633000 elapsed_us=2000495 hash_rate_hs=316422 checksum=84 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=700000 total_hashes=700000 hash_rate_hs=315026 temperature=disabled
+```
+
+## 2026-09-14 — E04-d fast zero-top-word target rejection: RISC-V
+
+- Experiment: `E04d-fast-target-reject-riscv-02`
+- Build/workload: identical checkpoint `a1b8709`, difficulty-1 target, and stock
+  150 MHz clock; Hazard3 RISC-V target.
+- Validation: all six test groups passed, including **4,096/4,096** oracle
+  cases and the known genesis nonce search; cycle `CYCLE:PASS`.
+- Kernel benchmark (target comparison excluded): **321,164 H/s**, 643,000
+  hashes in 2,002,091 us, checksum `fe`; +3 H/s versus E04-a, unchanged.
+- Sustained mining: converged to **311,063 H/s** at 700,000 hashes, **+1.03%**
+  versus E04-a RISC-V and **+8.50%** versus E01 RISC-V.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Decision: accept E04-d on both architectures. The current best stock-clock
+  source is checkpoint `a1b8709`.
+- Firmware UF2 SHA-256:
+  `0065f18fe41518252718e9dbab3ba987809cc3e6bdf1b2b994b03665419520ea`
+- Archived serial log: `logs/E04d-fast-target-reject-riscv.log`
+
+```text
+TEST:SUMMARY pass=6 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=fast-zero-msw-reject-e04d arch=RISCV-HAZARD3 clock_hz=150000000 hashes=643000 elapsed_us=2002091 hash_rate_hs=321164 checksum=fe temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=700000 total_hashes=700000 hash_rate_hs=311063 temperature=disabled
+```
