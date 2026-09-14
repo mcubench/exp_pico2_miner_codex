@@ -1001,3 +1001,32 @@ MINING:PROGRESS arch=ARM-M33 nonce=4000000 total_hashes=4000000 hash_rate_hs=320
 ARM: undefined reference to `__wrap_printf`; dangerous relocation: unsupported relocation
 RISC-V: cc1: error: '-fno-fat-lto-objects' are supported only with linker plugin
 ```
+
+## 2026-09-14 — E05 source-only LTO: ARM at 150 MHz
+
+- Experiment: `E05-source-lto-arm-02`
+- Change: compile only repository-owned `src/main.c` with `-flto` and pass
+  `-flto` at the final link; all Pico SDK translation units remain normally
+  compiled. Requested/actual system clock: 150,000/150,000,000 kHz/Hz.
+- Validation: both architecture builds passed without warnings. ARM passed all
+  six test groups, **4,096/4,096** independent oracle cases and **10/10** target
+  boundary tests; cycle `CYCLE:PASS`.
+- Kernel benchmark: **324,635 H/s**, 650,000 hashes in 2,002,247 us, checksum
+  `f9`; estimated **462.06 cycles/hash**.
+- Sustained mining: **320,415 H/s** at 700,000 hashes.
+- Relative to E04-c ARM baseline (324,632 benchmark; 320,406 sustained):
+  **+0.001% benchmark, +0.003% sustained**. This is measurement noise rather
+  than an optimization win.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Firmware UF2 SHA-256:
+  `2f671fc2dd7fabe15e8a31f3b4ba310ef2e427b3b663a788af233067a9e7c0db`
+- Archived serial log: `logs/E05-source-lto-arm.log`
+- Decision: do not select source-only LTO for ARM on performance grounds; wait
+  for the matched RISC-V result before removing or retaining the option.
+
+```text
+BOOT app=pico2_bitcoin_miner board=pico2 package=RP2350A arch=ARM-M33 engine=RP2350-SHA256 temperature=disabled lto=on clock_profile=stock requested_clock_khz=150000 actual_clock_hz=150000000 sysinfo_package_sel=1 chip_id=30004927 silicon_revision=3
+TEST:SUMMARY pass=6 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=150000000 hashes=650000 elapsed_us=2002247 hash_rate_hs=324635 checksum=f9 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=700000 total_hashes=700000 hash_rate_hs=320415 temperature=disabled
+```
