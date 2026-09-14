@@ -1948,3 +1948,24 @@ TEST:SUMMARY pass=7 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=150000000 hashes=648000 elapsed_us=2000410 hash_rate_hs=323934 checksum=2a temperature=disabled
 MINING:PROGRESS arch=ARM-M33 nonce=700000 total_hashes=700000 hash_rate_hs=320415 temperature=disabled
 ```
+
+## 2026-09-14 — Retained stock-clock RISC-V device state
+
+- Experiment: `retained-riscv-150mhz-final-21`
+- Source/head: `49a54ae`
+- Purpose: leave the connected board running the fastest retained image after the paired ARM measurement.
+- Validation: ARM and RISC-V builds passed without warnings; all 7 device tests passed, including the 4096-case oracle and 10 target checks.
+- Kernel benchmark: **339,327 H/s** (`679000` hashes in `2001019 us`, checksum `32`).
+- Sustained mining: **333,166 H/s** at nonce `600000`.
+- Temperature: disabled as requested.
+- UF2 SHA-256: `046d49334a9648833b3b58668124e09e52c8acbc82bfd46f724fc93ecbfa7f71`.
+- Serial log: `logs/retained-riscv-150mhz-final-20260914.log`.
+- Decision: retained. The board is running this RISC-V image at 150 MHz.
+
+Runtime evidence:
+
+```text
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-error-batched-e04e arch=RISCV-HAZARD3 clock_hz=150000000 hashes=679000 elapsed_us=2001019 hash_rate_hs=339327 checksum=32 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=600000 total_hashes=600000 hash_rate_hs=333166 temperature=disabled
+```
