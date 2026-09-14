@@ -384,30 +384,15 @@ static bool check_vector(const char *name,
 static bool run_sha_error_sticky_test(void) {
     // Prove the premise used by batched error checking: an illegal WDATA write
     // latches ERR_WDATA_NOT_RDY, START does not erase it, and the documented
-    // SDK clear operation removes it. Wait until the peripheral has visibly
-    // entered its busy state before issuing the deliberate invalid write;
-    // immediately following word 16 with word 17 is timing-dependent.
-    static const uint32_t zero_block[16] = {0};
+    // SDK clear operation removes it. Match the Pico SDK hardware test's
+    // non-DMA stimulus: a long unpaced burst guarantees that writes overlap a
+    // compression regardless of CPU/peripheral timing.
     bootrom_acquire_lock_blocking(BOOTROM_LOCK_SHA_256);
     sha256_set_bswap(false);
     sha256_err_not_ready_clear();
     sha256_start();
-    sha256_write_block(zero_block);
-    bool observed_not_ready = false;
-    for (uint32_t poll = 0u; poll < 1024u; ++poll) {
-        if (!sha256_is_ready()) {
-            observed_not_ready = true;
-            break;
-        }
-        tight_loop_contents();
-    }
-    if (observed_not_ready) {
-        // Match the Pico SDK hardware test's non-DMA error stimulus: an
-        // unpaced 10,000-byte/2,500-word burst reliably attempts writes while
-        // the engine is busy. A single CPU store can be delayed or accepted.
-        for (uint32_t word = 0u; word < 2500u; ++word) {
-            sha256_put_word(word);
-        }
+    for (uint32_t word = 0u; word < 2500u; ++word) {
+        sha256_put_word(word);
     }
     sha256_wait_ready_blocking();
     const bool latched = sha256_err_not_ready();
@@ -417,11 +402,10 @@ static bool run_sha_error_sticky_test(void) {
     const bool cleared = !sha256_err_not_ready();
     bootrom_release_lock(BOOTROM_LOCK_SHA_256);
 
-    const bool passed = observed_not_ready && latched && survived_start && cleared;
-    printf("TEST:%s kat=sha_error_sticky cases=4 observed_not_ready=%u"
+    const bool passed = latched && survived_start && cleared;
+    printf("TEST:%s kat=sha_error_sticky cases=3 burst_words=2500"
            " latched=%u survived_start=%u cleared=%u\n",
-           passed ? "PASS" : "FAIL", observed_not_ready, latched,
-           survived_start, cleared);
+           passed ? "PASS" : "FAIL", latched, survived_start, cleared);
     return passed;
 }
 
