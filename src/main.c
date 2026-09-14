@@ -401,10 +401,18 @@ static bool run_sha_error_sticky_test(void) {
         }
         tight_loop_contents();
     }
+    bool latched = false;
     if (observed_not_ready) {
         sha256_put_word(0u);
+        for (uint32_t poll = 0u; poll < 1024u; ++poll) {
+            if (sha256_err_not_ready()) {
+                latched = true;
+                break;
+            }
+            tight_loop_contents();
+        }
     }
-    const bool latched = sha256_err_not_ready();
+    sha256_wait_ready_blocking();
     sha256_start();
     const bool survived_start = sha256_err_not_ready();
     sha256_err_not_ready_clear();
