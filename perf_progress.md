@@ -497,3 +497,61 @@ MINING:PROGRESS arch=RISCV-HAZARD3 nonce=600000 total_hashes=600000 hash_rate_hs
 - Temperature: intentionally **disabled**, not measured and not inferred.
 - Decision: E03-a preformatted numeric SHA words is the next justified variant;
   follow it with E03-b register-only digest handoff, inspecting both assemblies.
+
+## 2026-09-14 — E03-a numeric SHA words: ARM
+
+- Experiment: `E03a-numeric-words-arm-01`
+- Change: preformat the 80-byte job as numeric big-endian SHA words once, run
+  the SHA peripheral with BSWAP disabled, byte-reverse only the changing nonce,
+  and transfer raw numeric `SUM0..7` words to the second-hash SRAM block. Clock
+  remained stock 150 MHz. Source checkpoint: `5cbc8de`.
+- Build/validation: ARM and RISC-V passed without warnings. On ARM all six test
+  groups passed, including **4,096/4,096** optimized-path oracle cases and
+  **10/10** target-boundary cases; cycle result `CYCLE:PASS`.
+- Kernel benchmark: **303,003 H/s**, 607,000 complete Bitcoin double hashes in
+  2,003,282 us, checksum `b6`; estimated **495.04 cycles/hash**.
+- Sustained mining: converged to **298,082 H/s** at 600,000 total hashes.
+- Relative to E01 ARM (294,091 benchmark; 289,441 sustained): **+3.03%**
+  benchmark and **+2.98%** sustained. The kernel saves about **15.00
+  cycles/hash**.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Decision: retain E03-a on ARM and test the identical source on Hazard3 before
+  proceeding to register-only handoff.
+- Firmware UF2 SHA-256:
+  `fe09fbe00405c4de1d810622fb335d48f30f53b37fea2c45ff7eaa4075d8b763`
+- Archived serial log: `logs/E03a-numeric-words-arm.log`
+
+```text
+TEST:PASS kat=optimized_oracle cases=4096 fixture_sha256=4cf1f1db9d05f9208b74edec0f616497a286269e73a1e89747fed60ac5648f98
+TEST:SUMMARY pass=6 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=direct-numeric-words-e03a arch=ARM-M33 clock_hz=150000000 hashes=607000 elapsed_us=2003282 hash_rate_hs=303003 checksum=b6 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=600000 total_hashes=600000 hash_rate_hs=298082 temperature=disabled
+```
+
+## 2026-09-14 — E03-a numeric SHA words: RISC-V
+
+- Experiment: `E03a-numeric-words-riscv-02`
+- Build/workload: identical E03-a checkpoint `5cbc8de`, fixtures, and stock
+  150 MHz clock as the ARM run; Hazard3 RISC-V target.
+- Validation: all six test groups passed, including **4,096/4,096** oracle
+  cases and **10/10** target-boundary cases; cycle result `CYCLE:PASS`.
+- Kernel benchmark: **298,774 H/s**, 598,000 complete Bitcoin double hashes in
+  2,001,511 us, checksum `97`; estimated **502.05 cycles/hash**.
+- Sustained mining: reached **294,576 H/s** at 700,000 total hashes (the first
+  100,000 window was a startup outlier at 290,600 H/s).
+- Relative to E01 RISC-V (290,667 benchmark; 286,690 sustained): **+2.79%**
+  benchmark and **+2.75%** sustained. The kernel saves about **14.00
+  cycles/hash**.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Decision: retain E03-a for both architectures. Proceed to E03-b direct
+  register handoff as a separate functional checkpoint.
+- Firmware UF2 SHA-256:
+  `18555b28eefce040b3a897443939484cf5228e955c3d49a016f7c6ea4e3508f3`
+- Archived serial log: `logs/E03a-numeric-words-riscv.log`
+
+```text
+TEST:PASS kat=optimized_oracle cases=4096 fixture_sha256=4cf1f1db9d05f9208b74edec0f616497a286269e73a1e89747fed60ac5648f98
+TEST:SUMMARY pass=6 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=direct-numeric-words-e03a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=598000 elapsed_us=2001511 hash_rate_hs=298774 checksum=97 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=700000 total_hashes=700000 hash_rate_hs=294576 temperature=disabled
+```
