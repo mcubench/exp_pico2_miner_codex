@@ -23,7 +23,6 @@ _Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
 #define NONCE_OFFSET 76u
 #define BENCHMARK_MIN_US 2000000ull
 #define BENCHMARK_BATCH 1000u
-#define MINING_ERROR_CHECK_BATCH 1000u
 #define MINING_REPORT_INTERVAL 100000u
 
 #if MINER_SYS_CLOCK_KHZ > 150000
@@ -487,7 +486,7 @@ static bool run_benchmark(void) {
 
     const uint64_t rate = (hashes * 1000000ull + elapsed_us / 2u) / elapsed_us;
     printf("BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256"
-           " path=batched-accounting-e04c"
+           " path=sticky-error-batched-e04e"
            " arch=%s clock_hz=%" PRIu32 " hashes=%" PRIu64
            " elapsed_us=%" PRIu64 " hash_rate_hs=%" PRIu64
            " checksum=%02x temperature=disabled\n",
@@ -500,7 +499,6 @@ static void mine_forever(uint led_pin) {
     sha256_result_t target;
     bitcoin_hasher_t hasher;
     uint32_t nonce = 0u;
-    uint32_t since_error_check = 0u;
     uint32_t since_report = 0u;
     uint64_t total_hashes = 0u;
     uint64_t report_started_us = time_us_64();
@@ -516,25 +514,19 @@ static void mine_forever(uint led_pin) {
            " note=standalone-stale-work\n");
     while (true) {
         bitcoin_hasher_hash_nonce_unchecked(&hasher, nonce);
-        ++since_error_check;
+        ++since_report;
         const bool candidate = current_hash_meets_target(&target);
 
-        // ERR_WDATA_NOT_RDY is sticky (proved at startup). Validate every
-        // bounded batch and before publishing any candidate. On error, none
-        // of the unchecked batch is counted or published as useful work.
-        if (candidate || since_error_check == MINING_ERROR_CHECK_BATCH) {
+        // ERR_WDATA_NOT_RDY is sticky (proved at startup). A candidate is
+        // always validated immediately, before it can be published.
+        if (candidate) {
             if (sha256_err_not_ready()) {
                 printf("FAULT type=sha256_hardware nonce=%" PRIu32
                        " invalid_batch=%" PRIu32 "\n",
-                       nonce, since_error_check);
+                       nonce, since_report);
                 bitcoin_hasher_end(&hasher);
                 return;
             }
-            since_error_check = 0u;
-        }
-
-        ++since_report;
-        if (candidate) {
             capture_current_hash(&hash);
             printf("SHARE:FOUND nonce=%" PRIu32 " hash=", nonce);
             print_bitcoin_hash(hash.bytes);
@@ -544,6 +536,16 @@ static void mine_forever(uint led_pin) {
         ++nonce;
 
         if (since_report == MINING_REPORT_INTERVAL) {
+            // Reuse the existing report boundary rather than adding a hot-path
+            // counter and comparison. On error, discard the whole unvalidated
+            // interval before accounting or reporting it as useful work.
+            if (sha256_err_not_ready()) {
+                printf("FAULT type=sha256_hardware next_nonce=%" PRIu32
+                       " invalid_batch=%u\n",
+                       nonce, MINING_REPORT_INTERVAL);
+                bitcoin_hasher_end(&hasher);
+                return;
+            }
             const uint64_t now_us = time_us_64();
             const uint64_t elapsed_us = now_us - report_started_us;
             const uint64_t rate = ((uint64_t)since_report * 1000000ull
