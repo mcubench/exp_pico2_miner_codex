@@ -2385,3 +2385,27 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=49000 elapsed_us=2031001 hash_rate_hs=24126 checksum=ce temperature=disabled
 MINING:PROGRESS arch=RISCV-HAZARD3 worker_core=1 nonce=3300000 total_hashes=3300000 hash_rate_hs=340123 temperature=disabled
 ```
+
+## 2026-09-14 — E09-b2 expanded software schedule, ARM
+
+- Experiment: `E09b2-expanded-schedule-arm-34`.
+- Same candidate commit `8bf57fa`; both builds were clean and all 4,096
+  cross-engine oracle cases plus all 7 suites passed on ARM.
+- Software benchmark: **26,440 H/s**, `53000` hashes in `2004536 us`, checksum
+  `45`. Versus E09-b1 ARM 19,144 H/s: **+38.11%** (+7,296 H/s).
+- Hardware benchmark: **330,356 H/s**; sustained core1 hardware remained
+  approximately **327,468 H/s**.
+- Candidate ARM UF2 SHA-256:
+  `229f2f9c94b7abafcb24f6857693dffd1f14e6bd99cc390e9b59d10fb8e5ef96`.
+- Resource delta versus E09-b1: -56 bytes ELF text and +192 bytes temporary
+  stack. The expanded form is both smaller and much faster for ARM.
+- Archived serial log: `logs/E09b2-expanded-schedule-arm.log`.
+- Decision: retain expanded scheduling for both architectures. ARM is the
+  faster homogeneous software SHA choice, while RISC-V remains the faster
+  hardware-peripheral owner; this also strengthens the future mixed-ISA case.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=53000 elapsed_us=2004536 hash_rate_hs=26440 checksum=45 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 worker_core=1 nonce=3000000 total_hashes=3000000 hash_rate_hs=327474 temperature=disabled
+```
