@@ -1215,3 +1215,32 @@ TEST:SUMMARY pass=7 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-error-batched-e04e arch=ARM-M33 clock_hz=150000000 hashes=635000 elapsed_us=2002684 hash_rate_hs=317074 checksum=f6 temperature=disabled
 MINING:PROGRESS arch=ARM-M33 nonce=700000 total_hashes=700000 hash_rate_hs=306026 temperature=disabled
 ```
+
+## 2026-09-14 — E04-b next-nonce preparation overlap: ARM at 150 MHz
+
+- Experiment: `E04b-nonce-overlap-arm-09`
+- Change: prepare nonce zero once, then byte-swap/store `nonce+1` after the
+  final second-hash WDATA write and before waiting for `SUM_VLD`, attempting to
+  hide preparation inside the final 57-cycle compression. E04-e error strategy
+  remains architecture-specific.
+- Validation: both builds passed without warnings. ARM passed all seven test
+  groups, **4,096/4,096** oracle cases and **10/10** target cases; cycle passed.
+- Kernel benchmark: **328,903 H/s**, 658,000 hashes in 2,000,590 us, checksum
+  `bb`; estimated **456.06 cycles/hash**.
+- Sustained mining: **313,715 H/s** at 700,000 hashes.
+- Relative to the refined E04-e ARM result: benchmark effectively unchanged
+  (+0.0003%); sustained **-1.88%**. Relative to E04-c sustained: **-2.09%**.
+- Interpretation: nonce preparation was already hidden or overlapped in the
+  benchmark schedule; the altered M33 mining layout is harmful.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Firmware UF2 SHA-256:
+  `77c24836ffca7a5b2393082bddef1f58791f10e69bcedb5c0f6c0f472fcb0491`
+- Archived serial log: `logs/E04b-nonce-overlap-arm.log`
+- Decision: reject for ARM. Measure the matched Hazard3 result before deciding
+  whether to retain it conditionally for RISC-V.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=nonce-prep-overlap-e04b-e04e arch=ARM-M33 clock_hz=150000000 hashes=658000 elapsed_us=2000590 hash_rate_hs=328903 checksum=bb temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=700000 total_hashes=700000 hash_rate_hs=313715 temperature=disabled
+```
