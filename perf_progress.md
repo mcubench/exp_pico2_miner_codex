@@ -1031,6 +1031,34 @@ BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched
 MINING:PROGRESS arch=ARM-M33 nonce=700000 total_hashes=700000 hash_rate_hs=320415 temperature=disabled
 ```
 
+## 2026-09-14 — E05 Hazard3 branch-cost hint, run 1
+
+- Experiment: `E05-riscv-branch-cost1-13-run1`
+- Candidate commit: `afd38f5`.
+- Change: compile only `src/main.c` for `rp2350-riscv` with GCC
+  `-mbranch-cost=1`; ARM has no new flag and its UF2 remains byte-identical to
+  the retained build.
+- Validation: both builds passed without warnings. RISC-V passed all seven test
+  groups, **4,096/4,096** oracle cases and **10/10** target cases; cycle passed.
+- Kernel benchmark: **328,909 H/s**, 658,000 hashes in 2,000,554 us, checksum
+  `bb`; **-0.44%** versus the retained 330,357 H/s E04-e RISC-V result.
+- Sustained mining: **323,125 H/s** at 600,000 hashes; **+0.65%** versus the
+  retained 321,051 H/s result.
+- Interpretation: mixed first result. The generic branch-cost hint reduced the
+  bounded kernel score but improved the full mining loop. Repeat the identical
+  artifact before deciding whether this is a stable layout/scheduling tradeoff.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Firmware UF2 SHA-256:
+  `afe73eaa768e34a68d5afe3e6de7c9494dc213dd74353c530188713d1d200c8b`
+- Archived serial log: `logs/E05-riscv-branch-cost1-run1.log`
+- Decision: pending one identical-artifact confirmation run.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-error-batched-e04e arch=RISCV-HAZARD3 clock_hz=150000000 hashes=658000 elapsed_us=2000554 hash_rate_hs=328909 checksum=bb temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=600000 total_hashes=600000 hash_rate_hs=323125 temperature=disabled
+```
+
 ## 2026-09-14 — E05 source-only LTO: RISC-V at 150 MHz
 
 - Experiment: `E05-source-lto-riscv-03`
