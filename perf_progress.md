@@ -1057,6 +1057,35 @@ MINING:PROGRESS arch=ARM-M33 nonce=700000 total_hashes=700000 hash_rate_hs=32041
 TEST:FAIL kat=sha_error_sticky cases=4 observed_not_ready=0 latched=0 survived_start=0 cleared=1
 ```
 
+## 2026-09-14 — E05 branch-cost confirmation with deterministic RISC-V test
+
+- Experiment: `E05-riscv-branch-cost1-13-confirm-pass`
+- Candidate source commits: `afd38f5` (`-mbranch-cost=1`) and `c195377`
+  (unconditional SDK-pattern sticky-error stimulus).
+- Validation: both builds passed without warnings. RISC-V passed the
+  three-part sticky-error proof, all seven test groups, **4,096/4,096** oracle
+  cases and **10/10** target cases; cycle passed.
+- Kernel benchmark: **328,909 H/s**, 658,000 hashes in 2,000,555 us, checksum
+  `bb`; repeat-identical to E05 run 1 and **-0.44%** versus retained E04-e.
+- Sustained mining: **323,115 H/s** at 800,000 hashes; within 10 H/s of E05
+  run 1 and **+0.64%** versus retained E04-e.
+- Interpretation: the mixed branch-cost result is reproducible, but the
+  changed out-of-band self-test also changed image layout. Measure a no-flag
+  RISC-V artifact with the same deterministic test before deciding.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Firmware UF2 SHA-256:
+  `8dbb750625b1e364f9197213f5ef0e94925a420aaa601b29b59a79d7093316d6`
+- Archived serial log: `logs/E05-riscv-branch-cost1-confirm-pass.log`
+- Decision: functional fix passes RISC-V; E05 compiler flag remains pending a
+  layout-matched no-flag A/B.
+
+```text
+TEST:PASS kat=sha_error_sticky cases=3 burst_words=2500 latched=1 survived_start=1 cleared=1
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-error-batched-e04e arch=RISCV-HAZARD3 clock_hz=150000000 hashes=658000 elapsed_us=2000555 hash_rate_hs=328909 checksum=bb temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=800000 total_hashes=800000 hash_rate_hs=323115 temperature=disabled
+```
+
 ## 2026-09-14 — E05 Hazard3 branch-cost hint, run 1
 
 - Experiment: `E05-riscv-branch-cost1-13-run1`
