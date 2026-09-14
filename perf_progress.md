@@ -2234,3 +2234,28 @@ MINING:PROGRESS arch=RISCV-HAZARD3 worker_core=1 nonce=9900000 total_hashes=9900
 ```text
 MINING:PROGRESS arch=RISCV-HAZARD3 worker_core=1 nonce=7700000 total_hashes=7700000 hash_rate_hs=340097 temperature=disabled
 ```
+
+## 2026-09-14 — E08 ARM core1 mining worker
+
+- Experiment: `E08-arm-core1-worker-28`.
+- Candidate/retained implementation: commit `64ef8e5`; core 1 owns the SHA
+  mining loop and core 0 owns USB output and LED reporting.
+- Both architectures built cleanly before flash. On ARM, all 7 test suites
+  passed, no `FAULT` occurred, and the complete hardware cycle passed.
+- Kernel benchmark: **331,084 H/s** (`663000` hashes in `2002515 us`).
+- Sustained core1 mining: **327,469 H/s** representative, stable within roughly
+  327,451–327,477 H/s through 9.5 million hashes.
+- Versus the retained pre-E08 ARM sustained baseline of 325,207 H/s:
+  **+0.70%** (+2,262 H/s). The benefit is smaller than RISC-V's +1.39%, but
+  repeatability and separation of USB work justify the shared implementation.
+- ARM UF2 SHA-256:
+  `3d3383b569a60b527bdc1b62fa81ae409371acc4bb3c69a1eac78a256fad323d`.
+- Archived serial log: `logs/E08-arm-core1-worker.log`.
+- Decision: accept E08 for ARM and RISC-V. RISC-V remains the faster stock-clock
+  architecture at 340,093–340,094 H/s sustained.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=150000000 hashes=663000 elapsed_us=2002515 hash_rate_hs=331084 checksum=cb temperature=disabled
+MINING:PROGRESS arch=ARM-M33 worker_core=1 nonce=9500000 total_hashes=9500000 hash_rate_hs=327473 temperature=disabled
+```
