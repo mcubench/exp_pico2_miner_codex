@@ -54,6 +54,7 @@ add_dependencies(pico2_agent generate_oracle_vectors)
 target_include_directories(pico2_agent PRIVATE "${ORACLE_INCLUDE_DIR}")
 
 target_link_libraries(pico2_agent PRIVATE
+    hardware_dma
     pico_stdlib
     pico_sha256
 )
