@@ -384,14 +384,26 @@ static bool check_vector(const char *name,
 static bool run_sha_error_sticky_test(void) {
     // Prove the premise used by batched error checking: an illegal WDATA write
     // latches ERR_WDATA_NOT_RDY, START does not erase it, and the documented
-    // SDK clear operation removes it. This test runs outside timed work.
+    // SDK clear operation removes it. Wait until the peripheral has visibly
+    // entered its busy state before issuing the deliberate invalid write;
+    // immediately following word 16 with word 17 is timing-dependent.
     static const uint32_t zero_block[16] = {0};
     bootrom_acquire_lock_blocking(BOOTROM_LOCK_SHA_256);
     sha256_set_bswap(false);
     sha256_err_not_ready_clear();
     sha256_start();
     sha256_write_block(zero_block);
-    sha256_put_word(0u);
+    bool observed_not_ready = false;
+    for (uint32_t poll = 0u; poll < 1024u; ++poll) {
+        if (!sha256_is_ready()) {
+            observed_not_ready = true;
+            break;
+        }
+        tight_loop_contents();
+    }
+    if (observed_not_ready) {
+        sha256_put_word(0u);
+    }
     const bool latched = sha256_err_not_ready();
     sha256_start();
     const bool survived_start = sha256_err_not_ready();
@@ -399,10 +411,11 @@ static bool run_sha_error_sticky_test(void) {
     const bool cleared = !sha256_err_not_ready();
     bootrom_release_lock(BOOTROM_LOCK_SHA_256);
 
-    const bool passed = latched && survived_start && cleared;
-    printf("TEST:%s kat=sha_error_sticky cases=3 latched=%u"
-           " survived_start=%u cleared=%u\n",
-           passed ? "PASS" : "FAIL", latched, survived_start, cleared);
+    const bool passed = observed_not_ready && latched && survived_start && cleared;
+    printf("TEST:%s kat=sha_error_sticky cases=4 observed_not_ready=%u"
+           " latched=%u survived_start=%u cleared=%u\n",
+           passed ? "PASS" : "FAIL", observed_not_ready, latched,
+           survived_start, cleared);
     return passed;
 }
 
