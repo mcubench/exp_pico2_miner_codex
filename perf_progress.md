@@ -1126,3 +1126,32 @@ TEST:SUMMARY pass=7 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-error-batched-e04e arch=ARM-M33 clock_hz=150000000 hashes=658000 elapsed_us=2000595 hash_rate_hs=328902 checksum=bb temperature=disabled
 MINING:PROGRESS arch=ARM-M33 nonce=700000 total_hashes=700000 hash_rate_hs=319723 temperature=disabled
 ```
+
+## 2026-09-14 — E04-e report-boundary error batching: RISC-V at 150 MHz
+
+- Experiment: `E04e-report-boundary-riscv-06`
+- Configuration: identical E04-e report-boundary candidate measured on
+  Hazard3 RISC-V at requested/actual 150,000/150,000,000 kHz/Hz.
+- Validation: all seven test groups passed, including the sticky-error hardware
+  premise, **4,096/4,096** oracle cases and **10/10** target cases; cycle
+  `CYCLE:PASS`.
+- Kernel benchmark: **330,356 H/s**, 661,000 hashes in 2,000,872 us, checksum
+  `6f`; estimated **454.06 cycles/hash**.
+- Sustained mining: **321,050 H/s** at 700,000 hashes.
+- Relative to E04-c RISC-V baseline (325,341 benchmark; 314,333 sustained):
+  **+1.54% benchmark, +2.14% sustained**.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Firmware UF2 SHA-256:
+  `71731c6e02b1559165f59f6328d9be3b42509a0f463230a0ec5aaf3ce3e58c41`
+- Archived serial log: `logs/E04e-report-boundary-riscv.log`
+- Decision: retain sticky-error batching for Hazard3. The matched ARM result
+  improved its benchmark but slightly reduced sustained mining, so the next
+  subvariant will keep batched benchmark checks on both ISAs and select the
+  batched mining path only for RISC-V.
+
+```text
+TEST:PASS kat=sha_error_sticky cases=3 latched=1 survived_start=1 cleared=1
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-error-batched-e04e arch=RISCV-HAZARD3 clock_hz=150000000 hashes=661000 elapsed_us=2000872 hash_rate_hs=330356 checksum=6f temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=700000 total_hashes=700000 hash_rate_hs=321050 temperature=disabled
+```
