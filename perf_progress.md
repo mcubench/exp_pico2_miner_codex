@@ -2081,3 +2081,28 @@ MINING:PROGRESS arch=RISCV-HAZARD3 nonce=1000000 total_hashes=1000000 hash_rate_
 ```text
 MINING:PROGRESS arch=RISCV-HAZARD3 nonce=203800000 total_hashes=203800000 hash_rate_hs=328800 temperature=disabled
 ```
+
+## 2026-09-14 — E06a full-DMA RISC-V, delayed-capture confirmation
+
+- Experiment: `E06a-full-dma-riscv-24-delayed-confirm`.
+- Capture instrumentation commit: `4cc78b0`; RISC-V startup delay increased
+  to 120 seconds solely to accommodate VM USB reattachment. The full-DMA
+  hashing implementation is unchanged from `d78f547`; ARM remains
+  byte-identical to its retained image.
+- The USB runtime was attached after the delay and one-shot validation output
+  had already passed. Firmware was again in mining, which is reachable only
+  after the gated tests and benchmark complete, but explicit validation lines
+  were not captured.
+- Sustained mining: **328,800 H/s** at 10,000,000 hashes, confirming the prior
+  328,800 H/s result and the **-1.97%** regression versus first-block DMA.
+- Delayed RISC-V UF2 SHA-256:
+  `507e91cc34b8d1e274ac8ac1493e8344756a8f0a570a81c0a8d5620547985ff1`.
+- Archived serial log: `logs/E06a-full-dma-riscv-delayed-explicit.log`.
+- Decision: performance rejection is repeatable. Replace the unreliable
+  one-shot delay with temporary repeated validation output to capture the
+  exact kernel rate and explicit pass lines before restoring E06a first-block
+  DMA.
+
+```text
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=10000000 total_hashes=10000000 hash_rate_hs=328800 temperature=disabled
+```
