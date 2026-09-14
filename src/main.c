@@ -122,19 +122,20 @@ static inline __attribute__((always_inline)) void sha256_write_block(
 static void bitcoin_hasher_begin(bitcoin_hasher_t *hasher,
                                  const uint8_t header[BITCOIN_HEADER_BYTES]) {
     memset(hasher, 0, sizeof(*hasher));
-    uint8_t *header_bytes = (uint8_t *)hasher->header_blocks;
-    uint8_t *second_bytes = (uint8_t *)hasher->second_block;
-    memcpy(header_bytes, header, BITCOIN_HEADER_BYTES);
-
-    header_bytes[BITCOIN_HEADER_BYTES] = 0x80u;
-    header_bytes[126] = 0x02u; // 80 bytes == 640 bits == 0x0280.
-    header_bytes[127] = 0x80u;
-    second_bytes[HASH_BYTES] = 0x80u;
-    second_bytes[62] = 0x01u; // 32 bytes == 256 bits == 0x0100.
+    for (size_t i = 0u; i < BITCOIN_HEADER_BYTES / sizeof(uint32_t); ++i) {
+        uint32_t little_endian_word;
+        memcpy(&little_endian_word, &header[i * sizeof(uint32_t)],
+               sizeof(little_endian_word));
+        hasher->header_blocks[i] = __builtin_bswap32(little_endian_word);
+    }
+    hasher->header_blocks[20] = 0x80000000u;
+    hasher->header_blocks[31] = BITCOIN_HEADER_BYTES * 8u;
+    hasher->second_block[8] = 0x80000000u;
+    hasher->second_block[15] = HASH_BYTES * 8u;
 
     bootrom_acquire_lock_blocking(BOOTROM_LOCK_SHA_256);
     hasher->locked = true;
-    sha256_set_bswap(true);
+    sha256_set_bswap(false);
     sha256_err_not_ready_clear();
 }
 
@@ -148,17 +149,19 @@ static void bitcoin_hasher_end(bitcoin_hasher_t *hasher) {
 static inline __attribute__((always_inline)) bool bitcoin_hasher_hash_nonce(
     bitcoin_hasher_t *hasher,
     uint32_t nonce) {
-    // The RP2350 bus and serialized Bitcoin nonce are both little-endian.
-    hasher->header_blocks[NONCE_OFFSET / sizeof(uint32_t)] = nonce;
+    // The SHA input is held as numeric big-endian words, while Bitcoin
+    // serializes the nonce little-endian at byte offset 76.
+    hasher->header_blocks[NONCE_OFFSET / sizeof(uint32_t)] =
+        __builtin_bswap32(nonce);
 
     sha256_start();
     sha256_write_block(&hasher->header_blocks[0]);
     sha256_write_block(&hasher->header_blocks[16]);
     sha256_wait_valid_blocking();
     for (size_t i = 0; i < 8u; ++i) {
-        // Store digest bytes in SHA-256's conventional big-endian order so
-        // BSWAP converts the next block correctly as it enters the engine.
-        hasher->second_block[i] = __builtin_bswap32(sha256_hw->sum[i]);
+        // SUM already holds numeric SHA words, exactly the representation
+        // required by the second compression when hardware BSWAP is disabled.
+        hasher->second_block[i] = sha256_hw->sum[i];
     }
 
     sha256_start();
@@ -400,7 +403,7 @@ static bool run_benchmark(void) {
 
     const uint64_t rate = (hashes * 1000000ull + elapsed_us / 2u) / elapsed_us;
     printf("BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256"
-           " path=direct-unrolled-o3-lazy-result-rp2350a-stock"
+           " path=direct-numeric-words-e03a"
            " arch=%s clock_hz=%" PRIu32 " hashes=%" PRIu64
            " elapsed_us=%" PRIu64 " hash_rate_hs=%" PRIu64
            " checksum=%02x temperature=disabled\n",
