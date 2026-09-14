@@ -168,18 +168,13 @@ static void bitcoin_hasher_end(bitcoin_hasher_t *hasher) {
     }
 }
 
-static inline __attribute__((always_inline)) void bitcoin_hasher_prepare_nonce(
+static inline __attribute__((always_inline)) void bitcoin_hasher_hash_nonce_unchecked(
     bitcoin_hasher_t *hasher,
     uint32_t nonce) {
     // The SHA input is held as numeric big-endian words, while Bitcoin
     // serializes the nonce little-endian at byte offset 76.
     hasher->header_words[NONCE_OFFSET / sizeof(uint32_t)] =
         __builtin_bswap32(nonce);
-}
-
-static inline __attribute__((always_inline)) void
-bitcoin_hasher_hash_prepared_nonce_unchecked(bitcoin_hasher_t *hasher,
-                                             uint32_t next_nonce) {
 
     sha256_start();
     sha256_write_block(&hasher->header_words[0]);
@@ -214,24 +209,14 @@ bitcoin_hasher_hash_prepared_nonce_unchecked(bitcoin_hasher_t *hasher,
     sha256_put_word(0u);
     sha256_put_word(0u);
     sha256_put_word(HASH_BYTES * 8u);
-    // The current message is fully submitted. Prepare the next nonce while
-    // the hardware spends 57 cycles compressing this final block.
-    bitcoin_hasher_prepare_nonce(hasher, next_nonce);
     sha256_wait_valid_blocking();
-}
-
-static inline __attribute__((always_inline)) bool
-bitcoin_hasher_hash_prepared_nonce(bitcoin_hasher_t *hasher,
-                                   uint32_t next_nonce) {
-    bitcoin_hasher_hash_prepared_nonce_unchecked(hasher, next_nonce);
-    return !sha256_err_not_ready();
 }
 
 static inline __attribute__((always_inline)) bool bitcoin_hasher_hash_nonce(
     bitcoin_hasher_t *hasher,
     uint32_t nonce) {
-    bitcoin_hasher_prepare_nonce(hasher, nonce);
-    return bitcoin_hasher_hash_prepared_nonce(hasher, nonce + 1u);
+    bitcoin_hasher_hash_nonce_unchecked(hasher, nonce);
+    return !sha256_err_not_ready();
 }
 
 static inline __attribute__((always_inline)) void capture_current_hash(
@@ -480,14 +465,12 @@ static bool run_benchmark(void) {
     uint64_t hashes = 0u;
     volatile uint8_t checksum = 0u;
     bitcoin_hasher_begin(&hasher, genesis_header);
-    bitcoin_hasher_prepare_nonce(&hasher, nonce);
 
     const uint64_t started_us = time_us_64();
     uint64_t elapsed_us;
     do {
         for (uint32_t i = 0; i < BENCHMARK_BATCH; ++i) {
-            bitcoin_hasher_hash_prepared_nonce_unchecked(&hasher, nonce + 1u);
-            ++nonce;
+            bitcoin_hasher_hash_nonce_unchecked(&hasher, nonce++);
             checksum ^= (uint8_t)(sha256_hw->sum[0] >> 24u);
         }
         if (sha256_err_not_ready()) {
@@ -503,7 +486,7 @@ static bool run_benchmark(void) {
 
     const uint64_t rate = (hashes * 1000000ull + elapsed_us / 2u) / elapsed_us;
     printf("BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256"
-           " path=nonce-prep-overlap-e04b-e04e"
+           " path=sticky-error-batched-e04e"
            " arch=%s clock_hz=%" PRIu32 " hashes=%" PRIu64
            " elapsed_us=%" PRIu64 " hash_rate_hs=%" PRIu64
            " checksum=%02x temperature=disabled\n",
@@ -526,17 +509,16 @@ static void mine_forever(uint led_pin) {
         return;
     }
     bitcoin_hasher_begin(&hasher, genesis_header);
-    bitcoin_hasher_prepare_nonce(&hasher, nonce);
 
     printf("MINING:START header=bitcoin-genesis target_bits=1d00ffff start_nonce=0"
            " note=standalone-stale-work\n");
     while (true) {
 #ifdef __riscv
-        bitcoin_hasher_hash_prepared_nonce_unchecked(&hasher, nonce + 1u);
+        bitcoin_hasher_hash_nonce_unchecked(&hasher, nonce);
 #else
         // On M33, report-boundary batching slightly reduced sustained rate;
         // retain its faster checked-per-hash mining layout.
-        if (!bitcoin_hasher_hash_prepared_nonce(&hasher, nonce + 1u)) {
+        if (!bitcoin_hasher_hash_nonce(&hasher, nonce)) {
             printf("FAULT type=sha256_hardware nonce=%" PRIu32 "\n", nonce);
             bitcoin_hasher_end(&hasher);
             return;
