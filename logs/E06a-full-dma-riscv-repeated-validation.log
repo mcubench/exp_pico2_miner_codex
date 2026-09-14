@@ -1,0 +1,215 @@
+SERIAL_PORT=/dev/ttyACM0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persistent-full-dma-e06a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=672000 elapsed_us=2002901 hash_rate_hs=335513 checksum=c6 temperature=disabled
+VALIDATION:START run=5 total=10
+TEST:PASS kat=nist_empty engine=RP2350-SHA256
+TEST:PASS kat=nist_abc engine=RP2350-SHA256
+TEST:PASS kat=sha_error_sticky cases=3 burst_words=2500 latched=1 survived_start=1 cleared=1
+TEST:PASS kat=optimized_oracle cases=4096 fixture_sha256=4cf1f1db9d05f9208b74edec0f616497a286269e73a1e89747fed60ac5648f98
+TEST:PASS kat=target_boundaries cases=10
+TEST:PASS kat=bitcoin_genesis hash=000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
+TEST:PASS kat=bitcoin_nonce_search nonce=2083236893 attempts=94 hash=000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persistent-full-dma-e06a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=672000 elapsed_us=2002819 hash_rate_hs=335527 checksum=c6 temperature=disabled
+VALIDATION:START run=6 total=10
+TEST:PASS kat=nist_empty engine=RP2350-SHA256
+TEST:PASS kat=nist_abc engine=RP2350-SHA256
+TEST:PASS kat=sha_error_sticky cases=3 burst_words=2500 latched=1 survived_start=1 cleared=1
+TEST:PASS kat=optimized_oracle cases=4096 fixture_sha256=4cf1f1db9d05f9208b74edec0f616497a286269e73a1e89747fed60ac5648f98
+TEST:PASS kat=target_boundaries cases=10
+TEST:PASS kat=bitcoin_genesis hash=000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
+TEST:PASS kat=bitcoin_nonce_search nonce=2083236893 attempts=94 hash=000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persistent-full-dma-e06a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=672000 elapsed_us=2002826 hash_rate_hs=335526 checksum=c6 temperature=disabled
+VALIDATION:START run=7 total=10
+TEST:PASS kat=nist_empty engine=RP2350-SHA256
+TEST:PASS kat=nist_abc engine=RP2350-SHA256
+TEST:PASS kat=sha_error_sticky cases=3 burst_words=2500 latched=1 survived_start=1 cleared=1
+TEST:PASS kat=optimized_oracle cases=4096 fixture_sha256=4cf1f1db9d05f9208b74edec0f616497a286269e73a1e89747fed60ac5648f98
+TEST:PASS kat=target_boundaries cases=10
+TEST:PASS kat=bitcoin_genesis hash=000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
+TEST:PASS kat=bitcoin_nonce_search nonce=2083236893 attempts=94 hash=000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persistent-full-dma-e06a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=672000 elapsed_us=2002816 hash_rate_hs=335528 checksum=c6 temperature=disabled
+VALIDATION:START run=8 total=10
+TEST:PASS kat=nist_empty engine=RP2350-SHA256
+TEST:PASS kat=nist_abc engine=RP2350-SHA256
+TEST:PASS kat=sha_error_sticky cases=3 burst_words=2500 latched=1 survived_start=1 cleared=1
+TEST:PASS kat=optimized_oracle cases=4096 fixture_sha256=4cf1f1db9d05f9208b74edec0f616497a286269e73a1e89747fed60ac5648f98
+TEST:PASS kat=target_boundaries cases=10
+TEST:PASS kat=bitcoin_genesis hash=000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
+TEST:PASS kat=bitcoin_nonce_search nonce=2083236893 attempts=94 hash=000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persistent-full-dma-e06a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=672000 elapsed_us=2002817 hash_rate_hs=335527 checksum=c6 temperature=disabled
+VALIDATION:START run=9 total=10
+TEST:PASS kat=nist_empty engine=RP2350-SHA256
+TEST:PASS kat=nist_abc engine=RP2350-SHA256
+TEST:PASS kat=sha_error_sticky cases=3 burst_words=2500 latched=1 survived_start=1 cleared=1
+TEST:PASS kat=optimized_oracle cases=4096 fixture_sha256=4cf1f1db9d05f9208b74edec0f616497a286269e73a1e89747fed60ac5648f98
+TEST:PASS kat=target_boundaries cases=10
+TEST:PASS kat=bitcoin_genesis hash=000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
+TEST:PASS kat=bitcoin_nonce_search nonce=2083236893 attempts=94 hash=000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persistent-full-dma-e06a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=672000 elapsed_us=2002816 hash_rate_hs=335528 checksum=c6 temperature=disabled
+VALIDATION:START run=10 total=10
+TEST:PASS kat=nist_empty engine=RP2350-SHA256
+TEST:PASS kat=nist_abc engine=RP2350-SHA256
+TEST:PASS kat=sha_error_sticky cases=3 burst_words=2500 latched=1 survived_start=1 cleared=1
+TEST:PASS kat=optimized_oracle cases=4096 fixture_sha256=4cf1f1db9d05f9208b74edec0f616497a286269e73a1e89747fed60ac5648f98
+TEST:PASS kat=target_boundaries cases=10
+TEST:PASS kat=bitcoin_genesis hash=000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
+TEST:PASS kat=bitcoin_nonce_search nonce=2083236893 attempts=94 hash=000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persistent-full-dma-e06a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=672000 elapsed_us=2002819 hash_rate_hs=335527 checksum=c6 temperature=disabled
+MINING:START header=bitcoin-genesis target_bits=1d00ffff start_nonce=0 note=standalone-stale-work
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=100000 total_hashes=100000 hash_rate_hs=325046 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=200000 total_hashes=200000 hash_rate_hs=329478 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=300000 total_hashes=300000 hash_rate_hs=329511 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=400000 total_hashes=400000 hash_rate_hs=329520 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=500000 total_hashes=500000 hash_rate_hs=329520 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=600000 total_hashes=600000 hash_rate_hs=329520 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=700000 total_hashes=700000 hash_rate_hs=329522 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=800000 total_hashes=800000 hash_rate_hs=329520 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=900000 total_hashes=900000 hash_rate_hs=329527 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=1000000 total_hashes=1000000 hash_rate_hs=329516 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=1100000 total_hashes=1100000 hash_rate_hs=329522 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=1200000 total_hashes=1200000 hash_rate_hs=329522 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=1300000 total_hashes=1300000 hash_rate_hs=329522 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=1400000 total_hashes=1400000 hash_rate_hs=329524 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=1500000 total_hashes=1500000 hash_rate_hs=329522 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=1600000 total_hashes=1600000 hash_rate_hs=329519 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=1700000 total_hashes=1700000 hash_rate_hs=329516 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=1800000 total_hashes=1800000 hash_rate_hs=329521 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=1900000 total_hashes=1900000 hash_rate_hs=329522 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=2000000 total_hashes=2000000 hash_rate_hs=329522 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=2100000 total_hashes=2100000 hash_rate_hs=329520 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=2200000 total_hashes=2200000 hash_rate_hs=329519 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=2300000 total_hashes=2300000 hash_rate_hs=329520 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=2400000 total_hashes=2400000 hash_rate_hs=329523 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=2500000 total_hashes=2500000 hash_rate_hs=329516 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=2600000 total_hashes=2600000 hash_rate_hs=329516 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=2700000 total_hashes=2700000 hash_rate_hs=329522 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=2800000 total_hashes=2800000 hash_rate_hs=329519 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=2900000 total_hashes=2900000 hash_rate_hs=329520 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=3000000 total_hashes=3000000 hash_rate_hs=329518 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=3100000 total_hashes=3100000 hash_rate_hs=329525 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=3200000 total_hashes=3200000 hash_rate_hs=329522 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=3300000 total_hashes=3300000 hash_rate_hs=329521 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=3400000 total_hashes=3400000 hash_rate_hs=329522 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=3500000 total_hashes=3500000 hash_rate_hs=329519 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=3600000 total_hashes=3600000 hash_rate_hs=329521 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=3700000 total_hashes=3700000 hash_rate_hs=329520 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=3800000 total_hashes=3800000 hash_rate_hs=329522 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=3900000 total_hashes=3900000 hash_rate_hs=329525 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=4000000 total_hashes=4000000 hash_rate_hs=329520 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=4100000 total_hashes=4100000 hash_rate_hs=329521 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=4200000 total_hashes=4200000 hash_rate_hs=329515 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=4300000 total_hashes=4300000 hash_rate_hs=329525 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=4400000 total_hashes=4400000 hash_rate_hs=329521 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=4500000 total_hashes=4500000 hash_rate_hs=329520 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=4600000 total_hashes=4600000 hash_rate_hs=329519 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=4700000 total_hashes=4700000 hash_rate_hs=329525 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=4800000 total_hashes=4800000 hash_rate_hs=329518 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=4900000 total_hashes=4900000 hash_rate_hs=329521 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=5000000 total_hashes=5000000 hash_rate_hs=329518 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=5100000 total_hashes=5100000 hash_rate_hs=329524 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=5200000 total_hashes=5200000 hash_rate_hs=329521 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=5300000 total_hashes=5300000 hash_rate_hs=329519 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=5400000 total_hashes=5400000 hash_rate_hs=329519 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=5500000 total_hashes=5500000 hash_rate_hs=329522 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=5600000 total_hashes=5600000 hash_rate_hs=329519 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=5700000 total_hashes=5700000 hash_rate_hs=329520 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=5800000 total_hashes=5800000 hash_rate_hs=329518 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=5900000 total_hashes=5900000 hash_rate_hs=329520 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=6000000 total_hashes=6000000 hash_rate_hs=329522 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=6100000 total_hashes=6100000 hash_rate_hs=329518 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=6200000 total_hashes=6200000 hash_rate_hs=329526 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=6300000 total_hashes=6300000 hash_rate_hs=329520 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=6400000 total_hashes=6400000 hash_rate_hs=329521 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=6500000 total_hashes=6500000 hash_rate_hs=329521 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=6600000 total_hashes=6600000 hash_rate_hs=329519 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=6700000 total_hashes=6700000 hash_rate_hs=329519 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=6800000 total_hashes=6800000 hash_rate_hs=329520 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=6900000 total_hashes=6900000 hash_rate_hs=329514 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=7000000 total_hashes=7000000 hash_rate_hs=329520 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=7100000 total_hashes=7100000 hash_rate_hs=329527 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=7200000 total_hashes=7200000 hash_rate_hs=329526 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=7300000 total_hashes=7300000 hash_rate_hs=329522 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=7400000 total_hashes=7400000 hash_rate_hs=329518 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=7500000 total_hashes=7500000 hash_rate_hs=329521 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=7600000 total_hashes=7600000 hash_rate_hs=329518 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=7700000 total_hashes=7700000 hash_rate_hs=329519 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=7800000 total_hashes=7800000 hash_rate_hs=329519 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=7900000 total_hashes=7900000 hash_rate_hs=329521 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=8000000 total_hashes=8000000 hash_rate_hs=329516 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=8100000 total_hashes=8100000 hash_rate_hs=329515 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=8200000 total_hashes=8200000 hash_rate_hs=329522 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=8300000 total_hashes=8300000 hash_rate_hs=329525 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=8400000 total_hashes=8400000 hash_rate_hs=329524 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=8500000 total_hashes=8500000 hash_rate_hs=329523 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=8600000 total_hashes=8600000 hash_rate_hs=329516 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=8700000 total_hashes=8700000 hash_rate_hs=329525 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=8800000 total_hashes=8800000 hash_rate_hs=329518 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=8900000 total_hashes=8900000 hash_rate_hs=329520 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=9000000 total_hashes=9000000 hash_rate_hs=329518 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=9100000 total_hashes=9100000 hash_rate_hs=329522 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=9200000 total_hashes=9200000 hash_rate_hs=329518 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=9300000 total_hashes=9300000 hash_rate_hs=329520 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=9400000 total_hashes=9400000 hash_rate_hs=329523 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=9500000 total_hashes=9500000 hash_rate_hs=329522 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=9600000 total_hashes=9600000 hash_rate_hs=329519 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=9700000 total_hashes=9700000 hash_rate_hs=329513 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=9800000 total_hashes=9800000 hash_rate_hs=329521 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=9900000 total_hashes=9900000 hash_rate_hs=329524 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=10000000 total_hashes=10000000 hash_rate_hs=329520 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=10100000 total_hashes=10100000 hash_rate_hs=329519 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=10200000 total_hashes=10200000 hash_rate_hs=329519 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=10300000 total_hashes=10300000 hash_rate_hs=329521 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=10400000 total_hashes=10400000 hash_rate_hs=329521 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=10500000 total_hashes=10500000 hash_rate_hs=329518 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=10600000 total_hashes=10600000 hash_rate_hs=329516 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=10700000 total_hashes=10700000 hash_rate_hs=329519 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=10800000 total_hashes=10800000 hash_rate_hs=329515 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=10900000 total_hashes=10900000 hash_rate_hs=329518 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=11000000 total_hashes=11000000 hash_rate_hs=329515 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=11100000 total_hashes=11100000 hash_rate_hs=329518 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=11200000 total_hashes=11200000 hash_rate_hs=329518 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=11300000 total_hashes=11300000 hash_rate_hs=329516 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=11400000 total_hashes=11400000 hash_rate_hs=329512 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=11500000 total_hashes=11500000 hash_rate_hs=329519 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=11600000 total_hashes=11600000 hash_rate_hs=329515 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=11700000 total_hashes=11700000 hash_rate_hs=329521 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=11800000 total_hashes=11800000 hash_rate_hs=329516 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=11900000 total_hashes=11900000 hash_rate_hs=329519 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=12000000 total_hashes=12000000 hash_rate_hs=329515 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=12100000 total_hashes=12100000 hash_rate_hs=329520 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=12200000 total_hashes=12200000 hash_rate_hs=329521 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=12300000 total_hashes=12300000 hash_rate_hs=329515 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=12400000 total_hashes=12400000 hash_rate_hs=329518 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=12500000 total_hashes=12500000 hash_rate_hs=329513 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=12600000 total_hashes=12600000 hash_rate_hs=329519 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=12700000 total_hashes=12700000 hash_rate_hs=329519 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=12800000 total_hashes=12800000 hash_rate_hs=329514 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=12900000 total_hashes=12900000 hash_rate_hs=329514 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=13000000 total_hashes=13000000 hash_rate_hs=329515 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=13100000 total_hashes=13100000 hash_rate_hs=329516 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=13200000 total_hashes=13200000 hash_rate_hs=329514 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=13300000 total_hashes=13300000 hash_rate_hs=329515 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=13400000 total_hashes=13400000 hash_rate_hs=329515 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=13500000 total_hashes=13500000 hash_rate_hs=329515 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=13600000 total_hashes=13600000 hash_rate_hs=329516 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=13700000 total_hashes=13700000 hash_rate_hs=329512 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=13800000 total_hashes=13800000 hash_rate_hs=329519 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=13900000 total_hashes=13900000 hash_rate_hs=329509 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=14000000 total_hashes=14000000 hash_rate_hs=329518 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=14100000 total_hashes=14100000 hash_rate_hs=329512 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=14200000 total_hashes=14200000 hash_rate_hs=329520 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=14300000 total_hashes=14300000 hash_rate_hs=329519 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=14400000 total_hashes=14400000 hash_rate_hs=329518 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=14500000 total_hashes=14500000 hash_rate_hs=329515 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=14600000 total_hashes=14600000 hash_rate_hs=329520 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=14700000 total_hashes=14700000 hash_rate_hs=329519 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=14800000 total_hashes=14800000 hash_rate_hs=329518 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=14900000 total_hashes=14900000 hash_rate_hs=329520 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=15000000 total_hashes=15000000 hash_rate_hs=329516 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=15100000 total_hashes=15100000 hash_rate_hs=329521 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=15200000 total_hashes=15200000 hash_rate_hs=329518 temperature=disabled

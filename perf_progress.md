@@ -2106,3 +2106,35 @@ MINING:PROGRESS arch=RISCV-HAZARD3 nonce=203800000 total_hashes=203800000 hash_r
 ```text
 MINING:PROGRESS arch=RISCV-HAZARD3 nonce=10000000 total_hashes=10000000 hash_rate_hs=328800 temperature=disabled
 ```
+
+## 2026-09-14 — E06a full-DMA RISC-V explicit validation and rejection
+
+- Experiment: `E06a-full-dma-riscv-24-explicit-reject`.
+- Hashing candidate commit: `d78f547`; temporary repeated-validation capture
+  commit: `9659435`. The repeated wrapper does not change `run_benchmark()` or
+  the full-DMA hash routine.
+- Configuration: RP2350A, Hazard3 RISC-V, stock 150 MHz, temperature disabled.
+- Validation: six complete captured repetitions each passed all 7 tests,
+  including 4,096 oracle vectors, 10 target cases, genesis digest/search, and
+  sticky-error proof. No `FAULT` or SHA error appeared.
+- Kernel samples: **335,513, 335,527, 335,526, 335,528, 335,527, and 335,528
+  H/s**; median **335,527 H/s**. Representative window: `672000` hashes in
+  `2002819 us`, checksum `c6`.
+- Sustained mining: **329,522 H/s** at 5,000,000 hashes.
+- Versus retained first-block-only DMA: kernel **-2.69%** from 344,783 H/s;
+  sustained **-1.76%** from 335,420 H/s.
+- Capture UF2 SHA-256:
+  `b5ede94df1a20058938869fcd379103038bbd3e0d1572a5399060800a5f37f56`.
+- Archived serial log:
+  `logs/E06a-full-dma-riscv-repeated-validation.log`.
+- Interpretation: DMA efficiently replaces Hazard3's sixteen first-block MMIO
+  stores, but extending it across all three blocks loses more to eight SUM-to-
+  SRAM stores plus a second DMA rearm/wait than it saves on direct WDATA feeds.
+- Decision: reject full DMA. Restore the byte-confirmed E06a first-block-only
+  DMA path and remove all temporary capture repetition/delay instrumentation.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persistent-full-dma-e06a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=672000 elapsed_us=2002819 hash_rate_hs=335527 checksum=c6 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=5000000 total_hashes=5000000 hash_rate_hs=329518 temperature=disabled
+```
