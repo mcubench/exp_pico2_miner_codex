@@ -1141,6 +1141,34 @@ BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-
 MINING:PROGRESS arch=RISCV-HAZARD3 nonce=700000 total_hashes=700000 hash_rate_hs=321033 temperature=disabled
 ```
 
+## 2026-09-14 — E05 Hazard3 no-code-hoisting trial
+
+- Experiment: `E05-riscv-no-code-hoisting-14-reject`
+- Candidate commit: `eb7e3f7`.
+- Change: compile only RISC-V `src/main.c` with `-fno-code-hoisting` at the
+  existing `-O3`; ARM remains unchanged.
+- Artifact result: RISC-V UF2 is byte-for-byte identical to the no-flag
+  control, proving this option changes no emitted firmware in the current
+  translation unit.
+- Validation: both builds passed without warnings. RISC-V passed the
+  sticky-error proof, all seven test groups, **4,096/4,096** oracle cases and
+  **10/10** target cases; cycle passed.
+- Kernel benchmark: **330,357 H/s**, 661,000 hashes in 2,000,867 us, checksum
+  `6f`; exact no-flag result.
+- Sustained mining: **321,043 H/s** at 700,000 hashes, a noise-level 10 H/s
+  above the immediately preceding identical-artifact control.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Firmware UF2 SHA-256:
+  `c9ef278d9e16b25243499a6a349820a30ef74c1d6c0be274b8623bee53d1927a`
+- Archived serial log: `logs/E05-riscv-no-code-hoisting.log`
+- Decision: reject as no effect and remove the redundant flag.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-error-batched-e04e arch=RISCV-HAZARD3 clock_hz=150000000 hashes=661000 elapsed_us=2000867 hash_rate_hs=330357 checksum=6f temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=700000 total_hashes=700000 hash_rate_hs=321043 temperature=disabled
+```
+
 ## 2026-09-14 — E05 Hazard3 branch-cost hint, run 1
 
 - Experiment: `E05-riscv-branch-cost1-13-run1`
