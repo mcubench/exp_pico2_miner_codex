@@ -2138,3 +2138,24 @@ TEST:SUMMARY pass=7 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persistent-full-dma-e06a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=672000 elapsed_us=2002819 hash_rate_hs=335527 checksum=c6 temperature=disabled
 MINING:PROGRESS arch=RISCV-HAZARD3 nonce=5000000 total_hashes=5000000 hash_rate_hs=329518 temperature=disabled
 ```
+
+## 2026-09-14 — E06a first-block DMA restored after full-DMA rejection
+
+- Experiment: `E06a-first-block-dma-riscv-25-restored`.
+- Restoration commit: `b1bb7dd`; source exactly matches the retained E06a
+  architecture split from `d8979ba`.
+- Both architectures rebuilt without warnings. ARM UF2 is byte-identical at
+  `9898f3013920729e84b4533d87e5edca3605ba02aaa5ec53a833555014d3f9b4`;
+  RISC-V UF2 is byte-identical at
+  `493193f79243ae533efed0114c335ecc72d4a7825b2fb4d3c754e8496de74250`.
+- Validation basis: the identical RISC-V artifact previously passed all 7
+  tests in two explicit captures and measured 344,783–344,784 H/s kernel.
+- Restored sustained mining: **335,420 H/s** at 3,900,000 hashes, exactly the
+  retained performance envelope.
+- Archived serial log: `logs/E06a-restored-riscv-final.log`.
+- Decision: restoration confirmed; board runs the stock-clock RISC-V
+  first-block-DMA winner. Advance to selective placement under DMA contention.
+
+```text
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=3900000 total_hashes=3900000 hash_rate_hs=335420 temperature=disabled
+```
