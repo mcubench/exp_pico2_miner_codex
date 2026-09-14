@@ -19,12 +19,12 @@ _Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
 #define CPU_ARCH "RISCV-HAZARD3"
 #define BENCHMARK_PATH "persistent-full-dma-e06a"
 #define MINING_LOOP_OPTIONS __attribute__((optimize("unroll-loops")))
-#define STARTUP_DELAY_MS 120000u
+#define VALIDATION_REPEATS 10u
 #else
 #define CPU_ARCH "ARM-M33"
 #define BENCHMARK_PATH "batched-accounting-e04c"
 #define MINING_LOOP_OPTIONS __attribute__((optimize("unroll-loops")))
-#define STARTUP_DELAY_MS 3500u
+#define VALIDATION_REPEATS 1u
 #endif
 
 #define BITCOIN_HEADER_BYTES 80u
@@ -676,7 +676,7 @@ int main(void) {
 
     // Give the host time to enumerate USB CDC and attach the monitor. A fixed
     // delay also keeps headless operation independent of host DTR behaviour.
-    sleep_ms(STARTUP_DELAY_MS);
+    sleep_ms(3500u);
     if (!clock_configured) {
         printf("FAULT type=system_clock requested_khz=%u\n", MINER_SYS_CLOCK_KHZ);
         while (true) {
@@ -702,19 +702,25 @@ int main(void) {
             sleep_ms(100u);
         }
     }
-    if (!run_known_answer_tests()) {
-        printf("TEST:SUMMARY pass=0 fail=1\n");
-        while (true) {
-            gpio_xor_mask(1u << led_pin);
-            sleep_ms(100u);
+    for (uint32_t validation_run = 1u;
+         validation_run <= VALIDATION_REPEATS;
+         ++validation_run) {
+        printf("VALIDATION:START run=%" PRIu32 " total=%u\n",
+               validation_run, VALIDATION_REPEATS);
+        if (!run_known_answer_tests()) {
+            printf("TEST:SUMMARY pass=0 fail=1\n");
+            while (true) {
+                gpio_xor_mask(1u << led_pin);
+                sleep_ms(100u);
+            }
         }
-    }
-    printf("TEST:SUMMARY pass=7 fail=0\n");
+        printf("TEST:SUMMARY pass=7 fail=0\n");
 
-    if (!run_benchmark()) {
-        while (true) {
-            gpio_xor_mask64(1ull << led_pin);
-            sleep_ms(100u);
+        if (!run_benchmark()) {
+            while (true) {
+                gpio_xor_mask64(1ull << led_pin);
+                sleep_ms(100u);
+            }
         }
     }
     mine_forever(led_pin);
