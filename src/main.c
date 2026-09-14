@@ -401,18 +401,16 @@ static bool run_sha_error_sticky_test(void) {
         }
         tight_loop_contents();
     }
-    bool latched = false;
     if (observed_not_ready) {
-        sha256_put_word(0u);
-        for (uint32_t poll = 0u; poll < 1024u; ++poll) {
-            if (sha256_err_not_ready()) {
-                latched = true;
-                break;
-            }
-            tight_loop_contents();
+        // Match the Pico SDK hardware test's non-DMA error stimulus: an
+        // unpaced 10,000-byte/2,500-word burst reliably attempts writes while
+        // the engine is busy. A single CPU store can be delayed or accepted.
+        for (uint32_t word = 0u; word < 2500u; ++word) {
+            sha256_put_word(word);
         }
     }
     sha256_wait_ready_blocking();
+    const bool latched = sha256_err_not_ready();
     sha256_start();
     const bool survived_start = sha256_err_not_ready();
     sha256_err_not_ready_clear();
