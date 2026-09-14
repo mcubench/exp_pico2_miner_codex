@@ -5,7 +5,9 @@
 #include <string.h>
 
 #include "hardware/clocks.h"
+#ifdef __riscv
 #include "hardware/dma.h"
+#endif
 #include "hardware/structs/sysinfo.h"
 #include "pico/bootrom/lock.h"
 #include "pico/sha256.h"
@@ -19,7 +21,7 @@ _Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
 #define MINING_LOOP_OPTIONS __attribute__((optimize("unroll-loops")))
 #else
 #define CPU_ARCH "ARM-M33"
-#define BENCHMARK_PATH "persistent-first-block-dma-e06a"
+#define BENCHMARK_PATH "batched-accounting-e04c"
 #define MINING_LOOP_OPTIONS __attribute__((optimize("unroll-loops")))
 #endif
 
@@ -79,7 +81,9 @@ static const uint8_t sha256_abc[HASH_BYTES] = {
 typedef struct bitcoin_hasher {
     // Numeric SHA words for the unpadded 80-byte Bitcoin header.
     uint32_t header_words[20];
+#ifdef __riscv
     int dma_channel;
+#endif
     bool locked;
 } bitcoin_hasher_t;
 
@@ -104,8 +108,9 @@ static bool hardware_sha256(const uint8_t *data, size_t size, uint8_t hash[HASH_
     return true;
 }
 
-static inline __attribute__((always_inline)) void sha256_dma_write_first_block(
+static inline __attribute__((always_inline)) void sha256_write_first_block(
     bitcoin_hasher_t *hasher) {
+#ifdef __riscv
     // The channel configuration and fixed WDATA destination persist for the
     // complete job. Only the incrementing source and transfer count need to
     // be restored for each invariant first header block.
@@ -113,6 +118,28 @@ static inline __attribute__((always_inline)) void sha256_dma_write_first_block(
                               &hasher->header_words[0], false);
     dma_channel_set_trans_count((uint)hasher->dma_channel, 16u, true);
     dma_channel_wait_for_finish_blocking((uint)hasher->dma_channel);
+#else
+    // START establishes the ready/reset state, and ordered MMIO stores ensure
+    // it reaches the peripheral before these writes. The inter-block feeder
+    // still waits explicitly after word 16 starts compression.
+    const uint32_t *words = hasher->header_words;
+    sha256_put_word(words[0]);
+    sha256_put_word(words[1]);
+    sha256_put_word(words[2]);
+    sha256_put_word(words[3]);
+    sha256_put_word(words[4]);
+    sha256_put_word(words[5]);
+    sha256_put_word(words[6]);
+    sha256_put_word(words[7]);
+    sha256_put_word(words[8]);
+    sha256_put_word(words[9]);
+    sha256_put_word(words[10]);
+    sha256_put_word(words[11]);
+    sha256_put_word(words[12]);
+    sha256_put_word(words[13]);
+    sha256_put_word(words[14]);
+    sha256_put_word(words[15]);
+#endif
 }
 
 static inline __attribute__((always_inline)) void sha256_write_header_tail(
@@ -150,6 +177,7 @@ static void bitcoin_hasher_begin(bitcoin_hasher_t *hasher,
 
     bootrom_acquire_lock_blocking(BOOTROM_LOCK_SHA_256);
     hasher->locked = true;
+#ifdef __riscv
     hasher->dma_channel = dma_claim_unused_channel(true);
     dma_channel_config_t dma_config =
         dma_channel_get_default_config((uint)hasher->dma_channel);
@@ -160,17 +188,22 @@ static void bitcoin_hasher_begin(bitcoin_hasher_t *hasher,
     dma_channel_configure((uint)hasher->dma_channel, &dma_config,
                           sha256_get_write_addr(), &hasher->header_words[0],
                           16u, false);
+#endif
     sha256_set_bswap(false);
+#ifdef __riscv
     sha256_set_dma_size(4u);
+#endif
     sha256_err_not_ready_clear();
 }
 
 static void bitcoin_hasher_end(bitcoin_hasher_t *hasher) {
+#ifdef __riscv
     if (hasher->dma_channel >= 0) {
         dma_channel_cleanup((uint)hasher->dma_channel);
         dma_channel_unclaim((uint)hasher->dma_channel);
         hasher->dma_channel = -1;
     }
+#endif
     if (hasher->locked) {
         bootrom_release_lock(BOOTROM_LOCK_SHA_256);
         hasher->locked = false;
@@ -186,7 +219,7 @@ static inline __attribute__((always_inline)) void bitcoin_hasher_hash_nonce_unch
         __builtin_bswap32(nonce);
 
     sha256_start();
-    sha256_dma_write_first_block(hasher);
+    sha256_write_first_block(hasher);
     sha256_write_header_tail(hasher->header_words);
     sha256_wait_valid_blocking();
     // Preserve the complete first digest before START resets the engine. The

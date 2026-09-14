@@ -53,11 +53,11 @@ add_executable(pico2_agent
 add_dependencies(pico2_agent generate_oracle_vectors)
 target_include_directories(pico2_agent PRIVATE "${ORACLE_INCLUDE_DIR}")
 
-target_link_libraries(pico2_agent PRIVATE
-    hardware_dma
-    pico_stdlib
-    pico_sha256
-)
+if(PICO_PLATFORM STREQUAL "rp2350-riscv")
+    target_link_libraries(pico2_agent PRIVATE hardware_dma pico_stdlib pico_sha256)
+else()
+    target_link_libraries(pico2_agent PRIVATE pico_stdlib pico_sha256)
+endif()
 
 target_compile_options(pico2_agent PRIVATE
     -O3
