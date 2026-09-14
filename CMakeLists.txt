@@ -49,6 +49,7 @@ add_custom_target(generate_oracle_vectors DEPENDS "${ORACLE_INCLUDE}")
 
 add_executable(pico2_agent
     src/main.c
+    src/software_sha256.c
 )
 add_dependencies(pico2_agent generate_oracle_vectors)
 target_include_directories(pico2_agent PRIVATE "${ORACLE_INCLUDE_DIR}")

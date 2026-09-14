@@ -14,6 +14,8 @@
 #include "pico/sha256.h"
 #include "pico/stdlib.h"
 
+#include "software_sha256.h"
+
 _Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
 
 #ifdef __riscv
@@ -366,19 +368,25 @@ static bool run_optimized_oracle_vectors(void) {
         const uint32_t nonce = state;
 
         bitcoin_hasher_t hasher;
+        software_bitcoin_hasher_t software_hasher;
         sha256_result_t hash;
+        uint8_t software_hash[HASH_BYTES];
         bitcoin_hasher_begin(&hasher, header);
         const bool hashed = bitcoin_hasher_hash_nonce(&hasher, nonce);
         capture_current_hash(&hash);
         bitcoin_hasher_end(&hasher);
-        if (!hashed || memcmp(hash.bytes, oracle_expected[vector], HASH_BYTES) != 0) {
+        software_bitcoin_hasher_begin(&software_hasher, header);
+        software_bitcoin_hash_nonce(&software_hasher, nonce, software_hash);
+        if (!hashed || memcmp(hash.bytes, oracle_expected[vector], HASH_BYTES) != 0
+            || memcmp(software_hash, oracle_expected[vector], HASH_BYTES) != 0) {
             printf("TEST:FAIL kat=optimized_oracle vector=%" PRIu32
                    " nonce=%" PRIu32 "\n",
                    vector, nonce);
             return false;
         }
     }
-    printf("TEST:PASS kat=optimized_oracle cases=%u fixture_sha256=%s\n",
+    printf("TEST:PASS kat=optimized_oracle engines=hardware,software-midstate"
+           " cases=%u fixture_sha256=%s\n",
            ORACLE_VECTOR_COUNT, ORACLE_FIXTURE_SHA256);
     return true;
 }
@@ -551,6 +559,33 @@ static bool run_benchmark(void) {
            " checksum=%02x temperature=disabled\n",
            CPU_ARCH, clock_get_hz(clk_sys), hashes, elapsed_us, rate, checksum);
     return true;
+}
+
+static void run_software_benchmark(void) {
+    software_bitcoin_hasher_t hasher;
+    uint8_t hash[HASH_BYTES];
+    uint32_t nonce = 0u;
+    uint64_t hashes = 0u;
+    volatile uint8_t checksum = 0u;
+    software_bitcoin_hasher_begin(&hasher, genesis_header);
+
+    const uint64_t started_us = time_us_64();
+    uint64_t elapsed_us;
+    do {
+        for (uint32_t i = 0u; i < BENCHMARK_BATCH; ++i) {
+            software_bitcoin_hash_nonce(&hasher, nonce++, hash);
+            checksum ^= hash[0];
+        }
+        hashes += BENCHMARK_BATCH;
+        elapsed_us = time_us_64() - started_us;
+    } while (elapsed_us < BENCHMARK_MIN_US);
+
+    const uint64_t rate = (hashes * 1000000ull + elapsed_us / 2u) / elapsed_us;
+    printf("SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256"
+           " path=portable-midstate-e09a arch=%s clock_hz=%" PRIu32
+           " hashes=%" PRIu64 " elapsed_us=%" PRIu64
+           " hash_rate_hs=%" PRIu64 " checksum=%02x temperature=disabled\n",
+           CPU_ARCH, clock_get_hz(clk_sys), hashes, elapsed_us, rate, checksum);
 }
 
 #if !MINER_USE_CORE1
@@ -834,6 +869,7 @@ int main(void) {
             sleep_ms(100u);
         }
     }
+    run_software_benchmark();
     mine_forever(led_pin);
     return 0;
 }
