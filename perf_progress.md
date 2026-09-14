@@ -977,3 +977,27 @@ DOCTOR:FAIL count=1
 ```text
 MINING:PROGRESS arch=ARM-M33 nonce=4000000 total_hashes=4000000 hash_rate_hs=320415 temperature=disabled
 ```
+
+## 2026-09-14 — E05 rejected whole-image LTO build
+
+- Experiment: `E05-lto-whole-image-01-fail`
+- Hypothesis/change: enable CMake interprocedural optimization on the complete
+  `pico2_agent` target at 150 MHz, which applies GCC LTO to the application and
+  Pico SDK objects assembled into that target.
+- ARM result: **build failed** at link time. GCC LTO coalesced code in a way
+  incompatible with the SDK's wrapped `printf`/`puts` symbols and produced
+  unsupported/dangerous relocations involving time-critical sections.
+- RISC-V result: **build failed** during compilation. The installed compiler
+  rejected CMake's `-fno-fat-lto-objects` because its linker-plugin support is
+  unavailable in this toolchain configuration.
+- Validation/benchmark: not run; no firmware existed and nothing was flashed.
+  The recovered 150 MHz ARM baseline remained on the board.
+- Temperature: intentionally disabled; no measurement.
+- Decision: reject whole-image CMake IPO for both installed toolchains. If LTO
+  is explored further, constrain it to miner-owned source and preserve normal
+  SDK object generation/linkage; do not enable target-wide IPO.
+
+```text
+ARM: undefined reference to `__wrap_printf`; dangerous relocation: unsupported relocation
+RISC-V: cc1: error: '-fno-fat-lto-objects' are supported only with linker plugin
+```
