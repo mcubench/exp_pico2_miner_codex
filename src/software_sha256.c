@@ -37,8 +37,8 @@ static inline uint32_t rotate_right(uint32_t value, unsigned shift) {
     return (value >> shift) | (value << (32u - shift));
 }
 
-static void software_sha256_compress(uint32_t state[8],
-                                     const uint32_t block[16]) {
+static __attribute__((optimize("unroll-loops"))) void software_sha256_compress(
+    uint32_t state[8], const uint32_t block[16]) {
     uint32_t schedule[16];
     memcpy(schedule, block, sizeof(schedule));
 
