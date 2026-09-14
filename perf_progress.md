@@ -404,3 +404,64 @@ BOOT app=pico2_bitcoin_miner board=pico2 package=RP2350A arch=ARM-M33 engine=RP2
 TEMP:BOOT source=rp2350-internal-adc approximate=1 temp_valid=0 temp_mc=-1479794 temp_raw=4095 temp_raw_min=4095 temp_raw_max=4095 adc_cs=00004703 adc_clock_hz=48000000 adc_channel=4
 FAULT type=temperature boot=1 temp_valid=0
 ```
+
+## 2026-09-14 — E01 independent optimized-kernel oracle: ARM
+
+- Experiment: `E01-oracle-arm-01`
+- Change: generate 4,096 deterministic Bitcoin-header fixtures with Python's
+  `hashlib`, compare every complete 256-bit optimized-kernel digest on-device,
+  add 10 compact-target boundary tests, and require both the exact successful
+  test summary and benchmark marker in the serial monitor.
+- Build: ARM and RISC-V passed without warnings; checkpoint `9f87e98` was
+  committed before flashing ARM at the stock 150 MHz clock.
+- Validation: all six test groups passed. The independent optimized-path oracle
+  passed all **4,096/4,096** headers; all **10/10** target-boundary cases passed;
+  cycle result `CYCLE:PASS`.
+- Kernel benchmark: **294,091 H/s**, 589,000 complete Bitcoin double hashes in
+  2,002,779 us, checksum `cc`.
+- Sustained mining: converged to **289,441 H/s** at 600,000 total hashes.
+- Relative to E00 ARM: +1 H/s in the benchmark and effectively unchanged
+  sustained throughput; the validation data and boot-time tests are outside the
+  timed kernel.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Decision: accept E01 on ARM. Run the identical checkpoint on Hazard3 before
+  changing the hashing path.
+- Firmware UF2 SHA-256:
+  `ac7ec9f5c8b7262fbc83a6834fb14dac4cd49dfc0df7671e30cf83ee455d8bea`
+- Archived serial log: `logs/E01-oracle-arm.log`
+
+```text
+TEST:PASS kat=optimized_oracle cases=4096 fixture_sha256=4cf1f1db9d05f9208b74edec0f616497a286269e73a1e89747fed60ac5648f98
+TEST:PASS kat=target_boundaries cases=10
+TEST:SUMMARY pass=6 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=direct-unrolled-o3-lazy-result-rp2350a-stock arch=ARM-M33 clock_hz=150000000 hashes=589000 elapsed_us=2002779 hash_rate_hs=294091 checksum=cc temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=600000 total_hashes=600000 hash_rate_hs=289441 temperature=disabled
+```
+
+## 2026-09-14 — E01 independent optimized-kernel oracle: RISC-V
+
+- Experiment: `E01-oracle-riscv-02`
+- Build/workload: identical checkpoint `9f87e98`, fixtures, and 150 MHz clock as
+  the accepted E01 ARM run; Hazard3 RISC-V target.
+- Validation: all six test groups passed. The independent optimized-path oracle
+  passed all **4,096/4,096** headers and all **10/10** target-boundary cases;
+  cycle result `CYCLE:PASS`.
+- Kernel benchmark: **290,667 H/s**, 582,000 complete Bitcoin double hashes in
+  2,002,288 us, checksum `75`.
+- Sustained mining: converged to **286,690 H/s** at 600,000 total hashes.
+- Relative to E00 RISC-V: +3 H/s in the benchmark and -11 H/s sustained, both
+  negligible run-to-run variation.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Decision: accept E01 on both architectures. Use this harness as the mandatory
+  correctness gate for subsequent kernel changes.
+- Firmware UF2 SHA-256:
+  `2febb69665d8e32cd52cabf699e0315ac9f3f0e8de490a157a0a9e4ba65696f2`
+- Archived serial log: `logs/E01-oracle-riscv.log`
+
+```text
+TEST:PASS kat=optimized_oracle cases=4096 fixture_sha256=4cf1f1db9d05f9208b74edec0f616497a286269e73a1e89747fed60ac5648f98
+TEST:PASS kat=target_boundaries cases=10
+TEST:SUMMARY pass=6 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=direct-unrolled-o3-lazy-result-rp2350a-stock arch=RISCV-HAZARD3 clock_hz=150000000 hashes=582000 elapsed_us=2002288 hash_rate_hs=290667 checksum=75 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=600000 total_hashes=600000 hash_rate_hs=286690 temperature=disabled
+```
