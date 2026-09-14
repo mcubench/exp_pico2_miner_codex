@@ -1,0 +1,21 @@
+SERIAL_PORT=/dev/ttyACM0
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=4400000 total_hashes=4400000 hash_rate_hs=335404 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=4500000 total_hashes=4500000 hash_rate_hs=335401 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=4600000 total_hashes=4600000 hash_rate_hs=335408 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=4700000 total_hashes=4700000 hash_rate_hs=335405 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=4800000 total_hashes=4800000 hash_rate_hs=335410 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=5000000 total_hashes=5000000 hash_rate_hs=335404 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=5100000 total_hashes=5100000 hash_rate_hs=335406 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=5200000 total_hashes=5200000 hash_rate_hs=335406 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=6000000 total_hashes=6000000 hash_rate_hs=335405 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=6100000 total_hashes=6100000 hash_rate_hs=335405 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=6200000 total_hashes=6200000 hash_rate_hs=335410 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=6500000 total_hashes=6500000 hash_rate_hs=335404 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=6700000 total_hashes=6700000 hash_rate_hs=335408 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=6800000 total_hashes=6800000 hash_rate_hs=335406 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=7000000 total_hashes=7000000 hash_rate_hs=335410 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=7100000 total_hashes=7100000 hash_rate_hs=335408 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=7200000 total_hashes=7200000 hash_rate_hs=335401 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=7700000 total_hashes=7700000 hash_rate_hs=335410 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=7800000 total_hashes=7800000 hash_rate_hs=335405 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=8000000 total_hashes=8000000 hash_rate_hs=335407 temperature=disabled

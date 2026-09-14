@@ -2159,3 +2159,34 @@ MINING:PROGRESS arch=RISCV-HAZARD3 nonce=5000000 total_hashes=5000000 hash_rate_
 ```text
 MINING:PROGRESS arch=RISCV-HAZARD3 nonce=3900000 total_hashes=3900000 hash_rate_hs=335420 temperature=disabled
 ```
+
+## 2026-09-14 — E07 selective RISC-V hot-main SRAM placement
+
+- Experiment: `E07-riscv-main-sram-26-reject`.
+- Candidate commit: `28e9125`, based on retained E06a commit `48fa3c3`.
+- Change: place only RISC-V `main` in the SDK `.time_critical.main` SRAM
+  section. The compiler's single-use benchmark/mining paths remain inlined, so
+  their actual hot instructions move without adding call boundaries. ARM is
+  unchanged and byte-identical.
+- Placement evidence: RISC-V XIP `.text` decreases from `0x846c` to `0x80ec`;
+  SRAM `.data` increases from `0x2f68` to `0x3368`, an exact **1,024-byte**
+  SRAM cost. Candidate UF2 SHA-256:
+  `781fc69bbe144dedc1a919a8675d3597203060984a58dd85cccba0ca404db033`.
+- Validation: all 7 tests passed in the initial cycle, including 4,096 oracle
+  vectors and the target/error tests. The benchmark line fell into the VM USB
+  monitor handoff gap; reaching mining proves the benchmark returned success,
+  but no kernel rate is claimed for this candidate.
+- Sustained mining: stable **335,414–335,420 H/s** across two restarts and
+  multi-million-hash captures; representative **335,420 H/s** at 3,600,000
+  hashes. This is indistinguishable from retained E06a at 335,420 H/s.
+- Archived logs: `logs/E07-riscv-main-sram-startup.log`,
+  `logs/E07-riscv-main-sram-followup.log`, and
+  `logs/E07-riscv-main-sram-explicit.log`.
+- Decision: reject. DMA/XIP contention does not measurably reduce sustained
+  throughput in this configuration, and spending 1 KiB SRAM has no benefit.
+  Restore the byte-identical first-block-DMA image.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=3600000 total_hashes=3600000 hash_rate_hs=335420 temperature=disabled
+```
