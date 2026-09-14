@@ -17,7 +17,7 @@ _Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
 
 #ifdef __riscv
 #define CPU_ARCH "RISCV-HAZARD3"
-#define BENCHMARK_PATH "persistent-first-block-dma-e06a"
+#define BENCHMARK_PATH "persistent-full-dma-e06a"
 #define MINING_LOOP_OPTIONS __attribute__((optimize("unroll-loops")))
 #else
 #define CPU_ARCH "ARM-M33"
@@ -79,10 +79,15 @@ static const uint8_t sha256_abc[HASH_BYTES] = {
 #include "oracle_vectors.inc"
 
 typedef struct bitcoin_hasher {
+#ifdef __riscv
+    // Numeric SHA words for the complete two-block padded header and the
+    // complete padded intermediate digest. Both remain live for DMA.
+    uint32_t header_words[32];
+    uint32_t second_hash_words[16];
+    int dma_channel;
+#else
     // Numeric SHA words for the unpadded 80-byte Bitcoin header.
     uint32_t header_words[20];
-#ifdef __riscv
-    int dma_channel;
 #endif
     bool locked;
 } bitcoin_hasher_t;
@@ -108,17 +113,21 @@ static bool hardware_sha256(const uint8_t *data, size_t size, uint8_t hash[HASH_
     return true;
 }
 
+#ifdef __riscv
+static inline __attribute__((always_inline)) void sha256_dma_write_words(
+    bitcoin_hasher_t *hasher, const uint32_t *words, uint32_t word_count) {
+    // The channel configuration and fixed WDATA destination persist for the
+    // complete job. DREQ pauses a 32-word transfer between the two header
+    // blocks while the engine compresses the first block.
+    dma_channel_set_read_addr((uint)hasher->dma_channel,
+                              words, false);
+    dma_channel_set_transfer_count((uint)hasher->dma_channel,
+                                   dma_encode_transfer_count(word_count), true);
+    dma_channel_wait_for_finish_blocking((uint)hasher->dma_channel);
+}
+#else
 static inline __attribute__((always_inline)) void sha256_write_first_block(
     bitcoin_hasher_t *hasher) {
-#ifdef __riscv
-    // The channel configuration and fixed WDATA destination persist for the
-    // complete job. Only the incrementing source and transfer count need to
-    // be restored for each invariant first header block.
-    dma_channel_set_read_addr((uint)hasher->dma_channel,
-                              &hasher->header_words[0], false);
-    dma_channel_set_trans_count((uint)hasher->dma_channel, 16u, true);
-    dma_channel_wait_for_finish_blocking((uint)hasher->dma_channel);
-#else
     // START establishes the ready/reset state, and ordered MMIO stores ensure
     // it reaches the peripheral before these writes. The inter-block feeder
     // still waits explicitly after word 16 starts compression.
@@ -139,8 +148,8 @@ static inline __attribute__((always_inline)) void sha256_write_first_block(
     sha256_put_word(words[13]);
     sha256_put_word(words[14]);
     sha256_put_word(words[15]);
-#endif
 }
+#endif
 
 static inline __attribute__((always_inline)) void sha256_write_header_tail(
     const uint32_t words[20]) {
@@ -175,6 +184,12 @@ static void bitcoin_hasher_begin(bitcoin_hasher_t *hasher,
         hasher->header_words[i] = __builtin_bswap32(little_endian_word);
     }
 
+#ifdef __riscv
+    hasher->header_words[20] = 0x80000000u;
+    hasher->header_words[31] = BITCOIN_HEADER_BYTES * 8u;
+    hasher->second_hash_words[8] = 0x80000000u;
+    hasher->second_hash_words[15] = HASH_BYTES * 8u;
+#endif
     bootrom_acquire_lock_blocking(BOOTROM_LOCK_SHA_256);
     hasher->locked = true;
 #ifdef __riscv
@@ -219,9 +234,14 @@ static inline __attribute__((always_inline)) void bitcoin_hasher_hash_nonce_unch
         __builtin_bswap32(nonce);
 
     sha256_start();
+#ifdef __riscv
+    sha256_dma_write_words(hasher, hasher->header_words, 32u);
+    sha256_wait_valid_blocking();
+#else
     sha256_write_first_block(hasher);
     sha256_write_header_tail(hasher->header_words);
     sha256_wait_valid_blocking();
+#endif
     // Preserve the complete first digest before START resets the engine. The
     // explicit locals allow both compilers to keep the handoff in registers.
     const uint32_t digest0 = sha256_hw->sum[0];
@@ -234,6 +254,17 @@ static inline __attribute__((always_inline)) void bitcoin_hasher_hash_nonce_unch
     const uint32_t digest7 = sha256_hw->sum[7];
 
     sha256_start();
+#ifdef __riscv
+    hasher->second_hash_words[0] = digest0;
+    hasher->second_hash_words[1] = digest1;
+    hasher->second_hash_words[2] = digest2;
+    hasher->second_hash_words[3] = digest3;
+    hasher->second_hash_words[4] = digest4;
+    hasher->second_hash_words[5] = digest5;
+    hasher->second_hash_words[6] = digest6;
+    hasher->second_hash_words[7] = digest7;
+    sha256_dma_write_words(hasher, hasher->second_hash_words, 16u);
+#else
     sha256_put_word(digest0);
     sha256_put_word(digest1);
     sha256_put_word(digest2);
@@ -250,6 +281,7 @@ static inline __attribute__((always_inline)) void bitcoin_hasher_hash_nonce_unch
     sha256_put_word(0u);
     sha256_put_word(0u);
     sha256_put_word(HASH_BYTES * 8u);
+#endif
     sha256_wait_valid_blocking();
 }
 
