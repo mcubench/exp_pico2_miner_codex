@@ -1401,6 +1401,29 @@ BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-
 MINING:PROGRESS arch=RISCV-HAZARD3 nonce=600000 total_hashes=600000 hash_rate_hs=333152 temperature=disabled
 ```
 
+## 2026-09-14 — E04 post-START ready-poll removal, RISC-V confirmation
+
+- Experiment: `E04-start-ready-poll-removal-19-riscv-confirm`
+- Artifact: identical commit `60aa7ec` and UF2 to RISC-V run 1.
+- Validation: both builds passed without warnings. All seven RISC-V test
+  groups, the sticky-error proof, **4,096/4,096** oracle cases and **10/10**
+  target cases passed again; cycle passed with no SHA fault.
+- Kernel benchmark: **339,327 H/s**, 679,000 hashes in 2,001,017 us, checksum
+  `32`; within 1 H/s of run 1.
+- Sustained mining: **333,171 H/s** at 500,000 hashes; within 19 H/s of run 1.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- RISC-V UF2 SHA-256:
+  `046d49334a9648833b3b58668124e09e52c8acbc82bfd46f724fc93ecbfa7f71`
+- Archived serial log:
+  `logs/E04-start-ready-poll-removal-riscv-confirm.log`
+- Decision: RISC-V repeatability confirmed; finish paired confirmation on ARM.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-error-batched-e04e arch=RISCV-HAZARD3 clock_hz=150000000 hashes=679000 elapsed_us=2001017 hash_rate_hs=339327 checksum=32 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=500000 total_hashes=500000 hash_rate_hs=333171 temperature=disabled
+```
+
 ## 2026-09-14 — E05 Hazard3 branch-cost hint, run 1
 
 - Experiment: `E05-riscv-branch-cost1-13-run1`
