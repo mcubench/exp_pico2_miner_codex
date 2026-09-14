@@ -2490,3 +2490,26 @@ MINING:PROGRESS arch=ARM-M33 hardware_core=1 hardware_nonce=9000000 hardware_has
 TEST:SUMMARY pass=7 fail=0
 MINING:PROGRESS arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=9000000 hardware_hashes=4500000 hardware_rate_hs=338681 software_core=0 software_nonce=621787 software_hashes=310893 software_rate_hs=23394 total_hashes=4810893 hash_rate_hs=362075 temperature=disabled
 ```
+
+## 2026-09-14 — E07-b/E10-a software compression in SRAM, ARM
+
+- Experiment: `E07b-software-compress-sram-arm-38`.
+- Same candidate commit `b7ae98c`; ARM moves its software compression routine
+  to SRAM while constants and hardware/control code remain in XIP.
+- Both builds were clean. All 4,096 cross-engine oracle cases and all 7 suites
+  passed; no fault occurred and the hardware cycle passed.
+- Median of the final 30 sustained reports: hardware **325,546 H/s**, software
+  **26,411 H/s**, aggregate **351,958 H/s**.
+- Versus E10-a ARM aggregate 348,487 H/s: **+1.00%** (+3,471 H/s). Versus E08
+  hardware-only 327,469 H/s: aggregate **+7.48%**.
+- Isolated startup rates: hardware **331,085 H/s**, software **26,613 H/s**.
+- Candidate ARM UF2 SHA-256:
+  `1a2aad5933c82925b316d835cd9a8b07e1150115b1e68892497c56807ec73fa8`.
+- Archived serial log: `logs/E07b-E10a-software-compress-sram-arm.log`.
+- Decision: retain the 1.3 KiB-class software compression SRAM placement for
+  both architectures under E10-a dual-core load.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+MINING:PROGRESS arch=ARM-M33 hardware_core=1 hardware_nonce=8400000 hardware_hashes=4200000 hardware_rate_hs=325625 software_core=0 software_nonce=681489 software_hashes=340744 software_rate_hs=26412 total_hashes=4540744 hash_rate_hs=352037 temperature=disabled
+```
