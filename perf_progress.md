@@ -1030,3 +1030,31 @@ TEST:SUMMARY pass=6 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=150000000 hashes=650000 elapsed_us=2002247 hash_rate_hs=324635 checksum=f9 temperature=disabled
 MINING:PROGRESS arch=ARM-M33 nonce=700000 total_hashes=700000 hash_rate_hs=320415 temperature=disabled
 ```
+
+## 2026-09-14 — E05 source-only LTO: RISC-V at 150 MHz
+
+- Experiment: `E05-source-lto-riscv-03`
+- Configuration: same source-only `-flto` candidate as the matched ARM run;
+  Pico SDK objects remain conventionally compiled. Requested/actual system
+  clock: 150,000/150,000,000 kHz/Hz.
+- Validation: all six test groups passed, **4,096/4,096** independent oracle
+  cases and **10/10** target boundary tests; cycle `CYCLE:PASS`.
+- Kernel benchmark: **325,339 H/s**, 651,000 hashes in 2,000,988 us, checksum
+  `28`; estimated **461.06 cycles/hash**.
+- Sustained mining: **314,321 H/s** at 600,000 hashes (700,000 sample was
+  314,317 H/s).
+- Relative to E04-c RISC-V baseline (325,341 benchmark; 314,333 sustained):
+  **-0.001% benchmark, -0.004% sustained**. This is measurement noise.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Firmware UF2 SHA-256:
+  `fcc4aaf0b82024cea1b0b33848baa00791a0c4ebf61e20e9722ea32bb19dc056`
+- Archived serial log: `logs/E05-source-lto-riscv.log`
+- Decision: reject source-only LTO. It produces no measurable speed gain on
+  either ISA and therefore does not justify its extra build/link complexity.
+
+```text
+BOOT app=pico2_bitcoin_miner board=pico2 package=RP2350A arch=RISCV-HAZARD3 engine=RP2350-SHA256 temperature=disabled lto=on clock_profile=stock requested_clock_khz=150000 actual_clock_hz=150000000 sysinfo_package_sel=1 chip_id=30004927 silicon_revision=3
+TEST:SUMMARY pass=6 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=RISCV-HAZARD3 clock_hz=150000000 hashes=651000 elapsed_us=2000988 hash_rate_hs=325339 checksum=28 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=600000 total_hashes=600000 hash_rate_hs=314321 temperature=disabled
+```
