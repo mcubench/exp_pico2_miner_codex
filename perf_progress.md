@@ -2052,3 +2052,32 @@ TEST:SUMMARY pass=7 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persistent-first-block-dma-e06a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=690000 elapsed_us=2001260 hash_rate_hs=344783 checksum=92 temperature=disabled
 MINING:PROGRESS arch=RISCV-HAZARD3 nonce=1000000 total_hashes=1000000 hash_rate_hs=335420 temperature=disabled
 ```
+
+## 2026-09-14 — E06a full-DMA RISC-V, late mining capture
+
+- Experiment: `E06a-full-dma-riscv-24-late-capture`.
+- Candidate commit: `d78f547`, based on retained ISA split `d8979ba`.
+- Change: retain persistent DMA ownership, but send the complete 32-word padded
+  header in one DREQ-paced transfer and the complete 16-word padded second hash
+  in another. Eight intermediate SUM words are saved into persistent SRAM
+  before the required second START/transfer.
+- Configuration: RP2350A, Hazard3 RISC-V, stock 150 MHz, temperature disabled.
+  Both architecture builds passed without warnings; ARM remained byte-identical
+  to its retained UF2.
+- Recovery note: the candidate UF2 flashed and verified, but VM USB runtime
+  capture was initially absent. After reattaching the runtime device, firmware
+  was already in `MINING:PROGRESS`. By program control flow this is reachable
+  only after all gated tests and benchmark complete, but their original serial
+  lines were not captured; an explicit reboot capture remains required.
+- Sustained mining: **328,800 H/s** at 203,800,000 hashes, **-1.97%** versus the
+  retained first-block-DMA result of 335,420 H/s.
+- Firmware: RISC-V UF2 SHA-256
+  `3605faeae9a89d063b3104fd3dc6a78b5daeb3996a29c09c4de99ed5bb96929a`,
+  367,104 bytes.
+- Archived serial log: `logs/E06a-full-dma-riscv-late-capture.log`.
+- Decision: sustained regression; pending one explicit startup/benchmark
+  capture before rejection and restoration of the first-block-only DMA path.
+
+```text
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=203800000 total_hashes=203800000 hash_rate_hs=328800 temperature=disabled
+```
