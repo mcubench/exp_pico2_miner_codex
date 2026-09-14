@@ -67,8 +67,8 @@ static const uint8_t sha256_abc[HASH_BYTES] = {
 #include "oracle_vectors.inc"
 
 typedef struct bitcoin_hasher {
-    // An 80-byte Bitcoin header occupies two padded SHA-256 blocks.
-    uint32_t header_blocks[32];
+    // Numeric SHA words for the unpadded 80-byte Bitcoin header.
+    uint32_t header_words[20];
     bool locked;
 } bitcoin_hasher_t;
 
@@ -117,6 +117,29 @@ static inline __attribute__((always_inline)) void sha256_write_block(
     sha256_put_word(words[15]);
 }
 
+static inline __attribute__((always_inline)) void sha256_write_header_tail(
+    const uint32_t words[20]) {
+    // Header words 16..19 are followed by SHA-256 padding for an 80-byte
+    // message. Emit constants directly instead of loading a padded SRAM block.
+    sha256_wait_ready_blocking();
+    sha256_put_word(words[16]);
+    sha256_put_word(words[17]);
+    sha256_put_word(words[18]);
+    sha256_put_word(words[19]);
+    sha256_put_word(0x80000000u);
+    sha256_put_word(0u);
+    sha256_put_word(0u);
+    sha256_put_word(0u);
+    sha256_put_word(0u);
+    sha256_put_word(0u);
+    sha256_put_word(0u);
+    sha256_put_word(0u);
+    sha256_put_word(0u);
+    sha256_put_word(0u);
+    sha256_put_word(0u);
+    sha256_put_word(BITCOIN_HEADER_BYTES * 8u);
+}
+
 static void bitcoin_hasher_begin(bitcoin_hasher_t *hasher,
                                  const uint8_t header[BITCOIN_HEADER_BYTES]) {
     memset(hasher, 0, sizeof(*hasher));
@@ -124,10 +147,8 @@ static void bitcoin_hasher_begin(bitcoin_hasher_t *hasher,
         uint32_t little_endian_word;
         memcpy(&little_endian_word, &header[i * sizeof(uint32_t)],
                sizeof(little_endian_word));
-        hasher->header_blocks[i] = __builtin_bswap32(little_endian_word);
+        hasher->header_words[i] = __builtin_bswap32(little_endian_word);
     }
-    hasher->header_blocks[20] = 0x80000000u;
-    hasher->header_blocks[31] = BITCOIN_HEADER_BYTES * 8u;
 
     bootrom_acquire_lock_blocking(BOOTROM_LOCK_SHA_256);
     hasher->locked = true;
@@ -147,12 +168,12 @@ static inline __attribute__((always_inline)) bool bitcoin_hasher_hash_nonce(
     uint32_t nonce) {
     // The SHA input is held as numeric big-endian words, while Bitcoin
     // serializes the nonce little-endian at byte offset 76.
-    hasher->header_blocks[NONCE_OFFSET / sizeof(uint32_t)] =
+    hasher->header_words[NONCE_OFFSET / sizeof(uint32_t)] =
         __builtin_bswap32(nonce);
 
     sha256_start();
-    sha256_write_block(&hasher->header_blocks[0]);
-    sha256_write_block(&hasher->header_blocks[16]);
+    sha256_write_block(&hasher->header_words[0]);
+    sha256_write_header_tail(hasher->header_words);
     sha256_wait_valid_blocking();
     // Preserve the complete first digest before START resets the engine. The
     // explicit locals allow both compilers to keep the handoff in registers.
@@ -420,7 +441,7 @@ static bool run_benchmark(void) {
 
     const uint64_t rate = (hashes * 1000000ull + elapsed_us / 2u) / elapsed_us;
     printf("BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256"
-           " path=direct-register-handoff-e03b"
+           " path=constant-header-tail-e04a"
            " arch=%s clock_hz=%" PRIu32 " hashes=%" PRIu64
            " elapsed_us=%" PRIu64 " hash_rate_hs=%" PRIu64
            " checksum=%02x temperature=disabled\n",
