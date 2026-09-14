@@ -1454,6 +1454,35 @@ BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched
 MINING:PROGRESS arch=ARM-M33 nonce=500000 total_hashes=500000 hash_rate_hs=321791 temperature=disabled
 ```
 
+## 2026-09-14 — E05 targeted ARM mining-loop unrolling, run 1
+
+- Experiment: `E05-arm-targeted-mining-unroll-20-run1`
+- Candidate commit: `e62a89e`, layered on retained post-START poll removal.
+- Change: apply the same function-scoped GCC `optimize("unroll-loops")`
+  attribute already retained for RISC-V to ARM `mine_forever()`; the separate
+  benchmark function is unchanged. RISC-V remains byte-identical.
+- Validation: both builds passed without warnings. ARM passed the sticky-error
+  proof, all seven test groups, **4,096/4,096** oracle cases and **10/10**
+  target cases; cycle passed.
+- Kernel benchmark: **331,819 H/s**, 664,000 hashes in 2,001,089 us, checksum
+  `37`; unchanged from the retained post-START result.
+- Sustained mining: **325,209 H/s** at 500,000 hashes; **+1.06%** versus the
+  retained 321,791 H/s post-START result and **+1.50%** versus the older
+  320,415 H/s ARM result.
+- Artifact size: ARM UF2 remains 344,576 bytes.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- ARM UF2 SHA-256:
+  `9898f3013920729e84b4533d87e5edca3605ba02aaa5ec53a833555014d3f9b4`
+- Archived serial log: `logs/E05-arm-targeted-mining-unroll-run1.log`
+- Decision: promising but below the nominal 2% screen; repeat the identical
+  artifact before deciding. Complexity is one shared function attribute.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=150000000 hashes=664000 elapsed_us=2001089 hash_rate_hs=331819 checksum=37 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=500000 total_hashes=500000 hash_rate_hs=325209 temperature=disabled
+```
+
 ## 2026-09-14 — E05 Hazard3 branch-cost hint, run 1
 
 - Experiment: `E05-riscv-branch-cost1-13-run1`
