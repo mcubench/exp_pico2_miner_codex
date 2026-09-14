@@ -19,7 +19,7 @@ _Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
 #else
 #define CPU_ARCH "ARM-M33"
 #define BENCHMARK_PATH "batched-accounting-e04c"
-#define MINING_LOOP_OPTIONS
+#define MINING_LOOP_OPTIONS __attribute__((optimize("unroll-loops")))
 #endif
 
 #define BITCOIN_HEADER_BYTES 80u
