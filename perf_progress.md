@@ -1111,6 +1111,36 @@ BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched
 MINING:PROGRESS arch=ARM-M33 nonce=800000 total_hashes=800000 hash_rate_hs=320415 temperature=disabled
 ```
 
+## 2026-09-14 — E05 Hazard3 branch-cost layout-matched control
+
+- Experiment: `E05-riscv-branch-cost1-13-control-reject`
+- Control commit: `ead476b`; deterministic sticky test retained, only
+  `-mbranch-cost=1` removed.
+- Validation: both builds passed without warnings. RISC-V passed the
+  sticky-error proof, all seven test groups, **4,096/4,096** oracle cases and
+  **10/10** target cases; cycle passed.
+- No-flag kernel benchmark: **330,357 H/s**, 661,000 hashes in 2,000,867 us,
+  checksum `6f`; exactly reproduces the retained E04-e rate.
+- No-flag sustained mining: **321,033 H/s** at 700,000 hashes, within 18 H/s
+  (**-0.006%**) of the retained 321,051 H/s result.
+- Matched E05 effect: `-mbranch-cost=1` reproducibly changes kernel throughput
+  to 328,909 H/s (**-0.44%**) and sustained throughput to about 323,120 H/s
+  (**+0.65%**). This is below the plan's 2% retention threshold and sacrifices
+  the primary bounded kernel benchmark for a small mining-loop gain.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- No-flag RISC-V UF2 SHA-256:
+  `c9ef278d9e16b25243499a6a349820a30ef74c1d6c0be274b8623bee53d1927a`
+- Archived serial log: `logs/E05-riscv-branch-cost1-no-flag-control.log`
+- Decision: reject `-mbranch-cost=1`; retain the no-flag build and the new
+  deterministic sticky-error proof.
+
+```text
+TEST:PASS kat=sha_error_sticky cases=3 burst_words=2500 latched=1 survived_start=1 cleared=1
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-error-batched-e04e arch=RISCV-HAZARD3 clock_hz=150000000 hashes=661000 elapsed_us=2000867 hash_rate_hs=330357 checksum=6f temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=700000 total_hashes=700000 hash_rate_hs=321033 temperature=disabled
+```
+
 ## 2026-09-14 — E05 Hazard3 branch-cost hint, run 1
 
 - Experiment: `E05-riscv-branch-cost1-13-run1`
