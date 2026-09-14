@@ -927,3 +927,30 @@ TEST:SUMMARY pass=6 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=300000000 hashes=1296000 elapsed_us=2000363 hash_rate_hs=647882 checksum=11 temperature=disabled
 MINING:PROGRESS arch=ARM-M33 nonce=1300000 total_hashes=1300000 hash_rate_hs=640820 temperature=disabled
 ```
+
+## 2026-09-14 — E11 failed clock-only attempt: RISC-V at 300 MHz
+
+- Experiment: `E11-riscv-300mhz-06-fail`
+- Configuration: E04-c Hazard3 RISC-V, requested 300,000 kHz, unchanged
+  regulator setting, `experimental-overclock` profile.
+- Build/flash: ARM and RISC-V 300 MHz profiles built without warnings. The
+  RISC-V UF2 flashed and verified successfully, then the device rebooted.
+- Failure: USB CDC did not enumerate within the bounded monitor deadline.
+  Therefore no BOOT line, actual clock, KAT/oracle result, benchmark, or
+  sustained rate exists. `./tools/doctor` subsequently confirmed no
+  `/dev/ttyACM*` device.
+- Temperature: disabled; no measurement.
+- Decision: reject 300 MHz RISC-V at unchanged regulator voltage. Do not retry
+  or test a higher Hazard3 clock under this voltage. Recover via BOOTSEL and a
+  saved 150 MHz UF2.
+- Firmware UF2 SHA-256:
+  `878a42f82048d040518591edb0eee715c7b5f61b95195833ec0f960f15983ebd`
+- `logs/riscv-latest.log` is zero bytes because serial never appeared; the
+  complete failure evidence is the cycle/doctor command output summarized here.
+
+```text
+FLASH:PASS arch=riscv
+ERROR: Raspberry Pi USB serial device did not appear
+FAIL USB serial           no /dev/ttyACM* device
+DOCTOR:FAIL count=1
+```
