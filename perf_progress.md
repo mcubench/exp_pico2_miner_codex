@@ -326,6 +326,34 @@ MINING:PROGRESS arch=ARM-M33 nonce=1700000 total_hashes=1700000 hash_rate_hs=289
 MINING:PROGRESS arch=ARM-M33 nonce=4000000 total_hashes=4000000 hash_rate_hs=289445 temperature=disabled
 ```
 
+## 2026-09-14 — E00 matched RISC-V stock baseline
+
+- Experiment: `E00-rp2350a-stock-riscv-06`
+- Build/workload: same temperature-disabled source and 150 MHz clock as the
+  preceding ARM reference; Hazard3 RISC-V target.
+- Validation: all four KATs passed, including the 94-attempt genesis nonce
+  search; cycle result `CYCLE:PASS`.
+- Kernel benchmark: **290,664 H/s**, 582,000 complete Bitcoin double hashes in
+  2,002,310 us, checksum `75`.
+- Sustained mining after startup convergence: **286,697–286,705 H/s**.
+- Architecture comparison: the matched ARM result is 1.18% faster in the kernel
+  benchmark and approximately 0.96% faster in sustained mining. The much older
+  86,300 H/s RISC-V entry predates the current optimized kernel and is not a
+  valid current-architecture comparison.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Decision: accept as the stock RISC-V reference. Continue code experiments on
+  both builds; use ARM as the first flash target when only one is needed.
+- Firmware UF2 SHA-256:
+  `cf7f53084ff7dd5aa3f81c9304982e8e8a2e86ef2157825bf96cdd9a018f35ca`
+- Archived serial log: `logs/E00-rp2350a-stock-riscv-baseline.log`
+
+```text
+TEST:SUMMARY pass=4 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=direct-unrolled-o3-lazy-result-rp2350a-stock arch=RISCV-HAZARD3 clock_hz=150000000 hashes=582000 elapsed_us=2002310 hash_rate_hs=290664 checksum=75 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=1500000 total_hashes=1500000 hash_rate_hs=286705 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=4000000 total_hashes=4000000 hash_rate_hs=286701 temperature=disabled
+```
+
 ## 2026-09-13 — E00 hardware package-identity check: RP2350A reported
 
 - Experiment: `E00-sysinfo-package-identity-arm-02`
