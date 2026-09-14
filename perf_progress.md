@@ -2463,3 +2463,30 @@ MINING:PROGRESS arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=9000000 hardwa
 TEST:SUMMARY pass=7 fail=0
 MINING:PROGRESS arch=ARM-M33 hardware_core=1 hardware_nonce=9000000 hardware_hashes=4500000 hardware_rate_hs=323961 software_core=0 software_nonce=681461 software_hashes=340730 software_rate_hs=24526 total_hashes=4840730 hash_rate_hs=348487 temperature=disabled
 ```
+
+## 2026-09-14 — E07-b/E10-a software compression in SRAM, RISC-V
+
+- Experiment: `E07b-software-compress-sram-riscv-37`.
+- Candidate commit: `b7ae98c`. Move only the 1,322-byte RISC-V software SHA
+  compression routine from XIP flash to SRAM; round constants and all hardware
+  mining/control code remain in their prior locations. This specifically tests
+  the dual-core contention introduced by E10-a, unlike rejected single-core E07.
+- Both architectures built cleanly. All 4,096 cross-engine oracle cases and all
+  7 suites passed; no fault occurred and the cycle passed.
+- Median of the final 30 sustained reports: hardware **338,600 H/s**, software
+  **23,394 H/s**, aggregate **361,993 H/s**.
+- Versus retained E10-a RISC-V aggregate 356,366 H/s: **+1.58%** (+5,627 H/s).
+  Versus E08 hardware-only 340,093 H/s: aggregate **+6.44%**.
+- Isolated startup rates in this image: hardware **342,420 H/s**, software
+  **24,357 H/s**.
+- Candidate RISC-V UF2 SHA-256:
+  `b22558c1f3e4f3bc06ce6e1e313d7640dfefe254ac49728a939db4a71f1f790d`.
+- SRAM cost: 1,322 bytes of executable `.data`; stack usage is unchanged.
+- Archived serial log: `logs/E07b-E10a-software-compress-sram-riscv.log`.
+- Decision: retain provisionally for RISC-V. The second core makes XIP
+  placement material; measure ARM before selecting a shared/ISA-specific form.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+MINING:PROGRESS arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=9000000 hardware_hashes=4500000 hardware_rate_hs=338681 software_core=0 software_nonce=621787 software_hashes=310893 software_rate_hs=23394 total_hashes=4810893 hash_rate_hs=362075 temperature=disabled
+```
