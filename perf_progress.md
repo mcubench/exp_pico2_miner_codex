@@ -1058,3 +1058,40 @@ TEST:SUMMARY pass=6 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=RISCV-HAZARD3 clock_hz=150000000 hashes=651000 elapsed_us=2000988 hash_rate_hs=325339 checksum=28 temperature=disabled
 MINING:PROGRESS arch=RISCV-HAZARD3 nonce=600000 total_hashes=600000 hash_rate_hs=314321 temperature=disabled
 ```
+
+## 2026-09-14 — E04-e sticky-error batching (1,000): ARM at 150 MHz
+
+- Experiment: `E04e-sticky-batch1000-arm-04`
+- Change: split the hot hash kernel into checked and unchecked forms. The
+  benchmark reads the sticky SHA write-error flag once per 1,000 hashes;
+  mining adds a separate per-nonce counter and validates every 1,000 hashes
+  and immediately before publishing a candidate.
+- Hardware premise test: **passed**. An intentionally induced illegal WDATA
+  write set `ERR_WDATA_NOT_RDY`; the flag survived `START`; the SDK's explicit
+  clear operation removed it (`latched=1 survived_start=1 cleared=1`).
+- Validation: both architectures built without warnings. ARM passed seven test
+  groups, **4,096/4,096** oracle cases and **10/10** target tests; cycle
+  `CYCLE:PASS`.
+- Kernel benchmark: **328,904 H/s**, 658,000 hashes in 2,000,586 us, checksum
+  `bb`; estimated **456.06 cycles/hash**.
+- Sustained mining: **314,360 H/s** at 700,000 hashes.
+- Relative to E04-c ARM baseline (324,632 benchmark; 320,406 sustained):
+  **+1.32% benchmark, -1.89% sustained**.
+- Interpretation: batching removes about six cycles/hash in the benchmark, but
+  the additional mining counter/increment/compare branch costs more than the
+  eliminated CSR read. The premise is valid; this first mining implementation
+  is not.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Firmware UF2 SHA-256:
+  `c33a95a97c1dad576d1be858cfa0b04a96984668ebf7d74c9f591067ec10b2b9`
+- Archived serial log: `logs/E04e-sticky-batch1000-arm.log`
+- Decision: reject the separate 1,000-hash mining counter. Retain the benchmark
+  batching concept for the next subvariant; check mining errors at its existing
+  100,000-hash report boundary and still check immediately before any share.
+
+```text
+TEST:PASS kat=sha_error_sticky cases=3 latched=1 survived_start=1 cleared=1
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=150000000 hashes=658000 elapsed_us=2000586 hash_rate_hs=328904 checksum=bb temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=700000 total_hashes=700000 hash_rate_hs=314360 temperature=disabled
+```
