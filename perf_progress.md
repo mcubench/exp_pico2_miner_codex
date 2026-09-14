@@ -1086,6 +1086,34 @@ MINING:PROGRESS arch=RISCV-HAZARD3 nonce=600000 total_hashes=600000 hash_rate_hs
 TEST:FAIL kat=sha_error_sticky cases=3 latched=0 survived_start=0 cleared=1
 ```
 
+## 2026-09-14 — Sticky-error self-test fix attempt 1 failed on ARM
+
+- Experiment: `sticky-error-stimulus-fix1-arm-fail`
+- Candidate commit: `80c49bd` (with E05 RISC-V flag still isolated to RISC-V).
+- Change: after completing a zero block, poll up to 1,024 times for
+  `WDATA_RDY=0`, then issue the deliberate invalid WDATA store.
+- Build/flash: both builds passed without warnings; ARM flash and verify
+  passed.
+- Runtime failure: ARM observed the busy state but the immediately sampled
+  sticky flag was still clear:
+  `observed_not_ready=1 latched=0 survived_start=0 cleared=1`.
+- Result: **no valid benchmark**; the runtime gate stopped execution.
+- Refined diagnosis: `sha256_put_word()` is a raw volatile WDATA store, not a
+  waiting wrapper. The remaining timing dependence is therefore between the
+  invalid peripheral write and immediate CSR sampling. Poll the sticky flag
+  for a bounded interval after the invalid store before declaring the
+  stimulus unsuccessful.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- ARM UF2 SHA-256:
+  `e4deca0af4c12c1eb5567adab3330773565b5c0a2c19b7474199b5fd78fc4d32`
+- Archived serial log: `logs/sticky-error-deterministic-arm-fail.log`
+- Decision: reject fix attempt 1; retain its diagnostic evidence and refine
+  the out-of-timed-path test only.
+
+```text
+TEST:FAIL kat=sha_error_sticky cases=4 observed_not_ready=1 latched=0 survived_start=0 cleared=1
+```
+
 ## 2026-09-14 — E05 source-only LTO: RISC-V at 150 MHz
 
 - Experiment: `E05-source-lto-riscv-03`
