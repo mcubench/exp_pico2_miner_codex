@@ -65,6 +65,15 @@ target_compile_options(pico2_agent PRIVATE
     -Werror
 )
 
+# E05 layout experiment: E04-e shifted the M33 mining back-edge target away
+# from a fetch boundary. Apply loop alignment only to repository-owned source;
+# do not perturb Pico SDK objects or the already improved RISC-V image.
+if(PICO_PLATFORM STREQUAL "rp2350-arm-s")
+    set_source_files_properties(src/main.c PROPERTIES
+        COMPILE_OPTIONS "-falign-labels=32:31"
+    )
+endif()
+
 # USB CDC supplies both logs and picotool's automatic reset-to-BOOTSEL path.
 pico_enable_stdio_usb(pico2_agent 1)
 pico_enable_stdio_uart(pico2_agent 0)
