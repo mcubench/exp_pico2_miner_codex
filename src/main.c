@@ -102,12 +102,11 @@ static bool hardware_sha256(const uint8_t *data, size_t size, uint8_t hash[HASH_
     return true;
 }
 
-static inline __attribute__((always_inline)) void sha256_write_block(
+static inline __attribute__((always_inline)) void sha256_write_block_after_start(
     const uint32_t words[16]) {
-    // WDATA_RDY remains asserted while a block's first 15 words are written
-    // and drops after word 16 starts compression. Poll once per block, not
-    // once per word, and unroll the MMIO writes to remove loop overhead.
-    sha256_wait_ready_blocking();
+    // START establishes the ready/reset state, and ordered MMIO stores ensure
+    // it reaches the peripheral before these writes. The inter-block feeder
+    // still waits explicitly after word 16 starts compression.
     sha256_put_word(words[0]);
     sha256_put_word(words[1]);
     sha256_put_word(words[2]);
@@ -181,7 +180,7 @@ static inline __attribute__((always_inline)) void bitcoin_hasher_hash_nonce_unch
         __builtin_bswap32(nonce);
 
     sha256_start();
-    sha256_write_block(&hasher->header_words[0]);
+    sha256_write_block_after_start(&hasher->header_words[0]);
     sha256_write_header_tail(hasher->header_words);
     sha256_wait_valid_blocking();
     // Preserve the complete first digest before START resets the engine. The
@@ -196,7 +195,6 @@ static inline __attribute__((always_inline)) void bitcoin_hasher_hash_nonce_unch
     const uint32_t digest7 = sha256_hw->sum[7];
 
     sha256_start();
-    sha256_wait_ready_blocking();
     sha256_put_word(digest0);
     sha256_put_word(digest1);
     sha256_put_word(digest2);
