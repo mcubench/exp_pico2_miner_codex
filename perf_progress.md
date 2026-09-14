@@ -1114,6 +1114,34 @@ TEST:FAIL kat=sha_error_sticky cases=3 latched=0 survived_start=0 cleared=1
 TEST:FAIL kat=sha_error_sticky cases=4 observed_not_ready=1 latched=0 survived_start=0 cleared=1
 ```
 
+## 2026-09-14 — SDK-pattern sticky-error test passes on ARM
+
+- Experiment: `sticky-error-stimulus-fix3-arm-pass`
+- Candidate commit: `798baaa`.
+- Change: reproduce the installed Pico SDK 2.3.1 non-DMA SHA error test
+  pattern with an unpaced 2,500-word WDATA burst after observing busy, then
+  wait for ready and verify latch, START persistence, and explicit clearing.
+- Validation: both builds passed without warnings. ARM passed the four-part
+  sticky-error proof, all seven test groups, **4,096/4,096** oracle cases and
+  **10/10** target cases; cycle passed.
+- ARM kernel benchmark: **323,935 H/s**, 648,000 hashes in 2,000,404 us,
+  checksum `2a`; effectively identical to the retained 323,934 H/s result.
+- ARM sustained mining: **320,415 H/s** at 700,000 hashes, exactly matching
+  the retained result.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- ARM UF2 SHA-256:
+  `ea3c6a0d14a460796cf2d2adc702f55f846c89ced720e52ce3af4a6ea9fbe854`
+- Archived serial log: `logs/sticky-error-sdk-pattern-arm-pass.log`
+- Decision: ARM validation passes without measurable hot-path regression;
+  validate the same test on RISC-V before resuming E05.
+
+```text
+TEST:PASS kat=sha_error_sticky cases=4 observed_not_ready=1 latched=1 survived_start=1 cleared=1
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=150000000 hashes=648000 elapsed_us=2000404 hash_rate_hs=323935 checksum=2a temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=700000 total_hashes=700000 hash_rate_hs=320415 temperature=disabled
+```
+
 ## 2026-09-14 — Sticky-error self-test fix attempt 2 failed on ARM
 
 - Experiment: `sticky-error-stimulus-fix2-arm-fail`
