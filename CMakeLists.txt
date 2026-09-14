@@ -65,6 +65,13 @@ target_compile_options(pico2_agent PRIVATE
     -Werror
 )
 
+# Isolated E05 Hazard3 trial; do not combine compiler hypotheses.
+if(PICO_PLATFORM STREQUAL "rp2350-riscv")
+    set_source_files_properties(src/main.c PROPERTIES
+        COMPILE_OPTIONS "-fno-if-conversion2"
+    )
+endif()
+
 # USB CDC supplies both logs and picotool's automatic reset-to-BOOTSEL path.
 pico_enable_stdio_usb(pico2_agent 1)
 pico_enable_stdio_uart(pico2_agent 0)
