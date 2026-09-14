@@ -792,3 +792,30 @@ MINING:PROGRESS arch=RISCV-HAZARD3 nonce=600000 total_hashes=600000 hash_rate_hs
     `5f073bb3eeef535aba2e6a5e32a3f7a295801ac6e22897a2e28a71a937851396`
 - Performance and temperature: no new measurement; temperature remains
   disabled. Initial sweep uses unchanged regulator settings and staged clocks.
+
+## 2026-09-14 — E11 short overclock sweep: ARM at 200 MHz
+
+- Experiment: `E11-arm-200mhz-01`
+- Configuration: E04-c source, ARM M33, requested/actual 200,000/200,000,000
+  kHz/Hz, unchanged regulator setting, `experimental-overclock` profile.
+- Validation: both 200 MHz profiles built without warnings. ARM passed all six
+  test groups, **4,096/4,096** oracle cases and **10/10** target tests; cycle
+  `CYCLE:PASS`.
+- Kernel benchmark: **431,915 H/s**, 864,000 hashes in 2,000,395 us, checksum
+  `47`; estimated **463.05 cycles/hash**.
+- Sustained mining: converged to **427,219 H/s** at 900,000 hashes.
+- Relative to E04-c ARM at 150 MHz: **+33.05%** benchmark and **+33.34%**
+  sustained for a +33.33% clock change. Cycle cost is effectively unchanged.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Qualification: short functional/performance experiment only; no thermal or
+  reliability soak. Retain as a candidate experiment, not the default profile.
+- Firmware UF2 SHA-256:
+  `a6962d61c134af5c46604a5a92a0139b89bad92c40d6deccc8490881be394a1f`
+- Archived serial log: `logs/E11-200mhz-arm.log`
+
+```text
+BOOT app=pico2_bitcoin_miner board=pico2 package=RP2350A arch=ARM-M33 engine=RP2350-SHA256 temperature=disabled clock_profile=experimental-overclock requested_clock_khz=200000 actual_clock_hz=200000000 sysinfo_package_sel=1 chip_id=30004927 silicon_revision=3
+TEST:SUMMARY pass=6 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=200000000 hashes=864000 elapsed_us=2000395 hash_rate_hs=431915 checksum=47 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=900000 total_hashes=900000 hash_rate_hs=427219 temperature=disabled
+```
