@@ -30,6 +30,7 @@ _Static_assert(ADC_TEMPERATURE_CHANNEL_NUM == 4,
 #define MINING_REPORT_INTERVAL 100000u
 #define MINER_SYS_CLOCK_KHZ 150000u
 #define TEMPERATURE_SAMPLES 32u
+#define ADC_DIAGNOSTIC_SAMPLES 8u
 
 typedef struct temperature_measurement {
     int32_t temp_mc;
@@ -144,6 +145,40 @@ static temperature_measurement_t read_die_temperature(void) {
                         && measurement.raw_min > 0u
                         && measurement.raw_max < 4095u;
     return measurement;
+}
+
+static void print_adc_diagnostics(void) {
+    for (uint32_t channel = 0u; channel < NUM_ADC_CHANNELS; ++channel) {
+        if (channel < NUM_ADC_CHANNELS - 1u) {
+            adc_gpio_init(ADC_BASE_PIN + channel);
+        }
+        adc_select_input(channel);
+        sleep_us(20u);
+        hw_set_bits(&adc_hw->cs, ADC_CS_ERR_STICKY_BITS);
+        const uint32_t cs_before = adc_hw->cs;
+        uint32_t raw_sum = 0u;
+        uint16_t raw_min = UINT16_MAX;
+        uint16_t raw_max = 0u;
+        uint32_t status_or = 0u;
+        for (uint32_t sample = 0u; sample < ADC_DIAGNOSTIC_SAMPLES; ++sample) {
+            const uint16_t raw = adc_read();
+            const uint32_t status = adc_hw->cs;
+            raw_sum += raw;
+            raw_min = raw < raw_min ? raw : raw_min;
+            raw_max = raw > raw_max ? raw : raw_max;
+            status_or |= status;
+        }
+        printf("ADC:DIAG channel=%" PRIu32 " kind=%s samples=%u"
+               " raw_mean=%" PRIu32 " raw_min=%u raw_max=%u"
+               " cs_before=%08" PRIx32 " cs_or=%08" PRIx32 "\n",
+               channel,
+               channel == ADC_TEMPERATURE_CHANNEL_NUM ? "temperature" : "gpio",
+               ADC_DIAGNOSTIC_SAMPLES,
+               (raw_sum + ADC_DIAGNOSTIC_SAMPLES / 2u)
+                   / ADC_DIAGNOSTIC_SAMPLES,
+               raw_min, raw_max, cs_before, status_or);
+    }
+    adc_select_input(ADC_TEMPERATURE_CHANNEL_NUM);
 }
 
 // Hash through RP2350's hardware SHA-256 peripheral. DMA is intentionally
@@ -502,6 +537,7 @@ int main(void) {
                " actual_sysinfo_package_sel=%" PRIu32 "\n",
                package_sel);
     }
+    print_adc_diagnostics();
     const temperature_measurement_t boot_temperature = read_die_temperature();
     printf("TEMP:BOOT source=rp2350-internal-adc approximate=1 temp_valid=%u"
            " temp_mc=%" PRId32 " temp_raw=%u temp_raw_min=%u temp_raw_max=%u"
