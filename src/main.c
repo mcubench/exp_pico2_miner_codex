@@ -513,13 +513,24 @@ static void mine_forever(uint led_pin) {
     printf("MINING:START header=bitcoin-genesis target_bits=1d00ffff start_nonce=0"
            " note=standalone-stale-work\n");
     while (true) {
+#ifdef __riscv
         bitcoin_hasher_hash_nonce_unchecked(&hasher, nonce);
+#else
+        // On M33, report-boundary batching slightly reduced sustained rate;
+        // retain its faster checked-per-hash mining layout.
+        if (!bitcoin_hasher_hash_nonce(&hasher, nonce)) {
+            printf("FAULT type=sha256_hardware nonce=%" PRIu32 "\n", nonce);
+            bitcoin_hasher_end(&hasher);
+            return;
+        }
+#endif
         ++since_report;
         const bool candidate = current_hash_meets_target(&target);
 
         // ERR_WDATA_NOT_RDY is sticky (proved at startup). A candidate is
         // always validated immediately, before it can be published.
         if (candidate) {
+#ifdef __riscv
             if (sha256_err_not_ready()) {
                 printf("FAULT type=sha256_hardware nonce=%" PRIu32
                        " invalid_batch=%" PRIu32 "\n",
@@ -527,6 +538,7 @@ static void mine_forever(uint led_pin) {
                 bitcoin_hasher_end(&hasher);
                 return;
             }
+#endif
             capture_current_hash(&hash);
             printf("SHARE:FOUND nonce=%" PRIu32 " hash=", nonce);
             print_bitcoin_hash(hash.bytes);
@@ -536,6 +548,7 @@ static void mine_forever(uint led_pin) {
         ++nonce;
 
         if (since_report == MINING_REPORT_INTERVAL) {
+#ifdef __riscv
             // Reuse the existing report boundary rather than adding a hot-path
             // counter and comparison. On error, discard the whole unvalidated
             // interval before accounting or reporting it as useful work.
@@ -546,6 +559,7 @@ static void mine_forever(uint led_pin) {
                 bitcoin_hasher_end(&hasher);
                 return;
             }
+#endif
             const uint64_t now_us = time_us_64();
             const uint64_t elapsed_us = now_us - report_started_us;
             const uint64_t rate = ((uint64_t)since_report * 1000000ull
