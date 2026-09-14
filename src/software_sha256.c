@@ -39,8 +39,18 @@ static inline uint32_t rotate_right(uint32_t value, unsigned shift) {
 
 static __attribute__((optimize("unroll-loops"))) void software_sha256_compress(
     uint32_t state[8], const uint32_t block[16]) {
-    uint32_t schedule[16];
-    memcpy(schedule, block, sizeof(schedule));
+    uint32_t schedule[64];
+    memcpy(schedule, block, 16u * sizeof(schedule[0]));
+    for (unsigned word = 16u; word < 64u; ++word) {
+        const uint32_t x = schedule[word - 15u];
+        const uint32_t y = schedule[word - 2u];
+        const uint32_t sigma0 = rotate_right(x, 7u)
+                                ^ rotate_right(x, 18u) ^ (x >> 3u);
+        const uint32_t sigma1 = rotate_right(y, 17u)
+                                ^ rotate_right(y, 19u) ^ (y >> 10u);
+        schedule[word] = schedule[word - 16u] + schedule[word - 7u]
+                         + sigma0 + sigma1;
+    }
 
     uint32_t a = state[0];
     uint32_t b = state[1];
@@ -52,20 +62,7 @@ static __attribute__((optimize("unroll-loops"))) void software_sha256_compress(
     uint32_t h = state[7];
 
     for (unsigned round = 0u; round < 64u; ++round) {
-        uint32_t word;
-        if (round < 16u) {
-            word = schedule[round];
-        } else {
-            const uint32_t x = schedule[(round - 15u) & 15u];
-            const uint32_t y = schedule[(round - 2u) & 15u];
-            const uint32_t sigma0 = rotate_right(x, 7u)
-                                    ^ rotate_right(x, 18u) ^ (x >> 3u);
-            const uint32_t sigma1 = rotate_right(y, 17u)
-                                    ^ rotate_right(y, 19u) ^ (y >> 10u);
-            word = schedule[round & 15u]
-                   + schedule[(round - 7u) & 15u] + sigma0 + sigma1;
-            schedule[round & 15u] = word;
-        }
+        const uint32_t word = schedule[round];
         const uint32_t sum1 = rotate_right(e, 6u) ^ rotate_right(e, 11u)
                               ^ rotate_right(e, 25u);
         const uint32_t choice = g ^ (e & (f ^ g));
