@@ -289,3 +289,30 @@ FAULT type=temperature boot=1 temp_valid=0
 BOOT app=pico2_bitcoin_miner board=miner_rp2350b package=RP2350B arch=ARM-M33 engine=RP2350-SHA256 adc_temp_channel=8 sysinfo_package_sel=1 chip_id=30004927 silicon_revision=3
 FAULT type=package_mismatch expected_sysinfo_package_sel=0 actual_sysinfo_package_sel=1
 ```
+
+## 2026-09-14 — E00 RP2350A channel-4 confirmation: ADC still invalid
+
+- Experiment: `E00-rp2350a-channel4-arm-03`
+- Change: accept the hardware identity as authoritative, restore the official
+  `pico2` / RP2350A definition and temperature channel 4, retain direct package
+  diagnostics, and use the SDK-initialized 48 MHz ADC clock without reconfiguring
+  it in application code. The optimization plan was corrected to RP2350A.
+- Build: ARM and RISC-V passed without warnings; ARM was flashed at 150 MHz.
+- Identity: `PACKAGE_SEL=1` matched RP2350A; compile-time and runtime temperature
+  channel were both 4.
+- Temperature result: **invalid**. All 32 boot samples were raw **4095**;
+  raw minimum/maximum were 4095. ADC status `0x00004703` showed current and
+  sticky conversion errors at an actual 48 MHz ADC clock.
+- Performance: **not measured**. The thermal validity gate stopped before KATs
+  and benchmarking.
+- Decision: package selection is now resolved, but E00 remains incomplete.
+  Isolate ADC/reference/supply behavior before optimization measurements.
+- Firmware UF2 SHA-256:
+  `0e147b3cc3ce7c2f0bc821af8f9bfda3fdd0c730562dd0371f8ba254783c0dec`
+- Archived serial log: `logs/E00-rp2350a-channel4-arm-invalid-temperature.log`
+
+```text
+BOOT app=pico2_bitcoin_miner board=pico2 package=RP2350A arch=ARM-M33 engine=RP2350-SHA256 adc_temp_channel=4 sysinfo_package_sel=1 chip_id=30004927 silicon_revision=3
+TEMP:BOOT source=rp2350-internal-adc approximate=1 temp_valid=0 temp_mc=-1479794 temp_raw=4095 temp_raw_min=4095 temp_raw_max=4095 adc_cs=00004703 adc_clock_hz=48000000 adc_channel=4
+FAULT type=temperature boot=1 temp_valid=0
+```
