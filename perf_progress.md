@@ -2218,3 +2218,19 @@ TEST:SUMMARY pass=7 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persistent-first-block-dma-e06a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=688000 elapsed_us=2000037 hash_rate_hs=343994 checksum=c8 temperature=disabled
 MINING:PROGRESS arch=RISCV-HAZARD3 worker_core=1 nonce=9900000 total_hashes=9900000 hash_rate_hs=340094 temperature=disabled
 ```
+
+## 2026-09-14 — E08 RISC-V core1 mining worker, confirmation
+
+- Experiment: `E08-riscv-core1-worker-27-confirm`.
+- The same installed candidate was autonomously cold-restarted through BOOTSEL
+  and explicit RISC-V application reboot; no rebuild or source change occurred.
+- Sustained mining settled at **340,093 H/s** and remained in the narrow
+  340,079–340,101 H/s range through 7.7 million hashes.
+- This reproduces run 1 within **1 H/s** and confirms the **+1.39%** gain over
+  retained E06a (335,420 H/s).
+- Decision: accept E08 as the new RISC-V sustained-mining baseline. The board is
+  currently running the accepted image.
+
+```text
+MINING:PROGRESS arch=RISCV-HAZARD3 worker_core=1 nonce=7700000 total_hashes=7700000 hash_rate_hs=340097 temperature=disabled
+```
