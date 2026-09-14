@@ -299,6 +299,33 @@ ADC:DIAG channel=3 kind=gpio samples=8 raw_mean=4095 raw_min=4095 raw_max=4095 c
 ADC:DIAG channel=4 kind=temperature samples=8 raw_mean=4095 raw_min=4095 raw_max=4095 cs_before=00004703 cs_or=00004703
 ```
 
+## 2026-09-14 — E00 completed with temperature disabled: ARM baseline
+
+- Experiment: `E00-rp2350a-stock-arm-05`
+- Change: remove ADC initialization/sampling and its runtime gate at the user's
+  request; retain hardware package identity checks. All output explicitly says
+  `temperature=disabled`. System clock remained stock 150 MHz.
+- Validation: all four KATs passed, including the 94-attempt genesis nonce
+  search; cycle result `CYCLE:PASS`.
+- Kernel benchmark: **294,090 H/s**, 589,000 complete Bitcoin double hashes in
+  2,002,785 us, checksum `cc`.
+- Sustained mining: **289,439–289,452 H/s** after startup convergence.
+- Relative to the prior optimized 150 MHz ARM baseline (294,091 H/s): unchanged
+  within measurement resolution.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Decision: accept as the stock ARM reference for later code experiments. Keep
+  clock changes separate from kernel comparisons.
+- Firmware UF2 SHA-256:
+  `1645213f8825b61dd7257954d1e92ebe2ed44c681047c6b69717ca4894a9ccfe`
+- Archived serial log: `logs/E00-rp2350a-stock-arm-baseline.log`
+
+```text
+TEST:SUMMARY pass=4 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=direct-unrolled-o3-lazy-result-rp2350a-stock arch=ARM-M33 clock_hz=150000000 hashes=589000 elapsed_us=2002785 hash_rate_hs=294090 checksum=cc temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=1700000 total_hashes=1700000 hash_rate_hs=289452 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=4000000 total_hashes=4000000 hash_rate_hs=289445 temperature=disabled
+```
+
 ## 2026-09-13 — E00 hardware package-identity check: RP2350A reported
 
 - Experiment: `E00-sysinfo-package-identity-arm-02`
