@@ -67,7 +67,12 @@ target_compile_options(pico2_agent PRIVATE
 )
 
 if(MINER_ENABLE_LTO)
-    set_property(TARGET pico2_agent PROPERTY INTERPROCEDURAL_OPTIMIZATION TRUE)
+    # Pico SDK sources are assembled into the final target. Target-wide IPO
+    # applies LTO to those sources too and breaks SDK wrapper/time-critical
+    # linkage in the installed toolchains. Limit this experiment to our hot
+    # translation unit and let the linker plugin consume that one LTO object.
+    set_source_files_properties(src/main.c PROPERTIES COMPILE_OPTIONS "-flto")
+    target_link_options(pico2_agent PRIVATE -flto)
     set(MINER_LTO_VALUE 1)
 else()
     set(MINER_LTO_VALUE 0)
