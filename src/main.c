@@ -19,10 +19,12 @@ _Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
 #define CPU_ARCH "RISCV-HAZARD3"
 #define BENCHMARK_PATH "persistent-full-dma-e06a"
 #define MINING_LOOP_OPTIONS __attribute__((optimize("unroll-loops")))
+#define STARTUP_DELAY_MS 120000u
 #else
 #define CPU_ARCH "ARM-M33"
 #define BENCHMARK_PATH "batched-accounting-e04c"
 #define MINING_LOOP_OPTIONS __attribute__((optimize("unroll-loops")))
+#define STARTUP_DELAY_MS 3500u
 #endif
 
 #define BITCOIN_HEADER_BYTES 80u
@@ -674,7 +676,7 @@ int main(void) {
 
     // Give the host time to enumerate USB CDC and attach the monitor. A fixed
     // delay also keeps headless operation independent of host DTR behaviour.
-    sleep_ms(3500u);
+    sleep_ms(STARTUP_DELAY_MS);
     if (!clock_configured) {
         printf("FAULT type=system_clock requested_khz=%u\n", MINER_SYS_CLOCK_KHZ);
         while (true) {
