@@ -267,6 +267,12 @@ static bool hash_words_meet_target(const sha256_result_t *hash_le,
 
 static inline __attribute__((always_inline)) bool current_hash_meets_target(
     const sha256_result_t *target_le) {
+    // Byte reversal cannot change whether a word is zero. Bitcoin difficulty
+    // targets normally have a zero most-significant word, so reject the common
+    // nonzero SUM7 case before entering the ordered uint256 comparison.
+    if (target_le->words[7] == 0u && sha256_hw->sum[7] != 0u) {
+        return false;
+    }
     // Compare the most-significant little-endian word first. Nearly every
     // difficulty-1 candidate is rejected after reading only SUM7.
     for (int i = 7; i >= 0; --i) {
@@ -441,7 +447,7 @@ static bool run_benchmark(void) {
 
     const uint64_t rate = (hashes * 1000000ull + elapsed_us / 2u) / elapsed_us;
     printf("BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256"
-           " path=constant-header-tail-e04a"
+           " path=fast-zero-msw-reject-e04d"
            " arch=%s clock_hz=%" PRIu32 " hashes=%" PRIu64
            " elapsed_us=%" PRIu64 " hash_rate_hs=%" PRIu64
            " checksum=%02x temperature=disabled\n",
