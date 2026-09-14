@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+source "$(dirname -- "$0")/common.sh"
+
+arch="${1:-}"
+mode="${2:-summary}"
+symbol="${3:-}"
+case "${arch}" in
+    arm)
+        triple=arm-none-eabi
+        explicit_toolchain="${ARM_TOOLCHAIN:-}"
+        ;;
+    riscv)
+        triple=riscv32-pico-elf
+        explicit_toolchain="${RISCV_TOOLCHAIN:-}"
+        ;;
+    *)
+        die "usage: tools/analyze arm|riscv [summary|disassembly [symbol]]"
+        ;;
+esac
+
+toolchain="$(find_toolchain "${triple}" "${explicit_toolchain}")" \
+    || die "${triple} toolchain not found"
+elf="${PROJECT_ROOT}/build/${arch}/pico2_agent.elf"
+[[ -f "${elf}" ]] || die "missing ${elf}; run ./tools/build ${arch} first"
+
+size_bin="${toolchain}/bin/${triple}-size"
+objdump_bin="${toolchain}/bin/${triple}-objdump"
+[[ -x "${size_bin}" ]] || die "missing ${size_bin}"
+[[ -x "${objdump_bin}" ]] || die "missing ${objdump_bin}"
+
+case "${mode}" in
+    summary)
+        printf 'ANALYZE arch=%s elf=%s\n' "${arch}" "${elf}"
+        "${size_bin}" "${elf}"
+        ;;
+    disassembly)
+        if [[ -n "${symbol}" ]]; then
+            "${objdump_bin}" -d -S --disassemble="${symbol}" "${elf}"
+        else
+            "${objdump_bin}" -d -S "${elf}"
+        fi
+        ;;
+    *)
+        die "usage: tools/analyze arm|riscv [summary|disassembly [symbol]]"
+        ;;
+esac

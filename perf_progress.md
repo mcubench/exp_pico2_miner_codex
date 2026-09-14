@@ -465,3 +465,35 @@ TEST:SUMMARY pass=6 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=direct-unrolled-o3-lazy-result-rp2350a-stock arch=RISCV-HAZARD3 clock_hz=150000000 hashes=582000 elapsed_us=2002288 hash_rate_hs=290667 checksum=75 temperature=disabled
 MINING:PROGRESS arch=RISCV-HAZARD3 nonce=600000 total_hashes=600000 hash_rate_hs=286690 temperature=disabled
 ```
+
+## 2026-09-14 — E02 matched cycle-budget and assembly profile
+
+- Experiment: `E02-static-profile-01`
+- Inputs: the fresh E01 150 MHz measurements, exact compile commands, link
+  maps, binary sizes, and source-correlated disassembly for both architectures.
+  No new firmware was flashed and no new throughput sample was obtained.
+- Reproducibility: added `./tools/analyze arm|riscv summary|disassembly
+  [symbol]`, which locates the repository-selected toolchain instead of invoking
+  a compiler utility ad hoc.
+- Effective main-source flags: ARM uses Cortex-M33/Thumb/Armv8-M Main plus `-O3`;
+  RISC-V uses `-mcpu=hazard3-rp2350` plus `-O3`. CMake's earlier `-Og` remains
+  in each command but is superseded by the later target `-O3`.
+- E01 benchmark cycle budget at the measured 150 MHz clock:
+  - ARM: 150,000,000 / 294,091 = **510.05 cycles/hash**; **147.05 cycles**
+    above the 363-cycle three-compression hardware-only floor.
+  - RISC-V: 150,000,000 / 290,667 = **516.05 cycles/hash**; **153.05 cycles**
+    above that floor.
+- E01 sustained cycle budget: ARM **518.24 cycles/hash** at 289,441 H/s;
+  RISC-V **523.21 cycles/hash** at 286,690 H/s.
+- Assembly finding: both hot paths copy the intermediate state through SRAM on
+  every nonce: 8 MMIO loads, 8 byte-reverse instructions (`rev` / `rev8`), 8
+  SRAM stores, then 8 SRAM reloads before WDATA writes. This is directly
+  removable by E03. Both compilers already emit native one-instruction byte
+  reversal, so the expected gain is primarily transfer/load-store overhead.
+- Stack frames: ARM mining function **300 bytes**; RISC-V **352 bytes**. Current
+  ELF allocation: ARM text/data/bss **175,980/0/2,640 bytes**; RISC-V
+  **183,860/0/2,388 bytes**. The 4,096-vector oracle dominates the text/rodata
+  increase but is outside the timed hot loop.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Decision: E03-a preformatted numeric SHA words is the next justified variant;
+  follow it with E03-b register-only digest handoff, inspecting both assemblies.
