@@ -65,14 +65,6 @@ target_compile_options(pico2_agent PRIVATE
     -Werror
 )
 
-# Hazard3 has inexpensive conditional branches.  Give GCC's if-conversion and
-# scheduling passes the target-specific cost hint as an isolated E05 trial.
-if(PICO_PLATFORM STREQUAL "rp2350-riscv")
-    set_source_files_properties(src/main.c PROPERTIES
-        COMPILE_OPTIONS "-mbranch-cost=1"
-    )
-endif()
-
 # USB CDC supplies both logs and picotool's automatic reset-to-BOOTSEL path.
 pico_enable_stdio_usb(pico2_agent 1)
 pico_enable_stdio_uart(pico2_agent 0)
