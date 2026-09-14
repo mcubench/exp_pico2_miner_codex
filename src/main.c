@@ -23,6 +23,7 @@ _Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
 #define NONCE_OFFSET 76u
 #define BENCHMARK_MIN_US 2000000ull
 #define BENCHMARK_BATCH 1000u
+#define MINING_ERROR_CHECK_BATCH 1000u
 #define MINING_REPORT_INTERVAL 100000u
 
 #if MINER_SYS_CLOCK_KHZ > 150000
@@ -168,7 +169,7 @@ static void bitcoin_hasher_end(bitcoin_hasher_t *hasher) {
     }
 }
 
-static inline __attribute__((always_inline)) bool bitcoin_hasher_hash_nonce(
+static inline __attribute__((always_inline)) void bitcoin_hasher_hash_nonce_unchecked(
     bitcoin_hasher_t *hasher,
     uint32_t nonce) {
     // The SHA input is held as numeric big-endian words, while Bitcoin
@@ -210,6 +211,12 @@ static inline __attribute__((always_inline)) bool bitcoin_hasher_hash_nonce(
     sha256_put_word(0u);
     sha256_put_word(HASH_BYTES * 8u);
     sha256_wait_valid_blocking();
+}
+
+static inline __attribute__((always_inline)) bool bitcoin_hasher_hash_nonce(
+    bitcoin_hasher_t *hasher,
+    uint32_t nonce) {
+    bitcoin_hasher_hash_nonce_unchecked(hasher, nonce);
     return !sha256_err_not_ready();
 }
 
@@ -373,6 +380,31 @@ static bool check_vector(const char *name,
     return passed;
 }
 
+static bool run_sha_error_sticky_test(void) {
+    // Prove the premise used by batched error checking: an illegal WDATA write
+    // latches ERR_WDATA_NOT_RDY, START does not erase it, and the documented
+    // SDK clear operation removes it. This test runs outside timed work.
+    static const uint32_t zero_block[16] = {0};
+    bootrom_acquire_lock_blocking(BOOTROM_LOCK_SHA_256);
+    sha256_set_bswap(false);
+    sha256_err_not_ready_clear();
+    sha256_start();
+    sha256_write_block(zero_block);
+    sha256_put_word(0u);
+    const bool latched = sha256_err_not_ready();
+    sha256_start();
+    const bool survived_start = sha256_err_not_ready();
+    sha256_err_not_ready_clear();
+    const bool cleared = !sha256_err_not_ready();
+    bootrom_release_lock(BOOTROM_LOCK_SHA_256);
+
+    const bool passed = latched && survived_start && cleared;
+    printf("TEST:%s kat=sha_error_sticky cases=3 latched=%u"
+           " survived_start=%u cleared=%u\n",
+           passed ? "PASS" : "FAIL", latched, survived_start, cleared);
+    return passed;
+}
+
 static bool run_known_answer_tests(void) {
     bool passed = true;
     static const uint8_t abc[] = {'a', 'b', 'c'};
@@ -382,6 +414,7 @@ static bool run_known_answer_tests(void) {
 
     passed &= check_vector("nist_empty", NULL, 0u, sha256_empty);
     passed &= check_vector("nist_abc", abc, sizeof(abc), sha256_abc);
+    passed &= run_sha_error_sticky_test();
     passed &= run_optimized_oracle_vectors();
     passed &= run_target_tests();
 
@@ -438,12 +471,14 @@ static bool run_benchmark(void) {
     uint64_t elapsed_us;
     do {
         for (uint32_t i = 0; i < BENCHMARK_BATCH; ++i) {
-            if (!bitcoin_hasher_hash_nonce(&hasher, nonce++)) {
-                printf("FAULT type=sha256_hardware benchmark=1\n");
-                bitcoin_hasher_end(&hasher);
-                return false;
-            }
+            bitcoin_hasher_hash_nonce_unchecked(&hasher, nonce++);
             checksum ^= (uint8_t)(sha256_hw->sum[0] >> 24u);
+        }
+        if (sha256_err_not_ready()) {
+            printf("FAULT type=sha256_hardware benchmark=1"
+                   " invalid_batch=%u\n", BENCHMARK_BATCH);
+            bitcoin_hasher_end(&hasher);
+            return false;
         }
         hashes += BENCHMARK_BATCH;
         elapsed_us = time_us_64() - started_us;
@@ -465,6 +500,7 @@ static void mine_forever(uint led_pin) {
     sha256_result_t target;
     bitcoin_hasher_t hasher;
     uint32_t nonce = 0u;
+    uint32_t since_error_check = 0u;
     uint32_t since_report = 0u;
     uint64_t total_hashes = 0u;
     uint64_t report_started_us = time_us_64();
@@ -479,14 +515,26 @@ static void mine_forever(uint led_pin) {
     printf("MINING:START header=bitcoin-genesis target_bits=1d00ffff start_nonce=0"
            " note=standalone-stale-work\n");
     while (true) {
-        if (!bitcoin_hasher_hash_nonce(&hasher, nonce)) {
-            printf("FAULT type=sha256_hardware nonce=%" PRIu32 "\n", nonce);
-            bitcoin_hasher_end(&hasher);
-            return;
-        }
-        ++since_report;
+        bitcoin_hasher_hash_nonce_unchecked(&hasher, nonce);
+        ++since_error_check;
+        const bool candidate = current_hash_meets_target(&target);
 
-        if (current_hash_meets_target(&target)) {
+        // ERR_WDATA_NOT_RDY is sticky (proved at startup). Validate every
+        // bounded batch and before publishing any candidate. On error, none
+        // of the unchecked batch is counted or published as useful work.
+        if (candidate || since_error_check == MINING_ERROR_CHECK_BATCH) {
+            if (sha256_err_not_ready()) {
+                printf("FAULT type=sha256_hardware nonce=%" PRIu32
+                       " invalid_batch=%" PRIu32 "\n",
+                       nonce, since_error_check);
+                bitcoin_hasher_end(&hasher);
+                return;
+            }
+            since_error_check = 0u;
+        }
+
+        ++since_report;
+        if (candidate) {
             capture_current_hash(&hash);
             printf("SHARE:FOUND nonce=%" PRIu32 " hash=", nonce);
             print_bitcoin_hash(hash.bytes);
@@ -557,7 +605,7 @@ int main(void) {
             sleep_ms(100u);
         }
     }
-    printf("TEST:SUMMARY pass=6 fail=0\n");
+    printf("TEST:SUMMARY pass=7 fail=0\n");
 
     if (!run_benchmark()) {
         while (true) {

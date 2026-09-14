@@ -106,7 +106,7 @@ def main() -> int:
                 line = raw.rstrip(b"\r").decode("utf-8", errors="replace")
                 print(line, flush=True)
                 saw_test_summary = saw_test_summary or line.startswith(
-                    "TEST:SUMMARY pass=6 fail=0"
+                    "TEST:SUMMARY pass=7 fail=0"
                 )
                 saw_benchmark = saw_benchmark or line.startswith("BENCHMARK:PASS")
                 if line.startswith("TEST:FAIL") or line.startswith("FAULT"):
