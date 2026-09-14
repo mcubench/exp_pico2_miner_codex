@@ -1031,6 +1031,32 @@ BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched
 MINING:PROGRESS arch=ARM-M33 nonce=700000 total_hashes=700000 hash_rate_hs=320415 temperature=disabled
 ```
 
+## 2026-09-14 — SDK-pattern sticky-error test guard fails on RISC-V
+
+- Experiment: `sticky-error-stimulus-fix3-riscv-guard-fail`
+- Candidate commit: `798baaa`; ARM validation recorded above passed.
+- Build/flash: both builds passed without warnings; RISC-V flash and verify
+  passed.
+- Runtime failure: `observed_not_ready=0 latched=0 survived_start=0
+  cleared=1`; therefore **no valid benchmark**.
+- Diagnosis: Hazard3 is slow enough relative to the SHA peripheral that the
+  first CSR poll after the sixteenth store occurred after compression had
+  completed. Because fix attempt 3 incorrectly guarded the SDK-style burst on
+  observing the brief busy window, it skipped the error stimulus entirely.
+  The SDK test's unpaced burst is unconditional: even if initially ready, its
+  first block starts compression and subsequent stores provoke the error.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- RISC-V UF2 SHA-256:
+  `1f8ca40d57148de205a068d7a3eeacaf8011d5a3932eec46193794b3e497beac`
+- Archived serial log:
+  `logs/sticky-error-sdk-pattern-riscv-guard-fail.log`
+- Decision: retain the passing ARM evidence but remove the readiness-observation
+  precondition and use the SDK's unconditional burst on both architectures.
+
+```text
+TEST:FAIL kat=sha_error_sticky cases=4 observed_not_ready=0 latched=0 survived_start=0 cleared=1
+```
+
 ## 2026-09-14 — E05 Hazard3 branch-cost hint, run 1
 
 - Experiment: `E05-riscv-branch-cost1-13-run1`
