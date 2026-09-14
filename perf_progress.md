@@ -1095,3 +1095,34 @@ TEST:SUMMARY pass=7 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=150000000 hashes=658000 elapsed_us=2000586 hash_rate_hs=328904 checksum=bb temperature=disabled
 MINING:PROGRESS arch=ARM-M33 nonce=700000 total_hashes=700000 hash_rate_hs=314360 temperature=disabled
 ```
+
+## 2026-09-14 — E04-e report-boundary error batching: ARM at 150 MHz
+
+- Experiment: `E04e-report-boundary-arm-05`
+- Change from the first E04-e subvariant: remove its dedicated 1,000-hash
+  mining counter/branch. Benchmark still checks each 1,000-hash batch; mining
+  checks the sticky flag at the existing 100,000-hash reporting boundary and
+  immediately before any candidate publication.
+- Validation: both builds passed without warnings. The sticky-error hardware
+  premise and all seven test groups passed, including **4,096/4,096** oracle
+  cases and **10/10** target cases; cycle `CYCLE:PASS`.
+- Kernel benchmark: **328,902 H/s**, 658,000 hashes in 2,000,595 us, checksum
+  `bb`; estimated **456.06 cycles/hash**.
+- Sustained mining: **319,723 H/s** at 700,000 hashes.
+- Relative to E04-c ARM baseline (324,632 benchmark; 320,406 sustained):
+  **+1.32% benchmark, -0.21% sustained**.
+- Interpretation: report-boundary reuse recovers nearly all of the first
+  subvariant's mining regression, but the measured end-to-end miner remains
+  slightly slower. The benchmark-only gain is repeatable.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Firmware UF2 SHA-256:
+  `9ce389ea2647a36acf19697c11ed2acfe0b2b7fd652b37e1e8329ea169003d62`
+- Archived serial log: `logs/E04e-report-boundary-arm.log`
+- Decision: defer retain/reject until the matched RISC-V measurement.
+
+```text
+TEST:PASS kat=sha_error_sticky cases=3 latched=1 survived_start=1 cleared=1
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-error-batched-e04e arch=ARM-M33 clock_hz=150000000 hashes=658000 elapsed_us=2000595 hash_rate_hs=328902 checksum=bb temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=700000 total_hashes=700000 hash_rate_hs=319723 temperature=disabled
+```
