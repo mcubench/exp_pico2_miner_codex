@@ -724,3 +724,55 @@ TEST:SUMMARY pass=6 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=fast-zero-msw-reject-e04d arch=RISCV-HAZARD3 clock_hz=150000000 hashes=643000 elapsed_us=2002091 hash_rate_hs=321164 checksum=fe temperature=disabled
 MINING:PROGRESS arch=RISCV-HAZARD3 nonce=700000 total_hashes=700000 hash_rate_hs=311063 temperature=disabled
 ```
+
+## 2026-09-14 — E04-c batched 64-bit accounting: ARM
+
+- Experiment: `E04c-batched-accounting-arm-01`
+- Change: update 64-bit benchmark totals once per 1,000 hashes and mining totals
+  once per 100,000-hash reporting window; candidates report the exact total as
+  completed windows plus the current 32-bit window. Work and elapsed-time
+  definitions are unchanged. Stock 150 MHz; checkpoint `c24b260`.
+- Validation: both builds passed; ARM passed all six test groups, **4,096/4,096**
+  oracle cases, target tests, and exact nonce search; cycle `CYCLE:PASS`.
+- Kernel benchmark: **324,632 H/s**, 650,000 hashes in 2,002,268 us, checksum
+  `f9`; estimated **462.06 cycles/hash**.
+- Sustained mining: converged to **320,406 H/s** at 700,000 hashes.
+- Relative to E04-d ARM: **+2.59%** benchmark and **+1.71%** sustained. Relative
+  to E01 ARM: **+10.38%** benchmark and **+10.70%** sustained.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Decision: retain on ARM; measure identical source on Hazard3.
+- Firmware UF2 SHA-256:
+  `3f98fcf172d7a47c71ada88f22e4713b5e17834c71a3f400a74d06cf78397615`
+- Archived serial log: `logs/E04c-batched-accounting-arm.log`
+
+```text
+TEST:SUMMARY pass=6 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=150000000 hashes=650000 elapsed_us=2002268 hash_rate_hs=324632 checksum=f9 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=700000 total_hashes=700000 hash_rate_hs=320406 temperature=disabled
+```
+
+## 2026-09-14 — E04-c batched 64-bit accounting: RISC-V
+
+- Experiment: `E04c-batched-accounting-riscv-02`
+- Build/workload: identical checkpoint `c24b260` and stock 150 MHz clock;
+  Hazard3 RISC-V target.
+- Validation: all six test groups passed, including **4,096/4,096** oracle
+  cases, target tests, and exact nonce search; cycle `CYCLE:PASS`.
+- Kernel benchmark: **325,341 H/s**, 651,000 hashes in 2,000,977 us, checksum
+  `28`; estimated **461.06 cycles/hash**.
+- Sustained mining: converged to **314,333 H/s** at 600,000 hashes (the first
+  100,000 window was a startup outlier).
+- Relative to E04-d RISC-V: **+1.30%** benchmark and **+1.05%** sustained.
+  Relative to E01 RISC-V: **+11.93%** benchmark and **+9.64%** sustained.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Decision: accept E04-c on both architectures. Checkpoint `c24b260` is the new
+  stock-clock source baseline for compiler and clock experiments.
+- Firmware UF2 SHA-256:
+  `53fcd7ddca35f2633cc26785004fc13c4e020dee42f7559881f996ea03af1510`
+- Archived serial log: `logs/E04c-batched-accounting-riscv.log`
+
+```text
+TEST:SUMMARY pass=6 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=RISCV-HAZARD3 clock_hz=150000000 hashes=651000 elapsed_us=2000977 hash_rate_hs=325341 checksum=28 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=600000 total_hashes=600000 hash_rate_hs=314333 temperature=disabled
+```
