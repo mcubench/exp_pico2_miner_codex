@@ -1196,6 +1196,35 @@ BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-
 MINING:PROGRESS arch=RISCV-HAZARD3 nonce=800000 total_hashes=800000 hash_rate_hs=321040 temperature=disabled
 ```
 
+## 2026-09-14 — E05 Hazard3 global loop-unrolling trial
+
+- Experiment: `E05-riscv-unroll-loops-16-reject`
+- Candidate commit: `b543b24`.
+- Change: compile only RISC-V `src/main.c` with `-funroll-loops` at `-O3`;
+  ARM remains byte-identical to baseline.
+- Validation: both builds passed without warnings. RISC-V passed the
+  sticky-error proof, all seven test groups, **4,096/4,096** oracle cases and
+  **10/10** target cases; cycle passed.
+- Kernel benchmark: **326,048 H/s**, 653,000 hashes in 2,002,771 us, checksum
+  `e8`; **-1.30%** versus the 330,357 H/s no-flag baseline.
+- Sustained mining: **324,527 H/s** at 700,000 hashes; **+1.08%** versus the
+  retained 321,051 H/s result.
+- Code/artifact impact: RISC-V UF2 grew/changed to 371,200 bytes. Global
+  unrolling creates a reproducible trade toward the mining-loop layout but
+  slows the primary bounded kernel and increases flash footprint.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Firmware UF2 SHA-256:
+  `e414d682f1cbbc9cb2fde01b6a640dfc42918241037e3eb88fd030b9fa8e0aaf`
+- Archived serial log: `logs/E05-riscv-unroll-loops.log`
+- Decision: reject. Neither direction exceeds the 2% retention threshold,
+  kernel throughput regresses, and the global flag adds code-size complexity.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-error-batched-e04e arch=RISCV-HAZARD3 clock_hz=150000000 hashes=653000 elapsed_us=2002771 hash_rate_hs=326048 checksum=e8 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=700000 total_hashes=700000 hash_rate_hs=324527 temperature=disabled
+```
+
 ## 2026-09-14 — E05 Hazard3 branch-cost hint, run 1
 
 - Experiment: `E05-riscv-branch-cost1-13-run1`
