@@ -1999,3 +1999,31 @@ TEST:SUMMARY pass=7 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persistent-first-block-dma-e06a arch=ARM-M33 clock_hz=150000000 hashes=663000 elapsed_us=2002494 hash_rate_hs=331087 checksum=cb temperature=disabled
 MINING:PROGRESS arch=ARM-M33 nonce=1000000 total_hashes=1000000 hash_rate_hs=324568 temperature=disabled
 ```
+
+## 2026-09-14 — E06a persistent first-block DMA, RISC-V run 1
+
+- Experiment: `E06a-persistent-first-block-dma-riscv-23-run1`.
+- Candidate commit: `a930ac8`; measurement follows ARM record commit
+  `cb3c882` with identical firmware source.
+- Configuration: RP2350A, Hazard3 RISC-V, stock 150 MHz, one persistent 32-bit
+  DMA channel paced by `DREQ_SHA256` for the invariant first block;
+  temperature disabled.
+- Validation: all 7 tests passed, including 4,096 independent oracle vectors,
+  10 target-boundary cases, genesis digest/search, and sticky-error proof.
+- Kernel benchmark: **344,784 H/s** (`690000` hashes in `2001251 us`, checksum
+  `92`), **+1.61%** versus the retained RISC-V result of 339,327 H/s.
+- Sustained mining: **335,421 H/s** at 2,000,000 hashes, **+0.68%** versus the
+  retained RISC-V result of 333,166 H/s.
+- Firmware: RISC-V UF2 SHA-256
+  `493193f79243ae533efed0114c335ecc72d4a7825b2fb4d3c754e8496de74250`,
+  367,616 bytes.
+- Archived serial log: `logs/E06a-persistent-first-block-dma-riscv-run1.log`.
+- Decision: promising architecture-specific result. It is the fastest measured
+  stock-clock kernel so far but remains below the nominal 2% retention gate;
+  repeat the byte-identical artifact before selecting an ISA split.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persistent-first-block-dma-e06a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=690000 elapsed_us=2001251 hash_rate_hs=344784 checksum=92 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=2000000 total_hashes=2000000 hash_rate_hs=335421 temperature=disabled
+```
