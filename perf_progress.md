@@ -2409,3 +2409,31 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=53000 elapsed_us=2004536 hash_rate_hs=26440 checksum=45 temperature=disabled
 MINING:PROGRESS arch=ARM-M33 worker_core=1 nonce=3000000 total_hashes=3000000 hash_rate_hs=327474 temperature=disabled
 ```
+
+## 2026-09-14 — E10-a independent hardware + software workers, RISC-V
+
+- Experiment: `E10a-dual-worker-riscv-35`.
+- Candidate commit: `61a3913`. Core 1 evaluates even nonces with the retained
+  hardware/DMA path; core 0 evaluates odd nonces with E09-b2 software SHA and
+  services FIFO/USB between hashes. Each parity range stops before repetition,
+  so reported aggregate work is disjoint and unique.
+- Both architectures built cleanly. All 4,096 cross-engine oracle cases and all
+  7 suites passed on RISC-V; no fault occurred and the cycle passed.
+- Representative sustained rates: hardware **336,698 H/s**, software
+  **19,668 H/s**, aggregate **356,366 H/s**. Aggregate reports stayed roughly
+  355,891–357,102 H/s; settled values cluster near 356.3 kH/s.
+- Versus E08 RISC-V hardware-only sustained 340,093 H/s: aggregate **+4.78%**
+  (+16,273 H/s). Compared with isolated components, bus/XIP/USB contention
+  costs about 3.4 kH/s hardware and 4.5 kH/s software, but net work is positive.
+- Startup isolated benchmarks in this linked image: hardware **342,420 H/s**,
+  software **23,972 H/s**.
+- Candidate RISC-V UF2 SHA-256:
+  `0ded2c8cf49d89b18c424e75fe253a459e14553cb6f5d79b909228c1b0cdaff2`.
+- Archived serial log: `logs/E10a-dual-worker-riscv.log`.
+- Decision: retain provisionally. Confirm ARM, then optimize contention and
+  software common-path overhead against this measured aggregate baseline.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+MINING:PROGRESS arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=9000000 hardware_hashes=4500000 hardware_rate_hs=336758 software_core=0 software_nonce=524241 software_hashes=262120 software_rate_hs=19608 total_hashes=4762120 hash_rate_hs=356366 temperature=disabled
+```
