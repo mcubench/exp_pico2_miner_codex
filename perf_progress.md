@@ -1345,6 +1345,36 @@ BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched
 MINING:PROGRESS arch=ARM-M33 nonce=700000 total_hashes=700000 hash_rate_hs=321097 temperature=disabled
 ```
 
+## 2026-09-14 — E04 post-START ready-poll removal, ARM run 1
+
+- Experiment: `E04-start-ready-poll-removal-19-arm-run1`
+- Candidate commit: `60aa7ec`.
+- Change: after each explicit SHA `START`, feed the first block/second-hash
+  block directly instead of first reading and branching on `WDATA_RDY`.
+  Ordered MMIO preserves START-before-WDATA. The required inter-block ready
+  wait, both digest-valid waits, sticky error detection, and full digest
+  validation remain.
+- Validation: both builds passed without warnings. ARM passed the sticky-error
+  proof, all seven test groups, **4,096/4,096** oracle cases and **10/10**
+  target cases; cycle passed with no SHA fault.
+- Kernel benchmark: **331,818 H/s**, 664,000 hashes in 2,001,100 us, checksum
+  `37`; **+2.43%** versus the retained 323,934 H/s ARM result.
+- Sustained mining: **321,789 H/s** at 500,000 hashes; **+0.43%** versus the
+  retained 320,415 H/s result.
+- Artifact size: ARM UF2 remains 344,576 bytes.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- ARM UF2 SHA-256:
+  `69aa6d486464bdc411aa5c661021b8483b67ddd557d4cbc657e95020c5f593e2`
+- Archived serial log: `logs/E04-start-ready-poll-removal-arm-run1.log`
+- Decision: promising; exceeds the 2% kernel gate. Validate RISC-V and repeat
+  before retaining a state-machine assumption.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=150000000 hashes=664000 elapsed_us=2001100 hash_rate_hs=331818 checksum=37 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=500000 total_hashes=500000 hash_rate_hs=321789 temperature=disabled
+```
+
 ## 2026-09-14 — E05 Hazard3 branch-cost hint, run 1
 
 - Experiment: `E05-riscv-branch-cost1-13-run1`
