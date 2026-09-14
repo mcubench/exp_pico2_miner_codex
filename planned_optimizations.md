@@ -2,6 +2,12 @@
 
 Date: 2026-09-13. Status: **plan only; none of the experiments below was implemented or measured while writing this document.**
 
+Execution override, 2026-09-14: the user requested that temperature extraction
+be skipped after every ADC channel failed, and authorized experimental clocks up
+to 550 MHz. Runtime measurements must say `temperature=disabled`. Establish code
+changes at 150 MHz first and test clock changes separately in increasing steps;
+550 MHz is a ceiling, not a required or presumed-stable target.
+
 The connected chip is now treated as **RP2350A / QFN-60**. This supersedes the original RP2350B assumption: direct firmware readout reported `SYSINFO.PACKAGE_SEL=1`, which the RP2350 datasheet defines as QFN-60. The exact carrier-board model, supply/reference arrangement, and silicon stepping still matter. Package suffix A is distinct from the reported silicon revision `3`.
 
 Objective: maximize **correct, unique Bitcoin double-SHA-256 nonce evaluations per second**, with working USB control, reproducible validation, and valid temperature telemetry. Retain both `rp2350-arm-s` and `rp2350-riscv` builds. Report hash-kernel throughput separately from sustained mining throughput and from any microbenchmark.
@@ -152,6 +158,12 @@ Files to inspect/change later: `CMakeLists.txt`, `tools/build`, relevant `.vscod
 10. Preserve the historical RP2350B/channel-8 attempts as rejected evidence and append the authoritative RP2350A correction. Qualify stale global stock-clock/build-label wording rather than silently rewriting historical measurements.
 
 Acceptance: both builds are warning-free, boot identifies A/channel 4 and hardware `PACKAGE_SEL=1`, all existing KATs pass, temperatures are explicitly valid with no ADC errors under idle and load, and failure injection into the telemetry validator is rejected. A speed increase is not required.
+
+Observed E00 disposition on 2026-09-14: package identity is resolved, but all
+five ADC channels return saturated/error results. Per the later user override,
+temperature extraction is disabled and E00 is closed as a documented hardware
+limitation. Continue performance experiments, explicitly marking temperature
+as disabled. This is not a valid-temperature result.
 
 ### E01 — Establish an independent oracle and reproducible measurement contract
 

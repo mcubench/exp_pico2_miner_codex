@@ -37,7 +37,6 @@ add_executable(pico2_agent
 )
 
 target_link_libraries(pico2_agent PRIVATE
-    hardware_adc
     pico_stdlib
     pico_sha256
 )
