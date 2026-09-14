@@ -536,12 +536,10 @@ int main(void) {
     const uint32_t package_sel = sysinfo_hw->package_sel;
     printf("BOOT app=pico2_bitcoin_miner board=pico2 package=RP2350A"
            " arch=%s engine=RP2350-SHA256 temperature=disabled"
-           " lto=%s"
            " clock_profile=%s requested_clock_khz=%u actual_clock_hz=%" PRIu32
            " sysinfo_package_sel=%" PRIu32 " chip_id=%08" PRIx32
            " silicon_revision=%u\n",
-           CPU_ARCH, MINER_ENABLE_LTO ? "on" : "off", CLOCK_PROFILE,
-           (unsigned)MINER_SYS_CLOCK_KHZ,
+           CPU_ARCH, CLOCK_PROFILE, (unsigned)MINER_SYS_CLOCK_KHZ,
            clock_get_hz(clk_sys), package_sel, chip_id, rp2350_chip_version());
     if (package_sel != 1u) {
         printf("FAULT type=package_mismatch expected_sysinfo_package_sel=1"

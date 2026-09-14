@@ -22,7 +22,6 @@ endif()
 set(PICO_BOARD pico2 CACHE STRING "Target board")
 set(PICO_PLATFORM rp2350-arm-s CACHE STRING "RP2350 CPU architecture")
 set(MINER_SYS_CLOCK_KHZ 150000 CACHE STRING "Miner system clock in kHz")
-option(MINER_ENABLE_LTO "Enable interprocedural/link-time optimization" OFF)
 
 include(pico_sdk_import.cmake)
 
@@ -66,18 +65,6 @@ target_compile_options(pico2_agent PRIVATE
     -Werror
 )
 
-if(MINER_ENABLE_LTO)
-    # Pico SDK sources are assembled into the final target. Target-wide IPO
-    # applies LTO to those sources too and breaks SDK wrapper/time-critical
-    # linkage in the installed toolchains. Limit this experiment to our hot
-    # translation unit and let the linker plugin consume that one LTO object.
-    set_source_files_properties(src/main.c PROPERTIES COMPILE_OPTIONS "-flto")
-    target_link_options(pico2_agent PRIVATE -flto)
-    set(MINER_LTO_VALUE 1)
-else()
-    set(MINER_LTO_VALUE 0)
-endif()
-
 # USB CDC supplies both logs and picotool's automatic reset-to-BOOTSEL path.
 pico_enable_stdio_usb(pico2_agent 1)
 pico_enable_stdio_uart(pico2_agent 0)
@@ -85,10 +72,8 @@ pico_enable_stdio_uart(pico2_agent 0)
 target_compile_definitions(pico2_agent PRIVATE
     PICO_ENTER_USB_BOOT_ON_EXIT=1
     MINER_SYS_CLOCK_KHZ=${MINER_SYS_CLOCK_KHZ}
-    MINER_ENABLE_LTO=${MINER_LTO_VALUE}
 )
 
 message(STATUS "Miner system clock: ${MINER_SYS_CLOCK_KHZ} kHz")
-message(STATUS "Miner LTO: ${MINER_ENABLE_LTO}")
 
 pico_add_extra_outputs(pico2_agent)
