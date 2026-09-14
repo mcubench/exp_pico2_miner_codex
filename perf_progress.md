@@ -1059,6 +1059,33 @@ BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-
 MINING:PROGRESS arch=RISCV-HAZARD3 nonce=600000 total_hashes=600000 hash_rate_hs=323125 temperature=disabled
 ```
 
+## 2026-09-14 — E05 Hazard3 branch-cost hint, run 2 failed validation
+
+- Experiment: `E05-riscv-branch-cost1-13-run2-test-fail`
+- Artifact: identical candidate commit `afd38f5`, UF2 SHA-256
+  `afe73eaa768e34a68d5afe3e6de7c9494dc213dd74353c530188713d1d200c8b`.
+- Build/flash: both builds passed without warnings; RISC-V flash and verify
+  passed.
+- Runtime failure: the deliberate sticky-error test reported
+  `latched=0 survived_start=0 cleared=1`. The run stopped before the oracle,
+  target, Bitcoin, benchmark, and mining stages, so it provides **no valid
+  performance measurement**.
+- Diagnosis: the test wrote its deliberately invalid seventeenth word
+  immediately after the sixteenth block word. The peripheral's `WDATA_RDY`
+  transition is not guaranteed to have become observable by that next store,
+  so the error stimulus is timing-dependent. The production path did not
+  report a hardware fault; this is a test-stimulus defect exposed by the
+  confirmation run.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Archived serial log: `logs/E05-riscv-branch-cost1-run2-test-fail.log`
+- Decision: failed gate. Make the self-test wait until `WDATA_RDY` is observed
+  low before issuing the deliberate invalid write, validate both ISAs, and
+  only then resume E05 measurement.
+
+```text
+TEST:FAIL kat=sha_error_sticky cases=3 latched=0 survived_start=0 cleared=1
+```
+
 ## 2026-09-14 — E05 source-only LTO: RISC-V at 150 MHz
 
 - Experiment: `E05-source-lto-riscv-03`
