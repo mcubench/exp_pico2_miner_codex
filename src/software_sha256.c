@@ -3,6 +3,8 @@
 #include <stddef.h>
 #include <string.h>
 
+#include "pico.h"
+
 static const uint32_t sha256_initial_state[8] = {
     0x6a09e667u, 0xbb67ae85u, 0x3c6ef372u, 0xa54ff53au,
     0x510e527fu, 0x9b05688cu, 0x1f83d9abu, 0x5be0cd19u,
@@ -37,8 +39,9 @@ static inline uint32_t rotate_right(uint32_t value, unsigned shift) {
     return (value >> shift) | (value << (32u - shift));
 }
 
-static __attribute__((optimize("unroll-loops"))) void software_sha256_compress(
-    uint32_t state[8], const uint32_t block[16]) {
+static __attribute__((optimize("unroll-loops"))) void
+__not_in_flash_func(software_sha256_compress)(uint32_t state[8],
+                                              const uint32_t block[16]) {
     uint32_t schedule[64];
     memcpy(schedule, block, 16u * sizeof(schedule[0]));
     for (unsigned word = 16u; word < 64u; ++word) {
