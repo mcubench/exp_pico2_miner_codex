@@ -954,3 +954,26 @@ ERROR: Raspberry Pi USB serial device did not appear
 FAIL USB serial           no /dev/ttyACM* device
 DOCTOR:FAIL count=1
 ```
+
+## 2026-09-14 — Recovery after rejected RISC-V 300 MHz attempt
+
+- Experiment: `E11-recovery-arm-150mhz-07`
+- Recovery: manually entered BOOTSEL, then flashed and verified the current
+  E04-c ARM/M33 image rebuilt at the default 150 MHz clock. Both ARM and
+  RISC-V 150 MHz builds passed without warnings before the flash.
+- Runtime: USB CDC enumerated normally and the miner produced uninterrupted
+  progress through 4,100,000 hashes during the captured window.
+- Sustained mining: **320,415 H/s** at 4,000,000 hashes.
+- Comparison: previous E04-c ARM result was 320,406 H/s; the +0.003% difference
+  is measurement noise and confirms successful recovery to the retained
+  baseline.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Firmware UF2 SHA-256:
+  `ce6a56dac56a840cbeffb2f9784ee200ef645fcfd1aa9ec5cc8af611a29fe12c`
+- Archived serial log: `logs/E11-recovery-arm-150mhz.log`
+- Decision: recovery passed. Retain 150 MHz as the default and resume
+  code/compiler optimization from this known-good image.
+
+```text
+MINING:PROGRESS arch=ARM-M33 nonce=4000000 total_hashes=4000000 hash_rate_hs=320415 temperature=disabled
+```
