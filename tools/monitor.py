@@ -82,7 +82,8 @@ def main() -> int:
 
     print(f"SERIAL_PORT={port}", flush=True)
 
-    saw_health = False
+    saw_test_summary = False
+    saw_benchmark = False
     pending = b""
     try:
         tty.setraw(fd)
@@ -104,16 +105,21 @@ def main() -> int:
                 raw, pending = pending.split(b"\n", 1)
                 line = raw.rstrip(b"\r").decode("utf-8", errors="replace")
                 print(line, flush=True)
-                saw_health = saw_health or line.startswith(
-                    ("TEST:PASS", "HEARTBEAT", "BENCHMARK:PASS", "MINING:PROGRESS")
+                saw_test_summary = saw_test_summary or line.startswith(
+                    "TEST:SUMMARY pass=6 fail=0"
                 )
+                saw_benchmark = saw_benchmark or line.startswith("BENCHMARK:PASS")
                 if line.startswith("TEST:FAIL") or line.startswith("FAULT"):
                     return 4
     finally:
         os.close(fd)
 
-    if args.require_pass and not saw_health:
-        print("ERROR: no TEST:PASS or HEARTBEAT line observed", file=sys.stderr)
+    if args.require_pass and (not saw_test_summary or not saw_benchmark):
+        print(
+            "ERROR: incomplete validation output"
+            f" (test_summary={int(saw_test_summary)} benchmark={int(saw_benchmark)})",
+            file=sys.stderr,
+        )
         return 5
     return 0
 

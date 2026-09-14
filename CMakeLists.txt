@@ -32,9 +32,25 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 pico_sdk_init()
 
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
+set(ORACLE_INCLUDE_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
+set(ORACLE_INCLUDE "${ORACLE_INCLUDE_DIR}/oracle_vectors.inc")
+add_custom_command(
+    OUTPUT "${ORACLE_INCLUDE}"
+    COMMAND "${CMAKE_COMMAND}" -E make_directory "${ORACLE_INCLUDE_DIR}"
+    COMMAND "${Python3_EXECUTABLE}"
+            "${CMAKE_CURRENT_LIST_DIR}/tools/generate_oracle_vectors.py"
+            "${ORACLE_INCLUDE}"
+    DEPENDS "${CMAKE_CURRENT_LIST_DIR}/tools/generate_oracle_vectors.py"
+    VERBATIM
+)
+add_custom_target(generate_oracle_vectors DEPENDS "${ORACLE_INCLUDE}")
+
 add_executable(pico2_agent
     src/main.c
 )
+add_dependencies(pico2_agent generate_oracle_vectors)
+target_include_directories(pico2_agent PRIVATE "${ORACLE_INCLUDE_DIR}")
 
 target_link_libraries(pico2_agent PRIVATE
     pico_stdlib

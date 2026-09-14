@@ -64,6 +64,8 @@ static const uint8_t sha256_abc[HASH_BYTES] = {
     0xb4, 0x10, 0xff, 0x61, 0xf2, 0x00, 0x15, 0xad,
 };
 
+#include "oracle_vectors.inc"
+
 typedef struct bitcoin_hasher {
     // An 80-byte Bitcoin header occupies two padded SHA-256 blocks.
     uint32_t header_blocks[32];
@@ -178,11 +180,18 @@ static bool compact_to_target_le(uint32_t compact, uint8_t target[HASH_BYTES]) {
     uint32_t mantissa = compact & 0x007fffffu;
     memset(target, 0, HASH_BYTES);
 
-    if ((compact & 0x00800000u) != 0u || mantissa == 0u || exponent > 32u) {
+    if (exponent <= 3u) {
+        mantissa >>= 8u * (3u - exponent);
+    }
+    const bool negative = mantissa != 0u && (compact & 0x00800000u) != 0u;
+    const bool overflow = mantissa != 0u
+                          && (exponent > 34u
+                              || (mantissa > 0xffu && exponent > 33u)
+                              || (mantissa > 0xffffu && exponent > 32u));
+    if (negative || overflow || mantissa == 0u) {
         return false;
     }
     if (exponent <= 3u) {
-        mantissa >>= 8u * (3u - exponent);
         target[0] = (uint8_t)mantissa;
         target[1] = (uint8_t)(mantissa >> 8u);
         target[2] = (uint8_t)(mantissa >> 16u);
@@ -190,16 +199,31 @@ static bool compact_to_target_le(uint32_t compact, uint8_t target[HASH_BYTES]) {
     }
 
     const uint32_t offset = exponent - 3u;
-    if (offset + 3u > HASH_BYTES) {
-        return false;
+    for (uint32_t byte = 0u; byte < 3u; ++byte) {
+        const uint8_t value = (uint8_t)(mantissa >> (8u * byte));
+        if (offset + byte < HASH_BYTES) {
+            target[offset + byte] = value;
+        } else if (value != 0u) {
+            return false;
+        }
     }
-    target[offset] = (uint8_t)mantissa;
-    target[offset + 1u] = (uint8_t)(mantissa >> 8u);
-    target[offset + 2u] = (uint8_t)(mantissa >> 16u);
     return true;
 }
 
 // The hardware digest byte array is Bitcoin's little-endian uint256 storage.
+static bool hash_words_meet_target(const sha256_result_t *hash_le,
+                                   const sha256_result_t *target_le) {
+    for (int i = 7; i >= 0; --i) {
+        if (hash_le->words[i] < target_le->words[i]) {
+            return true;
+        }
+        if (hash_le->words[i] > target_le->words[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 static inline __attribute__((always_inline)) bool current_hash_meets_target(
     const sha256_result_t *target_le) {
     // Compare the most-significant little-endian word first. Nearly every
@@ -214,6 +238,76 @@ static inline __attribute__((always_inline)) bool current_hash_meets_target(
         }
     }
     return true;
+}
+
+static uint32_t oracle_xorshift32(uint32_t state) {
+    state ^= state << 13u;
+    state ^= state >> 17u;
+    state ^= state << 5u;
+    return state;
+}
+
+static bool run_optimized_oracle_vectors(void) {
+    uint32_t state = ORACLE_VECTOR_SEED;
+    for (uint32_t vector = 0u; vector < ORACLE_VECTOR_COUNT; ++vector) {
+        uint8_t header[BITCOIN_HEADER_BYTES];
+        for (size_t word = 0u; word < BITCOIN_HEADER_BYTES / 4u; ++word) {
+            state = oracle_xorshift32(state);
+            header[word * 4u] = (uint8_t)state;
+            header[word * 4u + 1u] = (uint8_t)(state >> 8u);
+            header[word * 4u + 2u] = (uint8_t)(state >> 16u);
+            header[word * 4u + 3u] = (uint8_t)(state >> 24u);
+        }
+        state = oracle_xorshift32(state);
+        const uint32_t nonce = state;
+
+        bitcoin_hasher_t hasher;
+        sha256_result_t hash;
+        bitcoin_hasher_begin(&hasher, header);
+        const bool hashed = bitcoin_hasher_hash_nonce(&hasher, nonce);
+        capture_current_hash(&hash);
+        bitcoin_hasher_end(&hasher);
+        if (!hashed || memcmp(hash.bytes, oracle_expected[vector], HASH_BYTES) != 0) {
+            printf("TEST:FAIL kat=optimized_oracle vector=%" PRIu32
+                   " nonce=%" PRIu32 "\n",
+                   vector, nonce);
+            return false;
+        }
+    }
+    printf("TEST:PASS kat=optimized_oracle cases=%u fixture_sha256=%s\n",
+           ORACLE_VECTOR_COUNT, ORACLE_FIXTURE_SHA256);
+    return true;
+}
+
+static bool run_target_tests(void) {
+    sha256_result_t hash = {0};
+    sha256_result_t target = {0};
+    uint8_t decoded[HASH_BYTES];
+    bool passed = true;
+
+    target.words[7] = 1u;
+    passed &= hash_words_meet_target(&hash, &target);
+    hash.words[7] = 1u;
+    passed &= hash_words_meet_target(&hash, &target);
+    hash.words[7] = 2u;
+    passed &= !hash_words_meet_target(&hash, &target);
+    hash.words[7] = 1u;
+    hash.words[0] = 2u;
+    target.words[0] = 1u;
+    passed &= !hash_words_meet_target(&hash, &target);
+
+    passed &= compact_to_target_le(0x1d00ffffu, decoded);
+    passed &= !compact_to_target_le(0x1d80ffffu, decoded);
+    passed &= !compact_to_target_le(0x01003456u, decoded);
+    passed &= !compact_to_target_le(0x23000001u, decoded);
+    passed &= compact_to_target_le(0x220000ffu, decoded)
+              && decoded[31] == 0xffu;
+    passed &= compact_to_target_le(0x2100ffffu, decoded)
+              && decoded[30] == 0xffu && decoded[31] == 0xffu;
+
+    printf("TEST:%s kat=target_boundaries cases=10\n",
+           passed ? "PASS" : "FAIL");
+    return passed;
 }
 
 static bool check_vector(const char *name,
@@ -236,6 +330,8 @@ static bool run_known_answer_tests(void) {
 
     passed &= check_vector("nist_empty", NULL, 0u, sha256_empty);
     passed &= check_vector("nist_abc", abc, sizeof(abc), sha256_abc);
+    passed &= run_optimized_oracle_vectors();
+    passed &= run_target_tests();
 
     bitcoin_hasher_begin(&hasher, genesis_header);
     const bool genesis_hashed = bitcoin_hasher_hash_nonce(&hasher, 2083236893u);
@@ -406,7 +502,7 @@ int main(void) {
             sleep_ms(100u);
         }
     }
-    printf("TEST:SUMMARY pass=4 fail=0\n");
+    printf("TEST:SUMMARY pass=6 fail=0\n");
 
     if (!run_benchmark()) {
         while (true) {
