@@ -819,3 +819,30 @@ TEST:SUMMARY pass=6 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=200000000 hashes=864000 elapsed_us=2000395 hash_rate_hs=431915 checksum=47 temperature=disabled
 MINING:PROGRESS arch=ARM-M33 nonce=900000 total_hashes=900000 hash_rate_hs=427219 temperature=disabled
 ```
+
+## 2026-09-14 — E11 short overclock sweep: RISC-V at 200 MHz
+
+- Experiment: `E11-riscv-200mhz-02`
+- Configuration: identical E04-c source, Hazard3 RISC-V, requested/actual
+  200,000/200,000,000 kHz/Hz, unchanged regulator setting,
+  `experimental-overclock` profile.
+- Validation: all six test groups passed, **4,096/4,096** oracle cases and
+  **10/10** target tests; cycle `CYCLE:PASS`.
+- Kernel benchmark: **433,790 H/s**, 868,000 hashes in 2,000,969 us, checksum
+  `6b`; estimated **461.05 cycles/hash**.
+- Sustained mining: converged to **419,097 H/s** at 900,000 hashes.
+- Relative to E04-c RISC-V at 150 MHz: **+33.33%** benchmark and **+33.33%**
+  sustained for a +33.33% clock change; cycle cost is unchanged.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- Qualification: short functional/performance experiment only; no thermal or
+  reliability soak. Retain as a candidate experiment, not the default profile.
+- Firmware UF2 SHA-256:
+  `e5c4225b74ed5c2de8c18b2edb9f4084824b5eda472b6065eb4bc3885749a682`
+- Archived serial log: `logs/E11-200mhz-riscv.log`
+
+```text
+BOOT app=pico2_bitcoin_miner board=pico2 package=RP2350A arch=RISCV-HAZARD3 engine=RP2350-SHA256 temperature=disabled clock_profile=experimental-overclock requested_clock_khz=200000 actual_clock_hz=200000000 sysinfo_package_sel=1 chip_id=30004927 silicon_revision=3
+TEST:SUMMARY pass=6 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=RISCV-HAZARD3 clock_hz=200000000 hashes=868000 elapsed_us=2000969 hash_rate_hs=433790 checksum=6b temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=900000 total_hashes=900000 hash_rate_hs=419097 temperature=disabled
+```
