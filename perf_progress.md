@@ -1296,3 +1296,33 @@ TEST:SUMMARY pass=7 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-error-batched-e04e arch=RISCV-HAZARD3 clock_hz=150000000 hashes=661000 elapsed_us=2000867 hash_rate_hs=330357 checksum=6f temperature=disabled
 MINING:PROGRESS arch=RISCV-HAZARD3 nonce=600000 total_hashes=600000 hash_rate_hs=321051 temperature=disabled
 ```
+
+## 2026-09-14 — E04-e isolated to RISC-V; retained ARM result
+
+- Experiment: `E04e-isa-isolation-arm-12-retain`
+- Change: select the original checked-per-hash E04-c benchmark/mining path for
+  ARM; retain batched sticky-error checks in both benchmark and mining only for
+  RISC-V. The RISC-V UF2 remained byte-identical to its accepted E04-e image.
+- Validation: both builds passed without warnings. ARM passed all seven test
+  groups, **4,096/4,096** oracle cases and **10/10** target cases; cycle passed.
+- ARM kernel benchmark: **323,934 H/s**, 648,000 hashes in 2,000,410 us,
+  checksum `2a`; estimated **463.06 cycles/hash**.
+- ARM sustained mining: **320,415 H/s** at 700,000 hashes.
+- Relative to E04-c ARM baseline: **-0.22% benchmark, +0.003% sustained**;
+  effectively the retained ARM performance envelope.
+- RISC-V build identity: exact accepted E04-e UF2, whose confirmation measured
+  330,357 H/s benchmark and 321,051 H/s sustained.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- ARM UF2 SHA-256:
+  `39d740eee0f47f23ed2bcc2fbfd3b015e76d858fc1ca990a3489bfed7607783f`
+- RISC-V UF2 SHA-256:
+  `71731c6e02b1559165f59f6328d9be3b42509a0f463230a0ec5aaf3ce3e58c41`
+- Archived ARM serial log: `logs/E04e-isolated-arm-retained.log`
+- Decision: retain the ISA-specific policy. It preserves M33 sustained speed
+  and the reproducible Hazard3 E04-e gain without broad layout flags.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=150000000 hashes=648000 elapsed_us=2000410 hash_rate_hs=323934 checksum=2a temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=700000 total_hashes=700000 hash_rate_hs=320415 temperature=disabled
+```
