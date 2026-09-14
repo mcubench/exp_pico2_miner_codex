@@ -2338,3 +2338,24 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=39000 elapsed_us=2052070 hash_rate_hs=19005 checksum=2c temperature=disabled
 MINING:PROGRESS arch=RISCV-HAZARD3 worker_core=1 nonce=3000000 total_hashes=3000000 hash_rate_hs=340118 temperature=disabled
 ```
+
+## 2026-09-14 — E09-b1 software round-loop unrolling, ARM
+
+- Experiment: `E09b1-unroll-arm-32`.
+- Same candidate commit `9b1c228`; both builds were clean and all 4,096
+  cross-engine oracle cases plus all 7 suites passed on ARM.
+- Software benchmark: **19,144 H/s**, `39000` hashes in `2037175 us`, checksum
+  `2c`. Versus E09-a ARM 18,946 H/s: **+1.05%** (+198 H/s).
+- Hardware benchmark: **330,360 H/s**; sustained core1 mining was about
+  **327,461 H/s**, effectively unchanged.
+- Candidate ARM UF2 SHA-256:
+  `3b39764d2d9042af11d8c05d38de602edb9791d3027baec8697084c23bd768cd`.
+- Archived serial log: `logs/E09b1-unroll-arm.log`.
+- Decision: retain the function-local unroll option for both architectures;
+  its gain is repeatable and its text-size cost is small.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=39000 elapsed_us=2037175 hash_rate_hs=19144 checksum=2c temperature=disabled
+MINING:PROGRESS arch=ARM-M33 worker_core=1 nonce=3000000 total_hashes=3000000 hash_rate_hs=327468 temperature=disabled
+```
