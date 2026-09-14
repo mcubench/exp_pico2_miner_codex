@@ -2190,3 +2190,31 @@ MINING:PROGRESS arch=RISCV-HAZARD3 nonce=3900000 total_hashes=3900000 hash_rate_
 TEST:SUMMARY pass=7 fail=0
 MINING:PROGRESS arch=RISCV-HAZARD3 nonce=3600000 total_hashes=3600000 hash_rate_hs=335420 temperature=disabled
 ```
+
+## 2026-09-14 — E08 RISC-V core1 mining worker, first run
+
+- Experiment: `E08-riscv-core1-worker-27-run1`.
+- Candidate commit: `64ef8e5`, based on the retained E06a first-block DMA
+  implementation. Core 1 owns the SHA engine and hot mining loop; core 0 owns
+  USB serial output and the LED. Progress/share/fault records cross the
+  inter-core FIFO, so `printf` no longer interrupts the mining core.
+- Both ARM and RISC-V builds passed without warnings before flashing.
+- Validation: all 7 test suites passed, including 4,096 oracle vectors,
+  target/error tests, and the Bitcoin genesis digest/search. No `FAULT`
+  occurred and the hardware cycle completed successfully.
+- Kernel benchmark: **343,994 H/s** (`688000` hashes in `2000037 us`). This
+  startup benchmark still executes on core 0 and is not the target of E08.
+- Sustained core1 mining: **340,094 H/s** representative, with reports stable
+  at approximately 340,084–340,103 H/s through 9.9 million hashes.
+- Versus retained E06a sustained rate of 335,420 H/s: **+1.39%**. Moving USB
+  formatting/reporting off the mining core recovers about 4,674 H/s.
+- Candidate RISC-V UF2 SHA-256:
+  `b7c261b8fb9bcd06b1fbfaa26c95b596b65647757266280d0e6463ff03539c22`.
+- Archived serial log: `logs/E08-riscv-core1-worker-run1.log`.
+- Decision: promising; retain provisionally and confirm from a fresh reboot.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persistent-first-block-dma-e06a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=688000 elapsed_us=2000037 hash_rate_hs=343994 checksum=c8 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 worker_core=1 nonce=9900000 total_hashes=9900000 hash_rate_hs=340094 temperature=disabled
+```
