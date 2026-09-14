@@ -776,3 +776,19 @@ TEST:SUMMARY pass=6 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=RISCV-HAZARD3 clock_hz=150000000 hashes=651000 elapsed_us=2000977 hash_rate_hs=325341 checksum=28 temperature=disabled
 MINING:PROGRESS arch=RISCV-HAZARD3 nonce=600000 total_hashes=600000 hash_rate_hs=314333 temperature=disabled
 ```
+
+## 2026-09-14 — E11 clock-sweep preflight
+
+- Added an explicit `MINER_SYS_CLOCK_KHZ` CMake/wrapper parameter constrained
+  to 12–550 MHz. The wrapper always supplies 150 MHz when the environment is
+  unset, preventing a cached overclock from becoming an accidental default.
+- Boot output now records the requested and actual clock and labels settings
+  above 150 MHz `experimental-overclock`.
+- Both 150 MHz recovery images build without warnings from the current E04-c
+  source. Local recovery copies:
+  - `artifacts/recovery-arm-150mhz-e04c.uf2`, SHA-256
+    `ce6a56dac56a840cbeffb2f9784ee200ef645fcfd1aa9ec5cc8af611a29fe12c`
+  - `artifacts/recovery-riscv-150mhz-e04c.uf2`, SHA-256
+    `5f073bb3eeef535aba2e6a5e32a3f7a295801ac6e22897a2e28a71a937851396`
+- Performance and temperature: no new measurement; temperature remains
+  disabled. Initial sweep uses unchanged regulator settings and staged clocks.

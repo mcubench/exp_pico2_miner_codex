@@ -21,6 +21,7 @@ endif()
 # on the connected device identifies its package as QFN-60 / RP2350A.
 set(PICO_BOARD pico2 CACHE STRING "Target board")
 set(PICO_PLATFORM rp2350-arm-s CACHE STRING "RP2350 CPU architecture")
+set(MINER_SYS_CLOCK_KHZ 150000 CACHE STRING "Miner system clock in kHz")
 
 include(pico_sdk_import.cmake)
 
@@ -70,6 +71,9 @@ pico_enable_stdio_uart(pico2_agent 0)
 
 target_compile_definitions(pico2_agent PRIVATE
     PICO_ENTER_USB_BOOT_ON_EXIT=1
+    MINER_SYS_CLOCK_KHZ=${MINER_SYS_CLOCK_KHZ}
 )
+
+message(STATUS "Miner system clock: ${MINER_SYS_CLOCK_KHZ} kHz")
 
 pico_add_extra_outputs(pico2_agent)
