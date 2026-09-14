@@ -1286,6 +1286,38 @@ BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-
 MINING:PROGRESS arch=RISCV-HAZARD3 nonce=700000 total_hashes=700000 hash_rate_hs=326649 temperature=disabled
 ```
 
+## 2026-09-14 — E04-d specialized zero-MSW target, RISC-V
+
+- Experiment: `E04d-zero-msw-specialized-18-riscv`
+- Candidate commit: `51e26c4`, layered on retained targeted RISC-V mining-loop
+  unrolling.
+- Change: require the fixed mining target's most-significant 32-bit word to be
+  zero once at setup, then remove its per-nonce load/test. The hot common path
+  is one raw `SUM7` load and one rejection branch; the rare zero case compares
+  words 6 through 0. The genesis nonce KAT uses this specialized path.
+- Validation: both builds passed without warnings. RISC-V passed the
+  sticky-error proof, all seven test groups, **4,096/4,096** oracle cases and
+  **10/10** target cases; cycle passed.
+- Kernel benchmark: **330,357 H/s**, 661,000 hashes in 2,000,864 us, checksum
+  `6f`; unchanged, as expected because the kernel benchmark excludes target
+  comparison.
+- Sustained mining: **326,638 H/s** at 900,000 hashes; **-0.003%** versus the
+  retained 326,649 H/s targeted-unroll result, effectively zero effect.
+- Interpretation: disassembly confirms two common-path instructions were
+  removed, but their cost is hidden by peripheral/loop scheduling on Hazard3.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- RISC-V UF2 SHA-256:
+  `8fd49744c0db49a15a074300864bb2c294aed52e841685075079aab8fc730f40`
+- Archived serial log: `logs/E04d-zero-msw-specialized-riscv.log`
+- Decision: no RISC-V gain; test ARM before deciding whether an ISA-specific
+  specialization is justified.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-error-batched-e04e arch=RISCV-HAZARD3 clock_hz=150000000 hashes=661000 elapsed_us=2000864 hash_rate_hs=330357 checksum=6f temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 nonce=900000 total_hashes=900000 hash_rate_hs=326639 temperature=disabled
+```
+
 ## 2026-09-14 — E05 Hazard3 branch-cost hint, run 1
 
 - Experiment: `E05-riscv-branch-cost1-13-run1`
