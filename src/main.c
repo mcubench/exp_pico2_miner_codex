@@ -280,16 +280,17 @@ static bool hash_words_meet_target(const sha256_result_t *hash_le,
     return true;
 }
 
-static inline __attribute__((always_inline)) bool current_hash_meets_zero_msw_target(
+static inline __attribute__((always_inline)) bool current_hash_meets_target(
     const sha256_result_t *target_le) {
-    // This specialized path requires target word 7 to be zero. Byte reversal
-    // cannot change whether a word is zero, so the common rejection needs only
-    // one peripheral read and one branch. A zero SUM7 falls through to the
-    // remaining ordered uint256 comparison.
-    if (sha256_hw->sum[7] != 0u) {
+    // Byte reversal cannot change whether a word is zero. Bitcoin difficulty
+    // targets normally have a zero most-significant word, so reject the common
+    // nonzero SUM7 case before entering the ordered uint256 comparison.
+    if (target_le->words[7] == 0u && sha256_hw->sum[7] != 0u) {
         return false;
     }
-    for (int i = 6; i >= 0; --i) {
+    // Compare the most-significant little-endian word first. Nearly every
+    // difficulty-1 candidate is rejected after reading only SUM7.
+    for (int i = 7; i >= 0; --i) {
         const uint32_t hash_word = __builtin_bswap32(sha256_hw->sum[i]);
         if (hash_word < target_le->words[i]) {
             return true;
@@ -434,19 +435,18 @@ static bool run_known_answer_tests(void) {
     passed &= genesis_passed;
 
     const bool target_valid = compact_to_target_le(0x1d00ffffu, target.bytes);
-    const bool specialized_target = target_valid && target.words[7] == 0u;
     const uint32_t first_nonce = 2083236800u;
     const uint32_t expected_nonce = 2083236893u;
     uint32_t found_nonce = 0u;
     uint32_t attempts = 0u;
     bool found = false;
-    if (specialized_target) {
+    if (target_valid) {
         for (uint32_t nonce = first_nonce; nonce <= expected_nonce; ++nonce) {
             ++attempts;
             if (!bitcoin_hasher_hash_nonce(&hasher, nonce)) {
                 break;
             }
-            if (current_hash_meets_zero_msw_target(&target)) {
+            if (current_hash_meets_target(&target)) {
                 found_nonce = nonce;
                 found = true;
                 capture_current_hash(&hash);
@@ -454,8 +454,7 @@ static bool run_known_answer_tests(void) {
             }
         }
     }
-    const bool mining_passed = specialized_target
-                               && found && found_nonce == expected_nonce
+    const bool mining_passed = found && found_nonce == expected_nonce
                                && memcmp(hash.bytes, genesis_hash_raw, HASH_BYTES) == 0;
     printf("TEST:%s kat=bitcoin_nonce_search nonce=%" PRIu32
            " attempts=%" PRIu32 " hash=",
@@ -526,10 +525,6 @@ static MINING_LOOP_OPTIONS void mine_forever(uint led_pin) {
         printf("FAULT type=invalid_compact_target bits=1d00ffff\n");
         return;
     }
-    if (target.words[7] != 0u) {
-        printf("FAULT type=unsupported_target_path required_zero_msw=1\n");
-        return;
-    }
     bitcoin_hasher_begin(&hasher, genesis_header);
 
     printf("MINING:START header=bitcoin-genesis target_bits=1d00ffff start_nonce=0"
@@ -547,7 +542,7 @@ static MINING_LOOP_OPTIONS void mine_forever(uint led_pin) {
         }
 #endif
         ++since_report;
-        const bool candidate = current_hash_meets_zero_msw_target(&target);
+        const bool candidate = current_hash_meets_target(&target);
 
         // ERR_WDATA_NOT_RDY is sticky (proved at startup). A candidate is
         // always validated immediately, before it can be published.
