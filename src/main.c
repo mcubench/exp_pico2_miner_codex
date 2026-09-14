@@ -439,15 +439,15 @@ static bool run_benchmark(void) {
                 return false;
             }
             checksum ^= (uint8_t)(sha256_hw->sum[0] >> 24u);
-            ++hashes;
         }
+        hashes += BENCHMARK_BATCH;
         elapsed_us = time_us_64() - started_us;
     } while (elapsed_us < BENCHMARK_MIN_US);
     bitcoin_hasher_end(&hasher);
 
     const uint64_t rate = (hashes * 1000000ull + elapsed_us / 2u) / elapsed_us;
     printf("BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256"
-           " path=fast-zero-msw-reject-e04d"
+           " path=batched-accounting-e04c"
            " arch=%s clock_hz=%" PRIu32 " hashes=%" PRIu64
            " elapsed_us=%" PRIu64 " hash_rate_hs=%" PRIu64
            " checksum=%02x temperature=disabled\n",
@@ -479,14 +479,14 @@ static void mine_forever(uint led_pin) {
             bitcoin_hasher_end(&hasher);
             return;
         }
-        ++total_hashes;
         ++since_report;
 
         if (current_hash_meets_target(&target)) {
             capture_current_hash(&hash);
             printf("SHARE:FOUND nonce=%" PRIu32 " hash=", nonce);
             print_bitcoin_hash(hash.bytes);
-            printf(" total_hashes=%" PRIu64 "\n", total_hashes);
+            printf(" total_hashes=%" PRIu64 "\n",
+                   total_hashes + since_report);
         }
         ++nonce;
 
@@ -495,6 +495,7 @@ static void mine_forever(uint led_pin) {
             const uint64_t elapsed_us = now_us - report_started_us;
             const uint64_t rate = ((uint64_t)since_report * 1000000ull
                                    + elapsed_us / 2u) / elapsed_us;
+            total_hashes += since_report;
             printf("MINING:PROGRESS arch=%s nonce=%" PRIu32
                    " total_hashes=%" PRIu64 " hash_rate_hs=%" PRIu64
                    " temperature=disabled\n",
