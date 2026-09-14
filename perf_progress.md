@@ -1318,6 +1318,33 @@ BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=sticky-
 MINING:PROGRESS arch=RISCV-HAZARD3 nonce=900000 total_hashes=900000 hash_rate_hs=326639 temperature=disabled
 ```
 
+## 2026-09-14 — E04-d specialized zero-MSW target, ARM
+
+- Experiment: `E04d-zero-msw-specialized-18-arm-reject`
+- Candidate commit: `51e26c4`; paired RISC-V result recorded above.
+- Validation: both builds passed without warnings. ARM passed the sticky-error
+  proof, all seven test groups, **4,096/4,096** oracle cases and **10/10**
+  target cases; cycle passed.
+- Kernel benchmark: **324,634 H/s**, 650,000 hashes in 2,002,257 us, checksum
+  `f9`; **+0.22%** versus the retained 323,934 H/s ARM result. The benchmark
+  contains no target comparison, so this is incidental code-layout movement.
+- Sustained mining: **321,097 H/s** at 700,000 hashes; **+0.21%** versus the
+  retained 320,415 H/s result.
+- Paired interpretation: RISC-V changed by effectively 0%; ARM's sub-quarter
+  percent movement is below the retention threshold and inseparable from
+  fragile image layout. The target-shape restriction is not justified.
+- Temperature: intentionally **disabled**, not measured and not inferred.
+- ARM UF2 SHA-256:
+  `cf656c9d7d78206d1350c96d9ddebcca1b8207ecf149b5eb4efcaec5a88b6228`
+- Archived serial log: `logs/E04d-zero-msw-specialized-arm.log`
+- Decision: reject on both ISAs and restore the retained generic comparator.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=150000000 hashes=650000 elapsed_us=2002257 hash_rate_hs=324634 checksum=f9 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 nonce=700000 total_hashes=700000 hash_rate_hs=321097 temperature=disabled
+```
+
 ## 2026-09-14 — E05 Hazard3 branch-cost hint, run 1
 
 - Experiment: `E05-riscv-branch-cost1-13-run1`
