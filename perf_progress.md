@@ -4582,3 +4582,45 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   65,536 hashes. Hardware-test both ISAs independently; accept only if the
   sustained aggregate cost becomes small enough to justify finite-work
   balancing, with correctness and final partial-range coverage intact.
+
+### E14 finite 65,536-nonce chunks ARM attempt 92a — pass, reject variant
+
+- Candidate commit `14f4ec9`, source identity `76942cb57ac5`, normal profile,
+  stock 150 MHz, temperature disabled, run ID `30004927-00000006`. Both clean
+  builds, all nine suites, seven synchronized windows and strict capture
+  passed without fault or stall.
+- Standalone hardware/full/filter were **331,086 / 30,370 / 31,578 H/s**.
+  First-seven common medians were aggregate **345,308 H/s**, hardware
+  **313,943 H/s**, and software **31,364 H/s**. Versus E09-c these are
+  **-3.15%**, **-3.44%**, and **-0.14%**, respectively.
+- The aggregate median is only 6 H/s above the otherwise identical 4,096
+  native-local candidate. A 16x reduction in allocator/critical-section calls
+  therefore has no measurable benefit on M33 and rules out acquisition
+  frequency as the source of the remaining regression. Reject this variant.
+- ARM UF2 SHA-256:
+  `21a7700f707e89338b9c102d6c89e8e284d0383d2c40f3000391b93d1117b8b1`.
+  Complete log SHA-256:
+  `1ffee210e857a698ae7d039aaa56032bacf1f3a853969244b21b2ce9171c5115`.
+  Archived log: `logs/E14-chunks-65536-arm.log`.
+
+### E14 finite 65,536-nonce chunks RISC-V attempt 92b — pass, reject variant
+
+- The identical committed candidate ran as `30004927-00000007`. Both builds,
+  all nine suites, eight synchronized windows and strict capture passed at
+  stock 150 MHz with temperature disabled.
+- Standalone hardware/full/filter were **343,993 / 28,631 / 30,235 H/s**.
+  First-seven common medians were aggregate **357,198 H/s**, hardware
+  **327,210 H/s**, and software **29,988 H/s**. Versus E09-c these are
+  aggregate **-11,290 H/s (-3.06%)**, hardware **-11,224 H/s (-3.32%)**, and
+  software **-63 H/s (-0.21%)**.
+- This is 2,819 H/s slower than the otherwise identical 4,096 native-local
+  variant, so larger chunks do not recover Hazard3 throughput either. Reject
+  candidate 92 on both ISAs. The next bounded implementation-shape test should
+  move chunk acquisition outside a true nested inner nonce loop, allowing the
+  compiler to optimize that loop independently while preserving finite range
+  ownership and the accepted 4,096 responsiveness target.
+- RISC-V UF2 SHA-256:
+  `2e5ccdeb7def91f726be007f4126d400c344f0f38f3af60d6d731ccc36409c8e`.
+  Complete log SHA-256:
+  `0500961cb1dd11adf15e890b30668316155ca2f3232cbe4a6eb4b4b887abfafe`.
+  Archived log: `logs/E14-chunks-65536-riscv.log`.

@@ -82,7 +82,9 @@ changes and keep temperature disabled.
    ARM aggregate -3.15%, Hazard3 -2.30%. Next change only chunk size from
    4,096 to the planned 65,536 to isolate acquisition frequency.
 6. Candidate 92 makes that one-variable 65,536 size change. Build and test
-   both ISAs; compare directly to candidate 91 and accepted E09-c.
+   both ISAs. It is rejected: ARM is unchanged at -3.15%; Hazard3 worsens to
+   -3.06%. Allocation frequency is not the cause. Next use a nested inner
+   nonce loop with acquisition outside it, returning to 4,096 chunks.
 
 ## Files and evidence
 
