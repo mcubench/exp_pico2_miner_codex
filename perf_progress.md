@@ -2644,3 +2644,30 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=52000 elapsed_us=2036788 hash_rate_hs=25530 checksum=88 temperature=disabled
 MINING:PROGRESS arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=8600000 hardware_hashes=4300000 hardware_rate_hs=338691 software_core=0 software_nonce=623201 software_hashes=311600 software_rate_hs=24534 total_hashes=4611600 hash_rate_hs=363225 temperature=disabled
 ```
+
+## 2026-09-15 — E09-b fixed header-tail precomputation, ARM and retention
+
+- Experiment: `E09b-round3-w16w17-arm-47`, candidate commit `df70e18`.
+- Both architectures remained warning-free. On ARM, all 4,096 cross-engine
+  oracle cases and all 7 suites passed; no fault occurred.
+- Isolated software: **26,727 H/s**, up **1.09%** from the prior expanded-
+  schedule reference's 26,440 H/s.
+- Median of the final 30 dual-worker reports: hardware **325,541 H/s**,
+  software **26,410 H/s**, aggregate **351,950 H/s**.
+- Versus retained ARM aggregate 351,958 H/s: **-0.002%** (-8 H/s), noise.
+  The sustained ARM result is unchanged, while the isolated test sees a small
+  repeatable-looking reduction in work; RISC-V gains 4.82% isolated and 0.32%
+  aggregate.
+- Candidate ARM UF2 SHA-256:
+  `df89e629b7f29b3eb5e6dd186bf4eb47da7a4d4276c25a155e2148681f595866`.
+- Archived serial log: `logs/E09b-round3-w16w17-arm.log`.
+- Decision: retain E09-b on both architectures. Architecture-gating it would
+  add a second code path without a demonstrated ARM aggregate benefit; the
+  shared implementation is exact, improves the ARM isolated benchmark, and
+  does not measurably regress sustained ARM throughput.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=54000 elapsed_us=2020403 hash_rate_hs=26727 checksum=61 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 hardware_core=1 hardware_nonce=8600000 hardware_hashes=4300000 hardware_rate_hs=325546 software_core=0 software_nonce=698415 software_hashes=349207 software_rate_hs=26435 total_hashes=4649207 hash_rate_hs=351981 temperature=disabled
+```
