@@ -71,9 +71,9 @@ changes and keep temperature disabled.
    source identity `71b48132e899`: ARM filter +1.58%, Hazard3 filter +0.65%,
    with every hardware gate passing.
 3. E09-b candidate 89 explicit tail W20–W30 passed correctness but is rejected
-   on both ISAs: ARM affected software +0.05%, Hazard3 +0.02%. The work tree
-   restores the exact accepted E09-c generic loop. Commit, rebuild both, and
-   confirm byte-identical artifacts before choosing the next experiment.
+   on both ISAs: ARM affected software +0.05%, Hazard3 +0.02%. Restoration
+   commit `d2b7085` rebuilds byte-identical accepted E09-c artifacts on both
+   ISAs, so attempts 88a/88b remain valid. Choose the next plan experiment.
 
 ## Files and evidence
 

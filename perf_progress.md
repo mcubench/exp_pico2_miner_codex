@@ -4413,3 +4413,11 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   Complete log SHA-256:
   `795652d4f0c9782237e89fb71470fe7a2e8f27e10a704f45cb9fd75cd00435c9`.
   Archived log: `logs/E09b-tail-schedule-riscv.log`.
+- Restoration commit `d2b7085` returns `src/software_sha256.c` exactly to
+  accepted parent `cf839d2`. Fresh warning-free builds reproduce the accepted
+  E09-c artifacts byte-for-byte: ARM
+  `503e315bed9cf5ef334500645044a121a6a0e123a07fbd1f9d3ec4d9a036b5c5`
+  and RISC-V
+  `6fd2b7f053cac2f4ed8b2e8b94626892fbc31ff01e0e69cbf8bdb92165a646b6`.
+  Their existing attempts 88a/88b therefore remain the hardware validation
+  for the restored baseline; no duplicate flash is needed.
