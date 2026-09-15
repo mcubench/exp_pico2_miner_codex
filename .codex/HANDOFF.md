@@ -16,8 +16,8 @@ changes and keep temperature disabled.
 - Working tree was clean when this handoff was created.
 - E09-b-pending is resolved and retained on both ISAs.
 - E01-identity is implemented, paired-hardware validated, and retained.
-- E01-rare candidate 83 passes ARM and awaits RISC-V; E01-window follows, then
-  fresh E02 profiling.
+- E01-rare candidate 83 is paired-hardware validated and retained. E01-window
+  follows, then fresh E02 profiling.
 
 ## Completed work in this session
 
@@ -30,20 +30,18 @@ changes and keep temperature disabled.
   software / 356,309 aggregate. Strict contract passed 114 reports.
 - E01 RISC-V: full 28,631, filter 30,041, final-30 339,033 hardware / 29,804
   software / 368,837 aggregate. Strict contract passed 118 reports.
+- E01-rare ARM/RISC-V passed 8 suites. ARM aggregate 356,326; RISC-V
+  aggregate 368,925. Known loser fast-rejection and genesis fallback/candidate
+  are directly and host-validated.
 - One ARM flash completion failure was recorded at `bf7b8f4`; retry passed.
 
 ## Work in progress / next actions
 
-1. Run E01-rare candidate 83 on RISC-V; ARM passed all 8 suites and remained
-   performance-neutral.
-2. Direct fast-comparator/fallback tests cover high-word equality plus
-   lower-word reject, exact equality, and valid share; independently verify
-   emitted candidates where feasible.
-3. Commit candidate, build both, then hardware-test both ISAs
-   with 45-second cycles. Archive unique logs and record/commit each result.
-4. Implement E01-window as a separate experiment; do not confuse existing
+1. Design and implement E01-window as a separate experiment; do not confuse existing
    mixed-window `hash_rate_hs` with the future common-window baseline.
-5. Refresh E02 measurements only after the measurement contract is in place.
+2. Commit candidate, build both, then hardware-test both ISAs with 45-second
+   cycles. Archive unique logs and record/commit each result.
+3. Refresh E02 measurements only after the measurement contract is in place.
 
 ## Files and evidence
 

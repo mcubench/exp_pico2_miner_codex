@@ -3737,3 +3737,36 @@ BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=61000 elapsed_us=2032155 hash_rate_hs=30017 checksum=55 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=62000 elapsed_us=2018360 hash_rate_hs=30718 checksum=78fd8ac1 temperature=disabled
 ```
+
+### E01 rare RISC-V attempt 83b — pass and retention
+
+- Candidate commit `1a3f619`, firmware source identity `6826dc1fdfe2`, stock
+  150 MHz, temperature disabled. Both architectures rebuilt warning-free.
+- All 8 suites passed, including the same 8 direct production mining-decision
+  cases and host-verified genesis candidate as ARM. The deterministic loser
+  used high word `3d34dc8c` and did not invoke full digest fallback; all target
+  equality/lower/general paths passed. No fault or capture-contract failure.
+- Full software **28,636 H/s**; filter **30,041 H/s**. Final-30 medians:
+  hardware **339,114 H/s**, software **29,811 H/s**, aggregate **368,925
+  H/s**. Versus E01-identity RISC-V these move +5, 0, +81, +7, and +88 H/s,
+  so sustained mining does not regress.
+- Hardware startup benchmark **339,321 H/s**, versus 343,997 in the identity
+  run. The hardware algorithm is source-unchanged and 339.3 kH/s matches the
+  earlier E09 range; record this as a code-layout sensitivity, not a claimed
+  algorithm gain or hidden sustained regression.
+- RISC-V UF2 SHA-256:
+  `086c113cc64e5e4313b73ab5e49ec3e4f9489cb24102f346dedbe282e02ccf2b`;
+  paired ARM UF2 SHA-256:
+  `b98f191af6f0de490a9d54fff3ff67c38571f742db981d08bf277e8e6aeb01c1`.
+  Run ID `30004927-00000005`; archived log `logs/E01-rare-riscv.log`.
+- Decision: retain on both architectures. E01-rare now directly covers the
+  actual software mining decision/fallback and hardware comparator branches;
+  the common-window and lifecycle portions of E01 remain open.
+
+```text
+TEST:PASS kat=mining_decision_paths cases=8 rejected_nonce=2083236892 rejected_high_word=3d34dc8c candidate_nonce=2083236893 candidate_hash=000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
+TEST:SUMMARY pass=8 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persistent-first-block-dma-e06a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=679000 elapsed_us=2001056 hash_rate_hs=339321 checksum=32 temperature=disabled
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=58000 elapsed_us=2025412 hash_rate_hs=28636 checksum=64 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=61000 elapsed_us=2030541 hash_rate_hs=30041 checksum=b2bf5392 temperature=disabled
+```
