@@ -10,18 +10,18 @@ changes and keep temperature disabled.
 
 ## Current status
 
-- HEAD before E06-trigger source changes: `4409b84` (`perf: record E02 normal
-  RISC-V control`); parent source identity `02b7825c7499`.
+- HEAD before candidate 97 source changes: `2066b43` (`perf: verify E04 counter
+  restoration`); accepted source identity `71b48132e899`.
 - The Pico is accessible when hardware commands run outside the filesystem
-  sandbox. It currently runs the retained E06-trigger RISC-V image at stock
-  150 MHz.
+  sandbox. It currently runs rejected candidate 96 RISC-V at stock 150 MHz;
+  accepted build artifacts are restored but not yet flashed.
 - E06-trigger is retained on Hazard3. Attempt 86b passed all gates with a
   seven-window median of 368,130 H/s aggregate and 338,274 H/s hardware,
   +0.42%/+0.45% over immediate control 85e. ARM keeps its CPU feeder.
 - E09-b-pending is resolved and retained on both ISAs.
 - E01-identity is implemented, paired-hardware validated, and retained.
 - E01-rare candidate 83 and E01-window candidate 84 are retained on both ISAs.
-  Fresh E02 profiling is next.
+  E02 and the updated sequence through candidate 96 are complete.
 
 ## Completed work in this session
 
@@ -63,6 +63,15 @@ changes and keep temperature disabled.
   Use this as the immediate E06-trigger control.
 
 ## Work in progress / next actions
+
+0. Candidate 97 is now defined as E04-f telemetry cadence: change only the
+   hardware report interval from 100,000 to 340,000 hashes (approximately one
+   second on both retained ISAs), leaving the 16-report common-window structure
+   intact. Both builds and 8 host tests pass; disassembly confirms only the
+   report comparison constant/cold cadence changes. Commit before hardware,
+   then capture at least five and preferably seven longer
+   windows on ARM and RISC-V. Archive logs, calculate serial bytes/s, decide,
+   and restore if rejected.
 
 1. E09-b-tail-padding is resolved at commit `688148d`: retain explicit fixed
    rounds on ARM and the generic loop on Hazard3. Both final architecture

@@ -4915,3 +4915,35 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   Prior paired hardware validation therefore remains applicable. The board is
   still running rejected candidate 96 RISC-V and must be replaced by the next
   validated candidate or an accepted recovery image before handoff.
+
+## 2026-09-15 — E04-f approximately one-second telemetry candidate 97 definition
+
+- Parent is the byte-identical restored E09-c/E06-trigger source at commit
+  `ba39b4c`, identity `71b48132e899`. Accepted first-seven common medians are
+  ARM **356,531 H/s** (hardware 325,123, software 31,408) and RISC-V
+  **368,488 H/s** (hardware 338,434, software 30,051), all at stock 150 MHz
+  with temperature disabled.
+- Change only `MINING_REPORT_INTERVAL` from 100,000 to 340,000 hardware hashes.
+  At the retained worker rates this changes progress telemetry from about
+  3.25–3.38 reports/s to about 0.96–1.00 reports/s. Keep the 16-report common
+  window unchanged, so each measurement window becomes approximately
+  16–17 seconds. Error checks remain per hash/report boundary as before;
+  candidate/share handling, SHA/DMA waits, FIFO record shape, and window ACK
+  semantics are unchanged.
+- Hypothesis: less frequent FIFO serialization and USB formatting can return
+  useful core/bus time while keeping roughly one-second progress visibility.
+  The expected serial progress-line rate falls by about 70%; exact bytes/s
+  will be calculated from archived logs. This is a code/cadence experiment at
+  the stock clock, not a clock experiment.
+- Both ISAs must build and pass host tests before either flash. Because windows
+  are longer, capture at least five complete synchronized windows and prefer
+  seven. Reject any correctness/capture/fault issue or material aggregate
+  regression; retain a small gain only if it is reproducible and has a clear
+  reduced-telemetry cost explanation.
+- Pre-flash gates: both normal wrapper builds pass warning-free and all 8 host
+  monitor tests pass. Dirty-build size is ARM 188,680 text / 4,708 BSS and
+  RISC-V 200,876 / 4,440 bytes. Disassembly preserves the per-hash increment,
+  target/error checks and one compare/branch to the report path; only the
+  materialized comparison constant changes to 340,000 (Hazard3 `0x53020`, ARM
+  literal load). Clean committed images will be rebuilt and hashed before the
+  first flash.
