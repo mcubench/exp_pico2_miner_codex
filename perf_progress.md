@@ -2863,3 +2863,21 @@ TEST:SUMMARY pass=7 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=300000000 hashes=1325000 elapsed_us=2000969 hash_rate_hs=662179 checksum=d7 temperature=disabled
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=300000000 hashes=108000 elapsed_us=2007049 hash_rate_hs=53810 checksum=5e temperature=disabled
 ```
+
+## 2026-09-15 — E11 350 MHz clock profile rejection, RISC-V
+
+- Experiment: `E11-350mhz-riscv-56` using retained source commit `d9c0de8`.
+- Both architectures built warning-free with `MINER_SYS_CLOCK_KHZ=350000` and
+  the RISC-V image flashed successfully.
+- At startup, `set_sys_clock_khz(350000, false)` returned failure and firmware
+  emitted `FAULT type=system_clock requested_khz=350000`. Per the test gate,
+  the cycle exited nonzero and no KAT or benchmark result was accepted.
+- Archived serial log: `logs/E11-350mhz-riscv-rejected.log`.
+- Decision: reject 350 MHz with the current exact-frequency/no-voltage-change
+  configuration. Do not attempt higher points through this path; 300 MHz is
+  the highest validated short-run point in this sweep. This is a clock API /
+  synthesis rejection, not evidence of arithmetic instability at 350 MHz.
+
+```text
+FAULT type=system_clock requested_khz=350000
+```

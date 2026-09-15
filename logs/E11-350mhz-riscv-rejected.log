@@ -1,0 +1,2 @@
+SERIAL_PORT=/dev/ttyACM0
+FAULT type=system_clock requested_khz=350000
