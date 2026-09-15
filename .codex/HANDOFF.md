@@ -105,6 +105,9 @@ changes and keep temperature disabled.
     Hazard3 remained neutral at -0.06%. Queue depth was one and blocked time
     zero on both. Restore the entire candidate-94/95 source/test contract to
     accepted E09-c; do not repeat either polling cadence unchanged.
+11. The three E08-touched source/monitor files are restored from accepted
+    commit `487737e`. Commit, dual-build and verify exact accepted UF2 hashes;
+    the board currently runs rejected candidate 95 RISC-V until restoration.
 
 ## Files and evidence
 

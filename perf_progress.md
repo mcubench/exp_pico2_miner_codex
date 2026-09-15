@@ -4821,3 +4821,11 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   Complete log SHA-256:
   `3a4bb9d767bacd8dcbc388510de20f82f7e56f71de3a27aad31a5a9374ec70e4`.
   Archived log: `logs/E08-queue-poll64-riscv.log`.
+
+## 2026-09-15 — E08 rejected-queue restoration definition
+
+- Restore `src/main.c`, `tools/monitor.py`, and `tools/test_monitor.py` from
+  accepted restoration commit `487737e`, removing candidates 94/95 while
+  preserving their ledger entries and logs. Build both architectures and
+  require exact accepted E09-c UF2 hashes before relying on prior hardware
+  validation; otherwise run fresh paired hardware tests.

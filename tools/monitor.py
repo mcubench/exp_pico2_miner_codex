@@ -20,7 +20,6 @@ EXPECTED_KATS = {
     "optimized_oracle",
     "target_boundaries",
     "mining_decision_paths",
-    "telemetry_queue",
     "bitcoin_genesis",
     "bitcoin_nonce_search",
 }
@@ -48,7 +47,6 @@ class ValidationContract:
         self.next_sequence = 1
         self.window_count = 0
         self.next_window = 1
-        self.last_producer_blocked_us = 0
 
     def observe(self, line: str) -> str | None:
         if line.startswith("TEST:FAIL") or line.startswith("FAULT"):
@@ -79,8 +77,8 @@ class ValidationContract:
             ):
                 return "mining candidate does not match host-known genesis vector"
         elif line.startswith("TEST:SUMMARY "):
-            if self.kats != EXPECTED_KATS or data.get("pass") != "9" or data.get("fail") != "0":
-                return "summary does not match nine required KATs"
+            if self.kats != EXPECTED_KATS or data.get("pass") != "8" or data.get("fail") != "0":
+                return "summary does not match eight required KATs"
             self.summary = True
         elif line.startswith("BENCHMARK:PASS "):
             if not self.summary:
@@ -107,17 +105,10 @@ class ValidationContract:
                 return "MINING:PROGRESS run identity mismatch"
             try:
                 sequence = int(data.get("sequence", ""))
-                queue_max_depth = int(data.get("queue_max_depth", ""))
-                producer_blocked_us = int(data.get("producer_blocked_us", ""))
             except ValueError:
-                return "malformed progress sequence or queue telemetry"
+                return "malformed progress sequence"
             if sequence != self.next_sequence:
                 return f"progress sequence {sequence}, expected {self.next_sequence}"
-            if not 1 <= queue_max_depth <= 8:
-                return "invalid telemetry queue depth"
-            if producer_blocked_us < self.last_producer_blocked_us:
-                return "producer blocked time moved backwards"
-            self.last_producer_blocked_us = producer_blocked_us
             self.next_sequence += 1
             self.progress_count += 1
         elif line.startswith("MEASUREMENT:WINDOW "):
@@ -154,7 +145,7 @@ class ValidationContract:
         if self.boot is None:
             missing.append("BOOT")
         if self.kats != EXPECTED_KATS or not self.summary:
-            missing.append("nine-test summary")
+            missing.append("eight-test summary")
         for stage in ("hardware", "software", "filter"):
             if stage not in self.benchmarks:
                 missing.append(f"{stage} benchmark")

@@ -1,6 +1,5 @@
 #include <inttypes.h>
 #include <stdbool.h>
-#include <stdatomic.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -54,114 +53,6 @@ _Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
 
 static uint32_t boot_run_sequence;
 static uint32_t boot_chip_id;
-
-#if MINER_USE_CORE1
-enum mining_message {
-    MINING_MESSAGE_PROGRESS = 0x50524752u,
-    MINING_MESSAGE_SHARE = 0x53485245u,
-    MINING_MESSAGE_FAULT = 0x4641554cu,
-    MINING_MESSAGE_READY = 0x52454144u,
-    MINING_MESSAGE_ACK = 0x41434b21u,
-};
-
-#define TELEMETRY_QUEUE_CAPACITY 8u
-#define TELEMETRY_RECORD_WORDS 12u
-
-typedef struct telemetry_record {
-    uint32_t words[TELEMETRY_RECORD_WORDS];
-} telemetry_record_t;
-
-typedef struct telemetry_queue {
-    telemetry_record_t records[TELEMETRY_QUEUE_CAPACITY];
-    atomic_uint_least32_t head;
-    atomic_uint_least32_t tail;
-    uint32_t max_depth;
-    uint64_t producer_blocked_us;
-} telemetry_queue_t;
-
-typedef struct mining_fault_latch {
-    atomic_uint_least32_t code;
-    uint32_t nonce;
-    uint32_t invalid_batch;
-} mining_fault_latch_t;
-
-static telemetry_queue_t mining_telemetry;
-static mining_fault_latch_t mining_fault;
-
-static void telemetry_queue_reset(telemetry_queue_t *queue) {
-    atomic_store_explicit(&queue->head, 0u, memory_order_relaxed);
-    atomic_store_explicit(&queue->tail, 0u, memory_order_relaxed);
-    queue->max_depth = 0u;
-    queue->producer_blocked_us = 0u;
-}
-
-static bool telemetry_queue_try_push(telemetry_queue_t *queue,
-                                     const telemetry_record_t *record) {
-    const uint32_t head = atomic_load_explicit(&queue->head,
-                                               memory_order_relaxed);
-    const uint32_t tail = atomic_load_explicit(&queue->tail,
-                                               memory_order_acquire);
-    if (head - tail == TELEMETRY_QUEUE_CAPACITY) {
-        return false;
-    }
-    queue->records[head & (TELEMETRY_QUEUE_CAPACITY - 1u)] = *record;
-    atomic_store_explicit(&queue->head, head + 1u, memory_order_release);
-    return true;
-}
-
-static bool telemetry_queue_try_pop(telemetry_queue_t *queue,
-                                    telemetry_record_t *record) {
-    const uint32_t tail = atomic_load_explicit(&queue->tail,
-                                               memory_order_relaxed);
-    const uint32_t head = atomic_load_explicit(&queue->head,
-                                               memory_order_acquire);
-    if (tail == head) {
-        return false;
-    }
-    *record = queue->records[tail & (TELEMETRY_QUEUE_CAPACITY - 1u)];
-    atomic_store_explicit(&queue->tail, tail + 1u, memory_order_release);
-    return true;
-}
-
-static void telemetry_queue_push_blocking(telemetry_queue_t *queue,
-                                          telemetry_record_t *record) {
-    uint64_t blocked_started_us = 0u;
-    while (true) {
-        const uint32_t head = atomic_load_explicit(&queue->head,
-                                                   memory_order_relaxed);
-        const uint32_t tail = atomic_load_explicit(&queue->tail,
-                                                   memory_order_acquire);
-        const uint32_t depth = head - tail;
-        if (depth != TELEMETRY_QUEUE_CAPACITY) {
-            const uint32_t published_depth = depth + 1u;
-            if (published_depth > queue->max_depth) {
-                queue->max_depth = published_depth;
-            }
-            if (blocked_started_us != 0u) {
-                queue->producer_blocked_us += time_us_64()
-                                              - blocked_started_us;
-            }
-            record->words[6] = queue->max_depth;
-            record->words[7] = (uint32_t)queue->producer_blocked_us;
-            record->words[8] = (uint32_t)(queue->producer_blocked_us >> 32u);
-            queue->records[head & (TELEMETRY_QUEUE_CAPACITY - 1u)] = *record;
-            atomic_store_explicit(&queue->head, head + 1u,
-                                  memory_order_release);
-            return;
-        }
-        if (blocked_started_us == 0u) {
-            blocked_started_us = time_us_64();
-        }
-        tight_loop_contents();
-    }
-}
-
-static uint64_t telemetry_record_u64(const telemetry_record_t *record,
-                                     size_t first_word) {
-    return record->words[first_word]
-           | ((uint64_t)record->words[first_word + 1u] << 32u);
-}
-#endif
 
 #if MINER_SYS_CLOCK_KHZ > 150000
 #define CLOCK_PROFILE "experimental-overclock"
@@ -685,51 +576,6 @@ static bool run_sha_error_sticky_test(void) {
     return passed;
 }
 
-#if MINER_USE_CORE1
-static bool run_telemetry_queue_tests(void) {
-    telemetry_record_t record = {0};
-    telemetry_record_t received = {0};
-    bool passed = true;
-    unsigned cases = 0u;
-
-    telemetry_queue_reset(&mining_telemetry);
-    for (uint32_t sequence = 0u; sequence < TELEMETRY_QUEUE_CAPACITY;
-         ++sequence) {
-        record.words[0] = MINING_MESSAGE_PROGRESS;
-        record.words[1] = sequence;
-        passed &= telemetry_queue_try_push(&mining_telemetry, &record);
-    }
-    ++cases;
-    passed &= !telemetry_queue_try_push(&mining_telemetry, &record);
-    ++cases;
-    for (uint32_t sequence = 0u; sequence < 4u; ++sequence) {
-        passed &= telemetry_queue_try_pop(&mining_telemetry, &received)
-                  && received.words[0] == MINING_MESSAGE_PROGRESS
-                  && received.words[1] == sequence;
-    }
-    for (uint32_t sequence = TELEMETRY_QUEUE_CAPACITY;
-         sequence < TELEMETRY_QUEUE_CAPACITY + 4u; ++sequence) {
-        record.words[1] = sequence;
-        passed &= telemetry_queue_try_push(&mining_telemetry, &record);
-    }
-    ++cases;
-    for (uint32_t sequence = 4u;
-         sequence < TELEMETRY_QUEUE_CAPACITY + 4u; ++sequence) {
-        passed &= telemetry_queue_try_pop(&mining_telemetry, &received)
-                  && received.words[1] == sequence;
-    }
-    passed &= !telemetry_queue_try_pop(&mining_telemetry, &received);
-    ++cases;
-    telemetry_queue_reset(&mining_telemetry);
-
-    printf("TEST:%s kat=telemetry_queue cases=%u capacity=%u"
-           " record_words=%u ordering=spsc-release-acquire\n",
-           passed ? "PASS" : "FAIL", cases, TELEMETRY_QUEUE_CAPACITY,
-           TELEMETRY_RECORD_WORDS);
-    return passed;
-}
-#endif
-
 static bool run_known_answer_tests(void) {
     bool passed = true;
     static const uint8_t abc[] = {'a', 'b', 'c'};
@@ -743,9 +589,6 @@ static bool run_known_answer_tests(void) {
     passed &= run_optimized_oracle_vectors();
     passed &= run_target_tests();
     passed &= run_mining_decision_path_tests();
-#if MINER_USE_CORE1
-    passed &= run_telemetry_queue_tests();
-#endif
 
     bitcoin_hasher_begin(&hasher, genesis_header);
     const bool genesis_hashed = bitcoin_hasher_hash_nonce(&hasher, 2083236893u);
@@ -1178,11 +1021,30 @@ static MINING_LOOP_OPTIONS void mine_forever(uint led_pin) {
     }
 }
 #else
+enum mining_message {
+    MINING_MESSAGE_PROGRESS = 0x50524752u,
+    MINING_MESSAGE_SHARE = 0x53485245u,
+    MINING_MESSAGE_FAULT = 0x4641554cu,
+    MINING_MESSAGE_READY = 0x52454144u,
+    MINING_MESSAGE_ACK = 0x41434b21u,
+};
+
+static void mining_fifo_push_u64(uint64_t value) {
+    multicore_fifo_push_blocking((uint32_t)value);
+    multicore_fifo_push_blocking((uint32_t)(value >> 32u));
+}
+
+static uint64_t mining_fifo_pop_u64(void) {
+    const uint64_t low = multicore_fifo_pop_blocking();
+    return low | ((uint64_t)multicore_fifo_pop_blocking() << 32u);
+}
+
 static void mining_worker_fault(uint32_t code, uint32_t nonce,
                                 uint32_t invalid_batch) {
-    mining_fault.nonce = nonce;
-    mining_fault.invalid_batch = invalid_batch;
-    atomic_store_explicit(&mining_fault.code, code, memory_order_release);
+    multicore_fifo_push_blocking(MINING_MESSAGE_FAULT);
+    multicore_fifo_push_blocking(code);
+    multicore_fifo_push_blocking(nonce);
+    multicore_fifo_push_blocking(invalid_batch);
     while (true) {
         tight_loop_contents();
     }
@@ -1229,16 +1091,12 @@ static MINING_LOOP_OPTIONS void mining_worker_core1(void) {
             }
 #endif
             capture_current_hash(&hash);
-            telemetry_record_t record = {0};
-            const uint64_t share_total = total_hashes + since_report;
-            record.words[0] = MINING_MESSAGE_SHARE;
-            record.words[1] = nonce;
-            record.words[2] = (uint32_t)share_total;
-            record.words[3] = (uint32_t)(share_total >> 32u);
+            multicore_fifo_push_blocking(MINING_MESSAGE_SHARE);
+            multicore_fifo_push_blocking(nonce);
+            mining_fifo_push_u64(total_hashes + since_report);
             for (size_t word = 0u; word < 8u; ++word) {
-                record.words[4u + word] = hash.words[word];
+                multicore_fifo_push_blocking(hash.words[word]);
             }
-            telemetry_queue_push_blocking(&mining_telemetry, &record);
         }
         nonce += 2u;
         if (nonce == 0u) {
@@ -1258,14 +1116,10 @@ static MINING_LOOP_OPTIONS void mining_worker_core1(void) {
             const uint64_t rate = ((uint64_t)since_report * 1000000ull
                                    + elapsed_us / 2u) / elapsed_us;
             total_hashes += since_report;
-            telemetry_record_t record = {0};
-            record.words[0] = MINING_MESSAGE_PROGRESS;
-            record.words[1] = nonce;
-            record.words[2] = (uint32_t)total_hashes;
-            record.words[3] = (uint32_t)(total_hashes >> 32u);
-            record.words[4] = (uint32_t)rate;
-            record.words[5] = (uint32_t)(rate >> 32u);
-            telemetry_queue_push_blocking(&mining_telemetry, &record);
+            multicore_fifo_push_blocking(MINING_MESSAGE_PROGRESS);
+            multicore_fifo_push_blocking(nonce);
+            mining_fifo_push_u64(total_hashes);
+            mining_fifo_push_u64(rate);
             ++report_sequence;
             if (report_sequence % COMMON_WINDOW_REPORT_INTERVAL == 0u
                 && multicore_fifo_pop_blocking() != MINING_MESSAGE_ACK) {
@@ -1275,21 +1129,6 @@ static MINING_LOOP_OPTIONS void mining_worker_core1(void) {
             since_report = 0u;
             report_started_us = now_us;
         }
-    }
-}
-
-static void mining_fault_forever(uint led_pin, uint32_t code,
-                                 uint32_t nonce, uint32_t invalid_batch) {
-    printf("FAULT type=%s worker_core=1 nonce=%" PRIu32
-           " invalid_batch=%" PRIu32 "\n",
-           code == 1u ? "invalid_compact_target"
-                      : (code == 2u ? "sha256_hardware"
-                                    : (code == 3u ? "nonce_exhausted"
-                                                  : "multicore_protocol")),
-           nonce, invalid_batch);
-    while (true) {
-        gpio_xor_mask64(1ull << led_pin);
-        sleep_ms(100u);
     }
 }
 
@@ -1307,7 +1146,6 @@ static void mine_forever(uint led_pin) {
     uint64_t window_hardware_hashes = 0u;
     uint64_t window_software_hashes = 0u;
     uint32_t window_sequence = 0u;
-    uint32_t software_poll_countdown = 64u;
 
     if (!compact_to_target_le(0x1d00ffffu, target.bytes)) {
         printf("FAULT type=invalid_compact_target worker_core=0\n");
@@ -1315,8 +1153,6 @@ static void mine_forever(uint led_pin) {
     }
     software_bitcoin_hasher_begin(&software_hasher, genesis_header);
     multicore_fifo_drain();
-    telemetry_queue_reset(&mining_telemetry);
-    atomic_store_explicit(&mining_fault.code, 0u, memory_order_relaxed);
     printf("MINING:START run_id=%08" PRIx32 "-%08" PRIx32
            " header=bitcoin-genesis target_bits=1d00ffff"
            " hardware_core=1 hardware_nonce_start=0 hardware_nonce_stride=2"
@@ -1324,15 +1160,6 @@ static void mine_forever(uint led_pin) {
            " note=standalone-stale-work\n",
            boot_chip_id, boot_run_sequence);
     multicore_launch_core1(mining_worker_core1);
-    while (!multicore_fifo_rvalid()) {
-        const uint32_t fault_code = atomic_load_explicit(&mining_fault.code,
-                                                         memory_order_acquire);
-        if (fault_code != 0u) {
-            mining_fault_forever(led_pin, fault_code, mining_fault.nonce,
-                                 mining_fault.invalid_batch);
-        }
-        tight_loop_contents();
-    }
     const uint32_t ready_message = multicore_fifo_pop_blocking();
     if (ready_message != MINING_MESSAGE_READY) {
         printf("FAULT type=multicore_start_protocol message=%08" PRIx32 "\n",
@@ -1360,31 +1187,16 @@ static void mine_forever(uint led_pin) {
             printf("FAULT type=nonce_exhausted worker=software core=0\n");
             return;
         }
-        --software_poll_countdown;
-        if (software_poll_countdown != 0u) {
-            continue;
-        }
-        software_poll_countdown = 64u;
-        const uint32_t fault_code = atomic_load_explicit(&mining_fault.code,
-                                                         memory_order_acquire);
-        if (fault_code != 0u) {
-            mining_fault_forever(led_pin, fault_code, mining_fault.nonce,
-                                 mining_fault.invalid_batch);
-        }
-        telemetry_record_t record;
-        if (!telemetry_queue_try_pop(&mining_telemetry, &record)) {
+        if (!multicore_fifo_rvalid()) {
             continue;
         }
 
-        const uint32_t message = record.words[0];
+        const uint32_t message = multicore_fifo_pop_blocking();
         if (message == MINING_MESSAGE_PROGRESS) {
             ++report_sequence;
-            const uint32_t nonce = record.words[1];
-            hardware_hashes = telemetry_record_u64(&record, 2u);
-            const uint64_t hardware_rate = telemetry_record_u64(&record, 4u);
-            const uint32_t queue_max_depth = record.words[6];
-            const uint64_t producer_blocked_us =
-                telemetry_record_u64(&record, 7u);
+            const uint32_t nonce = multicore_fifo_pop_blocking();
+            hardware_hashes = mining_fifo_pop_u64();
+            const uint64_t hardware_rate = mining_fifo_pop_u64();
             const uint64_t software_elapsed_us =
                 time_us_64() - software_started_us;
             const uint64_t software_rate =
@@ -1437,28 +1249,40 @@ static void mine_forever(uint led_pin) {
                    " software_core=0 software_nonce=%" PRIu32
                    " software_hashes=%" PRIu64 " software_rate_hs=%" PRIu64
                    " total_hashes=%" PRIu64 " hash_rate_hs=%" PRIu64
-                   " queue_max_depth=%" PRIu32
-                   " producer_blocked_us=%" PRIu64
                    " temperature=disabled\n",
                    boot_chip_id, boot_run_sequence, report_sequence,
                    CPU_ARCH, nonce, hardware_hashes, hardware_rate,
                    software_nonce, software_hashes, software_rate,
                    hardware_hashes + software_hashes,
-                   hardware_rate + software_rate, queue_max_depth,
-                   producer_blocked_us);
+                   hardware_rate + software_rate);
             led_on = !led_on;
             gpio_put(led_pin, led_on);
         } else if (message == MINING_MESSAGE_SHARE) {
             sha256_result_t hash;
-            const uint32_t nonce = record.words[1];
-            const uint64_t total_hashes = telemetry_record_u64(&record, 2u);
+            const uint32_t nonce = multicore_fifo_pop_blocking();
+            const uint64_t total_hashes = mining_fifo_pop_u64();
             for (size_t word = 0u; word < 8u; ++word) {
-                hash.words[word] = record.words[4u + word];
+                hash.words[word] = multicore_fifo_pop_blocking();
             }
             printf("SHARE:FOUND worker=hardware core=1 nonce=%" PRIu32 " hash=",
                    nonce);
             print_bitcoin_hash(hash.bytes);
             printf(" total_hashes=%" PRIu64 "\n", total_hashes);
+        } else if (message == MINING_MESSAGE_FAULT) {
+            const uint32_t code = multicore_fifo_pop_blocking();
+            const uint32_t nonce = multicore_fifo_pop_blocking();
+            const uint32_t invalid_batch = multicore_fifo_pop_blocking();
+            printf("FAULT type=%s worker_core=1 nonce=%" PRIu32
+                   " invalid_batch=%" PRIu32 "\n",
+                   code == 1u ? "invalid_compact_target"
+                              : (code == 2u ? "sha256_hardware"
+                                            : (code == 3u ? "nonce_exhausted"
+                                                          : "multicore_protocol")),
+                   nonce, invalid_batch);
+            while (true) {
+                gpio_xor_mask64(1ull << led_pin);
+                sleep_ms(100u);
+            }
         } else {
             printf("FAULT type=multicore_protocol message=%08" PRIx32 "\n",
                    message);
@@ -1530,7 +1354,7 @@ int main(void) {
             sleep_ms(100u);
         }
     }
-    printf("TEST:SUMMARY pass=9 fail=0\n");
+    printf("TEST:SUMMARY pass=8 fail=0\n");
 
 #if MINER_PROFILE
     run_profile();

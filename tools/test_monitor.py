@@ -21,7 +21,7 @@ def complete_lines(source="abc123", arch="ARM-M33", run="30004927-00000001"):
     lines.extend(f"TEST:PASS kat={kat}" for kat in sorted(monitor.EXPECTED_KATS))
     lines.extend(
         [
-            "TEST:SUMMARY pass=9 fail=0",
+            "TEST:SUMMARY pass=8 fail=0",
             "BENCHMARK:PASS hash_rate_hs=1",
             "SOFTWARE_BENCHMARK:PASS hash_rate_hs=1",
             "SOFTWARE_FILTER_BENCHMARK:PASS hash_rate_hs=1",
@@ -37,10 +37,7 @@ def complete_lines(source="abc123", arch="ARM-M33", run="30004927-00000001"):
                 " total_hashes=1750000 hardware_rate_hs=320000 software_rate_hs=30000"
                 " hash_rate_hs=350000"
             )
-        lines.append(
-            f"MINING:PROGRESS run_id={run} sequence={sequence}"
-            " queue_max_depth=1 producer_blocked_us=0"
-        )
+        lines.append(f"MINING:PROGRESS run_id={run} sequence={sequence}")
     decision = next(
         i for i, line in enumerate(lines)
         if line == "TEST:PASS kat=mining_decision_paths"
