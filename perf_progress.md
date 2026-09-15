@@ -2695,3 +2695,25 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=52000 elapsed_us=2005609 hash_rate_hs=25927 checksum=88 temperature=disabled
 MINING:PROGRESS arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=9200000 hardware_hashes=4600000 hardware_rate_hs=338790 software_core=0 software_nonce=673853 software_hashes=336926 software_rate_hs=24798 total_hashes=4936926 hash_rate_hs=363588 temperature=disabled
 ```
+
+## 2026-09-15 — E09-b specialized fixed second block, ARM and retention
+
+- Experiment: `E09b-fixed-second-block-arm-49`, candidate commit `d9c0de8`.
+- Both architectures remained warning-free. On ARM, all 4,096 cross-engine
+  oracle cases and all 7 suites passed; no fault occurred.
+- Isolated software: **26,905 H/s**, up **0.67%** from E09-b's 26,727 H/s.
+- Median of the final 30 dual-worker reports: hardware **325,515 H/s**,
+  software **26,672 H/s**, aggregate **352,188 H/s**.
+- Versus E09-b ARM aggregate 351,950 H/s: **+0.068%** (+238 H/s).
+- Candidate ARM UF2 SHA-256:
+  `d64ad9ecf2bf02e1364d12b9ba31c8c54f6ee72f85b7496912d4b3d1ef52e6a3`.
+- Archived serial log: `logs/E09b-fixed-second-block-arm.log`.
+- Decision: retain on both architectures. The aggregate gain is deliberately
+  reported as small, but isolated and sustained software-worker rates improve
+  consistently on both ISAs with exact full-digest output.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=54000 elapsed_us=2007083 hash_rate_hs=26905 checksum=61 temperature=disabled
+MINING:PROGRESS arch=ARM-M33 hardware_core=1 hardware_nonce=8400000 hardware_hashes=4200000 hardware_rate_hs=325531 software_core=0 software_nonce=689005 software_hashes=344502 software_rate_hs=26699 total_hashes=4544502 hash_rate_hs=352230 temperature=disabled
+```
