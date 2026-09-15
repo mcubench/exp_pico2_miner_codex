@@ -72,6 +72,10 @@ changes and keep temperature disabled.
    then capture at least five and preferably seven longer
    windows on ARM and RISC-V. Archive logs, calculate serial bytes/s, decide,
    and restore if rejected.
+   ARM attempt 97a passed all gates: seven-window median 356,602 H/s (+0.020%
+   versus E09-c), with steady payload reduced about 70.3% to 305 B/s. Archive
+   `logs/E04f-cadence1s-arm.log`. Commit this evidence, then run Hazard3 long
+   enough for seven windows before deciding.
 
 1. E09-b-tail-padding is resolved at commit `688148d`: retain explicit fixed
    rounds on ARM and the generic loop on Hazard3. Both final architecture

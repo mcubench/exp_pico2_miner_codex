@@ -4947,3 +4947,33 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   materialized comparison constant changes to 340,000 (Hazard3 `0x53020`, ARM
   literal load). Clean committed images will be rebuilt and hashed before the
   first flash.
+
+### E04-f one-second cadence ARM attempt 97a — pass, paired result pending
+
+- Candidate commit `c41523a`, source identity `010c23e20b3f`, normal profile,
+  stock 150 MHz, temperature disabled, run ID `30004927-00000011`. Both clean
+  architecture builds passed before flash. All 8 suites, the 4,096-case
+  oracle, standalone benchmarks, seven long common windows, and strict capture
+  passed without a fault.
+- Standalone hardware/full/filter rates were **331,067 / 30,364 / 31,578
+  H/s**, matching the accepted algorithms. Seven-window medians were aggregate
+  **356,602 H/s** (range 356,601–356,602), hardware **325,169 H/s**
+  (325,168–325,169), and software **31,433 H/s** (31,432–31,434).
+- Versus accepted E09-c, aggregate is **+71 H/s (+0.020%)**, hardware
+  **+46 H/s (+0.014%)**, and software **+25 H/s (+0.080%)**. This is a clean,
+  exceptionally stable run but remains below the normal small-change retention
+  threshold and is not yet attributed to the cadence change.
+- Each window covers 5,440,000 hardware hashes and about 525,858 software
+  hashes in 16.7297–16.7298 seconds. The serialized `MINING:START`, 16 progress
+  lines and window line averaged about **305 B/s**, versus about **1,027 B/s**
+  in the accepted 100,000-hash ARM log: roughly **70.3% less steady telemetry
+  payload**, consistent with the intended cadence change.
+- Clean size is 188,672 text / 4,708 BSS bytes on ARM and 200,876 / 4,440 on
+  RISC-V. ARM/RISC-V UF2 SHA-256:
+  `c56cd075e620911ce0020e726c632d5286293fbdb39d4c0205019d0561eca520` /
+  `89176f5011a121a2de936fd0eef32125497eff4bd4c5ab4718146147205b43f8`.
+  Complete ARM log SHA-256:
+  `ffcff0a0497cc14db7c51739190a905c928015787f928ac384e4557cae84982b`.
+  Archived log: `logs/E04f-cadence1s-arm.log`.
+- Decision: functional pass; defer retain/reject until the identical long
+  Hazard3 run. Do not infer a speedup from the +0.020% ARM movement alone.
