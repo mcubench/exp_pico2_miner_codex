@@ -377,8 +377,14 @@ static bool run_optimized_oracle_vectors(void) {
         bitcoin_hasher_end(&hasher);
         software_bitcoin_hasher_begin(&software_hasher, header);
         software_bitcoin_hash_nonce(&software_hasher, nonce, software_hash);
+        const uint32_t software_high_word =
+            software_bitcoin_hash_nonce_high_word(&software_hasher, nonce);
+        uint32_t expected_high_word;
+        memcpy(&expected_high_word, &oracle_expected[vector][28],
+               sizeof(expected_high_word));
         if (!hashed || memcmp(hash.bytes, oracle_expected[vector], HASH_BYTES) != 0
-            || memcmp(software_hash, oracle_expected[vector], HASH_BYTES) != 0) {
+            || memcmp(software_hash, oracle_expected[vector], HASH_BYTES) != 0
+            || software_high_word != expected_high_word) {
             printf("TEST:FAIL kat=optimized_oracle vector=%" PRIu32
                    " nonce=%" PRIu32 "\n",
                    vector, nonce);
@@ -569,7 +575,7 @@ static void run_software_benchmark(void) {
     volatile uint8_t checksum = 0u;
     software_bitcoin_hasher_begin(&hasher, genesis_header);
 
-    const uint64_t started_us = time_us_64();
+    uint64_t started_us = time_us_64();
     uint64_t elapsed_us;
     do {
         for (uint32_t i = 0u; i < BENCHMARK_BATCH; ++i) {
@@ -580,12 +586,33 @@ static void run_software_benchmark(void) {
         elapsed_us = time_us_64() - started_us;
     } while (elapsed_us < BENCHMARK_MIN_US);
 
-    const uint64_t rate = (hashes * 1000000ull + elapsed_us / 2u) / elapsed_us;
+    uint64_t rate = (hashes * 1000000ull + elapsed_us / 2u) / elapsed_us;
     printf("SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256"
            " path=portable-midstate-e09a arch=%s clock_hz=%" PRIu32
            " hashes=%" PRIu64 " elapsed_us=%" PRIu64
            " hash_rate_hs=%" PRIu64 " checksum=%02x temperature=disabled\n",
            CPU_ARCH, clock_get_hz(clk_sys), hashes, elapsed_us, rate, checksum);
+
+    uint32_t high_checksum = 0u;
+    nonce = 0u;
+    hashes = 0u;
+    started_us = time_us_64();
+    do {
+        for (uint32_t batch = 0u; batch < BENCHMARK_BATCH; ++batch) {
+            high_checksum ^= software_bitcoin_hash_nonce_high_word(&hasher,
+                                                                    nonce++);
+        }
+        hashes += BENCHMARK_BATCH;
+        elapsed_us = time_us_64() - started_us;
+    } while (elapsed_us < BENCHMARK_MIN_US);
+    rate = (hashes * 1000000ull + elapsed_us / 2u) / elapsed_us;
+    printf("SOFTWARE_FILTER_BENCHMARK:PASS"
+           " algorithm=bitcoin-double-sha256 path=exact-round61-high-word"
+           " arch=%s clock_hz=%" PRIu32 " hashes=%" PRIu64
+           " elapsed_us=%" PRIu64 " hash_rate_hs=%" PRIu64
+           " checksum=%08" PRIx32 " temperature=disabled\n",
+           CPU_ARCH, clock_get_hz(clk_sys), hashes, elapsed_us, rate,
+           high_checksum);
 }
 
 #if !MINER_USE_CORE1
@@ -792,10 +819,23 @@ static void mine_forever(uint led_pin) {
     software_started_us = time_us_64();
 
     while (true) {
-        software_bitcoin_hash_nonce(&software_hasher, software_nonce,
-                                    software_hash.bytes);
+        bool software_candidate;
+        if (target.words[7] == 0u) {
+            software_candidate =
+                software_bitcoin_hash_nonce_high_word(&software_hasher,
+                                                       software_nonce) == 0u;
+            if (software_candidate) {
+                software_bitcoin_hash_nonce(&software_hasher, software_nonce,
+                                            software_hash.bytes);
+            }
+        } else {
+            software_bitcoin_hash_nonce(&software_hasher, software_nonce,
+                                        software_hash.bytes);
+            software_candidate = true;
+        }
         ++software_hashes;
-        if (hash_words_meet_target(&software_hash, &target)) {
+        if (software_candidate
+            && hash_words_meet_target(&software_hash, &target)) {
             printf("SHARE:FOUND worker=software core=0 nonce=%" PRIu32 " hash=",
                    software_nonce);
             print_bitcoin_hash(software_hash.bytes);

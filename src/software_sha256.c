@@ -198,6 +198,47 @@ __not_in_flash_func(software_sha256_compress_digest)(
     digest[7] = sha256_initial_state[7] + h;
 }
 
+// After 61 rounds, e is the value that shifts into h after rounds 61--63.
+// Therefore the final digest's numerical word 7 is IV7 + e_61. This permits
+// exact rejection for the common Bitcoin target whose most-significant word
+// is zero without executing the final three rounds.
+static __attribute__((optimize("unroll-loops"))) uint32_t
+__not_in_flash_func(software_sha256_digest_high_word_after_round61)(
+    const uint32_t digest[8]) {
+    uint32_t schedule[64];
+    memcpy(schedule, digest, 8u * sizeof(schedule[0]));
+    schedule[8] = 0x80000000u;
+    for (unsigned word = 9u; word < 15u; ++word) {
+        schedule[word] = 0u;
+    }
+    schedule[15] = 32u * 8u;
+    for (unsigned word = 16u; word < 64u; ++word) {
+        const uint32_t x = schedule[word - 15u];
+        const uint32_t y = schedule[word - 2u];
+        const uint32_t sigma0 = rotate_right(x, 7u)
+                                ^ rotate_right(x, 18u) ^ (x >> 3u);
+        const uint32_t sigma1 = rotate_right(y, 17u)
+                                ^ rotate_right(y, 19u) ^ (y >> 10u);
+        schedule[word] = schedule[word - 16u] + schedule[word - 7u]
+                         + sigma0 + sigma1;
+    }
+
+    uint32_t a = sha256_initial_state[0];
+    uint32_t b = sha256_initial_state[1];
+    uint32_t c = sha256_initial_state[2];
+    uint32_t d = sha256_initial_state[3];
+    uint32_t e = sha256_initial_state[4];
+    uint32_t f = sha256_initial_state[5];
+    uint32_t g = sha256_initial_state[6];
+    uint32_t h = sha256_initial_state[7];
+
+    for (unsigned round = 0u; round < 61u; ++round) {
+        software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
+                              sha256_round_constants[round], schedule[round]);
+    }
+    return __builtin_bswap32(sha256_initial_state[7] + e);
+}
+
 void software_bitcoin_hasher_begin(software_bitcoin_hasher_t *hasher,
                                    const uint8_t header[80]) {
     uint32_t first_block[16];
@@ -243,4 +284,13 @@ void software_bitcoin_hash_nonce(const software_bitcoin_hasher_t *hasher,
         const uint32_t encoded = __builtin_bswap32(first_digest[word]);
         memcpy(&hash[word * 4u], &encoded, sizeof(encoded));
     }
+}
+
+uint32_t software_bitcoin_hash_nonce_high_word(
+    const software_bitcoin_hasher_t *hasher, uint32_t nonce) {
+    uint32_t first_digest[8];
+    memcpy(first_digest, hasher->midstate, sizeof(first_digest));
+    software_sha256_compress_header_tail(first_digest, hasher,
+                                         __builtin_bswap32(nonce));
+    return software_sha256_digest_high_word_after_round61(first_digest);
 }
