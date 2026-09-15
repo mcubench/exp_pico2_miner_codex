@@ -4624,3 +4624,17 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   Complete log SHA-256:
   `0500961cb1dd11adf15e890b30668316155ca2f3232cbe4a6eb4b4b887abfafe`.
   Archived log: `logs/E14-chunks-65536-riscv.log`.
+
+## 2026-09-15 — E14 nested hardware chunk loop candidate 93 definition
+
+- Candidates 91/92 show that changing acquisition frequency by 16x does not
+  recover throughput. Return to the 4,096 responsiveness target and preserve
+  candidate 91's validated allocator, native local range state, software loop,
+  protocol, accounting, KATs and configuration.
+- Restructure only the core-1 hardware worker into an outer chunk-acquisition
+  loop and an inner `do`/`while` nonce loop. This makes allocation/completion
+  control structurally cold and gives GCC a self-contained native-width hot
+  loop, while report and share checks remain per hash exactly as before.
+- Compare emitted assembly and hardware rates to candidate 91. This is an
+  implementation-shape experiment, not a new allocation policy; reject if it
+  does not recover the hardware-side loss on each ISA.
