@@ -2742,3 +2742,26 @@ TEST:SUMMARY pass=7 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persistent-first-block-dma-e06a arch=RISCV-HAZARD3 clock_hz=200000000 hashes=920000 elapsed_us=2001259 hash_rate_hs=459711 checksum=c0 temperature=disabled
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=200000000 hashes=70000 elapsed_us=2024883 hash_rate_hs=34570 checksum=93 temperature=disabled
 ```
+
+## 2026-09-15 — E11 200 MHz clock profile, ARM
+
+- Experiment: `E11-200mhz-arm-51` using retained source commit `d9c0de8`.
+- The already warning-free 200 MHz builds were used. Startup reported an
+  actual 200,000,000 Hz system clock and `experimental-overclock` profile.
+- All 4,096 cross-engine oracle cases and all 7 suites passed; no fault
+  occurred during the short capture.
+- Isolated hardware: **441,450 H/s**. Isolated software: **35,872 H/s**.
+- Median of the final 30 dual-worker reports: hardware **434,011 H/s**,
+  software **35,449 H/s**, aggregate **469,460 H/s**.
+- Versus the same retained kernel at 150 MHz (352,188 H/s aggregate):
+  **+33.30%** (+117,272 H/s), essentially ideal 4/3 scaling.
+- Archived serial log: `logs/E11-200mhz-arm.log`.
+- Qualification: short functional/performance experiment only; temperature is
+  disabled, so this does not establish thermal margin or long-term stability.
+
+```text
+BOOT app=pico2_bitcoin_miner board=pico2 package=RP2350A arch=ARM-M33 engine=RP2350-SHA256 temperature=disabled clock_profile=experimental-overclock requested_clock_khz=200000 actual_clock_hz=200000000 sysinfo_package_sel=1 chip_id=30004927 silicon_revision=3
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=200000000 hashes=883000 elapsed_us=2000227 hash_rate_hs=441450 checksum=da temperature=disabled
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=200000000 hashes=72000 elapsed_us=2007147 hash_rate_hs=35872 checksum=be temperature=disabled
+```
