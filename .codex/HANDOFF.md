@@ -75,8 +75,10 @@ changes and keep temperature disabled.
    commit `d2b7085` rebuilds byte-identical accepted E09-c artifacts on both
    ISAs, so attempts 88a/88b remain valid.
 4. E14-chunks candidate 90 is implemented with generation-tagged 64-bit finite
-   allocation and 4,096-nonce chunks. Host contract tests and both builds pass;
-   commit, rebuild for a clean identity, then hardware-test ARM and RISC-V.
+   allocation and 4,096-nonce chunks. Both hardware runs passed all correctness
+   gates but the variant is rejected: ARM aggregate -25.99%, Hazard3 -1.85%.
+   Next isolate the 64-bit hot-loop cost with 32-bit local nonce/remaining
+   state, retaining the 64-bit shared cursor and exact `[0, 2^32)` accounting.
 
 ## Files and evidence
 

@@ -4455,3 +4455,50 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   that does not materially regress. Compare 4,096-nonce chunk synchronization
   overhead independently on each architecture before attempting the separate
   65,536-nonce variant.
+
+### E14 finite 4,096-nonce chunks ARM attempt 90a — pass, reject variant
+
+- Candidate commit `00a1e22`, source identity `406eaa5b2565`, normal profile,
+  stock 150 MHz, temperature disabled, run ID `30004927-00000002`. Both clean
+  architecture builds passed before flash. All nine suites, including the new
+  seven-case allocator KAT, the 4,096-case hash oracle, five synchronized
+  windows, and strict capture passed without a fault or protocol stall.
+- Standalone hardware/full/filter rates remained **331,085 / 30,364 / 31,578
+  H/s**, confirming the hash kernels themselves are unchanged.
+- The five common windows had aggregate range **263,840–263,892 H/s**, median
+  **263,860 H/s**; hardware range **238,657–238,702 H/s**, median **238,678
+  H/s**; and software range **25,180–25,189 H/s**, median **25,182 H/s**.
+  Versus the accepted E09-c parent this is aggregate **-92,671 H/s (-25.99%)**,
+  hardware **-86,445 H/s (-26.59%)**, and software **-6,226 H/s (-19.82%)**.
+- Reject this 4,096-chunk implementation shape on ARM. Correct finite/disjoint
+  allocation is demonstrated, but placing a 64-bit cursor increment and chunk
+  boundary test in each worker's hot loop causes an unacceptable sustained
+  regression; the infrequent lock alone is not yet established as the cause.
+- ARM UF2 SHA-256:
+  `d94d49684523929cdc1d25b72dd6ceb8313c1d35b0c2103af6739b78f3c99a5d`.
+  Complete log SHA-256:
+  `917c5f524dc1561f29b98f8a34105d29e6e5b92ca28aefb5c7dc863f67588129`.
+  Archived log: `logs/E14-chunks-4096-arm.log`.
+
+### E14 finite 4,096-nonce chunks RISC-V attempt 90b — pass, reject variant
+
+- The identical committed candidate ran as `30004927-00000003`, at stock
+  150 MHz with temperature disabled. Both builds, all nine suites, eight
+  synchronized windows, and strict capture passed without a fault or stall.
+- Standalone hardware/full/filter rates were **344,785 / 28,631 / 30,235
+  H/s**, effectively matching the parent kernels.
+- The first seven common windows had aggregate range **361,673–361,693 H/s**,
+  median **361,682 H/s**; hardware range **331,665–331,686 H/s**, median
+  **331,675 H/s**; and software range **30,006–30,009 H/s**, median **30,006
+  H/s**. Against E09-c this is aggregate **-6,806 H/s (-1.85%)**, hardware
+  **-6,759 H/s (-2.00%)**, and software **-45 H/s (-0.15%)**.
+- Reject the 4,096-chunk implementation on Hazard3 as well. The much smaller
+  ISA-specific loss supports testing a cheaper 32-bit per-chunk local loop
+  representation before deciding whether finite dynamic allocation itself is
+  too costly. Keep the plan's 65,536 size as a separate experiment after the
+  hot-loop representation is corrected.
+- RISC-V UF2 SHA-256:
+  `e3de2d61fd6078fe7194d18f502d82102a3890087ce227cd718b081c936250a4`.
+  Complete log SHA-256:
+  `521c622e1c79aea3d33b5d652ab48dc207203f345b1ac7a299ecc483111a3f69`.
+  Archived log: `logs/E14-chunks-4096-riscv.log`.
