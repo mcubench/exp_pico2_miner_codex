@@ -288,7 +288,19 @@ __not_in_flash_func(software_sha256_digest_high_word_after_round61)(
     uint32_t g = sha256_initial_state[6];
     uint32_t h = sha256_initial_state[7];
 
-    for (unsigned round = 0u; round < 61u; ++round) {
+    for (unsigned round = 0u; round < 8u; ++round) {
+        software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
+                              sha256_round_constants[round], schedule[round]);
+    }
+    software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
+                          sha256_round_constants[8] + 0x80000000u, 0u);
+    for (unsigned round = 9u; round < 15u; ++round) {
+        software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
+                              sha256_round_constants[round], 0u);
+    }
+    software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
+                          sha256_round_constants[15] + 32u * 8u, 0u);
+    for (unsigned round = 16u; round < 61u; ++round) {
         software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
                               sha256_round_constants[round], schedule[round]);
     }
