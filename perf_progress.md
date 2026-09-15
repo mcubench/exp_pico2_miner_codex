@@ -5363,3 +5363,29 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Decision: ARM provides a promising but sub-1% gain. Run the identical
   Hazard3 candidate before deciding retention; require its hardware component
   and aggregate result not to regress materially.
+
+### E04-c hardware-worker batch factor 2 RISC-V attempt 101b — pass, neutral
+
+- The identical candidate commit `5216b86`, source identity `8ac61bed6329`,
+  ran at stock 150 MHz with temperature disabled, run ID
+  `30004927-00000019`. Both architectures built before flash. All 8 suites,
+  the 4,096-case oracle, standalone benchmarks, eight common windows, and
+  strict capture passed without a fault.
+- Standalone hardware/full/filter rates were **343,985 / 28,631 / 30,235
+  H/s**. First-seven window medians were aggregate **368,408 H/s** (range
+  368,401–368,410), hardware **338,344 H/s** (338,335–338,347), and software
+  **30,064 H/s** (30,063–30,067).
+- Versus retained candidate 98, aggregate is **+30 H/s (+0.008%)**, hardware
+  **+44 H/s (+0.013%)**, and software **-14 H/s (-0.047%)**: entirely neutral.
+  Hazard3 therefore receives no measurable return for 576 extra text bytes.
+- Candidate hashes remain ARM
+  `6e76ffc1dd361d70b009fb5aafa68e858f63ea9c7541436795a4f2186b9c71a2`
+  and RISC-V
+  `919fa4cc7e659ce463bea60bcd835323f29f583cc79905914a313c4d894b6e6c`.
+  Complete RISC-V log SHA-256:
+  `829f475c90cab753451ccf09977bf5e85b01abb1bfa6facde9d7dddd0a4f2be1`.
+  Archived log: `logs/E04c-hardware-batch2-riscv.log`.
+- **Decision: retain factor 2 on ARM only; reject it on Hazard3.** Create a
+  final architecture split with ARM's explicitly unrolled factor-2 body and
+  Hazard3's retained factor-1 body. Rebuild both and validate the final images;
+  do not advance to factor 4 until the split is resolved.

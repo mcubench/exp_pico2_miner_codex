@@ -98,6 +98,12 @@ H/s aggregate, 326,223 hardware, 31,433 software, a +0.311% aggregate and
 +0.348% hardware gain over candidate 98. Archive
 `logs/E04c-hardware-batch2-arm.log`. Commit this evidence, then run the
 identical Hazard3 image and decide the shared candidate.
+Hazard3 attempt 101b passed all gates but was neutral: first-seven median
+368,408 aggregate, 338,344 hardware, 30,064 software, only +0.008% aggregate
+versus candidate 98 despite +576 text bytes. Archive
+`logs/E04c-hardware-batch2-riscv.log`. Retain factor 2 only for ARM, restore
+Hazard3 to factor 1 in a final architecture split, rebuild both, and hardware
+validate the split before considering factor 4.
 
 0. Candidate 97 is now defined as E04-f telemetry cadence: change only the
    hardware report interval from 100,000 to 340,000 hashes (approximately one
