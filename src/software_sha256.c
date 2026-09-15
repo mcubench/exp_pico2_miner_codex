@@ -205,14 +205,17 @@ __not_in_flash_func(software_sha256_compress_digest)(
 static __attribute__((optimize("unroll-loops"))) uint32_t
 __not_in_flash_func(software_sha256_digest_high_word_after_round61)(
     const uint32_t digest[8]) {
-    uint32_t schedule[64];
+    // The rejection result consumes rounds 0..60 only. Do not materialize
+    // W61..W63: those words belong exclusively to the deliberately skipped
+    // final three rounds.
+    uint32_t schedule[61];
     memcpy(schedule, digest, 8u * sizeof(schedule[0]));
     schedule[8] = 0x80000000u;
     for (unsigned word = 9u; word < 15u; ++word) {
         schedule[word] = 0u;
     }
     schedule[15] = 32u * 8u;
-    for (unsigned word = 16u; word < 64u; ++word) {
+    for (unsigned word = 16u; word < 61u; ++word) {
         const uint32_t x = schedule[word - 15u];
         const uint32_t y = schedule[word - 2u];
         const uint32_t sigma0 = rotate_right(x, 7u)
