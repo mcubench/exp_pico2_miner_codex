@@ -3621,3 +3621,34 @@ identity. The candidate is revised to hash the committed `CMakeLists.txt`,
 `src`, and `tools` trees and append `-dirty` only for relevant tracked changes.
 This preserves identity across log/ledger-only commits; no result from 82a is
 promoted by this correction.
+
+### E01 identity ARM attempt 82b — pass
+
+- Revised candidate commit `c2cf4d0`, stable firmware source identity
+  `ebabf96f233d`, stock 150 MHz, temperature disabled. Both architectures
+  built warning-free before the ARM flash.
+- The strict host contract accepted exactly one BOOT with expected ARM/source
+  identity, all 7 suites (including 4,096 oracle cases), all three benchmark
+  stages, matching mining run ID, and **114 contiguous progress records**.
+  No `TEST:FAIL`, `FAULT`, unexpected reset, missing stage, or sequence gap
+  occurred.
+- Full software **30,012 H/s**; exact filter **30,718 H/s**. Median of the
+  final 30 reports: hardware **325,769 H/s**, software **30,540 H/s**,
+  aggregate **356,309 H/s**. Versus experiment 81, hardware is +23 H/s,
+  software -14 H/s and aggregate +9 H/s: no material report-only regression.
+- Hardware startup benchmark: **330,357 H/s**. ARM UF2 SHA-256:
+  `f65303383ccb26b45de9342b790b0bada8ca5c0f42d3d0a99fff769f980ef3b0`.
+  Paired unflashed RISC-V UF2 SHA-256:
+  `ae141f1c9ccfba07e9608d7c9f743203cc94798898f9d8dbf142839e73f3a4fe`.
+- Run ID `30004927-00000002`; fixture SHA-256
+  `4cf1f1db9d05f9208b74edec0f616497a286269e73a1e89747fed60ac5648f98`.
+  Archived log: `logs/E01-identity-arm.log`.
+- Decision: ARM passes; retain provisionally pending paired RISC-V hardware
+  validation.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=150000000 hashes=661000 elapsed_us=2000865 hash_rate_hs=330357 checksum=6f temperature=disabled
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=61000 elapsed_us=2032554 hash_rate_hs=30012 checksum=55 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=62000 elapsed_us=2018362 hash_rate_hs=30718 checksum=78fd8ac1 temperature=disabled
+```
