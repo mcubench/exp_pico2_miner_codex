@@ -100,6 +100,10 @@ changes and keep temperature disabled.
    Hazard3 was neutral at -0.06%. Test only one follow-up: poll the queue/fault
    latch every 64 software hashes, then restore if M33 does not recover or
    Hazard3 materially regresses.
+10. Candidate 95 implements only that 64-hash steady-state polling cadence;
+    startup fault polling remains immediate and steady-state fault latency is
+    bounded near 2 ms. Host tests and both dirty wrapper builds pass. Commit,
+    rebuild clean and hardware-test both ISAs.
 
 ## Files and evidence
 

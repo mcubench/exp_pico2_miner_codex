@@ -4765,3 +4765,19 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   Complete log SHA-256:
   `12f346a346d3a5a294cf17758394f20d54f0b1266dd5b036c6412e541d687b9d`.
   Archived log: `logs/E08-queue-riscv.log`.
+
+## 2026-09-15 — E08 batched telemetry polling candidate 95 definition
+
+- Preserve candidate 94's complete-record SPSC queue, lossless backpressure,
+  independent fatal latch, record formats, KAT, clock and temperature state.
+  Change only core 0's steady-state polling cadence from every software hash
+  to once per 64 hashes. Startup still polls the fault latch while waiting for
+  READY, and a steady-state fatal fault remains bounded by at most 64 software
+  evaluations (about 2 ms at current rates).
+- The hypothesis is that repeated shared acquire loads or their placement/bus
+  effects caused candidate 94's 19.89% M33 aggregate loss. Queue capacity eight
+  is ample for the roughly 0.3-second normal progress cadence; the periodic
+  16-report ACK may be delayed by only one polling batch. Accept only if ARM
+  returns close to E09-c and Hazard3 does not repeat the previously rejected
+  E10 polling loss. Queue depth, blocked time and all nine suites must remain
+  valid.

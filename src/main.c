@@ -1307,6 +1307,7 @@ static void mine_forever(uint led_pin) {
     uint64_t window_hardware_hashes = 0u;
     uint64_t window_software_hashes = 0u;
     uint32_t window_sequence = 0u;
+    uint32_t software_poll_countdown = 64u;
 
     if (!compact_to_target_le(0x1d00ffffu, target.bytes)) {
         printf("FAULT type=invalid_compact_target worker_core=0\n");
@@ -1343,12 +1344,6 @@ static void mine_forever(uint led_pin) {
     multicore_fifo_push_blocking(MINING_MESSAGE_ACK);
 
     while (true) {
-        const uint32_t fault_code = atomic_load_explicit(&mining_fault.code,
-                                                         memory_order_acquire);
-        if (fault_code != 0u) {
-            mining_fault_forever(led_pin, fault_code, mining_fault.nonce,
-                                 mining_fault.invalid_batch);
-        }
         bool full_digest_computed;
         const bool software_candidate = software_hash_nonce_meets_target(
             &software_hasher, software_nonce, &target, &software_hash,
@@ -1364,6 +1359,17 @@ static void mine_forever(uint led_pin) {
         if (software_nonce == 1u) {
             printf("FAULT type=nonce_exhausted worker=software core=0\n");
             return;
+        }
+        --software_poll_countdown;
+        if (software_poll_countdown != 0u) {
+            continue;
+        }
+        software_poll_countdown = 64u;
+        const uint32_t fault_code = atomic_load_explicit(&mining_fault.code,
+                                                         memory_order_acquire);
+        if (fault_code != 0u) {
+            mining_fault_forever(led_pin, fault_code, mining_fault.nonce,
+                                 mining_fault.invalid_batch);
         }
         telemetry_record_t record;
         if (!telemetry_queue_try_pop(&mining_telemetry, &record)) {
