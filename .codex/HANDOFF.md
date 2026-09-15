@@ -83,8 +83,12 @@ changes and keep temperature disabled.
    Candidate 98 now makes that grouping change and adds BOOT report/window
    configuration so the host validates the advertised cadence dynamically.
    Both stock builds pass without warnings, all eight host tests pass, and
-   text/BSS is ARM 188,720/4,708 and Hazard3 200,924/4,440 bytes. Commit the
-   candidate before hardware, then run both default-length cycles and decide.
+   text/BSS is ARM 188,720/4,708 and Hazard3 200,924/4,440 bytes. Candidate
+   commit is `e2912db`, source identity `1eb3d9edb2b0`. ARM attempt 98a passed
+   all gates and eight windows: first-seven median 356,545 H/s aggregate,
+   325,092 hardware, 31,450 software; median payload 343.5 B/s. Archive
+   `logs/E04f-cadence1s-window4-arm.log`. Commit this evidence, run the
+   identical default-length Hazard3 cycle, archive it, and decide.
 
 1. E09-b-tail-padding is resolved at commit `688148d`: retain explicit fixed
    rounds on ARM and the generic loop on Hazard3. Both final architecture

@@ -5036,3 +5036,34 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   text/BSS 188,720/4,708 bytes and Hazard3 text/BSS 200,924/4,440 bytes. This
   is 48 text bytes per ISA above candidate 97, attributable to advertising the
   reporting configuration in BOOT; data and BSS are unchanged.
+
+### E04-f four-report window ARM attempt 98a — pass, paired result pending
+
+- Candidate commit `e2912db`, source identity `1eb3d9edb2b0`, normal profile,
+  stock 150 MHz, temperature disabled, run ID `30004927-00000013`. The cycle
+  rebuilt both architectures before flashing ARM. All 8 suites, the 4,096-case
+  oracle, standalone benchmarks, eight common windows, and the default
+  45-second strict capture passed without a fault.
+- Standalone hardware/full/filter rates were **331,085 / 30,364 / 31,578
+  H/s**. The prescribed first-seven window medians were aggregate **356,545
+  H/s** (range 356,423–356,587), hardware **325,092 H/s** (324,983–325,133),
+  and software **31,450 H/s** (31,439–31,455).
+- Versus accepted E09-c, aggregate is **+14 H/s (+0.004%)**, hardware **-31
+  H/s (-0.010%)**, and software **+42 H/s (+0.134%)**. Versus candidate 97,
+  aggregate is **-57 H/s (-0.016%)**, hardware **-77 H/s (-0.024%)**, and
+  software **+17 H/s (+0.054%)**. Both comparisons are throughput-neutral.
+- Each window covers 1,360,000 hardware hashes and about 131,570 software
+  hashes in 4.1829–4.1848 seconds, restoring default-cycle coverage. Median
+  serialized mining telemetry over the first seven windows is about **343.5
+  B/s**: **66.6% below** the accepted approximately 1,027 B/s, and 12.6% above
+  candidate 97's approximately 305 B/s because window/ACK records are four
+  times as frequent.
+- Clean ARM/RISC-V UF2 SHA-256:
+  `5fb2d345ba0f9eb2c99ddb51ceceabf4b9c25e60ab9169812c9685d961bd54ef` /
+  `f109ef25a8a89cd41ec6e4068f5407af6cae9b87708d91aa605b16b5bd404c6a`.
+  Complete ARM log SHA-256:
+  `72945f5ef90e6e26055c13d716edefd2e0b9330207b3cace352951afd3795e4a`.
+  Archived log: `logs/E04f-cadence1s-window4-arm.log`.
+- Decision: functional and operational pass; defer retention until the
+  identical Hazard3 run. ARM supports the hypothesis that the shorter window
+  restores strict-cycle usability without a measurable throughput cost.
