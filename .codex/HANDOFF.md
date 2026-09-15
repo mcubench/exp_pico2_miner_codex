@@ -67,10 +67,10 @@ changes and keep temperature disabled.
 1. E09-b-tail-padding is resolved at commit `688148d`: retain explicit fixed
    rounds on ARM and the generic loop on Hazard3. Both final architecture
    images passed at source identity `f0b612529b69`.
-2. Candidate 88 is now E09-c-terminal: peel filter round 60 and calculate only
-   live new-e/T1. Both baseline disassemblies proved GCC still emitted dead T2
-   work. Build and inspect both candidates, commit for stable identity, then
-   test ARM and RISC-V one at a time at stock 150 MHz.
+2. E09-c-terminal is retained on both ISAs at candidate commit `a628426`,
+   source identity `71b48132e899`: ARM filter +1.58%, Hazard3 filter +0.65%,
+   with every hardware gate passing. Continue with one E09 schedule/round-group
+   or E03 batch subvariant, or move to E08/E14 lifecycle work per the plan.
 
 ## Files and evidence
 
@@ -97,6 +97,7 @@ changes and keep temperature disabled.
   ARM improved and is retained; Hazard3 regressed and is restored to its
   parent loop in the final architecture split.
 - Final split validation logs: `logs/E09b-header-tail-final-{arm,riscv}.log`.
+- E09-c retained terminal-round logs: `logs/E09c-terminal-{arm,riscv}.log`.
 - E01 implementation: `CMakeLists.txt`, `src/main.c`, `tools/common.sh`,
   `tools/build`, `tools/cycle`, `tools/monitor.py`, `tools/test_monitor.py`.
 

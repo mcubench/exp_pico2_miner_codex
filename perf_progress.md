@@ -4298,3 +4298,48 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   is 188,680 bytes on ARM (+112) and 200,872 on RISC-V (+128); BSS is
   unchanged. The modest code growth is acceptable only if hardware throughput
   confirms that the removed dynamic work wins.
+
+### E09-c terminal live-result ARM attempt 88a — pass and retention
+
+- Candidate commit `a628426`, source identity `71b48132e899`, normal profile,
+  stock 150 MHz, temperature disabled, run ID `30004927-00000007`. Both clean
+  architecture builds passed before flash. All 8 suites, the 4,096-case
+  oracle, target/rare-decision checks, standalone benchmarks, eight common
+  windows, and strict capture passed without a fault.
+- Standalone hardware/full-software remained **331,084 / 30,364 H/s**. The
+  affected exact filter improved from 31,087 to **31,578 H/s** (**+491 H/s,
+  +1.58%**).
+- First-seven common medians were aggregate **356,531 H/s** (range
+  356,528–356,532), hardware **325,123 H/s** (325,120–325,125), and software
+  **31,408 H/s** (31,407–31,410). Versus the final E09-b parent, software gains
+  **485 H/s (+1.57%)** and aggregate gains **607 H/s (+0.17%)**; the 127 H/s
+  hardware movement is small favorable run variation on unaffected code.
+- Retain on ARM. Isolated and sustained filter gains match closely and all
+  exact fallback/decision coverage passes.
+- ARM UF2 SHA-256:
+  `503e315bed9cf5ef334500645044a121a6a0e123a07fbd1f9d3ec4d9a036b5c5`.
+  Complete log SHA-256:
+  `51ab6eb056cc19b1879ba032b8226c4980635fec49ddb8f8ff892bd290e278ac`.
+  Archived log: `logs/E09c-terminal-arm.log`.
+
+### E09-c terminal live-result RISC-V attempt 88b — pass and retention
+
+- The identical committed candidate ran as `30004927-00000008`, with stock
+  150 MHz and temperature disabled. Both architectures built before flash and
+  every runtime/capture gate passed without a fault.
+- Standalone hardware/full-software were unchanged at **344,785 / 28,636
+  H/s**. The affected exact filter improved from 30,041 to **30,235 H/s**
+  (**+194 H/s, +0.65%**).
+- First-seven common medians were aggregate **368,488 H/s** (range
+  368,465–368,492), hardware **338,434 H/s** (338,415–338,441), and software
+  **30,051 H/s** (30,049–30,055). Against the immediate E09-b parent, software
+  gains **195 H/s (+0.65%)** and aggregate gains **358 H/s (+0.10%)**; the
+  unaffected hardware path accounts for +161 H/s of the total difference.
+- Retain the shared terminal live-result computation. Both ISAs show a stable
+  affected-path win, while the 112/128-byte text growth uses no additional BSS
+  and remains small relative to the exact dynamic work removed each nonce.
+- RISC-V UF2 SHA-256:
+  `6fd2b7f053cac2f4ed8b2e8b94626892fbc31ff01e0e69cbf8bdb92165a646b6`.
+  Complete log SHA-256:
+  `4918f56598f9788ef86757b629a6fb6ca5f244879447ff344d68641a211eb1f9`.
+  Archived log: `logs/E09c-terminal-riscv.log`.
