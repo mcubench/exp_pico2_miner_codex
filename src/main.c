@@ -329,6 +329,22 @@ static bool hash_words_meet_target(const sha256_result_t *hash_le,
     return true;
 }
 
+static inline __attribute__((always_inline)) bool
+software_hash_nonce_meets_target(const software_bitcoin_hasher_t *hasher,
+                                 uint32_t nonce,
+                                 const sha256_result_t *target,
+                                 sha256_result_t *hash,
+                                 bool *full_digest_computed) {
+    *full_digest_computed = false;
+    if (target->words[7] == 0u
+        && software_bitcoin_hash_nonce_high_word_be(hasher, nonce) != 0u) {
+        return false;
+    }
+    software_bitcoin_hash_nonce(hasher, nonce, hash->bytes);
+    *full_digest_computed = true;
+    return hash_words_meet_target(hash, target);
+}
+
 static inline __attribute__((always_inline)) bool current_hash_meets_target(
     const sha256_result_t *target_le) {
     // Byte reversal cannot change whether a word is zero. Bitcoin difficulty
@@ -433,6 +449,85 @@ static bool run_target_tests(void) {
     return passed;
 }
 
+static bool run_mining_decision_path_tests(void) {
+    const uint32_t winning_nonce = 2083236893u;
+    const uint32_t rejected_nonce = winning_nonce - 1u;
+    const uint32_t rejected_high_word = UINT32_C(0x3d34dc8c);
+    bitcoin_hasher_t hardware_hasher;
+    software_bitcoin_hasher_t software_hasher;
+    sha256_result_t hash = {0};
+    sha256_result_t software_hash = {0};
+    sha256_result_t target = {0};
+    bool full_digest_computed = false;
+    unsigned cases = 0u;
+    bool passed = true;
+
+    bitcoin_hasher_begin(&hardware_hasher, genesis_header);
+    passed &= bitcoin_hasher_hash_nonce(&hardware_hasher, winning_nonce);
+    capture_current_hash(&hash);
+
+    // Force equal most-significant words, then cover lower-word rejection,
+    // exact equality, and a target one unit above the digest.
+    target = hash;
+    --target.words[0];
+    passed &= !current_hash_meets_target(&target);
+    ++cases;
+    target = hash;
+    passed &= current_hash_meets_target(&target);
+    ++cases;
+    ++target.words[0];
+    passed &= current_hash_meets_target(&target);
+    ++cases;
+    bitcoin_hasher_end(&hardware_hasher);
+
+    software_bitcoin_hasher_begin(&software_hasher, genesis_header);
+    passed &= compact_to_target_le(0x1d00ffffu, target.bytes);
+    passed &= software_bitcoin_hash_nonce_high_word_be(&software_hasher,
+                                                       rejected_nonce)
+              == rejected_high_word;
+    passed &= !software_hash_nonce_meets_target(&software_hasher,
+                                                rejected_nonce, &target,
+                                                &software_hash,
+                                                &full_digest_computed)
+              && !full_digest_computed;
+    ++cases;
+
+    passed &= software_hash_nonce_meets_target(&software_hasher, winning_nonce,
+                                               &target, &software_hash,
+                                               &full_digest_computed)
+              && full_digest_computed
+              && memcmp(software_hash.bytes, genesis_hash_raw, HASH_BYTES) == 0;
+    ++cases;
+    target = software_hash;
+    --target.words[0];
+    passed &= !software_hash_nonce_meets_target(&software_hasher, winning_nonce,
+                                                &target, &software_hash,
+                                                &full_digest_computed)
+              && full_digest_computed;
+    ++cases;
+    target = software_hash;
+    passed &= software_hash_nonce_meets_target(&software_hasher, winning_nonce,
+                                               &target, &software_hash,
+                                               &full_digest_computed)
+              && full_digest_computed;
+    ++cases;
+    memset(&target, 0xff, sizeof(target));
+    passed &= software_hash_nonce_meets_target(&software_hasher, winning_nonce,
+                                               &target, &software_hash,
+                                               &full_digest_computed)
+              && full_digest_computed;
+    ++cases;
+
+    printf("TEST:%s kat=mining_decision_paths cases=%u rejected_nonce=%" PRIu32
+           " rejected_high_word=%08" PRIx32 " candidate_nonce=%" PRIu32
+           " candidate_hash=",
+           passed ? "PASS" : "FAIL", cases, rejected_nonce,
+           rejected_high_word, winning_nonce);
+    print_bitcoin_hash(software_hash.bytes);
+    printf("\n");
+    return passed;
+}
+
 static bool check_vector(const char *name,
                          const uint8_t *message,
                          size_t size,
@@ -484,6 +579,7 @@ static bool run_known_answer_tests(void) {
     passed &= run_sha_error_sticky_test();
     passed &= run_optimized_oracle_vectors();
     passed &= run_target_tests();
+    passed &= run_mining_decision_path_tests();
 
     bitcoin_hasher_begin(&hasher, genesis_header);
     const bool genesis_hashed = bitcoin_hasher_hash_nonce(&hasher, 2083236893u);
@@ -827,23 +923,12 @@ static void mine_forever(uint led_pin) {
     software_started_us = time_us_64();
 
     while (true) {
-        bool software_candidate;
-        if (target.words[7] == 0u) {
-            software_candidate =
-                software_bitcoin_hash_nonce_high_word_be(&software_hasher,
-                                                          software_nonce) == 0u;
-            if (software_candidate) {
-                software_bitcoin_hash_nonce(&software_hasher, software_nonce,
-                                            software_hash.bytes);
-            }
-        } else {
-            software_bitcoin_hash_nonce(&software_hasher, software_nonce,
-                                        software_hash.bytes);
-            software_candidate = true;
-        }
+        bool full_digest_computed;
+        const bool software_candidate = software_hash_nonce_meets_target(
+            &software_hasher, software_nonce, &target, &software_hash,
+            &full_digest_computed);
         ++software_hashes;
-        if (software_candidate
-            && hash_words_meet_target(&software_hash, &target)) {
+        if (software_candidate) {
             printf("SHARE:FOUND worker=software core=0 nonce=%" PRIu32 " hash=",
                    software_nonce);
             print_bitcoin_hash(software_hash.bytes);
@@ -978,7 +1063,7 @@ int main(void) {
             sleep_ms(100u);
         }
     }
-    printf("TEST:SUMMARY pass=7 fail=0\n");
+    printf("TEST:SUMMARY pass=8 fail=0\n");
 
     if (!run_benchmark()) {
         while (true) {

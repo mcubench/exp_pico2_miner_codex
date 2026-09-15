@@ -16,7 +16,8 @@ changes and keep temperature disabled.
 - Working tree was clean when this handoff was created.
 - E09-b-pending is resolved and retained on both ISAs.
 - E01-identity is implemented, paired-hardware validated, and retained.
-- Next updated-plan work: E01-rare and E01-window, then fresh E02 profiling.
+- E01-rare candidate 83 is being implemented; E01-window follows, then fresh
+  E02 profiling.
 
 ## Completed work in this session
 
@@ -33,11 +34,11 @@ changes and keep temperature disabled.
 
 ## Work in progress / next actions
 
-1. Define E01-rare hypothesis/cost/rejection rule before implementation.
-2. Add direct fast-comparator/fallback tests for high-word equality plus
+1. Finish E01-rare candidate 83 and run host/build checks.
+2. Direct fast-comparator/fallback tests cover high-word equality plus
    lower-word reject, exact equality, and valid share; independently verify
    emitted candidates where feasible.
-3. Commit candidate, run host checks, build both, then hardware-test both ISAs
+3. Commit candidate, build both, then hardware-test both ISAs
    with 45-second cycles. Archive unique logs and record/commit each result.
 4. Implement E01-window as a separate experiment; do not confuse existing
    mixed-window `hash_rate_hs` with the future common-window baseline.

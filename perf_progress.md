@@ -3686,3 +3686,24 @@ BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persist
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=58000 elapsed_us=2025803 hash_rate_hs=28631 checksum=64 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=61000 elapsed_us=2030546 hash_rate_hs=30041 checksum=b2bf5392 temperature=disabled
 ```
+
+## 2026-09-15 — E01 rare mining-decision candidate definition
+
+- Experiment: `E01-rare-83`, parent firmware source identity `ebabf96f233d`
+  (`c2cf4d0` implementation), stock 150 MHz, shared ARM/RISC-V test-path
+  change.
+- Hypothesis: factoring the production software fast-reject/full-digest
+  fallback into one always-inlined decision helper permits direct validation
+  of the real mining path without changing generated hot-loop work. A known
+  adjacent loser exercises no-full-digest rejection; the genesis winner
+  exercises fallback, full comparison and candidate publication data.
+- Coverage adds hardware high-word equality with lower-word reject, exact
+  equality and above-target acceptance; software fast rejection, valid-share,
+  lower-word rejection, exact equality, and nonzero-high-target general path.
+  The strict host parser independently checks the emitted genesis nonce/hash.
+- Expected removable cost: none; this is a correctness gate. Resource cost is
+  startup-only test code/data and one extra KAT record. Temperature remains
+  disabled and the clock remains 150 MHz.
+- Rejection rule: reject/revise on any path mismatch, missing full-digest
+  fallback, incorrect host candidate, build warning, strict-cycle failure, or
+  material sustained regression on either ISA.

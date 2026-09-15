@@ -19,6 +19,7 @@ EXPECTED_KATS = {
     "sha_error_sticky",
     "optimized_oracle",
     "target_boundaries",
+    "mining_decision_paths",
     "bitcoin_genesis",
     "bitcoin_nonce_search",
 }
@@ -67,9 +68,15 @@ class ValidationContract:
             if kat not in EXPECTED_KATS or kat in self.kats:
                 return f"unexpected or duplicate KAT {kat}"
             self.kats.add(kat)
+            if kat == "mining_decision_paths" and (
+                data.get("candidate_nonce") != "2083236893"
+                or data.get("candidate_hash")
+                != "000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f"
+            ):
+                return "mining candidate does not match host-known genesis vector"
         elif line.startswith("TEST:SUMMARY "):
-            if self.kats != EXPECTED_KATS or data.get("pass") != "7" or data.get("fail") != "0":
-                return "summary does not match seven required KATs"
+            if self.kats != EXPECTED_KATS or data.get("pass") != "8" or data.get("fail") != "0":
+                return "summary does not match eight required KATs"
             self.summary = True
         elif line.startswith("BENCHMARK:PASS "):
             if not self.summary:
@@ -109,7 +116,7 @@ class ValidationContract:
         if self.boot is None:
             missing.append("BOOT")
         if self.kats != EXPECTED_KATS or not self.summary:
-            missing.append("seven-test summary")
+            missing.append("eight-test summary")
         for stage in ("hardware", "software", "filter"):
             if stage not in self.benchmarks:
                 missing.append(f"{stage} benchmark")
