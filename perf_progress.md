@@ -3652,3 +3652,37 @@ BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=61000 elapsed_us=2032554 hash_rate_hs=30012 checksum=55 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=62000 elapsed_us=2018362 hash_rate_hs=30718 checksum=78fd8ac1 temperature=disabled
 ```
+
+### E01 identity RISC-V attempt 82c — pass and retention
+
+- Candidate commit `c2cf4d0`, firmware source identity `ebabf96f233d`, stock
+  150 MHz, temperature disabled. The cycle rebuilt both architectures
+  warning-free before flashing the paired RISC-V artifact.
+- The strict contract accepted one expected RISC-V BOOT, all 7 suites and
+  4,096 oracle cases, all benchmark stages, matching run IDs and **118
+  contiguous progress records**. No failure, reset, partial record, or
+  sequence gap occurred.
+- Full software **28,631 H/s**; exact filter **30,041 H/s**. Median final-30:
+  hardware **339,033 H/s**, software **29,804 H/s**, aggregate **368,837
+  H/s**. Versus experiment 80, hardware is +35 H/s, software -31 H/s and
+  aggregate +3 H/s; isolated full moves -5 H/s and filter is identical.
+  These are immaterial layout/reporting movements.
+- Hardware startup benchmark: **343,997 H/s**. RISC-V UF2 SHA-256:
+  `ae141f1c9ccfba07e9608d7c9f743203cc94798898f9d8dbf142839e73f3a4fe`.
+  Paired ARM UF2 SHA-256:
+  `f65303383ccb26b45de9342b790b0bada8ca5c0f42d3d0a99fff769f980ef3b0`.
+- Run ID `30004927-00000003`; fixture SHA-256
+  `4cf1f1db9d05f9208b74edec0f616497a286269e73a1e89747fed60ac5648f98`.
+  Archived log: `logs/E01-identity-riscv.log`.
+- Decision: retain the identity contract on both architectures. It now rejects
+  stale/wrong/partial sessions in synthetic tests and accepted complete paired
+  hardware captures without a material throughput regression. This closes
+  E01-identity's core capture requirements; common-window and rare-path work
+  remain separate experiments.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persistent-first-block-dma-e06a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=688000 elapsed_us=2000020 hash_rate_hs=343997 checksum=c8 temperature=disabled
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=58000 elapsed_us=2025803 hash_rate_hs=28631 checksum=64 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=61000 elapsed_us=2030546 hash_rate_hs=30041 checksum=b2bf5392 temperature=disabled
+```
