@@ -41,6 +41,7 @@ _Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
 #define BENCHMARK_BATCH 1000u
 #define MINING_REPORT_INTERVAL 340000u
 #define COMMON_WINDOW_REPORT_INTERVAL 4u
+#define SOFTWARE_MINING_BATCH 8u
 #define RUN_SEQUENCE_MAGIC 0x4d494e52u
 
 #ifndef MINER_USE_CORE1
@@ -525,6 +526,20 @@ static bool run_mining_decision_path_tests(void) {
                                                &target, &software_hash,
                                                &full_digest_computed)
               && full_digest_computed;
+    ++cases;
+
+    const uint32_t batch_first_nonce = winning_nonce - 6u;
+    uint32_t expected_batch_mask = 0u;
+    for (uint32_t index = 0u; index < SOFTWARE_MINING_BATCH; ++index) {
+        if (software_bitcoin_hash_nonce_high_word_be(
+                &software_hasher, batch_first_nonce + index * 2u) == 0u) {
+            expected_batch_mask |= 1u << index;
+        }
+    }
+    passed &= software_bitcoin_filter_batch8(&software_hasher,
+                                              batch_first_nonce, 2u)
+              == expected_batch_mask;
+    passed &= (expected_batch_mask & (1u << 3u)) != 0u;
     ++cases;
 
     printf("TEST:%s kat=mining_decision_paths cases=%u rejected_nonce=%" PRIu32
@@ -1171,18 +1186,24 @@ static void mine_forever(uint led_pin) {
     multicore_fifo_push_blocking(MINING_MESSAGE_ACK);
 
     while (true) {
-        bool full_digest_computed;
-        const bool software_candidate = software_hash_nonce_meets_target(
-            &software_hasher, software_nonce, &target, &software_hash,
-            &full_digest_computed);
-        ++software_hashes;
-        if (software_candidate) {
-            printf("SHARE:FOUND worker=software core=0 nonce=%" PRIu32 " hash=",
-                   software_nonce);
-            print_bitcoin_hash(software_hash.bytes);
-            printf(" software_hashes=%" PRIu64 "\n", software_hashes);
+        const uint32_t candidate_mask = software_bitcoin_filter_batch8(
+            &software_hasher, software_nonce, 2u);
+        for (uint32_t index = 0u; index < SOFTWARE_MINING_BATCH; ++index) {
+            if ((candidate_mask & (1u << index)) != 0u) {
+                const uint32_t candidate_nonce = software_nonce + index * 2u;
+                software_bitcoin_hash_nonce(&software_hasher, candidate_nonce,
+                                            software_hash.bytes);
+                if (hash_words_meet_target(&software_hash, &target)) {
+                    printf("SHARE:FOUND worker=software core=0 nonce=%" PRIu32
+                           " hash=", candidate_nonce);
+                    print_bitcoin_hash(software_hash.bytes);
+                    printf(" software_hashes=%" PRIu64 "\n",
+                           software_hashes + index + 1u);
+                }
+            }
         }
-        software_nonce += 2u;
+        software_hashes += SOFTWARE_MINING_BATCH;
+        software_nonce += SOFTWARE_MINING_BATCH * 2u;
         if (software_nonce == 1u) {
             printf("FAULT type=nonce_exhausted worker=software core=0\n");
             return;

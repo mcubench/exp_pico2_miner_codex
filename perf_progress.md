@@ -5175,3 +5175,36 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `f109ef25a8a89cd41ec6e4068f5407af6cae9b87708d91aa605b16b5bd404c6a`.
   Existing attempts 98a/98b therefore remain the hardware-validation basis;
   no redundant restoration flash is claimed as a new measurement.
+
+## 2026-09-15 — E03 software batch-8 API candidate 100 definition
+
+- Parent is retained candidate 98, source identity `1eb3d9edb2b0`, stock
+  150 MHz and temperature disabled. Final disassembly has a real call to
+  `software_bitcoin_hash_nonce_high_word_be` for every core-0 nonce on both
+  ISAs. Add a software-SHA translation-unit batch entry point that evaluates
+  eight stride-two nonces and returns an exact bitmask of zero-high-word
+  candidates. The mining loop invokes it once per eight hashes.
+- A set bit is not accepted as a share: core 0 recomputes that nonce's complete
+  double-SHA-256 digest and performs the existing full ordered target compare.
+  Add batch-mask coverage around the known genesis winner to the existing
+  mining-decision KAT. Hash counts advance exactly by eight, and the existing
+  odd-range wrap check remains exact because the final batch is
+  `0xfffffff1..0xffffffff` and advances back to one.
+- Hypothesis: amortize the outer call/loop setup, keep invariant hasher/nonce
+  state live within `software_sha256.c`, and reduce steady FIFO-status polling
+  from every hash to every eight. Worst-case hardware-message service latency
+  is bounded to eight software filters, about 0.27 ms at retained rates, far
+  below the roughly one-second progress cadence. No hardware-owner code, SHA
+  algorithm, clock, telemetry cadence, or error/candidate semantics changes.
+- Rejection rule: reject any oracle/KAT/share/count failure, meaningful
+  hardware-worker loss, or less than a repeatable software/aggregate gain on
+  either ISA. Inspect emitted code and flash one ISA at a time only after both
+  builds pass; this candidate is shared source and requires paired evidence.
+- Pre-hardware gates at dirty identity `1eb3d9edb2b0-dirty`: both stock builds
+  pass warning-free and all eight host tests pass. Disassembly shows the batch
+  loop is compact rather than eight-way expanded, but the compiler inlines the
+  former high-word wrapper into it: one 252-byte ARM / 48-byte Hazard3 schedule
+  frame is allocated per batch, then each nonce directly calls only the
+  header-tail and filter SRAM kernels. This removes seven outer calls and
+  repeated wrapper/frame setup per eight hashes. Text grows by 120 bytes on
+  ARM (188,840 total) and 172 on Hazard3 (201,096); BSS stays 4,708/4,440.

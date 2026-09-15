@@ -111,6 +111,13 @@ changes and keep temperature disabled.
    retained candidate 98 (`5fb2...54ef` / `f109...04c6a`). Commit this
    restoration evidence. The board still carries rejected candidate 99 ARM;
    build artifacts contain the retained source.
+   Candidate 100 is now defined and implemented but unbuilt: add an 8-nonce
+   software-filter batch API, poll FIFO once per batch, and retain exact full
+   digest/target comparison for every mask hit. The mining-decision KAT covers
+   a batch containing the genesis winner. Both builds and eight host tests
+   pass. Assembly reuses one schedule frame per batch and removes seven outer
+   calls/frame setups; text cost is ARM +120 and Hazard3 +172 bytes, BSS
+   unchanged. Commit before hardware, then run paired ARM and Hazard3 cycles.
 
 1. E09-b-tail-padding is resolved at commit `688148d`: retain explicit fixed
    rounds on ARM and the generic loop on Hazard3. Both final architecture
