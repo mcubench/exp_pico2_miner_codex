@@ -101,9 +101,10 @@ changes and keep temperature disabled.
    latch every 64 software hashes, then restore if M33 does not recover or
    Hazard3 materially regresses.
 10. Candidate 95 implements only that 64-hash steady-state polling cadence;
-    startup fault polling remains immediate and steady-state fault latency is
-    bounded near 2 ms. Host tests and both dirty wrapper builds pass. Commit,
-    rebuild clean and hardware-test both ISAs.
+    it passed both ISAs but is rejected. ARM worsened to -23.65% aggregate;
+    Hazard3 remained neutral at -0.06%. Queue depth was one and blocked time
+    zero on both. Restore the entire candidate-94/95 source/test contract to
+    accepted E09-c; do not repeat either polling cadence unchanged.
 
 ## Files and evidence
 

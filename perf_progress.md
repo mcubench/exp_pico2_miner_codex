@@ -4781,3 +4781,43 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   returns close to E09-c and Hazard3 does not repeat the previously rejected
   E10 polling loss. Queue depth, blocked time and all nine suites must remain
   valid.
+
+### E08 batched telemetry polling ARM attempt 95a — pass, reject variant
+
+- Candidate commit `d9490a9`, source identity `dc055a3ef461`, normal profile,
+  stock 150 MHz, temperature disabled, run ID `30004927-0000000c`. Both clean
+  builds, all nine suites, six windows and strict capture passed. Queue depth
+  remained one and producer blocked time remained zero.
+- Standalone hardware/full/filter were **331,819 / 30,364 / 31,578 H/s**.
+  The midpoint median of six windows was aggregate **272,198 H/s** (range
+  272,147–272,235), hardware **247,953 H/s** (247,902–247,991), and software
+  **24,246 H/s** (24,240–24,250).
+- Versus E09-c these are aggregate **-84,333 H/s (-23.65%)**, hardware
+  **-77,170 H/s (-23.73%)**, and software **-7,162 H/s (-22.80%)**. Polling
+  64x less often worsens candidate 94 by another 13,417 aggregate H/s. This
+  falsifies acquire frequency as the dominant ARM cause and points instead to
+  candidate-wide code/data placement or shared-memory interaction. Reject.
+- ARM UF2 SHA-256:
+  `2c0469ad31c5a10926b4cde0906b9bf64f1246f9675ab46a29f725014f21b0e0`.
+  Complete log SHA-256:
+  `cf5b416ae12479120f61a07cfe47f5301ddc97ddf574012c6b320e434437a80e`.
+  Archived log: `logs/E08-queue-poll64-arm.log`.
+
+### E08 batched telemetry polling RISC-V attempt 95b — pass, reject variant
+
+- The identical candidate ran as `30004927-0000000d`; all nine suites, eight
+  windows and strict capture passed, again at queue depth one with no blocking.
+- Standalone hardware/full/filter were **345,578 / 28,631 / 30,235 H/s**.
+  First-seven medians were aggregate **368,281 H/s** (range 368,280–368,315),
+  hardware **338,195 H/s** (338,194–338,227), and software **30,086 H/s**
+  (30,086–30,089). Versus E09-c these are **-0.06%**, **-0.07%**, and
+  **+0.12%**, respectively: neutral and not enough to justify an ISA split.
+- Reject candidate 95 and the complete queue branch. Restore the accepted
+  E09-c source/test contract byte-identically. Future E08 work needs a smaller
+  representation or measured placement/bank experiment; do not repeat either
+  polling cadence unchanged.
+- RISC-V UF2 SHA-256:
+  `f3ca5338728a95dad47e08ea2b5dc5472b178c8baaa40d3dd58e865c57eb537c`.
+  Complete log SHA-256:
+  `3a4bb9d767bacd8dcbc388510de20f82f7e56f71de3a27aad31a5a9374ec70e4`.
+  Archived log: `logs/E08-queue-poll64-riscv.log`.
