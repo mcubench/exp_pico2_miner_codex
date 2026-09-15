@@ -2671,3 +2671,27 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=54000 elapsed_us=2020403 hash_rate_hs=26727 checksum=61 temperature=disabled
 MINING:PROGRESS arch=ARM-M33 hardware_core=1 hardware_nonce=8600000 hardware_hashes=4300000 hardware_rate_hs=325546 software_core=0 software_nonce=698415 software_hashes=349207 software_rate_hs=26435 total_hashes=4649207 hash_rate_hs=351981 temperature=disabled
 ```
+
+## 2026-09-15 — E09-b specialized fixed second block, RISC-V
+
+- Experiment: `E09b-fixed-second-block-riscv-48`, candidate commit `d9c0de8`.
+- Added a dedicated second-compression path for the fixed 32-byte SHA digest
+  layout: eight digest words, `0x80000000`, six zeros, and length 256. This
+  removes the temporary padded block, its clear/copy, and the second-state copy.
+- Both architectures built warning-free. On RISC-V, all 4,096 cross-engine
+  oracle cases and all 7 suites passed; no fault occurred.
+- Isolated software: **25,927 H/s**, up **1.55%** from E09-b's 25,530 H/s.
+- Median of the final 30 dual-worker reports: hardware **338,473 H/s**,
+  software **24,826 H/s**, aggregate **363,300 H/s**.
+- Versus E09-b RISC-V aggregate 363,138 H/s: **+0.045%** (+162 H/s).
+- Candidate RISC-V UF2 SHA-256:
+  `6352d8d034fd137c780eb73dd742ebb9d89ff7133d1bb69f3818b2c7bc9b8518`.
+- Archived serial log: `logs/E09b-fixed-second-block-riscv.log`.
+- Decision: provisional; software-specific metrics improve, but measure ARM
+  before accepting the extra specialized SRAM-resident routine.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=52000 elapsed_us=2005609 hash_rate_hs=25927 checksum=88 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=9200000 hardware_hashes=4600000 hardware_rate_hs=338790 software_core=0 software_nonce=673853 software_hashes=336926 software_rate_hs=24798 total_hashes=4936926 hash_rate_hs=363588 temperature=disabled
+```
