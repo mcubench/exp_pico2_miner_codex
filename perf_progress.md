@@ -2577,3 +2577,12 @@ MINING:PROGRESS arch=ARM-M33 hardware_core=1 hardware_nonce=8400000 hardware_has
 - The flag was scoped only to `src/software_sha256.c`; both architectures built
   cleanly, but both UF2 files remained byte-identical to the retained binaries.
 - Decision: reject without flashing because generated code did not change.
+
+## 2026-09-15 — E05 RISC-V `-fno-if-conversion2` software flag
+
+- Experiment: `E05-no-if-conversion2-riscv-43`, candidate commit `9d071d6`.
+- The flag was scoped only to `src/software_sha256.c`; both architectures built
+  cleanly, but both UF2 files remained byte-identical to the retained binaries.
+- Decision: reject without flashing because generated code did not change.
+  This completes the three individually tested Hazard3 flag suggestions from
+  E05; none altered this expanded-schedule software kernel.
