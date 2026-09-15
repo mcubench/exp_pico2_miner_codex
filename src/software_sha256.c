@@ -163,7 +163,15 @@ __not_in_flash_func(software_sha256_compress_header_tail)(
     uint32_t g = hasher->tail_round3_state[5];
     uint32_t h = hasher->tail_round3_state[6];
 
-    for (unsigned round = 4u; round < 64u; ++round) {
+    for (unsigned round = 4u; round < 16u; ++round) {
+        software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
+                              sha256_round_constants[round], schedule[round]);
+    }
+    software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
+                          hasher->tail_round16_addend, 0u);
+    software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
+                          hasher->tail_round17_addend, 0u);
+    for (unsigned round = 18u; round < 64u; ++round) {
         software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
                               sha256_round_constants[round], schedule[round]);
     }
@@ -339,6 +347,10 @@ void software_bitcoin_hasher_begin(software_bitcoin_hasher_t *hasher,
     hasher->tail_schedule17 = hasher->tail_words[1]
         + (rotate_right(x17, 7u) ^ rotate_right(x17, 18u) ^ (x17 >> 3u))
         + (rotate_right(y17, 17u) ^ rotate_right(y17, 19u) ^ (y17 >> 10u));
+    hasher->tail_round16_addend = sha256_round_constants[16]
+        + hasher->tail_schedule16;
+    hasher->tail_round17_addend = sha256_round_constants[17]
+        + hasher->tail_schedule17;
     const uint32_t y18 = hasher->tail_schedule16;
     hasher->tail_schedule18_base = hasher->tail_words[2]
         + (rotate_right(y18, 17u) ^ rotate_right(y18, 19u) ^ (y18 >> 10u));

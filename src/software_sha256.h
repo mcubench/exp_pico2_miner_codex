@@ -11,6 +11,8 @@ typedef struct software_bitcoin_hasher {
     uint32_t tail_round3_temp2;
     uint32_t tail_schedule16;
     uint32_t tail_schedule17;
+    uint32_t tail_round16_addend;
+    uint32_t tail_round17_addend;
     uint32_t tail_schedule18_base;
     uint32_t tail_schedule19_base;
     uint32_t tail_schedule31_base;
