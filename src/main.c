@@ -1138,7 +1138,7 @@ static void mine_forever(uint led_pin) {
     sha256_result_t target;
     software_bitcoin_hasher_t software_hasher;
     uint32_t software_nonce = 1u;
-    uint64_t software_hashes = 0u;
+    uint32_t software_hashes = 0u;
     uint64_t hardware_hashes = 0u;
     uint64_t software_started_us;
     uint32_t report_sequence = 0u;
@@ -1180,7 +1180,7 @@ static void mine_forever(uint led_pin) {
             printf("SHARE:FOUND worker=software core=0 nonce=%" PRIu32 " hash=",
                    software_nonce);
             print_bitcoin_hash(software_hash.bytes);
-            printf(" software_hashes=%" PRIu64 "\n", software_hashes);
+            printf(" software_hashes=%" PRIu32 "\n", software_hashes);
         }
         software_nonce += 2u;
         if (software_nonce == 1u) {
@@ -1247,7 +1247,7 @@ static void mine_forever(uint led_pin) {
                    " arch=%s hardware_core=1 hardware_nonce=%" PRIu32
                    " hardware_hashes=%" PRIu64 " hardware_rate_hs=%" PRIu64
                    " software_core=0 software_nonce=%" PRIu32
-                   " software_hashes=%" PRIu64 " software_rate_hs=%" PRIu64
+                   " software_hashes=%" PRIu32 " software_rate_hs=%" PRIu64
                    " total_hashes=%" PRIu64 " hash_rate_hs=%" PRIu64
                    " temperature=disabled\n",
                    boot_chip_id, boot_run_sequence, report_sequence,

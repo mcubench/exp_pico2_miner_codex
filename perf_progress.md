@@ -4846,3 +4846,18 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `b6fb5e3f5bf9330eea6e2dcc17d9f28cd8bde57cd04fd1e14ff6958cf81cbb9a`.
   Archived log: `logs/E08-queue-restored-riscv.log`. The board is left on this
   accepted stock RISC-V image.
+
+## 2026-09-15 — E04 exact 32-bit software counter candidate 96 definition
+
+- Parent is restored E09-c at source identity `71b48132e899`. The software
+  parity worker increments a 64-bit total in every hot iteration, although it
+  explicitly stops when its odd nonce wraps after exactly `2^31` evaluations.
+- Change only the live `software_hashes` counter to `uint32_t` and its two
+  direct print formats. Window snapshots/deltas, rate arithmetic and combined
+  totals remain 64-bit through existing promotion. No batch, polling,
+  telemetry, nonce allocation, clock or temperature behavior changes, and the
+  complete reachable count is exactly representable.
+- Expected removable cost is one 64-bit increment/carry sequence per software
+  evaluation, especially on Hazard3. There is no BSS cost. Reject if emitted
+  hot work does not decrease, either ISA regresses materially, accounting
+  changes, or any validation gate fails.

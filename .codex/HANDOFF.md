@@ -109,6 +109,9 @@ changes and keep temperature disabled.
     commit `487737e` in restoration commit `9962a36`. Both UF2 files are exact
     accepted E09-c matches. A full RISC-V restoration run passed at 368,474
     H/s median; the board is left on this accepted stock image.
+12. Next candidate 96 is E04 exact 32-bit software accounting: the current odd
+    parity worker stops after 2^31 hashes, so its hot counter needs no 64-bit
+    increment. Preserve 64-bit window/rate/aggregate math and all cadence.
 
 ## Files and evidence
 
