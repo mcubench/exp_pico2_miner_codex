@@ -11,12 +11,12 @@ typedef struct software_bitcoin_hasher {
     uint32_t tail_schedule17;
 } software_bitcoin_hasher_t;
 
-void software_bitcoin_hasher_begin(software_bitcoin_hasher_t *restrict hasher,
-                                   const uint8_t header[restrict 80]);
-void software_bitcoin_hash_nonce(
-    const software_bitcoin_hasher_t *restrict hasher, uint32_t nonce,
-    uint8_t hash[restrict 32]);
+void software_bitcoin_hasher_begin(software_bitcoin_hasher_t *hasher,
+                                   const uint8_t header[80]);
+void software_bitcoin_hash_nonce(const software_bitcoin_hasher_t *hasher,
+                                 uint32_t nonce,
+                                 uint8_t hash[32]);
 uint32_t software_bitcoin_hash_nonce_high_word(
-    const software_bitcoin_hasher_t *restrict hasher, uint32_t nonce);
+    const software_bitcoin_hasher_t *hasher, uint32_t nonce);
 
 #endif
