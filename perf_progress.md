@@ -3962,3 +3962,17 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   stage totals agree reasonably with the independent microsecond wall time,
   and the complete strict ARM hardware capture passes. This is a counter
   backend correction, not a hash optimization claim.
+
+#### E02 ARM DWT attempt 85b — flash completion failure
+
+- Candidate commit `30a6fd2`, source identity `02b7825c7499`, profile=1,
+  stock 150 MHz, temperature disabled. Both profile architectures completed
+  warning-free builds before flashing.
+- Picotool loaded and verified the ARM image to 100%, then aborted with
+  `picoboot::connection_error` while completing the reboot. The cycle returned
+  status 1 before serial monitoring began; therefore there is no BOOT,
+  validation, profile, or benchmark measurement from this attempt.
+- Decision: hardware attempt failed and cannot support the DWT revision.
+  Preserve the failure, make no source/clock change, and retry the identical
+  committed candidate. Archived terminal record:
+  `logs/E02-profile-arm-dwt-flash-failure.log`.

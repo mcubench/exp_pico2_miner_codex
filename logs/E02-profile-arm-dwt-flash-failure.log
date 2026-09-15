@@ -1,0 +1,20 @@
+EXPERIMENT=E02-profile-arm-dwt-85b-flash-failure
+CANDIDATE_COMMIT=30a6fd2
+CONFIG arch=arm platform=rp2350-arm-s
+CONFIG miner_sys_clock_khz=150000
+CONFIG miner_source_id=02b7825c7499
+CONFIG miner_profile=1
+BUILD:PASS arch=arm uf2=/home/claude/Projects/pico2_miner_codex/build/arm/pico2_agent.uf2
+BUILD:PASS arch=riscv uf2=/home/claude/Projects/pico2_miner_codex/build/riscv/pico2_agent.uf2
+FLASH image=/home/claude/Projects/pico2_miner_codex/build/arm/pico2_agent.uf2
+Tracking device serial number E0E14525E64AF6ED for reboot
+The device was asked to reboot into BOOTSEL mode so the command can be executed.
+Waiting for device to reboot
+Family ID 'rp2350-arm-s' can be downloaded in absolute space: 00000000->02000000
+Loading into Flash: 100%
+Verifying Flash: 100%
+terminate called after throwing an instance of 'picoboot::connection_error'
+what(): std::exception
+tools/flash: picotool load -f -u -v -x aborted (core dumped)
+ERROR: Flashing failed. Check Linux permissions and, in a VM, capture both Pico runtime and BOOTSEL USB identities; see README.md.
+CYCLE:FAIL arch=arm status=1 runtime_capture=not_started
