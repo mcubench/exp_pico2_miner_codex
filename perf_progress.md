@@ -2935,3 +2935,28 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=54000 elapsed_us=2007413 hash_rate_hs=26900 checksum=61 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=55000 elapsed_us=2009035 hash_rate_hs=27376 checksum=73309c95 temperature=disabled
 ```
+
+## 2026-09-15 — E05 truthful `restrict` contracts, RISC-V
+
+- Experiment: `E05-restrict-riscv-59`, candidate commit `4b570b6`, at the
+  stock 150 MHz clock.
+- Added non-aliasing contracts to the public software SHA-256 buffers and the
+  internal specialized tail-compression buffers. Both architectures built
+  warning-free before the RISC-V image was flashed.
+- All 4,096 oracle cases and all 7 suites passed; no fault occurred.
+- Full-digest software: **25,928 H/s**, versus 25,927 H/s before the change
+  (effectively unchanged). Exact round-61 filter: **26,333 H/s**, exactly the
+  preceding measured rate.
+- Median of the final 30 dual-worker reports: hardware **338,936 H/s**,
+  software **26,094 H/s**, aggregate **365,030 H/s**.
+- Versus E09-c RISC-V aggregate 364,453 H/s: **+0.16%** (+577 H/s), but the
+  isolated metrics show no hot-path improvement, so this small movement is
+  currently classified as run variance rather than a demonstrated gain.
+- Archived serial log: `logs/E05-restrict-riscv.log`.
+- Decision: provisionally neutral; test ARM before retaining or reverting.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=52000 elapsed_us=2005522 hash_rate_hs=25928 checksum=88 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=53000 elapsed_us=2012659 hash_rate_hs=26333 checksum=90732335 temperature=disabled
+```
