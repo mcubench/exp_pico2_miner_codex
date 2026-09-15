@@ -5134,3 +5134,31 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   Hazard3 retains its helper at `0x20000530` in `.time_critical`. Total
   text/BSS remains ARM 188,720/4,708 and Hazard3 200,924/4,440 bytes, so this
   candidate adds no code or static RAM and changes only ARM's load/run address.
+
+### E07 ARM exact-filter scratch-X attempt 99a — pass correctness, reject
+
+- Candidate commit `6788e70`, source identity `0f4021180475`, normal profile,
+  stock 150 MHz, temperature disabled, run ID `30004927-00000015`. The cycle
+  rebuilt both architectures before flashing ARM. All 8 suites, the 4,096-case
+  oracle, standalone benchmarks, eight windows, and strict capture passed
+  without a fault.
+- Standalone hardware/full/filter rates were **331,080 / 30,364 / 31,538
+  H/s**. The first-seven window medians were aggregate **356,146 H/s** (range
+  356,144–356,148), hardware **325,051 H/s** (325,045–325,053), and software
+  **31,095 H/s** (31,095–31,099).
+- Versus retained candidate 98, aggregate is **-399 H/s (-0.112%)**, hardware
+  **-41 H/s (-0.013%)**, and software **-355 H/s (-1.129%)**. The isolated
+  filter also loses 40 H/s (-0.127%). The stable, component-local loss supports
+  the contention hypothesis: core 0 fetching the filter from scratch X
+  conflicts with core 1's stack/hardware-worker accesses instead of helping
+  striped-main-SRAM traffic.
+- Candidate ARM/RISC-V UF2 SHA-256:
+  `45fcfc448a7c2173d1e97d14b2a9a3a7803e77f3e09a49b830caa597b432d2c7` /
+  `3ab735d34881f142fe9f824a6c161763c117c19c8fd1b97a804c8f17755440fd`.
+  Complete ARM log SHA-256:
+  `daf3c632ab6df7c14f0bfe23793369360790ce1cbdc04f980f5ca2b96a7c4adb`.
+  Archived log: `logs/E07-filter-scratchx-arm.log`.
+- **Decision: reject candidate 99.** Restore the default `.time_critical`
+  placement, rebuild both architectures, and require candidate 98's exact UF2
+  hashes before advancing. Do not test the larger Hazard3 helper in scratch X;
+  it does not fit the established stack budget.

@@ -101,6 +101,11 @@ changes and keep temperature disabled.
    `0x20080800..0x20081000`, and the 336-byte gap; total sizes are unchanged.
    Commit before an ARM hardware run, archive it, then retain only for a
    repeatable aggregate improvement without hardware-worker regression.
+   ARM attempt 99a passed correctness but is rejected: 356,146 aggregate,
+   325,051 hardware, 31,095 software, a 1.129% software-worker loss versus
+   candidate 98. Archive `logs/E07-filter-scratchx-arm.log`. Commit evidence,
+   restore the default `.time_critical` placement, rebuild both and require
+   exact candidate-98 UF2 hashes before the next experiment.
 
 1. E09-b-tail-padding is resolved at commit `688148d`: retain explicit fixed
    rounds on ARM and the generic loop on Hazard3. Both final architecture
