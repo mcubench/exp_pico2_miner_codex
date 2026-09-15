@@ -118,7 +118,11 @@ __not_in_flash_func(software_sha256_compress_header_tail)(
     schedule[15] = 80u * 8u;
     schedule[16] = hasher->tail_schedule16;
     schedule[17] = hasher->tail_schedule17;
-    for (unsigned word = 18u; word < 64u; ++word) {
+    const uint32_t nonce_sigma0 = rotate_right(nonce_word, 7u)
+        ^ rotate_right(nonce_word, 18u) ^ (nonce_word >> 3u);
+    schedule[18] = hasher->tail_schedule18_base + nonce_sigma0;
+    schedule[19] = hasher->tail_schedule19_base + nonce_word;
+    for (unsigned word = 20u; word < 64u; ++word) {
         const uint32_t x = schedule[word - 15u];
         const uint32_t y = schedule[word - 2u];
         const uint32_t sigma0 = rotate_right(x, 7u)
@@ -293,6 +297,14 @@ void software_bitcoin_hasher_begin(software_bitcoin_hasher_t *hasher,
     hasher->tail_schedule17 = hasher->tail_words[1]
         + (rotate_right(x17, 7u) ^ rotate_right(x17, 18u) ^ (x17 >> 3u))
         + (rotate_right(y17, 17u) ^ rotate_right(y17, 19u) ^ (y17 >> 10u));
+    const uint32_t y18 = hasher->tail_schedule16;
+    hasher->tail_schedule18_base = hasher->tail_words[2]
+        + (rotate_right(y18, 17u) ^ rotate_right(y18, 19u) ^ (y18 >> 10u));
+    const uint32_t x19 = 0x80000000u;
+    const uint32_t y19 = hasher->tail_schedule17;
+    hasher->tail_schedule19_base =
+        (rotate_right(x19, 7u) ^ rotate_right(x19, 18u) ^ (x19 >> 3u))
+        + (rotate_right(y19, 17u) ^ rotate_right(y19, 19u) ^ (y19 >> 10u));
 }
 
 void software_bitcoin_hash_nonce(const software_bitcoin_hasher_t *hasher,
