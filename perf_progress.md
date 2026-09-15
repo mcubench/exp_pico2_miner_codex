@@ -3072,3 +3072,29 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=53000 elapsed_us=2037023 hash_rate_hs=26018 checksum=45 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=54000 elapsed_us=2022913 hash_rate_hs=26694 checksum=3f1babeb temperature=disabled
 ```
+
+## 2026-09-15 — E09-b round-3 partial precomputation, ARM and retention
+
+- Experiment: `E09b-round3-partial-arm-64`, candidate commit `1e90bf1`, at
+  the stock 150 MHz clock.
+- Both architectures built warning-free. All 4,096 oracle cases and all 7
+  suites passed on M33; no fault occurred.
+- Full-digest software: **27,282 H/s**, versus the parent 26,900 H/s:
+  **+1.42%** (+382 H/s). Exact round-61 filter: **27,844 H/s**, versus the
+  parent 27,447 H/s: **+1.45%** (+397 H/s).
+- Median of the final 30 dual-worker reports: hardware **325,733 H/s**,
+  software **27,697 H/s**, aggregate **353,430 H/s**.
+- Versus the parent run, sustained software is **+1.39%** (+381 H/s) and
+  aggregate is **+0.12%** (+416 H/s). The full, filter, and sustained
+  software measurements agree on the direction and approximate magnitude.
+- Candidate ARM UF2 SHA-256:
+  `13f5e46162a9a64b1c73a53c875445daa7b2a790ac1623d86f635e1d657ff916`.
+- Archived serial log: `logs/E09b-round3-partial-arm.log`.
+- Decision: retain round-3 partial precomputation on both architectures. It
+  removes invariant work without weakening the oracle/full-share path.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=55000 elapsed_us=2015963 hash_rate_hs=27282 checksum=e2 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=56000 elapsed_us=2011195 hash_rate_hs=27844 checksum=fffebb38 temperature=disabled
+```
