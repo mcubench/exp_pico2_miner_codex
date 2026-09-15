@@ -4188,3 +4188,52 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   artifacts before hardware; reject without flashing if an architecture is
   byte-identical, and retain only a repeatable affected-software/common-window
   gain with all oracle and mining-decision gates passing.
+
+### E09-b header-tail fixed-padding rounds ARM attempt 87a — pass and retention
+
+- Candidate commit `f1a9226`, source identity `babee796be42`, normal profile,
+  stock 150 MHz, temperature disabled, run ID `30004927-00000003`. Both
+  architectures built warning-free before flash; all 8 suites, the 4,096-case
+  oracle, standalone benchmarks, eight common windows, and strict capture
+  passed without a fault.
+- Standalone hardware was **331,087 H/s**. Full software improved from the
+  recorded parent 30,017 to **30,364 H/s** (**+347 H/s, +1.16%**), and the
+  exact filter improved from 30,718 to **31,087 H/s** (**+369 H/s, +1.20%**).
+- Across the first seven aligned common windows, aggregate range was
+  **355,929–355,984 H/s**, median **355,955 H/s**; hardware range was
+  **325,006–325,057 H/s**, median **325,030 H/s**; software range was
+  **30,923–30,928 H/s**, median **30,926 H/s**. Versus parent medians, the
+  software path gains **391 H/s (+1.28%)**, hardware moves -74 H/s, and total
+  gains **315 H/s (+0.09%)**.
+- Retain the fixed-addend form on ARM. Its isolated and sustained software
+  measurements agree, and the common workload improves despite normal small
+  hardware-side variation.
+- Candidate ARM UF2 SHA-256:
+  `e65fc53bcb992931e17fa88d27e564da7551b21ada58058550890c4a56c06d4a`.
+  Paired RISC-V UF2 SHA-256:
+  `6c128809c5ddc1d9cb958f3191093cfff83b15553185c1a934f326a8747d4e58`.
+  Complete log SHA-256:
+  `0a5baaf6b4c8d522bf4fa361714551420be4bb0824d67c2fced0fc6c911eeddb`.
+  Archived log: `logs/E09b-header-tail-fixed-arm.log`.
+
+### E09-b header-tail fixed-padding rounds RISC-V attempt 87b — pass, reject variant
+
+- The identical candidate commit and source identity ran at stock 150 MHz,
+  temperature disabled, run ID `30004927-00000004`. Both architectures built
+  before flash; all validation gates, standalone benchmarks, eight common
+  windows, and strict capture passed without a fault.
+- Standalone hardware was **344,785 H/s**. Full software fell from the
+  immediate E06-trigger parent 28,636 to **28,565 H/s** (**-71 H/s, -0.25%**),
+  and the exact filter fell from 30,041 to **29,963 H/s** (**-78 H/s, -0.26%**).
+- The first seven aligned windows had aggregate range **368,050–368,065 H/s**,
+  median **368,057 H/s**; hardware range **338,268–338,282 H/s**, median
+  **338,274 H/s**; software range **29,781–29,786 H/s**, median **29,783 H/s**.
+  Hardware is unchanged from the parent median, while software and aggregate
+  each lose **73 H/s (-0.24% software, -0.02% aggregate)**.
+- Reject this round shape on Hazard3 and restore its parent generic rounds
+  4–15 loop. Keep the fixed form only under the ARM build. This is an ISA split
+  supported by matching isolated and sustained hardware results, not a
+  compiler-output assumption.
+- Complete log SHA-256:
+  `453e242c44e806012a82ff903fc579603ab0e6574578fe85202c984e95674b6b`.
+  Archived log: `logs/E09b-header-tail-fixed-riscv.log`.

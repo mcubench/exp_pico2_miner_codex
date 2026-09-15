@@ -163,9 +163,10 @@ __not_in_flash_func(software_sha256_compress_header_tail)(
     uint32_t g = hasher->tail_round3_state[5];
     uint32_t h = hasher->tail_round3_state[6];
 
-    // Rounds 4--15 consume only fixed padding words. Spell them out so the
-    // compiler sees a single constant addend instead of loading both K and W
-    // through the generic round loop.
+    // On Cortex-M33, spelling out the fixed padding addends lets GCC schedule
+    // these rounds faster. The same shape regresses Hazard3, so retain its
+    // measured generic loop.
+#ifndef __riscv
     software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
                           sha256_round_constants[4] + 0x80000000u, 0u);
     software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
@@ -190,6 +191,12 @@ __not_in_flash_func(software_sha256_compress_header_tail)(
                           sha256_round_constants[14], 0u);
     software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
                           sha256_round_constants[15] + 80u * 8u, 0u);
+#else
+    for (unsigned round = 4u; round < 16u; ++round) {
+        software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
+                              sha256_round_constants[round], schedule[round]);
+    }
+#endif
     software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
                           hasher->tail_round16_addend, 0u);
     software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,

@@ -64,10 +64,13 @@ changes and keep temperature disabled.
 
 ## Work in progress / next actions
 
-1. Commit the recorded E06-trigger result, then define and test
-   E09-b-tail-padding at stock 150 MHz. Specialize header-tail rounds 4–15
-   separately from the already-retained second-hash fixed rounds; inspect
-   generated code before hardware and reject a byte-identical/no-op candidate.
+1. Finish the final combined-checkpoint validation for E09-b-tail-padding.
+   Candidate `f1a9226` improved ARM software but regressed Hazard3, so the work
+   tree retains explicit rounds only under `#ifndef __riscv` and restores the
+   generic Hazard3 loop. Build both and validate the final source identity on
+   ARM and RISC-V before committing the resolved experiment.
+2. Continue with the most promising E09 schedule/round-group or E03 batch
+   experiment indicated by E02. Define and test only one subvariant at a time.
 
 ## Files and evidence
 
@@ -90,6 +93,9 @@ changes and keep temperature disabled.
   `0bdb6c31236103bda04fafbf49b87d84895ae6d84a754ee2f737b815c891e9a3`.
 - E06-trigger passing hardware log: `logs/E06-trigger-riscv.log`, SHA-256
   `c3e0d4aeb242e39102c94e2a5a1e1c60490a641d289f355a7815c96e4f7baf05`.
+- E09-b header-tail logs: `logs/E09b-header-tail-fixed-{arm,riscv}.log`.
+  ARM improved and is retained; Hazard3 regressed and is restored to its
+  parent loop in the final architecture split.
 - E01 implementation: `CMakeLists.txt`, `src/main.c`, `tools/common.sh`,
   `tools/build`, `tools/cycle`, `tools/monitor.py`, `tools/test_monitor.py`.
 
