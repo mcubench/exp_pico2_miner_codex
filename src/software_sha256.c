@@ -5,12 +5,6 @@
 
 #include "pico.h"
 
-#ifdef __riscv
-#define SOFTWARE_FILTER_FUNC(name) __not_in_flash_func(name)
-#else
-#define SOFTWARE_FILTER_FUNC(name) __scratch_x(__STRING(name)) name
-#endif
-
 static const uint32_t sha256_initial_state[8] = {
     0x6a09e667u, 0xbb67ae85u, 0x3c6ef372u, 0xa54ff53au,
     0x510e527fu, 0x9b05688cu, 0x1f83d9abu, 0x5be0cd19u,
@@ -300,7 +294,7 @@ __not_in_flash_func(software_sha256_compress_digest)(
 // exact rejection for the common Bitcoin target whose most-significant word
 // is zero without executing the final three rounds.
 static __attribute__((optimize("unroll-loops"))) uint32_t
-SOFTWARE_FILTER_FUNC(software_sha256_digest_high_word_after_round61)(
+__not_in_flash_func(software_sha256_digest_high_word_after_round61)(
     uint32_t digest[]) {
 #ifdef __riscv
     uint32_t schedule[61];
