@@ -342,11 +342,19 @@ __not_in_flash_func(software_sha256_digest_high_word_after_round61)(
     }
     software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
                           sha256_round_constants[15] + 32u * 8u, 0u);
-    for (unsigned round = 16u; round < 61u; ++round) {
+    for (unsigned round = 16u; round < 60u; ++round) {
         software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
                               sha256_round_constants[round], schedule[round]);
     }
-    const uint32_t result = sha256_initial_state[7] + e;
+    // Only e after round 60 becomes the final digest's high word. Compute the
+    // live half of the terminal round: new e = old d + T1. New a/T2 and the
+    // remaining state rotation are dead for this exact rejection decision.
+    const uint32_t sum1 = rotate_right(e, 6u) ^ rotate_right(e, 11u)
+                          ^ rotate_right(e, 25u);
+    const uint32_t choice = g ^ (e & (f ^ g));
+    const uint32_t temp1 = h + sum1 + choice
+                           + sha256_round_constants[60] + schedule[60];
+    const uint32_t result = sha256_initial_state[7] + d + temp1;
 #ifndef __riscv
 #undef schedule
 #endif

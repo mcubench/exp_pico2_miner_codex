@@ -4269,3 +4269,32 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `2c851bd3881bb389240344fb7b508d5728032a54f80947fb8cbee2d4a2b9f4d2`.
   Archived logs: `logs/E09b-header-tail-final-arm.log` and
   `logs/E09b-header-tail-final-riscv.log`.
+
+## 2026-09-15 — E09-c terminal live-result candidate 88 definition
+
+- Parent checkpoint `af7c38c`, source identity `f0b612529b69`, normal profile,
+  stock 150 MHz, temperature disabled. Parent common medians are ARM **355,924
+  H/s** and RISC-V **368,130 H/s**; standalone filter rates are ARM **31,087
+  H/s** and RISC-V **30,041 H/s**.
+- Peel zero-based round 60 from the second-hash rejection loop and compute only
+  its live result, `new_e = old_d + T1`. Omit T2 (`sum0 + majority`), new-a,
+  and the otherwise dead final state rotation. Rounds 0–59 and schedule W0–W60
+  remain unchanged; a qualifying high word still falls back to the complete
+  double digest before reporting a candidate.
+- Baseline disassembly confirms this is not already optimized away: both
+  compilers execute sum0, majority, T2 and new-a inside the final loop
+  iteration before returning e. Expected removable cost is those rotates,
+  boolean operations and additions once per filtered nonce, offset by one
+  explicit terminal expression and any changed loop control. No new persistent
+  RAM is required.
+- Build both architectures and inspect the emitted terminal paths before
+  flash. Accept only if all full-digest/oracle/decision tests pass and the
+  standalone filter plus sustained software/common-window measurements show
+  a repeatable gain without materially reducing the unaffected hardware path.
+- Pre-flash gates pass: both wrapper builds are warning-free and all 8 host
+  monitor tests pass. Disassembly shows the peeled terminal path no longer
+  computes sum0, majority, T2, or new-a after the loop on either ISA. The
+  compiler schedules some T1 inputs before the final loop exit. Candidate text
+  is 188,680 bytes on ARM (+112) and 200,872 on RISC-V (+128); BSS is
+  unchanged. The modest code growth is acceptable only if hardware throughput
+  confirms that the removed dynamic work wins.

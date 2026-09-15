@@ -67,8 +67,10 @@ changes and keep temperature disabled.
 1. E09-b-tail-padding is resolved at commit `688148d`: retain explicit fixed
    rounds on ARM and the generic loop on Hazard3. Both final architecture
    images passed at source identity `f0b612529b69`.
-2. Continue with the most promising E09 schedule/round-group or E03 batch
-   experiment indicated by E02. Define and test only one subvariant at a time.
+2. Candidate 88 is now E09-c-terminal: peel filter round 60 and calculate only
+   live new-e/T1. Both baseline disassemblies proved GCC still emitted dead T2
+   work. Build and inspect both candidates, commit for stable identity, then
+   test ARM and RISC-V one at a time at stock 150 MHz.
 
 ## Files and evidence
 
