@@ -3322,3 +3322,32 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=57000 elapsed_us=2025433 hash_rate_hs=28142 checksum=47 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=58000 elapsed_us=2028113 hash_rate_hs=28598 checksum=db92efaa temperature=disabled
 ```
+
+## 2026-09-15 — E09-c native-order high-word rejection, ARM
+
+- Experiment: `E09c-native-high-word-arm-73`, candidate commit `c5634ac`, at
+  the stock 150 MHz clock.
+- The rejection helper now returns the final SHA word in its native big-endian
+  numerical representation. Zero comparison is endian-invariant, so this
+  removes a byte-reverse instruction from every filtered nonce. The oracle
+  explicitly converts its expected representation; full digest output is
+  unchanged.
+- Both architectures built warning-free. All 4,096 oracle cases and all 7
+  suites passed on M33; no fault occurred.
+- Full-digest software: **28,142 H/s**, unchanged. Exact filter:
+  **28,609 H/s**, versus parent 28,598 H/s: **+0.038%** (+11 H/s).
+- Median of the final 30 dual-worker reports: hardware **325,732 H/s**,
+  software **28,464 H/s**, aggregate **354,196 H/s**.
+- Versus the parent run, sustained software is **+0.039%** (+11 H/s) and
+  aggregate is +36 H/s; hardware moved +26 H/s.
+- Candidate ARM UF2 SHA-256:
+  `78ca61fc81e22e8638d6337cc49cd07feef143209ef9db7c0945fa2d0ad5e278`.
+- Archived serial log: `logs/E09c-native-high-word-arm.log`.
+- Decision: provisionally retain as a semantically accurate low-complexity
+  change; verify Hazard3 before final retention.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=57000 elapsed_us=2025440 hash_rate_hs=28142 checksum=47 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=58000 elapsed_us=2027339 hash_rate_hs=28609 checksum=aaef92db temperature=disabled
+```
