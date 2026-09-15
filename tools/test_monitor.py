@@ -15,8 +15,10 @@ SPEC.loader.exec_module(monitor)
 
 
 def complete_lines(source="abc123", arch="ARM-M33", run="30004927-00000001"):
+    window_reports = 4
     lines = [
         f"BOOT arch={arch} source_id={source} run_id={run} actual_clock_hz=150000000"
+        f" report_hashes=340000 window_reports={window_reports}"
     ]
     lines.extend(f"TEST:PASS kat={kat}" for kat in sorted(monitor.EXPECTED_KATS))
     lines.extend(
@@ -28,9 +30,9 @@ def complete_lines(source="abc123", arch="ARM-M33", run="30004927-00000001"):
             f"MINING:START run_id={run}",
         ]
     )
-    for sequence in range(1, 81):
-        if sequence % 16 == 0:
-            window = sequence // 16
+    for sequence in range(1, 21):
+        if sequence % window_reports == 0:
+            window = sequence // window_reports
             lines.append(
                 f"MEASUREMENT:WINDOW run_id={run} window={window} sequence={sequence}"
                 " elapsed_us=5000000 hardware_hashes=1600000 software_hashes=150000"

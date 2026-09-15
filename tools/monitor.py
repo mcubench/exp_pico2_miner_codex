@@ -55,13 +55,21 @@ class ValidationContract:
         if line.startswith("BOOT "):
             if self.boot is not None:
                 return "duplicate BOOT (unexpected reset or stale session)"
-            required = {"arch", "source_id", "run_id", "actual_clock_hz"}
+            required = {
+                "arch", "source_id", "run_id", "actual_clock_hz",
+                "report_hashes", "window_reports",
+            }
             if not required.issubset(data) or not data["run_id"]:
                 return "malformed BOOT identity"
             if self.expected_arch and data["arch"] != self.expected_arch:
                 return f"wrong architecture {data['arch']}"
             if self.expected_source and data["source_id"] != self.expected_source:
                 return f"wrong source identity {data['source_id']}"
+            try:
+                if int(data["report_hashes"]) <= 0 or int(data["window_reports"]) <= 0:
+                    return "invalid BOOT reporting configuration"
+            except ValueError:
+                return "malformed BOOT reporting configuration"
             self.boot = data
         elif line.startswith("TEST:PASS "):
             if self.boot is None:
@@ -126,7 +134,8 @@ class ValidationContract:
                 total_rate = int(data.get("hash_rate_hs", ""))
             except ValueError:
                 return "malformed measurement window"
-            if (window != self.next_window or sequence != window * 16
+            window_reports = int(self.boot["window_reports"])
+            if (window != self.next_window or sequence != window * window_reports
                 or sequence != self.next_sequence):
                 return "measurement window sequence mismatch"
             if elapsed <= 0 or hardware <= 0 or software <= 0 or total != hardware + software:

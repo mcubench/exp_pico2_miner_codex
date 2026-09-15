@@ -80,6 +80,11 @@ changes and keep temperature disabled.
    cycle's five-window contract. Archive `logs/E04f-cadence1s-riscv.log`.
    Commit evidence, then test one follow-up with four one-second reports per
    window and matching host expectation; restore accepted E09-c if it fails.
+   Candidate 98 now makes that grouping change and adds BOOT report/window
+   configuration so the host validates the advertised cadence dynamically.
+   Both stock builds pass without warnings, all eight host tests pass, and
+   text/BSS is ARM 188,720/4,708 and Hazard3 200,924/4,440 bytes. Commit the
+   candidate before hardware, then run both default-length cycles and decide.
 
 1. E09-b-tail-padding is resolved at commit `688148d`: retain explicit fixed
    rounds on ARM and the generic loop on Hazard3. Both final architecture

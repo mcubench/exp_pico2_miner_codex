@@ -40,7 +40,7 @@ _Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
 #define BENCHMARK_MIN_US 2000000ull
 #define BENCHMARK_BATCH 1000u
 #define MINING_REPORT_INTERVAL 340000u
-#define COMMON_WINDOW_REPORT_INTERVAL 16u
+#define COMMON_WINDOW_REPORT_INTERVAL 4u
 #define RUN_SEQUENCE_MAGIC 0x4d494e52u
 
 #ifndef MINER_USE_CORE1
@@ -1330,12 +1330,13 @@ int main(void) {
     printf("BOOT app=pico2_bitcoin_miner board=pico2 package=RP2350A"
            " arch=%s engine=RP2350-SHA256 temperature=disabled"
            " source_id=%s run_id=%08" PRIx32 "-%08" PRIx32
-           " profile=%u"
+           " profile=%u report_hashes=%u window_reports=%u"
            " clock_profile=%s requested_clock_khz=%u actual_clock_hz=%" PRIu32
            " sysinfo_package_sel=%" PRIu32 " chip_id=%08" PRIx32
            " silicon_revision=%u\n",
            CPU_ARCH, MINER_SOURCE_ID, chip_id, boot_run_sequence,
-           (unsigned)MINER_PROFILE,
+           (unsigned)MINER_PROFILE, (unsigned)MINING_REPORT_INTERVAL,
+           (unsigned)COMMON_WINDOW_REPORT_INTERVAL,
            CLOCK_PROFILE, (unsigned)MINER_SYS_CLOCK_KHZ,
            clock_get_hz(clk_sys), package_sel, chip_id, rp2350_chip_version());
     if (package_sel != 1u) {

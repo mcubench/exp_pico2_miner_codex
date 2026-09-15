@@ -5011,3 +5011,28 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   grouping/host expectation and will reveal the cost of restoring the prior
   ACK cadence. Restore the accepted source if that follow-up does not preserve
   correctness and neutral throughput.
+
+## 2026-09-15 — E04-f four-report window candidate 98 definition
+
+- Parent is candidate 97's tested 340,000-hash progress cadence. Change only
+  the common measurement/ACK grouping from 16 progress reports to four,
+  producing approximately 4.0-second Hazard3 and 4.2-second ARM windows. This
+  restores five-window coverage within the default 45-second cycle and keeps
+  ACK cadence close to the accepted 4.7–4.9-second windows.
+- Add `report_hashes` and `window_reports` to BOOT so the host validates the
+  firmware-advertised sequence relationship instead of hardcoding 16. Update
+  synthetic tests to the new four-report contract. This protocol metadata is
+  part of the window-grouping change; mining algorithms, progress record
+  shape, SHA/DMA operations, error/candidate checks, and clocks are unchanged.
+- Hypothesis: retain candidate 97's approximately 70% progress-traffic
+  reduction without its strict-cycle usability regression. The extra window
+  line and ACK every four reports will modestly raise bytes/s from candidate
+  97, but should remain far below the accepted 100,000-hash cadence. Compare
+  throughput directly with candidate 97 to expose ACK/window cost and with
+  E09-c for final retention.
+- Pre-hardware verification at dirty identity `010c23e20b3f-dirty`: stock
+  150 MHz ARM and Hazard3 repository builds both pass without warnings, and
+  all eight `tools/test_monitor.py` tests pass. `tools/analyze` reports ARM
+  text/BSS 188,720/4,708 bytes and Hazard3 text/BSS 200,924/4,440 bytes. This
+  is 48 text bytes per ISA above candidate 97, attributable to advertising the
+  reporting configuration in BOOT; data and BSS are unchanged.
