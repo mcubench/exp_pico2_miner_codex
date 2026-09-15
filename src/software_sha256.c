@@ -104,7 +104,8 @@ __not_in_flash_func(software_sha256_compress)(uint32_t state[8],
 
 static __attribute__((optimize("unroll-loops"))) void
 __not_in_flash_func(software_sha256_compress_header_tail)(
-    uint32_t state[8], const software_bitcoin_hasher_t *hasher,
+    uint32_t state[restrict 8],
+    const software_bitcoin_hasher_t *restrict hasher,
     uint32_t nonce_word) {
     uint32_t schedule[64];
     schedule[0] = hasher->tail_words[0];
@@ -239,8 +240,8 @@ __not_in_flash_func(software_sha256_digest_high_word_after_round61)(
     return __builtin_bswap32(sha256_initial_state[7] + e);
 }
 
-void software_bitcoin_hasher_begin(software_bitcoin_hasher_t *hasher,
-                                   const uint8_t header[80]) {
+void software_bitcoin_hasher_begin(software_bitcoin_hasher_t *restrict hasher,
+                                   const uint8_t header[restrict 80]) {
     uint32_t first_block[16];
     for (size_t word = 0u; word < 16u; ++word) {
         first_block[word] = load_be32(&header[word * 4u]);
@@ -271,9 +272,9 @@ void software_bitcoin_hasher_begin(software_bitcoin_hasher_t *hasher,
         + (rotate_right(y17, 17u) ^ rotate_right(y17, 19u) ^ (y17 >> 10u));
 }
 
-void software_bitcoin_hash_nonce(const software_bitcoin_hasher_t *hasher,
-                                 uint32_t nonce,
-                                 uint8_t hash[32]) {
+void software_bitcoin_hash_nonce(
+    const software_bitcoin_hasher_t *restrict hasher, uint32_t nonce,
+    uint8_t hash[restrict 32]) {
     uint32_t first_digest[8];
     memcpy(first_digest, hasher->midstate, sizeof(first_digest));
     software_sha256_compress_header_tail(first_digest, hasher,
@@ -287,7 +288,7 @@ void software_bitcoin_hash_nonce(const software_bitcoin_hasher_t *hasher,
 }
 
 uint32_t software_bitcoin_hash_nonce_high_word(
-    const software_bitcoin_hasher_t *hasher, uint32_t nonce) {
+    const software_bitcoin_hasher_t *restrict hasher, uint32_t nonce) {
     uint32_t first_digest[8];
     memcpy(first_digest, hasher->midstate, sizeof(first_digest));
     software_sha256_compress_header_tail(first_digest, hasher,
