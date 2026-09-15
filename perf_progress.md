@@ -3830,3 +3830,50 @@ MEASUREMENT:WINDOW run_id=30004927-00000006 window=5 sequence=80 elapsed_us=4921
 MEASUREMENT:WINDOW run_id=30004927-00000006 window=6 sequence=96 elapsed_us=4921497 hardware_hashes=1600000 software_hashes=150280 total_hashes=1750280 hardware_rate_hs=325104 software_rate_hs=30535 hash_rate_hs=355640 temperature=disabled
 MEASUREMENT:WINDOW run_id=30004927-00000006 window=7 sequence=112 elapsed_us=4921556 hardware_hashes=1600000 software_hashes=150280 total_hashes=1750280 hardware_rate_hs=325100 software_rate_hs=30535 hash_rate_hs=355635 temperature=disabled
 ```
+
+### E01 common-window RISC-V attempt 84b — pass and retention
+
+- Candidate commit `1839955`, firmware source identity `f2687597e485`, stock
+  150 MHz, temperature disabled. Both architectures were rebuilt successfully
+  from the same source immediately before flashing RISC-V.
+- Strict capture passed all 8 suites and 4,096 oracle cases. Run ID
+  `30004927-00000007`; no validation, identity, sequencing, timeout, protocol,
+  or fault condition occurred.
+- Seven synchronized windows completed at sequences 16 through 112. Each
+  covered 1,600,000 hardware hashes and 141,885–141,912 software hashes over
+  4,752,000–4,752,171 us. Aggregate rates were **366,550–366,560 H/s**, with
+  median **366,556 H/s**; hardware median **336,697 H/s** and software median
+  **29,860 H/s**. Counts summed exactly and independently recomputed rates
+  matched every record.
+- Standalone hardware **343,994 H/s**, full software **28,636 H/s**, and
+  software filter **30,041 H/s**. Against E01-rare's mixed-window final-30
+  figures (339,114 / 29,811 / 368,925 H/s), the new medians differ by -0.71%,
+  +0.16%, and -0.64%. That is not an A/B comparison because the old aggregate
+  mixed recent hardware and cumulative software time bases; it is recorded as
+  a layout/measurement-overhead watch item rather than a demonstrated mining
+  regression. The unchanged isolated hardware path returns to 343,994 H/s,
+  essentially identical to E01-identity's 343,997 H/s.
+- RISC-V UF2 SHA-256:
+  `238f314f3012188082c35a2324c0b9f74bee42adeeffb010c8fc1b086e702ac4`;
+  paired ARM UF2 SHA-256:
+  `2a1857e60441d9b9ef6239e58628de19ddc33623a0df2cc097f981e756d8d6d9`.
+  Archived complete log: `logs/E01-window-riscv.log`.
+- Decision: retain the synchronized measurement contract on both ISAs. It
+  produces seven stable, internally reconciled common-time measurements per
+  45-second capture and passes all correctness gates. These ARM and RISC-V
+  medians are the baseline for future candidate comparisons; do not compare a
+  future common-window result directly with the historical mixed aggregate.
+
+```text
+TEST:SUMMARY pass=8 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persistent-first-block-dma-e06a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=688000 elapsed_us=2000036 hash_rate_hs=343994 checksum=c8 temperature=disabled
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=58000 elapsed_us=2025404 hash_rate_hs=28636 checksum=64 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=61000 elapsed_us=2030534 hash_rate_hs=30041 checksum=b2bf5392 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000007 window=1 sequence=16 elapsed_us=4752101 hardware_hashes=1600000 software_hashes=141912 total_hashes=1741912 hardware_rate_hs=336693 software_rate_hs=29863 hash_rate_hs=366556 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000007 window=2 sequence=32 elapsed_us=4752074 hardware_hashes=1600000 software_hashes=141896 total_hashes=1741896 hardware_rate_hs=336695 software_rate_hs=29860 hash_rate_hs=366555 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000007 window=3 sequence=48 elapsed_us=4752031 hardware_hashes=1600000 software_hashes=141885 total_hashes=1741885 hardware_rate_hs=336698 software_rate_hs=29858 hash_rate_hs=366556 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000007 window=4 sequence=64 elapsed_us=4752007 hardware_hashes=1600000 software_hashes=141896 total_hashes=1741896 hardware_rate_hs=336700 software_rate_hs=29860 hash_rate_hs=366560 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000007 window=5 sequence=80 elapsed_us=4752000 hardware_hashes=1600000 software_hashes=141893 total_hashes=1741893 hardware_rate_hs=336700 software_rate_hs=29860 hash_rate_hs=366560 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000007 window=6 sequence=96 elapsed_us=4752046 hardware_hashes=1600000 software_hashes=141896 total_hashes=1741896 hardware_rate_hs=336697 software_rate_hs=29860 hash_rate_hs=366557 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=4752171 hardware_hashes=1600000 software_hashes=141910 total_hashes=1741910 hardware_rate_hs=336688 software_rate_hs=29862 hash_rate_hs=366550 temperature=disabled
+```

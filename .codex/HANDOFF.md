@@ -10,16 +10,16 @@ changes and keep temperature disabled.
 
 ## Current status
 
-- HEAD before recording ARM evidence: `1839955` (`feat: add synchronized
-  common-window measurement`).
+- HEAD before recording RISC-V evidence: `aa6fb87` (`perf: validate E01
+  common windows on ARM`).
 - Firmware/tooling source identity: `f2687597e485`.
-- Device currently runs the E01-window ARM candidate at 150 MHz.
-- Working tree contains the intentional ARM result updates until their next
+- Device currently runs the retained E01-window RISC-V image at 150 MHz.
+- Working tree contains the intentional RISC-V result updates until their next
   evidence commit.
 - E09-b-pending is resolved and retained on both ISAs.
 - E01-identity is implemented, paired-hardware validated, and retained.
-- E01-rare candidate 83 is retained. E01-window ARM attempt 84a passed; its
-  RISC-V attempt is next, then fresh E02 profiling.
+- E01-rare candidate 83 and E01-window candidate 84 are retained on both ISAs.
+  Fresh E02 profiling is next.
 
 ## Completed work in this session
 
@@ -39,24 +39,28 @@ changes and keep temperature disabled.
   range 355,630–355,643 H/s, median 355,640; hardware median 325,104 and
   software median 30,535. Complete log `logs/E01-window-arm.log`, UF2 SHA-256
   `2a1857e60441d9b9ef6239e58628de19ddc33623a0df2cc097f981e756d8d6d9`.
+- E01-window RISC-V passed seven synchronized 4.752-second windows. Aggregate
+  range 366,550–366,560 H/s, median 366,556; hardware median 336,697 and
+  software median 29,860. Complete log `logs/E01-window-riscv.log`, UF2
+  SHA-256 `238f314f3012188082c35a2324c0b9f74bee42adeeffb010c8fc1b086e702ac4`.
 - One ARM flash completion failure was recorded at `bf7b8f4`; retry passed.
 
 ## Work in progress / next actions
 
-1. Commit the archived E01-window ARM result and handoff update.
-2. Rebuild both ISAs, run the RISC-V 45-second strict cycle, archive its unique
-   log, record all windows, and decide whether to retain candidate 84.
-3. Refresh E02 measurements only after the measurement contract is in place.
+1. Commit the archived E01-window RISC-V result and retention decision.
+2. Refresh E02 profiling/cost measurements on the actual dual-worker source.
+3. Use E02 evidence to select the next sequence item, with E06-trigger the
+   plan's default next code experiment.
 
 ## Files and evidence
 
 - Plan: `planned_optimizations_update.md`; historical detail:
   `planned_optimizations.md`.
-- Ledger: `perf_progress.md` through E01-window ARM attempt 84a.
+- Ledger: `perf_progress.md` through E01-window RISC-V attempt 84b.
 - E09 logs: `logs/E09b-fixed-full-rounds-{arm,riscv}.log`.
 - E01 logs: `logs/E01-identity-{arm,riscv}.log` and
   `logs/E01-identity-arm-flash-failure.log`.
-- E01-window ARM log: `logs/E01-window-arm.log`.
+- E01-window logs: `logs/E01-window-{arm,riscv}.log`.
 - E01 implementation: `CMakeLists.txt`, `src/main.c`, `tools/common.sh`,
   `tools/build`, `tools/cycle`, `tools/monitor.py`, `tools/test_monitor.py`.
 
@@ -65,8 +69,8 @@ changes and keep temperature disabled.
 - `python3 -m unittest tools/test_monitor.py`: 8 passed.
 - ARM and RISC-V builds warning-free with SDK 2.3.1 and repository wrappers.
 - Current hardware runs: 8 suites, 4,096 oracle cases, no faults.
-- ARM common-window evidence is valid; paired E01-window completion still
-  requires RISC-V hardware evidence.
+- The retained common-window baseline is ARM 355,640 H/s and RISC-V 366,556
+  H/s (medians of seven aligned windows each).
 - Warm-reset run sequence is not persistent across power loss; source/run
   matching plus ordered BOOT handling still rejects stale capture fragments.
 - The BOOT package label/assertion remains RP2350A/QFN-60 based on observed
