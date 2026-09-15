@@ -3489,3 +3489,29 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=59000 elapsed_us=2020192 hash_rate_hs=29205 checksum=50 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=62000 elapsed_us=2018357 hash_rate_hs=30718 checksum=78fd8ac1 temperature=disabled
 ```
+
+## 2026-09-15 — E09-b fixed padding rounds in exact filter, RISC-V and retention
+
+- Experiment: `E09b-fixed-filter-rounds-riscv-79`, candidate commit `90c7dc1`,
+  at the stock 150 MHz clock.
+- Both architectures built warning-free. All 4,096 oracle cases and all 7
+  suites passed on Hazard3; no fault occurred.
+- Full-digest software: **28,484 H/s**. This path is source-unchanged; its
+  +0.25% movement is treated as layout/measurement variation.
+- Exact filter: **29,909 H/s**, versus parent 29,353 H/s: **+1.89%**
+  (+556 H/s).
+- Median of the final 30 dual-worker reports: hardware **339,024 H/s**,
+  software **29,706 H/s**, aggregate **368,729 H/s**.
+- Versus the parent run, sustained software is **+1.90%** (+555 H/s) and
+  aggregate is **+0.16%** (+603 H/s); hardware moved +50 H/s.
+- Candidate RISC-V UF2 SHA-256:
+  `e67af4e1731d54b24dd8d8b600c3dd420f731f4cae913b8222dcd937335f75c4`.
+- Archived serial log: `logs/E09b-fixed-filter-rounds-riscv.log`.
+- Decision: retain on both architectures. This filter-only specialization is
+  oracle-equivalent and improves both isolated and sustained filtered work.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=57000 elapsed_us=2001137 hash_rate_hs=28484 checksum=47 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=60000 elapsed_us=2006062 hash_rate_hs=29909 checksum=a7578a11 temperature=disabled
+```
