@@ -87,9 +87,10 @@ changes and keep temperature disabled.
    nonce loop with acquisition outside it, returning to 4,096 chunks.
 7. Candidate 93 nested the core-1 hot loop and passed both ISAs, recovering
    most of candidate 91's loss, but is rejected: ARM remains -0.43% aggregate
-   and Hazard3 -1.27% versus E09-c. The three E14-touched source/test files are
-   now restored from accepted pre-E14 commit `effc1ad`; dual-build and confirm
-   accepted UF2 byte identity before proceeding to another experiment.
+   and Hazard3 -1.27% versus E09-c. Restoration commit `c3c6836` returns the
+   three E14-touched source/test files to accepted E09-c. Both clean UF2 files
+   are byte-identical to accepted attempts 88a/88b. Proceed with E08 lifecycle
+   and transport work as a separately bounded experiment.
 
 ## Files and evidence
 

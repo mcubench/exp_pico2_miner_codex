@@ -4690,3 +4690,14 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Build both ISAs warning-free and compare UF2 hashes with the accepted E09-c
   artifacts. Byte identity is sufficient to reference attempts 88a/88b; any
   mismatch requires fresh paired hardware validation before further work.
+
+### E14 rejected-source restoration — pass, accepted baseline restored
+
+- Restoration commit `c3c6836` builds warning-free with source identity
+  `71b48132e899`; all eight host monitor tests pass.
+- ARM UF2 SHA-256 is
+  `503e315bed9cf5ef334500645044a121a6a0e123a07fbd1f9d3ec4d9a036b5c5`
+  and RISC-V UF2 SHA-256 is
+  `6fd2b7f053cac2f4ed8b2e8b94626892fbc31ff01e0e69cbf8bdb92165a646b6`.
+  Both are byte-identical to the accepted E09-c artifacts already validated
+  in attempts 88a/88b, so no redundant hardware run is required.
