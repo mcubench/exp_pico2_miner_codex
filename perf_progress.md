@@ -4829,3 +4829,20 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   preserving their ledger entries and logs. Build both architectures and
   require exact accepted E09-c UF2 hashes before relying on prior hardware
   validation; otherwise run fresh paired hardware tests.
+
+### E08 rejected-queue restoration — pass, accepted baseline restored
+
+- Restoration commit `9962a36` passes all eight host monitor tests and both
+  warning-free builds at source identity `71b48132e899`. ARM/RISC-V UF2 hashes
+  are exactly the accepted E09-c values
+  `503e315bed9cf5ef334500645044a121a6a0e123a07fbd1f9d3ec4d9a036b5c5`
+  and `6fd2b7f053cac2f4ed8b2e8b94626892fbc31ff01e0e69cbf8bdb92165a646b6`.
+- The accepted RISC-V artifact was flashed to replace rejected candidate 95.
+  Run `30004927-0000000e` passed all eight suites, eight windows and strict
+  capture at stock 150 MHz, temperature disabled. First-seven medians were
+  aggregate **368,474 H/s**, hardware **338,422 H/s**, and software **30,050
+  H/s**, matching the accepted parent within 0.01%.
+- Complete restoration log SHA-256:
+  `b6fb5e3f5bf9330eea6e2dcc17d9f28cd8bde57cd04fd1e14ff6958cf81cbb9a`.
+  Archived log: `logs/E08-queue-restored-riscv.log`. The board is left on this
+  accepted stock RISC-V image.

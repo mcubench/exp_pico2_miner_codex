@@ -106,8 +106,9 @@ changes and keep temperature disabled.
     zero on both. Restore the entire candidate-94/95 source/test contract to
     accepted E09-c; do not repeat either polling cadence unchanged.
 11. The three E08-touched source/monitor files are restored from accepted
-    commit `487737e`. Commit, dual-build and verify exact accepted UF2 hashes;
-    the board currently runs rejected candidate 95 RISC-V until restoration.
+    commit `487737e` in restoration commit `9962a36`. Both UF2 files are exact
+    accepted E09-c matches. A full RISC-V restoration run passed at 368,474
+    H/s median; the board is left on this accepted stock image.
 
 ## Files and evidence
 
