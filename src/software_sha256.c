@@ -122,7 +122,25 @@ __not_in_flash_func(software_sha256_compress_header_tail)(
         ^ rotate_right(nonce_word, 18u) ^ (nonce_word >> 3u);
     schedule[18] = hasher->tail_schedule18_base + nonce_sigma0;
     schedule[19] = hasher->tail_schedule19_base + nonce_word;
-    for (unsigned word = 20u; word < 64u; ++word) {
+    for (unsigned word = 20u; word < 31u; ++word) {
+        const uint32_t x = schedule[word - 15u];
+        const uint32_t y = schedule[word - 2u];
+        const uint32_t sigma0 = rotate_right(x, 7u)
+                                ^ rotate_right(x, 18u) ^ (x >> 3u);
+        const uint32_t sigma1 = rotate_right(y, 17u)
+                                ^ rotate_right(y, 19u) ^ (y >> 10u);
+        schedule[word] = schedule[word - 16u] + schedule[word - 7u]
+                         + sigma0 + sigma1;
+    }
+    const uint32_t y31 = schedule[29];
+    const uint32_t sigma1_31 = rotate_right(y31, 17u)
+        ^ rotate_right(y31, 19u) ^ (y31 >> 10u);
+    schedule[31] = hasher->tail_schedule31_base + schedule[24] + sigma1_31;
+    const uint32_t y32 = schedule[30];
+    const uint32_t sigma1_32 = rotate_right(y32, 17u)
+        ^ rotate_right(y32, 19u) ^ (y32 >> 10u);
+    schedule[32] = hasher->tail_schedule32_base + schedule[25] + sigma1_32;
+    for (unsigned word = 33u; word < 64u; ++word) {
         const uint32_t x = schedule[word - 15u];
         const uint32_t y = schedule[word - 2u];
         const uint32_t sigma0 = rotate_right(x, 7u)
@@ -305,6 +323,12 @@ void software_bitcoin_hasher_begin(software_bitcoin_hasher_t *hasher,
     hasher->tail_schedule19_base =
         (rotate_right(x19, 7u) ^ rotate_right(x19, 18u) ^ (x19 >> 3u))
         + (rotate_right(y19, 17u) ^ rotate_right(y19, 19u) ^ (y19 >> 10u));
+    const uint32_t x31 = hasher->tail_schedule16;
+    hasher->tail_schedule31_base = 80u * 8u
+        + (rotate_right(x31, 7u) ^ rotate_right(x31, 18u) ^ (x31 >> 3u));
+    const uint32_t x32 = hasher->tail_schedule17;
+    hasher->tail_schedule32_base = hasher->tail_schedule16
+        + (rotate_right(x32, 7u) ^ rotate_right(x32, 18u) ^ (x32 >> 3u));
 }
 
 void software_bitcoin_hash_nonce(const software_bitcoin_hasher_t *hasher,
