@@ -39,6 +39,29 @@ static inline uint32_t rotate_right(uint32_t value, unsigned shift) {
     return (value >> shift) | (value << (32u - shift));
 }
 
+static inline void software_sha256_round(uint32_t *a, uint32_t *b,
+                                         uint32_t *c, uint32_t *d,
+                                         uint32_t *e, uint32_t *f,
+                                         uint32_t *g, uint32_t *h,
+                                         uint32_t constant, uint32_t word) {
+    const uint32_t sum1 = rotate_right(*e, 6u) ^ rotate_right(*e, 11u)
+                          ^ rotate_right(*e, 25u);
+    const uint32_t choice = *g ^ (*e & (*f ^ *g));
+    const uint32_t temp1 = *h + sum1 + choice + constant + word;
+    const uint32_t sum0 = rotate_right(*a, 2u) ^ rotate_right(*a, 13u)
+                          ^ rotate_right(*a, 22u);
+    const uint32_t majority = (*a & *b) | (*c & (*a | *b));
+    const uint32_t temp2 = sum0 + majority;
+    *h = *g;
+    *g = *f;
+    *f = *e;
+    *e = *d + temp1;
+    *d = *c;
+    *c = *b;
+    *b = *a;
+    *a = temp1 + temp2;
+}
+
 static __attribute__((optimize("unroll-loops"))) void
 __not_in_flash_func(software_sha256_compress)(uint32_t state[8],
                                               const uint32_t block[16]) {
@@ -65,24 +88,59 @@ __not_in_flash_func(software_sha256_compress)(uint32_t state[8],
     uint32_t h = state[7];
 
     for (unsigned round = 0u; round < 64u; ++round) {
-        const uint32_t word = schedule[round];
-        const uint32_t sum1 = rotate_right(e, 6u) ^ rotate_right(e, 11u)
-                              ^ rotate_right(e, 25u);
-        const uint32_t choice = g ^ (e & (f ^ g));
-        const uint32_t temp1 = h + sum1 + choice
-                               + sha256_round_constants[round] + word;
-        const uint32_t sum0 = rotate_right(a, 2u) ^ rotate_right(a, 13u)
-                              ^ rotate_right(a, 22u);
-        const uint32_t majority = (a & b) | (c & (a | b));
-        const uint32_t temp2 = sum0 + majority;
-        h = g;
-        g = f;
-        f = e;
-        e = d + temp1;
-        d = c;
-        c = b;
-        b = a;
-        a = temp1 + temp2;
+        software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
+                              sha256_round_constants[round], schedule[round]);
+    }
+
+    state[0] += a;
+    state[1] += b;
+    state[2] += c;
+    state[3] += d;
+    state[4] += e;
+    state[5] += f;
+    state[6] += g;
+    state[7] += h;
+}
+
+static __attribute__((optimize("unroll-loops"))) void
+__not_in_flash_func(software_sha256_compress_header_tail)(
+    uint32_t state[8], const software_bitcoin_hasher_t *hasher,
+    uint32_t nonce_word) {
+    uint32_t schedule[64];
+    schedule[0] = hasher->tail_words[0];
+    schedule[1] = hasher->tail_words[1];
+    schedule[2] = hasher->tail_words[2];
+    schedule[3] = nonce_word;
+    schedule[4] = 0x80000000u;
+    for (unsigned word = 5u; word < 15u; ++word) {
+        schedule[word] = 0u;
+    }
+    schedule[15] = 80u * 8u;
+    schedule[16] = hasher->tail_schedule16;
+    schedule[17] = hasher->tail_schedule17;
+    for (unsigned word = 18u; word < 64u; ++word) {
+        const uint32_t x = schedule[word - 15u];
+        const uint32_t y = schedule[word - 2u];
+        const uint32_t sigma0 = rotate_right(x, 7u)
+                                ^ rotate_right(x, 18u) ^ (x >> 3u);
+        const uint32_t sigma1 = rotate_right(y, 17u)
+                                ^ rotate_right(y, 19u) ^ (y >> 10u);
+        schedule[word] = schedule[word - 16u] + schedule[word - 7u]
+                         + sigma0 + sigma1;
+    }
+
+    uint32_t a = hasher->tail_round3_state[0];
+    uint32_t b = hasher->tail_round3_state[1];
+    uint32_t c = hasher->tail_round3_state[2];
+    uint32_t d = hasher->tail_round3_state[3];
+    uint32_t e = hasher->tail_round3_state[4];
+    uint32_t f = hasher->tail_round3_state[5];
+    uint32_t g = hasher->tail_round3_state[6];
+    uint32_t h = hasher->tail_round3_state[7];
+
+    for (unsigned round = 3u; round < 64u; ++round) {
+        software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
+                              sha256_round_constants[round], schedule[round]);
     }
 
     state[0] += a;
@@ -106,6 +164,25 @@ void software_bitcoin_hasher_begin(software_bitcoin_hasher_t *hasher,
     for (size_t word = 0u; word < 3u; ++word) {
         hasher->tail_words[word] = load_be32(&header[(16u + word) * 4u]);
     }
+    memcpy(hasher->tail_round3_state, hasher->midstate,
+           sizeof(hasher->tail_round3_state));
+    uint32_t *round_state = hasher->tail_round3_state;
+    for (unsigned round = 0u; round < 3u; ++round) {
+        software_sha256_round(&round_state[0], &round_state[1],
+                              &round_state[2], &round_state[3],
+                              &round_state[4], &round_state[5],
+                              &round_state[6], &round_state[7],
+                              sha256_round_constants[round],
+                              hasher->tail_words[round]);
+    }
+    const uint32_t x16 = hasher->tail_words[1];
+    hasher->tail_schedule16 = hasher->tail_words[0]
+        + (rotate_right(x16, 7u) ^ rotate_right(x16, 18u) ^ (x16 >> 3u));
+    const uint32_t x17 = hasher->tail_words[2];
+    const uint32_t y17 = 80u * 8u;
+    hasher->tail_schedule17 = hasher->tail_words[1]
+        + (rotate_right(x17, 7u) ^ rotate_right(x17, 18u) ^ (x17 >> 3u))
+        + (rotate_right(y17, 17u) ^ rotate_right(y17, 19u) ^ (y17 >> 10u));
 }
 
 void software_bitcoin_hash_nonce(const software_bitcoin_hasher_t *hasher,
@@ -114,13 +191,8 @@ void software_bitcoin_hash_nonce(const software_bitcoin_hasher_t *hasher,
     uint32_t block[16] = {0};
     uint32_t first_digest[8];
     memcpy(first_digest, hasher->midstate, sizeof(first_digest));
-    block[0] = hasher->tail_words[0];
-    block[1] = hasher->tail_words[1];
-    block[2] = hasher->tail_words[2];
-    block[3] = __builtin_bswap32(nonce);
-    block[4] = 0x80000000u;
-    block[15] = 80u * 8u;
-    software_sha256_compress(first_digest, block);
+    software_sha256_compress_header_tail(first_digest, hasher,
+                                         __builtin_bswap32(nonce));
 
     memset(block, 0, sizeof(block));
     memcpy(block, first_digest, sizeof(first_digest));

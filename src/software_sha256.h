@@ -5,7 +5,10 @@
 
 typedef struct software_bitcoin_hasher {
     uint32_t midstate[8];
+    uint32_t tail_round3_state[8];
     uint32_t tail_words[3];
+    uint32_t tail_schedule16;
+    uint32_t tail_schedule17;
 } software_bitcoin_hasher_t;
 
 void software_bitcoin_hasher_begin(software_bitcoin_hasher_t *hasher,
