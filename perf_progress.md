@@ -3601,3 +3601,16 @@ SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round6
   ISA misses/misorders required output, any oracle/fault gate fails, or the
   report-only firmware change materially reduces sustained throughput versus
   experiments 80/81.
+
+### E01 identity ARM attempt 82a — flash completion failure
+
+- Candidate `c89e8ee` built warning-free for both architectures at 150 MHz.
+  The ARM upload reached 100% verification, then `picotool load -f -u -v -x`
+  aborted with `picoboot::connection_error` while completing/rebooting. The
+  cycle exited nonzero before serial capture, so this attempt is **failed**
+  and provides no validation or performance result.
+- Immediate autonomous diagnosis: `./tools/doctor` passed and found the Pico
+  runtime USB serial device at `/dev/ttyACM0`, consistent with a transient
+  disconnect after a verified upload. The full cycle will be retried rather
+  than treating the verified flash alone as success.
+- Archived failure record: `logs/E01-identity-arm-flash-failure.log`.

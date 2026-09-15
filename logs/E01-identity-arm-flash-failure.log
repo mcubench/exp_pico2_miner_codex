@@ -1,0 +1,14 @@
+E01-identity-arm-82a
+source_id=c89e8ee5d1de
+clock_hz=150000000
+temperature=disabled
+BUILD:PASS arch=arm
+BUILD:PASS arch=riscv
+FLASH image=build/arm/pico2_agent.uf2
+FLASH verify_percent=100
+terminate called after throwing an instance of 'picoboot::connection_error'
+what(): std::exception
+picotool load -f -u -v -x aborted (core dumped)
+ERROR: Flashing failed
+RESULT:FAIL stage=flash runtime_validation=not_started
+FOLLOWUP: tools/doctor passed and found runtime USB serial /dev/ttyACM0
