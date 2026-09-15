@@ -4902,3 +4902,16 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   Complete log SHA-256:
   `3de4abc163f7ac783714920a0937f492cd09939a06bb197fcef0782f15e968bd`.
   Archived log: `logs/E04-software-count32-riscv.log`.
+
+### E04 rejected-counter restoration — pass, accepted baseline restored
+
+- Restoration commit `ba39b4c` returns the live software counter and both
+  direct print formats to the accepted 64-bit contract. All eight host monitor
+  tests pass and both architectures build warning-free at source identity
+  `71b48132e899`.
+- ARM/RISC-V UF2 hashes are exactly the accepted E09-c values
+  `503e315bed9cf5ef334500645044a121a6a0e123a07fbd1f9d3ec4d9a036b5c5`
+  and `6fd2b7f053cac2f4ed8b2e8b94626892fbc31ff01e0e69cbf8bdb92165a646b6`.
+  Prior paired hardware validation therefore remains applicable. The board is
+  still running rejected candidate 96 RISC-V and must be replaced by the next
+  validated candidate or an accepted recovery image before handoff.

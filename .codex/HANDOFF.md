@@ -118,6 +118,11 @@ changes and keep temperature disabled.
     the intended hot work was not removed despite 16/28-byte text reductions.
     Restore the accepted 64-bit counter and print formats, rebuild both ISAs,
     and require the exact E09-c UF2 hashes before the next experiment.
+14. Restoration commit `ba39b4c` builds at accepted identity `71b48132e899`;
+    both UF2 hashes exactly match E09-c, so no redundant hardware run is
+    needed. The board still carries rejected candidate 96 RISC-V. Continue
+    with the next bounded E04/E07 experiment, or flash an accepted image before
+    stopping.
 
 ## Files and evidence
 
