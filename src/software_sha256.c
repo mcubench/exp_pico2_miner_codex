@@ -129,16 +129,19 @@ __not_in_flash_func(software_sha256_compress_header_tail)(
                          + sigma0 + sigma1;
     }
 
-    uint32_t a = hasher->tail_round3_state[0];
-    uint32_t b = hasher->tail_round3_state[1];
-    uint32_t c = hasher->tail_round3_state[2];
-    uint32_t d = hasher->tail_round3_state[3];
-    uint32_t e = hasher->tail_round3_state[4];
-    uint32_t f = hasher->tail_round3_state[5];
-    uint32_t g = hasher->tail_round3_state[6];
-    uint32_t h = hasher->tail_round3_state[7];
+    // Only W3 varies in round 3. Complete that round from job-level partials
+    // instead of recalculating its rotates and boolean functions per nonce.
+    const uint32_t round3_temp1 = hasher->tail_round3_temp1_base + nonce_word;
+    uint32_t a = round3_temp1 + hasher->tail_round3_temp2;
+    uint32_t b = hasher->tail_round3_state[0];
+    uint32_t c = hasher->tail_round3_state[1];
+    uint32_t d = hasher->tail_round3_state[2];
+    uint32_t e = hasher->tail_round3_state[3] + round3_temp1;
+    uint32_t f = hasher->tail_round3_state[4];
+    uint32_t g = hasher->tail_round3_state[5];
+    uint32_t h = hasher->tail_round3_state[6];
 
-    for (unsigned round = 3u; round < 64u; ++round) {
+    for (unsigned round = 4u; round < 64u; ++round) {
         software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
                               sha256_round_constants[round], schedule[round]);
     }
@@ -264,6 +267,24 @@ void software_bitcoin_hasher_begin(software_bitcoin_hasher_t *hasher,
                               sha256_round_constants[round],
                               hasher->tail_words[round]);
     }
+    const uint32_t round3_a = round_state[0];
+    const uint32_t round3_b = round_state[1];
+    const uint32_t round3_c = round_state[2];
+    const uint32_t round3_e = round_state[4];
+    const uint32_t round3_f = round_state[5];
+    const uint32_t round3_g = round_state[6];
+    const uint32_t round3_h = round_state[7];
+    const uint32_t round3_sum1 = rotate_right(round3_e, 6u)
+        ^ rotate_right(round3_e, 11u) ^ rotate_right(round3_e, 25u);
+    const uint32_t round3_choice = round3_g
+        ^ (round3_e & (round3_f ^ round3_g));
+    hasher->tail_round3_temp1_base = round3_h + round3_sum1
+        + round3_choice + sha256_round_constants[3];
+    const uint32_t round3_sum0 = rotate_right(round3_a, 2u)
+        ^ rotate_right(round3_a, 13u) ^ rotate_right(round3_a, 22u);
+    const uint32_t round3_majority = (round3_a & round3_b)
+        | (round3_c & (round3_a | round3_b));
+    hasher->tail_round3_temp2 = round3_sum0 + round3_majority;
     const uint32_t x16 = hasher->tail_words[1];
     hasher->tail_schedule16 = hasher->tail_words[0]
         + (rotate_right(x16, 7u) ^ rotate_right(x16, 18u) ^ (x16 >> 3u));
