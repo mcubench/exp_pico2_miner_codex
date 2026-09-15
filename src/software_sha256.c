@@ -104,7 +104,7 @@ __not_in_flash_func(software_sha256_compress)(uint32_t state[8],
 
 static __attribute__((optimize("unroll-loops"))) void
 __not_in_flash_func(software_sha256_compress_header_tail)(
-    uint32_t state[8], const software_bitcoin_hasher_t *hasher,
+    uint32_t digest[8], const software_bitcoin_hasher_t *hasher,
     uint32_t nonce_word) {
     uint32_t schedule[64];
     schedule[0] = hasher->tail_words[0];
@@ -168,14 +168,14 @@ __not_in_flash_func(software_sha256_compress_header_tail)(
                               sha256_round_constants[round], schedule[round]);
     }
 
-    state[0] += a;
-    state[1] += b;
-    state[2] += c;
-    state[3] += d;
-    state[4] += e;
-    state[5] += f;
-    state[6] += g;
-    state[7] += h;
+    digest[0] = hasher->midstate[0] + a;
+    digest[1] = hasher->midstate[1] + b;
+    digest[2] = hasher->midstate[2] + c;
+    digest[3] = hasher->midstate[3] + d;
+    digest[4] = hasher->midstate[4] + e;
+    digest[5] = hasher->midstate[5] + f;
+    digest[6] = hasher->midstate[6] + g;
+    digest[7] = hasher->midstate[7] + h;
 }
 
 static __attribute__((optimize("unroll-loops"))) void
@@ -335,7 +335,6 @@ void software_bitcoin_hash_nonce(const software_bitcoin_hasher_t *hasher,
                                  uint32_t nonce,
                                  uint8_t hash[32]) {
     uint32_t first_digest[8];
-    memcpy(first_digest, hasher->midstate, sizeof(first_digest));
     software_sha256_compress_header_tail(first_digest, hasher,
                                          __builtin_bswap32(nonce));
     software_sha256_compress_digest(first_digest);
@@ -349,7 +348,6 @@ void software_bitcoin_hash_nonce(const software_bitcoin_hasher_t *hasher,
 uint32_t software_bitcoin_hash_nonce_high_word(
     const software_bitcoin_hasher_t *hasher, uint32_t nonce) {
     uint32_t first_digest[8];
-    memcpy(first_digest, hasher->midstate, sizeof(first_digest));
     software_sha256_compress_header_tail(first_digest, hasher,
                                          __builtin_bswap32(nonce));
     return software_sha256_digest_high_word_after_round61(first_digest);
