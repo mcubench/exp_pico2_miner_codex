@@ -10,10 +10,10 @@ changes and keep temperature disabled.
 
 ## Current status
 
-- HEAD before recording the failed attempt: `30a6fd2` (`fix: use live M33 DWT
-  profile counter`); source identity `02b7825c7499`.
+- HEAD before recording the successful retry evidence: `0a03543` (`perf:
+  record E02 ARM DWT flash failure`); source identity `02b7825c7499`.
 - Device currently runs the E02 ARM profile image at 150 MHz.
-- Working tree contains only the archived 85b flash-failure evidence and its
+- Working tree contains the archived successful 85c DWT retry and its
   intentional ledger/handoff updates.
 - E09-b-pending is resolved and retained on both ISAs.
 - E01-identity is implemented, paired-hardware validated, and retained.
@@ -47,16 +47,17 @@ changes and keep temperature disabled.
   builds pass. ARM attempt 85a passed functionally, but live DWT capability
   bits disproved the header reset annotation; its counter backend needs a
   DWT-only revision and repeat before the RISC-V profile.
-- One ARM flash completion failure was recorded at `bf7b8f4`; retry passed.
+- One ARM flash completion failure was recorded at `0a03543`; the identical
+  retry passed. Corrected ARM DWT stage profiling is now accepted: hardware
+  stage sum 518.38 cycles/hash, common-window median 355,468 H/s (-0.048%
+  versus retained parent), complete log `logs/E02-profile-arm-dwt.log`.
 
 ## Work in progress / next actions
 
-1. Commit the attempt-85b flash failure.
-2. Retry the identical committed ARM DWT profile candidate without asking the
-   user or changing source/clock; archive the complete result.
-3. If ARM passes, run the RISC-V profile, archive and record it, then restore a
-   normal retained image.
-4. Use E02 evidence to select the next sequence item, with E06-trigger the
+1. Commit the successful ARM DWT retry evidence.
+2. Run the identical RISC-V profile candidate, archive and record it, then
+   restore a normal retained image.
+3. Use paired E02 evidence to select the next sequence item, with E06-trigger the
    plan's default next code experiment.
 
 ## Files and evidence
@@ -69,6 +70,8 @@ changes and keep temperature disabled.
   `logs/E01-identity-arm-flash-failure.log`.
 - E01-window logs: `logs/E01-window-{arm,riscv}.log`.
 - E02 exploratory ARM log: `logs/E02-profile-arm-systick.log`.
+- E02 corrected ARM log: `logs/E02-profile-arm-dwt.log`; ARM profile UF2
+  SHA-256 `cbae3ae9973d1ecf272a25bee657d4fc3371c27322bd59f38dc7726dea181fbd`.
 - E01 implementation: `CMakeLists.txt`, `src/main.c`, `tools/common.sh`,
   `tools/build`, `tools/cycle`, `tools/monitor.py`, `tools/test_monitor.py`.
 

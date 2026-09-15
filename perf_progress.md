@@ -3976,3 +3976,47 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   Preserve the failure, make no source/clock change, and retry the identical
   committed candidate. Archived terminal record:
   `logs/E02-profile-arm-dwt-flash-failure.log`.
+
+#### E02 ARM DWT retry 85c — pass
+
+- Retried the identical candidate commit `30a6fd2`, source identity
+  `02b7825c7499`, profile=1, stock 150 MHz, temperature disabled. Both profile
+  architectures built warning-free before flashing. Run ID
+  `30004927-0000000a` passed all 8 test suites, the profile workloads,
+  standalone benchmarks, seven aligned common windows, and strict capture;
+  no fault occurred.
+- The live counter is the plan-preferred M33 DWT `CYCCNT`:
+  `DWT_CTRL=0x40000001`, `NOCYCCNT=0`, `NOPRFCNT=0`, with an observed read
+  interval overhead of **9.347 cycles**.
+- Intrusive hardware totals over 4,096 nonces: setup/start 53,582
+  (**13.08 cycles/hash**), first-block feed 337,002 (**82.28**), tail feed plus
+  first-digest wait 795,192 (**194.14**), digest handoff plus second hash
+  710,931 (**173.57**), and target/error check 226,575 (**55.32**). The stage
+  sum is **518.38 cycles/hash**; 14,897 us wall time is **545.54 cycles/hash**,
+  leaving 27.17 cycles/hash for loop, timing, and unclassified overhead.
+- Intrusive software filter: header tail 9,812,984 (**2,395.75 cycles/hash**)
+  and second filter 10,207,458 (**2,492.06**), stage sum **4,887.80** and wall
+  time **4,900.23 cycles/hash**. Full digest: header tail 9,810,248
+  (**2,395.08**) and second full 10,530,809 (**2,571.98**), stage sum
+  **4,967.05** and wall time **4,981.70 cycles/hash**. The filter saves about
+  **79.92 cycles/hash** versus full output in the measured second stage (3.11%
+  of that stage, 1.61% of the full two-stage cost).
+- XIP hit/access observations: hardware 881,960/882,063; filter
+  677,760/677,800; full 697,695/697,716. These global counters show very high
+  hit ratios but do not measure stall cycles.
+- Uninstrumented post-profile benchmarks were hardware **330,360 H/s**, full
+  software **30,017 H/s**, and filter **30,718 H/s**. The seven aligned common
+  windows had aggregate range **355,464–355,476 H/s**, median
+  **355,468 H/s**; hardware median **324,942 H/s** and software median
+  **30,527 H/s**. The aggregate is 172 H/s (-0.048%) below the retained ARM
+  parent median 355,640 H/s, so diagnostic mode did not materially perturb the
+  normal mining paths.
+- ARM profile UF2 SHA-256:
+  `cbae3ae9973d1ecf272a25bee657d4fc3371c27322bd59f38dc7726dea181fbd`.
+  Paired RISC-V profile UF2 SHA-256:
+  `5c658609dcdf811dc617de65f9645a033c74ec4f453781e5637fe28c5e102df4`.
+  Complete log: `logs/E02-profile-arm-dwt.log`.
+- Decision: accept the corrected ARM profile evidence. The main hardware
+  opportunity is the 194-cycle tail/wait segment, followed by the 174-cycle
+  second hash; proceed to paired Hazard3 profiling before selecting a code
+  experiment.
