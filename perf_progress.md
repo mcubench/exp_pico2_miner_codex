@@ -3435,3 +3435,29 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=57000 elapsed_us=2006081 hash_rate_hs=28414 checksum=47 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=59000 elapsed_us=2009998 hash_rate_hs=29353 checksum=b0d24730 temperature=disabled
 ```
+
+## 2026-09-15 — E09-b W16/W17 round addends, ARM and retention
+
+- Experiment: `E09b-round16-17-addends-arm-77`, candidate commit `c3e2be2`,
+  at the stock 150 MHz clock.
+- Both architectures built warning-free. All 4,096 oracle cases and all 7
+  suites passed on M33; no fault occurred.
+- Full-digest software: **29,205 H/s**, versus parent 28,142 H/s: **+3.78%**
+  (+1,063 H/s). Exact filter: **29,708 H/s**, versus parent 28,609 H/s:
+  **+3.84%** (+1,099 H/s).
+- Median of the final 30 dual-worker reports: hardware **325,658 H/s**,
+  software **29,572 H/s**, aggregate **355,230 H/s**.
+- Versus the parent run, sustained software is **+3.89%** (+1,108 H/s) and
+  aggregate is **+0.29%** (+1,034 H/s); hardware moved -74 H/s.
+- Candidate ARM UF2 SHA-256:
+  `b679bf3ba58820dcd643206cc203f7143a14ebda60bbb5e364f1f9c24806410a`.
+- Archived serial log: `logs/E09b-round16-17-addends-arm.log`.
+- Decision: retain on both architectures. The explicit rounds plus cached
+  addends improve compiler output materially while preserving all oracle and
+  target behavior.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=59000 elapsed_us=2020196 hash_rate_hs=29205 checksum=50 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=60000 elapsed_us=2019653 hash_rate_hs=29708 checksum=a7578a11 temperature=disabled
+```
