@@ -20,7 +20,7 @@ After changing platform-independent source:
 1. Build ARM and RISC-V.
 2. Fix all errors and warnings.
 3. Flash the requested architecture.
-4. Inspect serial output.
+4. Inspect serial output.   
 5. Treat `TEST:FAIL`, `FAULT`, a timeout, or any nonzero command status as failure.
 6. Diagnose, edit, and repeat until the hardware test passes.
 
@@ -32,3 +32,16 @@ Safety constraints:
 - Do not use `sudo` from an autonomous coding cycle.
 - Do not modify files outside this repository.
 - Do not flash unless both architectures currently build, unless explicitly investigating an architecture-specific failure.
+
+## Codex Session Continuity
+
+This repository may be worked on by multiple Codex sessions/accounts.
+
+For any substantial task, read and follow:
+`.codex/SESSION_CONTINUITY.md`
+
+Maintain `.codex/HANDOFF.md` as described there so another Codex
+session can safely continue interrupted work.
+
+Never discard existing uncommitted changes merely because they were
+created by another session.
