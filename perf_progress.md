@@ -2536,3 +2536,25 @@ MINING:PROGRESS arch=ARM-M33 hardware_core=1 hardware_nonce=8400000 hardware_has
 TEST:SUMMARY pass=7 fail=0
 MINING:PROGRESS arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=9400000 hardware_hashes=4700000 hardware_rate_hs=339027 software_core=0 software_nonce=655003 software_hashes=327501 software_rate_hs=23615 total_hashes=5027501 hash_rate_hs=362642 temperature=disabled
 ```
+
+## 2026-09-15 — E07-c SHA round constants in SRAM, ARM and rejection
+
+- Experiment: `E07c-round-constants-sram-arm-40`.
+- Same candidate commit `2313352`; 256-byte constant-table move layered on the
+  retained software-compression-in-SRAM implementation.
+- Both architectures built cleanly. All 4,096 cross-engine oracle cases and all
+  7 suites passed on ARM; no fault occurred and the cycle passed.
+- Median of the final 30 ARM reports: hardware **325,709 H/s**, software
+  **26,312 H/s**, aggregate **352,022 H/s**.
+- Versus code-only SRAM ARM aggregate 351,958 H/s: **+0.02%** (+64 H/s), noise.
+  RISC-V had similarly marginal +0.13%.
+- Candidate ARM UF2 SHA-256:
+  `058f136264e7c8df1fdbf4fb8be659fd5731f507ac9eeec8b67f27d23f38f1c4`.
+- Archived serial log: `logs/E07c-round-constants-sram-arm.log`.
+- Decision: reject E07-c on both architectures. Keep the round constants in
+  XIP and retain only the clearly beneficial compression-code SRAM placement.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+MINING:PROGRESS arch=ARM-M33 hardware_core=1 hardware_nonce=8400000 hardware_hashes=4200000 hardware_rate_hs=325707 software_core=0 software_nonce=678793 software_hashes=339396 software_rate_hs=26319 total_hashes=4539396 hash_rate_hs=352026 temperature=disabled
+```
