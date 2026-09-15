@@ -75,3 +75,12 @@ find_picotool() {
     fi
     [[ -n "${managed}" ]] && printf '%s\n' "${managed}"
 }
+
+source_identity() {
+    local identity
+    identity="$(git -C "${PROJECT_ROOT}" rev-parse --short=12 HEAD)"
+    if ! git -C "${PROJECT_ROOT}" diff --quiet -- CMakeLists.txt src tools; then
+        identity="${identity}-dirty"
+    fi
+    printf '%s\n' "${identity}"
+}

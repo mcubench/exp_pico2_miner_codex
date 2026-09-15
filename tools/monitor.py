@@ -13,6 +13,113 @@ import time
 import tty
 
 
+EXPECTED_KATS = {
+    "nist_empty",
+    "nist_abc",
+    "sha_error_sticky",
+    "optimized_oracle",
+    "target_boundaries",
+    "bitcoin_genesis",
+    "bitcoin_nonce_search",
+}
+
+
+def fields(line: str) -> dict[str, str]:
+    result = {}
+    for token in line.split()[1:]:
+        if "=" in token:
+            key, value = token.split("=", 1)
+            result[key] = value
+    return result
+
+
+class ValidationContract:
+    def __init__(self, expected_arch: str | None, expected_source: str | None):
+        self.expected_arch = expected_arch
+        self.expected_source = expected_source
+        self.boot = None
+        self.kats = set()
+        self.summary = False
+        self.benchmarks = set()
+        self.mining_start = False
+        self.progress_count = 0
+        self.next_sequence = 1
+
+    def observe(self, line: str) -> str | None:
+        if line.startswith("TEST:FAIL") or line.startswith("FAULT"):
+            return "device reported failure"
+        data = fields(line)
+        if line.startswith("BOOT "):
+            if self.boot is not None:
+                return "duplicate BOOT (unexpected reset or stale session)"
+            required = {"arch", "source_id", "run_id", "actual_clock_hz"}
+            if not required.issubset(data) or not data["run_id"]:
+                return "malformed BOOT identity"
+            if self.expected_arch and data["arch"] != self.expected_arch:
+                return f"wrong architecture {data['arch']}"
+            if self.expected_source and data["source_id"] != self.expected_source:
+                return f"wrong source identity {data['source_id']}"
+            self.boot = data
+        elif line.startswith("TEST:PASS "):
+            if self.boot is None:
+                return "TEST record before BOOT"
+            kat = data.get("kat")
+            if kat not in EXPECTED_KATS or kat in self.kats:
+                return f"unexpected or duplicate KAT {kat}"
+            self.kats.add(kat)
+        elif line.startswith("TEST:SUMMARY "):
+            if self.kats != EXPECTED_KATS or data.get("pass") != "7" or data.get("fail") != "0":
+                return "summary does not match seven required KATs"
+            self.summary = True
+        elif line.startswith("BENCHMARK:PASS "):
+            if not self.summary:
+                return "hardware benchmark before test summary"
+            self.benchmarks.add("hardware")
+        elif line.startswith("SOFTWARE_BENCHMARK:PASS "):
+            if "hardware" not in self.benchmarks:
+                return "software benchmark before hardware benchmark"
+            self.benchmarks.add("software")
+        elif line.startswith("SOFTWARE_FILTER_BENCHMARK:PASS "):
+            if "software" not in self.benchmarks:
+                return "filter benchmark before full software benchmark"
+            self.benchmarks.add("filter")
+        elif line.startswith("MINING:START "):
+            if self.benchmarks != {"hardware", "software", "filter"}:
+                return "MINING:START before required benchmarks"
+            if self.boot is None or data.get("run_id") != self.boot["run_id"]:
+                return "MINING:START run identity mismatch"
+            self.mining_start = True
+        elif line.startswith("MINING:PROGRESS "):
+            if not self.mining_start or self.boot is None:
+                return "MINING:PROGRESS before MINING:START"
+            if data.get("run_id") != self.boot["run_id"]:
+                return "MINING:PROGRESS run identity mismatch"
+            try:
+                sequence = int(data.get("sequence", ""))
+            except ValueError:
+                return "malformed progress sequence"
+            if sequence != self.next_sequence:
+                return f"progress sequence {sequence}, expected {self.next_sequence}"
+            self.next_sequence += 1
+            self.progress_count += 1
+        return None
+
+    def missing(self) -> list[str]:
+        missing = []
+        if self.boot is None:
+            missing.append("BOOT")
+        if self.kats != EXPECTED_KATS or not self.summary:
+            missing.append("seven-test summary")
+        for stage in ("hardware", "software", "filter"):
+            if stage not in self.benchmarks:
+                missing.append(f"{stage} benchmark")
+        if not self.mining_start:
+            missing.append("MINING:START")
+        if self.progress_count < 5:
+            missing.append(f"five MINING:PROGRESS records ({self.progress_count} seen)")
+        return missing
+
+
 def is_raspberry_pi_tty(device: str) -> bool:
     try:
         current = Path("/sys/class/tty", Path(device).name).resolve()
@@ -49,6 +156,8 @@ def main() -> int:
     parser.add_argument("--seconds", type=float, default=8.0)
     parser.add_argument("--port")
     parser.add_argument("--require-pass", action="store_true")
+    parser.add_argument("--expected-arch")
+    parser.add_argument("--expected-source")
     args = parser.parse_args()
 
     deadline = time.monotonic() + args.seconds
@@ -82,8 +191,7 @@ def main() -> int:
 
     print(f"SERIAL_PORT={port}", flush=True)
 
-    saw_test_summary = False
-    saw_benchmark = False
+    contract = ValidationContract(args.expected_arch, args.expected_source)
     pending = b""
     try:
         tty.setraw(fd)
@@ -105,19 +213,17 @@ def main() -> int:
                 raw, pending = pending.split(b"\n", 1)
                 line = raw.rstrip(b"\r").decode("utf-8", errors="replace")
                 print(line, flush=True)
-                saw_test_summary = saw_test_summary or line.startswith(
-                    "TEST:SUMMARY pass=7 fail=0"
-                )
-                saw_benchmark = saw_benchmark or line.startswith("BENCHMARK:PASS")
-                if line.startswith("TEST:FAIL") or line.startswith("FAULT"):
+                error = contract.observe(line)
+                if error:
+                    print(f"ERROR: validation contract: {error}", file=sys.stderr)
                     return 4
     finally:
         os.close(fd)
 
-    if args.require_pass and (not saw_test_summary or not saw_benchmark):
+    missing = contract.missing()
+    if args.require_pass and missing:
         print(
-            "ERROR: incomplete validation output"
-            f" (test_summary={int(saw_test_summary)} benchmark={int(saw_benchmark)})",
+            "ERROR: incomplete validation output: " + ", ".join(missing),
             file=sys.stderr,
         )
         return 5

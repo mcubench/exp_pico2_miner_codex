@@ -9,6 +9,7 @@
 #include "hardware/dma.h"
 #endif
 #include "hardware/structs/sysinfo.h"
+#include "hardware/structs/watchdog.h"
 #include "pico/bootrom/lock.h"
 #include "pico/multicore.h"
 #include "pico/sha256.h"
@@ -34,10 +35,14 @@ _Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
 #define BENCHMARK_MIN_US 2000000ull
 #define BENCHMARK_BATCH 1000u
 #define MINING_REPORT_INTERVAL 100000u
+#define RUN_SEQUENCE_MAGIC 0x4d494e52u
 
 #ifndef MINER_USE_CORE1
 #define MINER_USE_CORE1 1
 #endif
+
+static uint32_t boot_run_sequence;
+static uint32_t boot_chip_id;
 
 #if MINER_SYS_CLOCK_KHZ > 150000
 #define CLOCK_PROFILE "experimental-overclock"
@@ -804,6 +809,7 @@ static void mine_forever(uint led_pin) {
     uint64_t software_hashes = 0u;
     uint64_t hardware_hashes = 0u;
     uint64_t software_started_us;
+    uint32_t report_sequence = 0u;
 
     if (!compact_to_target_le(0x1d00ffffu, target.bytes)) {
         printf("FAULT type=invalid_compact_target worker_core=0\n");
@@ -811,10 +817,12 @@ static void mine_forever(uint led_pin) {
     }
     software_bitcoin_hasher_begin(&software_hasher, genesis_header);
     multicore_fifo_drain();
-    printf("MINING:START header=bitcoin-genesis target_bits=1d00ffff"
+    printf("MINING:START run_id=%08" PRIx32 "-%08" PRIx32
+           " header=bitcoin-genesis target_bits=1d00ffff"
            " hardware_core=1 hardware_nonce_start=0 hardware_nonce_stride=2"
            " software_core=0 software_nonce_start=1 software_nonce_stride=2"
-           " note=standalone-stale-work\n");
+           " note=standalone-stale-work\n",
+           boot_chip_id, boot_run_sequence);
     multicore_launch_core1(mining_worker_core1);
     software_started_us = time_us_64();
 
@@ -852,6 +860,7 @@ static void mine_forever(uint led_pin) {
 
         const uint32_t message = multicore_fifo_pop_blocking();
         if (message == MINING_MESSAGE_PROGRESS) {
+            ++report_sequence;
             const uint32_t nonce = multicore_fifo_pop_blocking();
             hardware_hashes = mining_fifo_pop_u64();
             const uint64_t hardware_rate = mining_fifo_pop_u64();
@@ -860,12 +869,15 @@ static void mine_forever(uint led_pin) {
             const uint64_t software_rate =
                 (software_hashes * 1000000ull + software_elapsed_us / 2u)
                 / software_elapsed_us;
-            printf("MINING:PROGRESS arch=%s hardware_core=1 hardware_nonce=%" PRIu32
+            printf("MINING:PROGRESS run_id=%08" PRIx32 "-%08" PRIx32
+                   " sequence=%" PRIu32
+                   " arch=%s hardware_core=1 hardware_nonce=%" PRIu32
                    " hardware_hashes=%" PRIu64 " hardware_rate_hs=%" PRIu64
                    " software_core=0 software_nonce=%" PRIu32
                    " software_hashes=%" PRIu64 " software_rate_hs=%" PRIu64
                    " total_hashes=%" PRIu64 " hash_rate_hs=%" PRIu64
                    " temperature=disabled\n",
+                   boot_chip_id, boot_run_sequence, report_sequence,
                    CPU_ARCH, nonce, hardware_hashes, hardware_rate,
                    software_nonce, software_hashes, software_rate,
                    hardware_hashes + software_hashes,
@@ -930,12 +942,25 @@ int main(void) {
     }
     const uint32_t chip_id = sysinfo_hw->chip_id;
     const uint32_t package_sel = sysinfo_hw->package_sel;
+    if (watchdog_hw->scratch[0] == RUN_SEQUENCE_MAGIC) {
+        boot_run_sequence = watchdog_hw->scratch[1] + 1u;
+    } else {
+        boot_run_sequence = 1u;
+    }
+    if (boot_run_sequence == 0u) {
+        boot_run_sequence = 1u;
+    }
+    watchdog_hw->scratch[0] = RUN_SEQUENCE_MAGIC;
+    watchdog_hw->scratch[1] = boot_run_sequence;
+    boot_chip_id = chip_id;
     printf("BOOT app=pico2_bitcoin_miner board=pico2 package=RP2350A"
            " arch=%s engine=RP2350-SHA256 temperature=disabled"
+           " source_id=%s run_id=%08" PRIx32 "-%08" PRIx32
            " clock_profile=%s requested_clock_khz=%u actual_clock_hz=%" PRIu32
            " sysinfo_package_sel=%" PRIu32 " chip_id=%08" PRIx32
            " silicon_revision=%u\n",
-           CPU_ARCH, CLOCK_PROFILE, (unsigned)MINER_SYS_CLOCK_KHZ,
+           CPU_ARCH, MINER_SOURCE_ID, chip_id, boot_run_sequence,
+           CLOCK_PROFILE, (unsigned)MINER_SYS_CLOCK_KHZ,
            clock_get_hz(clk_sys), package_sel, chip_id, rp2350_chip_version());
     if (package_sel != 1u) {
         printf("FAULT type=package_mismatch expected_sysinfo_package_sel=1"

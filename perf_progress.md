@@ -3580,3 +3580,24 @@ BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=61000 elapsed_us=2032553 hash_rate_hs=30012 checksum=55 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=62000 elapsed_us=2018360 hash_rate_hs=30718 checksum=78fd8ac1 temperature=disabled
 ```
+
+## 2026-09-15 — E01 identity contract candidate definition
+
+- Experiment: `E01-identity-82`, parent artifact/source `b6a3b97`, stock
+  150 MHz, shared ARM/RISC-V instrumentation change.
+- Hypothesis: embedding the committed source identity and warm-reset run ID,
+  then requiring ordered seven-suite, hardware/full/filter benchmark, mining
+  start and sequenced-progress records will reject stale, partial, reset and
+  wrong-image captures without changing either hashing loop.
+- Changed feature: BOOT source/run fields, run-tagged sequenced progress,
+  expected architecture/source arguments in `tools/cycle`, and a strict host
+  validation state machine with synthetic negative tests. Default cycle
+  capture becomes 45 seconds so the complete contract can finish.
+- Expected removable cost: none; this removes measurement ambiguity rather
+  than hash work. Resource cost is two watchdog scratch words, two retained
+  identity words, report-format bytes, and host parser complexity. No
+  temperature acquisition or clock change is included.
+- Rejection rule: reject or revise if synthetic failures are accepted, either
+  ISA misses/misorders required output, any oracle/fault gate fails, or the
+  report-only firmware change materially reduces sustained throughput versus
+  experiments 80/81.
