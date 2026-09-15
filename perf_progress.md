@@ -3232,3 +3232,29 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=56000 elapsed_us=2010065 hash_rate_hs=27860 checksum=05 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=57000 elapsed_us=2003793 hash_rate_hs=28446 checksum=59f5c0dc temperature=disabled
 ```
+
+## 2026-09-15 — E03 direct header digest output, RISC-V and retention
+
+- Experiment: `E03-direct-header-digest-riscv-70`, candidate commit `b4af8dd`,
+  at the stock 150 MHz clock.
+- Both architectures built warning-free. All 4,096 oracle cases and all 7
+  suites passed on Hazard3; no fault occurred.
+- Full-digest software: **27,568 H/s**, versus parent 26,623 H/s: **+3.55%**
+  (+945 H/s). Exact filter: **28,328 H/s**, versus parent 27,331 H/s:
+  **+3.65%** (+997 H/s).
+- Median of the final 30 dual-worker reports: hardware **338,982 H/s**,
+  software **28,145 H/s**, aggregate **367,128 H/s**.
+- Versus the parent run, sustained software is **+3.93%** (+1,065 H/s) and
+  aggregate is **+0.32%** (+1,163 H/s); hardware moved +97 H/s.
+- Candidate RISC-V UF2 SHA-256:
+  `bcae2f578ebfe4144a4bad3d6d92f1b31ccfa974c33f29d42a534447c2368cd9`.
+- Archived serial log: `logs/E03-direct-header-digest-riscv.log`.
+- Decision: retain on both architectures. It is neutral on M33 but materially
+  faster on Hazard3, removes unnecessary source-level traffic, and preserves
+  complete oracle equivalence.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=56000 elapsed_us=2031367 hash_rate_hs=27568 checksum=05 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=57000 elapsed_us=2012172 hash_rate_hs=28328 checksum=59f5c0dc temperature=disabled
+```
