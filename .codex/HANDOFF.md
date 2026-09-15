@@ -117,7 +117,11 @@ changes and keep temperature disabled.
    a batch containing the genesis winner. Both builds and eight host tests
    pass. Assembly reuses one schedule frame per batch and removes seven outer
    calls/frame setups; text cost is ARM +120 and Hazard3 +172 bytes, BSS
-   unchanged. Commit before hardware, then run paired ARM and Hazard3 cycles.
+   unchanged. Candidate commit `22ebd73`, source identity `aebc1223a0d2`.
+   ARM attempt 100a passed all gates but is neutral: median 356,553 aggregate,
+   325,099 hardware, 31,452 software (+0.002% aggregate versus candidate 98).
+   Archive `logs/E03-batch8-arm.log`. Commit evidence, then run Hazard3 and
+   retain an ISA split only for a clear Hazard3 gain.
 
 1. E09-b-tail-padding is resolved at commit `688148d`: retain explicit fixed
    rounds on ARM and the generic loop on Hazard3. Both final architecture

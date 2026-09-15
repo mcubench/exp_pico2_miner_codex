@@ -5208,3 +5208,28 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   header-tail and filter SRAM kernels. This removes seven outer calls and
   repeated wrapper/frame setup per eight hashes. Text grows by 120 bytes on
   ARM (188,840 total) and 172 on Hazard3 (201,096); BSS stays 4,708/4,440.
+
+### E03 software batch-8 ARM attempt 100a — pass, paired result pending
+
+- Candidate commit `22ebd73`, source identity `aebc1223a0d2`, normal profile,
+  stock 150 MHz, temperature disabled, run ID `30004927-00000016`. Both clean
+  architecture builds completed before flash. All 8 suites—including the new
+  batch-mask case—the 4,096-case oracle, standalone benchmarks, eight windows,
+  and strict capture passed without a fault.
+- Standalone hardware/full/filter rates were **331,084 / 30,370 / 31,578
+  H/s**. First-seven window medians were aggregate **356,553 H/s** (range
+  356,551–356,556), hardware **325,099 H/s** (325,098–325,101), and software
+  **31,452 H/s** (31,452–31,456).
+- Versus retained candidate 98, aggregate is **+8 H/s (+0.002%)**, hardware
+  **+7 H/s (+0.002%)**, and software **+2 H/s (+0.006%)**. This is a clean but
+  entirely neutral result; removing the outer calls produces no measurable
+  M33 mining gain.
+- Candidate ARM/RISC-V UF2 SHA-256:
+  `69ed9510bebe18582af9ac3e5a2e3c80348f54ae5db0231a4f598ddf51d93110` /
+  `b27f4fedd87e02b99d742ed16f4d49b1d84621849531c92b62c657c16286b1c1`.
+  Complete ARM log SHA-256:
+  `d771fa1da08ac67d946d6df772c6aa7c3e7bb429e17f991f648861e994b40991`.
+  Archived log: `logs/E03-batch8-arm.log`.
+- Decision: ARM alone does not justify retention. Run the identical Hazard3
+  image before rejecting the shared candidate; retain an ISA split only if
+  Hazard3 shows a clear, repeatable gain that pays for its 172-byte text cost.
