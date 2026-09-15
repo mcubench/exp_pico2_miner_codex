@@ -3351,3 +3351,29 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=57000 elapsed_us=2025440 hash_rate_hs=28142 checksum=47 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=58000 elapsed_us=2027339 hash_rate_hs=28609 checksum=aaef92db temperature=disabled
 ```
+
+## 2026-09-15 — E09-c native-order high-word rejection, RISC-V and retention
+
+- Experiment: `E09c-native-high-word-riscv-74`, candidate commit `c5634ac`,
+  at the stock 150 MHz clock.
+- Both architectures built warning-free. All 4,096 oracle cases and all 7
+  suites passed on Hazard3; no fault occurred.
+- Full-digest software: **27,613 H/s**. That path has no algorithmic change;
+  its +0.16% movement is treated as layout/measurement variation.
+- Exact filter: **28,500 H/s**, versus parent 28,328 H/s: **+0.61%**
+  (+172 H/s).
+- Median of the final 30 dual-worker reports: hardware **338,968 H/s**,
+  software **28,314 H/s**, aggregate **367,282 H/s**.
+- Versus the parent run, sustained software is **+0.60%** (+169 H/s) and
+  aggregate is **+0.042%** (+154 H/s); hardware moved -14 H/s.
+- Candidate RISC-V UF2 SHA-256:
+  `b84299c1669a2688619055f4775e032369b22d93e1a4cf2c72d3892feecfe47e`.
+- Archived serial log: `logs/E09c-native-high-word-riscv.log`.
+- Decision: retain on both architectures. The representation is explicit,
+  oracle-checked, and removes unnecessary work from every rejection.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=56000 elapsed_us=2028000 hash_rate_hs=27613 checksum=05 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=57000 elapsed_us=2000016 hash_rate_hs=28500 checksum=dcc0f559 temperature=disabled
+```
