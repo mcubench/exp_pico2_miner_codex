@@ -3461,3 +3461,31 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=59000 elapsed_us=2020196 hash_rate_hs=29205 checksum=50 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=60000 elapsed_us=2019653 hash_rate_hs=29708 checksum=a7578a11 temperature=disabled
 ```
+
+## 2026-09-15 — E09-b fixed padding rounds in exact filter, ARM
+
+- Experiment: `E09b-fixed-filter-rounds-arm-78`, candidate commit `90c7dc1`,
+  at the stock 150 MHz clock.
+- Specialized second-hash rounds 8 through 15 in the exact-filter helper.
+  Round 8 consumes `K8 + 0x80000000`, rounds 9..14 consume only K, and round
+  15 consumes `K15 + 256`; dynamic schedule loops remain before and after.
+  Full-digest code is deliberately unchanged in this experiment.
+- Both architectures built warning-free. All 4,096 oracle cases and all 7
+  suites passed on M33; no fault occurred.
+- Full-digest software: **29,205 H/s**, unchanged from the parent. Exact
+  filter: **30,718 H/s**, versus parent 29,708 H/s: **+3.40%** (+1,010 H/s).
+- Median of the final 30 dual-worker reports: hardware **325,746 H/s**,
+  software **30,554 H/s**, aggregate **356,300 H/s**.
+- Versus the parent run, sustained software is **+3.32%** (+982 H/s) and
+  aggregate is **+0.30%** (+1,070 H/s); hardware moved +88 H/s.
+- Candidate ARM UF2 SHA-256:
+  `288a620a953364cc0f44f3ae04c61d4fa51259fcd16e8ff511e9074af997c978`.
+- Archived serial log: `logs/E09b-fixed-filter-rounds-arm.log`.
+- Decision: provisionally retain; it is a clean filter-only gain. Verify
+  Hazard3 before final retention.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=59000 elapsed_us=2020192 hash_rate_hs=29205 checksum=50 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=62000 elapsed_us=2018357 hash_rate_hs=30718 checksum=78fd8ac1 temperature=disabled
+```
