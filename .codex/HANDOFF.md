@@ -64,11 +64,9 @@ changes and keep temperature disabled.
 
 ## Work in progress / next actions
 
-1. Finish the final combined-checkpoint validation for E09-b-tail-padding.
-   Candidate `f1a9226` improved ARM software but regressed Hazard3, so the work
-   tree retains explicit rounds only under `#ifndef __riscv` and restores the
-   generic Hazard3 loop. Build both and validate the final source identity on
-   ARM and RISC-V before committing the resolved experiment.
+1. E09-b-tail-padding is resolved at commit `688148d`: retain explicit fixed
+   rounds on ARM and the generic loop on Hazard3. Both final architecture
+   images passed at source identity `f0b612529b69`.
 2. Continue with the most promising E09 schedule/round-group or E03 batch
    experiment indicated by E02. Define and test only one subvariant at a time.
 
@@ -96,6 +94,7 @@ changes and keep temperature disabled.
 - E09-b header-tail logs: `logs/E09b-header-tail-fixed-{arm,riscv}.log`.
   ARM improved and is retained; Hazard3 regressed and is restored to its
   parent loop in the final architecture split.
+- Final split validation logs: `logs/E09b-header-tail-final-{arm,riscv}.log`.
 - E01 implementation: `CMakeLists.txt`, `src/main.c`, `tools/common.sh`,
   `tools/build`, `tools/cycle`, `tools/monitor.py`, `tools/test_monitor.py`.
 

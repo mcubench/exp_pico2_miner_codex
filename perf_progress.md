@@ -4237,3 +4237,35 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Complete log SHA-256:
   `453e242c44e806012a82ff903fc579603ab0e6574578fe85202c984e95674b6b`.
   Archived log: `logs/E09b-header-tail-fixed-riscv.log`.
+
+### E09-b final architecture split attempts 87c/87d — pass and resolved
+
+- Final commit `688148d`, source identity `f0b612529b69`, normal profile,
+  stock 150 MHz, temperature disabled. The fixed rounds remain on ARM only;
+  Hazard3 compiles its exact parent generic loop. Fresh clean ARM and RISC-V
+  wrapper builds passed warning-free before either flash. Host monitor tests
+  remained 8/8 passing.
+- ARM run `30004927-00000005` passed all validation and capture gates. Its
+  standalone rates exactly repeated candidate 87a: hardware **331,087 H/s**,
+  full software **30,364 H/s**, filter **31,087 H/s**. First-seven common
+  medians were aggregate **355,924 H/s**, hardware **324,996 H/s**, software
+  **30,923 H/s**. This second full run confirms the ARM software gain; total
+  remains above the 355,640 H/s parent despite normal hardware-rate variation.
+- RISC-V run `30004927-00000006` also passed every gate. Standalone rates were
+  hardware **344,785 H/s**, full software **28,636 H/s**, filter **30,041
+  H/s**. First-seven common medians were aggregate **368,130 H/s**, hardware
+  **338,273 H/s**, software **29,856 H/s**—effectively exact restoration of
+  the E06-trigger parent (368,130 / 338,274 / 29,856 H/s).
+- The experiment is resolved: retain explicit header-tail padding rounds 4–15
+  on ARM, retain the generic loop on Hazard3, and use this architecture split
+  as the next 150 MHz code baseline.
+- Final ARM UF2 SHA-256:
+  `4aa4b971435e89ca7c8d9fdf77e09d94fdafab7487ee86f32388df9ec4fc5ff2`.
+  Final RISC-V UF2 SHA-256:
+  `be8a6031f3d87fb2d39a52e625249190bc4284dde4099844f4d51f197582a13e`.
+  ARM log SHA-256:
+  `a363f574a9b46235b4713ec98140d8d61d4249b82bdbbcb55c9b260b8cc00d13`.
+  RISC-V log SHA-256:
+  `2c851bd3881bb389240344fb7b508d5728032a54f80947fb8cbee2d4a2b9f4d2`.
+  Archived logs: `logs/E09b-header-tail-final-arm.log` and
+  `logs/E09b-header-tail-final-riscv.log`.
