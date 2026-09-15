@@ -163,10 +163,33 @@ __not_in_flash_func(software_sha256_compress_header_tail)(
     uint32_t g = hasher->tail_round3_state[5];
     uint32_t h = hasher->tail_round3_state[6];
 
-    for (unsigned round = 4u; round < 16u; ++round) {
-        software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
-                              sha256_round_constants[round], schedule[round]);
-    }
+    // Rounds 4--15 consume only fixed padding words. Spell them out so the
+    // compiler sees a single constant addend instead of loading both K and W
+    // through the generic round loop.
+    software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
+                          sha256_round_constants[4] + 0x80000000u, 0u);
+    software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
+                          sha256_round_constants[5], 0u);
+    software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
+                          sha256_round_constants[6], 0u);
+    software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
+                          sha256_round_constants[7], 0u);
+    software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
+                          sha256_round_constants[8], 0u);
+    software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
+                          sha256_round_constants[9], 0u);
+    software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
+                          sha256_round_constants[10], 0u);
+    software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
+                          sha256_round_constants[11], 0u);
+    software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
+                          sha256_round_constants[12], 0u);
+    software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
+                          sha256_round_constants[13], 0u);
+    software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
+                          sha256_round_constants[14], 0u);
+    software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
+                          sha256_round_constants[15] + 80u * 8u, 0u);
     software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
                           hasher->tail_round16_addend, 0u);
     software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,

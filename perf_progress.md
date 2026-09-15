@@ -4171,3 +4171,20 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   Complete serial log SHA-256:
   `c3e0d4aeb242e39102c94e2a5a1e1c60490a641d289f355a7815c96e4f7baf05`.
   Archived log: `logs/E06-trigger-riscv.log`.
+
+## 2026-09-15 — E09-b header-tail fixed-padding rounds candidate 87
+
+- Parent checkpoint `7a85905`, with E06-trigger retained only on Hazard3.
+  Parent common-window medians are ARM **355,640 H/s** and immediate
+  RISC-V **368,130 H/s**. Stock 150 MHz and temperature disabled remain fixed.
+- Specialize software header-tail rounds 4 through 15. Round 4 consumes
+  `K4 + 0x80000000`, rounds 5 through 14 consume only K, and round 15 consumes
+  `K15 + 640`; the schedule array remains complete for later dependent words.
+  This is distinct from the retained second-hash fixed-padding rounds 8--15
+  and retained cached W16/W17 addends.
+- Hypothesis: explicit fixed addends let the compiler avoid generic schedule
+  loads/additions or choose a better round layout. SHA state evolution and all
+  nonce-dependent schedule terms remain unchanged. Inspect both emitted
+  artifacts before hardware; reject without flashing if an architecture is
+  byte-identical, and retain only a repeatable affected-software/common-window
+  gain with all oracle and mining-decision gates passing.
