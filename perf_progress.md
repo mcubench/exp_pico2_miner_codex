@@ -3877,3 +3877,29 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=5 sequence=80 elapsed_us=4752
 MEASUREMENT:WINDOW run_id=30004927-00000007 window=6 sequence=96 elapsed_us=4752046 hardware_hashes=1600000 software_hashes=141896 total_hashes=1741896 hardware_rate_hs=336697 software_rate_hs=29860 hash_rate_hs=366557 temperature=disabled
 MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=4752171 hardware_hashes=1600000 software_hashes=141910 total_hashes=1741910 hardware_rate_hs=336688 software_rate_hs=29862 hash_rate_hs=366550 temperature=disabled
 ```
+
+## 2026-09-15 — E02 fresh profiling candidate definition
+
+- Experiment: `E02-profile-85`, parent source identity `f2687597e485`, stock
+  150 MHz, temperature disabled, compile-time `MINER_PROFILE` diagnostic mode.
+- Static platform check: RP2350 M33 declares `DWT_CTRL.NOCYCCNT=1` and
+  `NOPRFCNT=1`, so the plan's preferred DWT cycle/performance counters are not
+  implemented. The diagnostic uses interrupt-free 24-bit SysTick core-clock
+  deltas instead and reports the live DWT capability bits. Hazard3 uses its
+  supported `mcycle` and `minstret`; its extended HPM counters are documented
+  as hardwired zero. Both ISAs also sample the global XIP hit/access counters.
+- The profile build times 4,096 nonces and separates hardware setup/start,
+  first-block feed, tail feed plus first-digest wait, digest handoff plus second
+  hash, and final target/error check. It separately times software header-tail
+  compression and second-hash full/filter stages. Every record is explicitly
+  marked `intrusive=1`; these stage totals are diagnostic and will not replace
+  uninstrumented common-window rates.
+- Normal (`MINER_PROFILE=0`) and profiling (`MINER_PROFILE=1`) builds pass for
+  both architectures with warnings as errors; 8 host monitor tests pass.
+  Profile image sizes are ARM text 190,792 / BSS 4,708 bytes and RISC-V text
+  203,168 / BSS 4,440 bytes. The approximately 2.2–2.4 KiB diagnostic text is
+  compiled out of normal images.
+- Hardware acceptance: complete KAT and strict capture must still pass, counter
+  capability/overhead must be reported, profile totals must be internally
+  plausible against end-to-end elapsed time, and the normal post-profile
+  benchmark/common windows must remain functional. Archive each full log.

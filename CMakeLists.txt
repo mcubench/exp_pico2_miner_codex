@@ -22,6 +22,7 @@ endif()
 set(PICO_BOARD pico2 CACHE STRING "Target board")
 set(PICO_PLATFORM rp2350-arm-s CACHE STRING "RP2350 CPU architecture")
 set(MINER_SYS_CLOCK_KHZ 150000 CACHE STRING "Miner system clock in kHz")
+set(MINER_PROFILE 0 CACHE STRING "Enable intrusive E02 profiling")
 
 include(pico_sdk_import.cmake)
 
@@ -79,9 +80,11 @@ target_compile_definitions(pico2_agent PRIVATE
     PICO_ENTER_USB_BOOT_ON_EXIT=1
     MINER_SYS_CLOCK_KHZ=${MINER_SYS_CLOCK_KHZ}
     MINER_SOURCE_ID="${MINER_SOURCE_ID}"
+    MINER_PROFILE=${MINER_PROFILE}
 )
 
 message(STATUS "Miner system clock: ${MINER_SYS_CLOCK_KHZ} kHz")
 message(STATUS "Miner source identity: ${MINER_SOURCE_ID}")
+message(STATUS "Miner profiling mode: ${MINER_PROFILE}")
 
 pico_add_extra_outputs(pico2_agent)

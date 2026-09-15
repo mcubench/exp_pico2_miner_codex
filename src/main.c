@@ -5,8 +5,13 @@
 #include <string.h>
 
 #include "hardware/clocks.h"
+#include "hardware/structs/xip.h"
 #ifdef __riscv
 #include "hardware/dma.h"
+#include "hardware/riscv.h"
+#else
+#include "hardware/regs/m33.h"
+#include "hardware/structs/m33.h"
 #endif
 #include "hardware/structs/sysinfo.h"
 #include "hardware/structs/watchdog.h"
@@ -40,6 +45,10 @@ _Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
 
 #ifndef MINER_USE_CORE1
 #define MINER_USE_CORE1 1
+#endif
+
+#ifndef MINER_PROFILE
+#define MINER_PROFILE 0
 #endif
 
 static uint32_t boot_run_sequence;
@@ -717,6 +726,222 @@ static void run_software_benchmark(void) {
            high_checksum);
 }
 
+#if MINER_PROFILE
+#define PROFILE_ITERATIONS 4096u
+
+typedef struct profile_snapshot {
+    uint32_t cycles;
+    uint32_t instructions;
+} profile_snapshot_t;
+
+static void profile_counter_enable(void) {
+#ifdef __riscv
+    riscv_clear_csr(RVCSR_MCOUNTINHIBIT_OFFSET,
+                    RVCSR_MCOUNTINHIBIT_CY_BITS
+                    | RVCSR_MCOUNTINHIBIT_IR_BITS);
+#else
+    // RP2350 M33 DWT reports NOCYCCNT and NOPRFCNT. SysTick is an otherwise
+    // unused, interrupt-free 24-bit core-clock fallback for short deltas.
+    m33_hw->syst_rvr = M33_SYST_RVR_RELOAD_BITS;
+    m33_hw->syst_cvr = 0u;
+    m33_hw->syst_csr = M33_SYST_CSR_CLKSOURCE_BITS
+                       | M33_SYST_CSR_ENABLE_BITS;
+#endif
+}
+
+static inline profile_snapshot_t profile_counter_read(void) {
+    profile_snapshot_t result;
+#ifdef __riscv
+    result.cycles = riscv_read_csr(RVCSR_MCYCLE_OFFSET);
+    result.instructions = riscv_read_csr(RVCSR_MINSTRET_OFFSET);
+#else
+    result.cycles = m33_hw->syst_cvr;
+    result.instructions = 0u;
+#endif
+    return result;
+}
+
+static inline uint32_t profile_counter_delta(uint32_t before,
+                                             uint32_t after) {
+#ifdef __riscv
+    return after - before;
+#else
+    return (before - after) & M33_SYST_RVR_RELOAD_BITS;
+#endif
+}
+
+static void profile_xip_clear(void) {
+    xip_ctrl_hw->ctr_hit = 0u;
+    xip_ctrl_hw->ctr_acc = 0u;
+}
+
+static void run_profile(void) {
+    uint64_t read_cycles = 0u;
+    uint64_t read_instructions = 0u;
+    profile_counter_enable();
+    profile_snapshot_t before = profile_counter_read();
+    for (uint32_t i = 0u; i < 256u; ++i) {
+        const profile_snapshot_t after = profile_counter_read();
+        read_cycles += profile_counter_delta(before.cycles, after.cycles);
+        read_instructions += after.instructions - before.instructions;
+        before = after;
+    }
+#ifdef __riscv
+    printf("PROFILE:COUNTERS arch=%s source=mcycle,minstret"
+           " read_cycle_overhead_x1000=%" PRIu64
+           " read_instruction_overhead_x1000=%" PRIu64
+           " extended_hpm=hardwired-zero intrusive=1\n",
+           CPU_ARCH, read_cycles * 1000u / 256u,
+           read_instructions * 1000u / 256u);
+#else
+    printf("PROFILE:COUNTERS arch=%s source=systick-core-clock"
+           " read_cycle_overhead_x1000=%" PRIu64
+           " dwt_ctrl=%08" PRIx32 " dwt_nocyccnt=%u dwt_noprfcnt=%u"
+           " intrusive=1\n",
+           CPU_ARCH, read_cycles * 1000u / 256u, m33_hw->dwt_ctrl,
+           (unsigned)((m33_hw->dwt_ctrl & M33_DWT_CTRL_NOCYCCNT_BITS) != 0u),
+           (unsigned)((m33_hw->dwt_ctrl & M33_DWT_CTRL_NOPRFCNT_BITS) != 0u));
+#endif
+
+    bitcoin_hasher_t hardware_hasher;
+    sha256_result_t target = {0};
+    volatile uint32_t hardware_checksum = 0u;
+    uint64_t hardware_setup = 0u;
+    uint64_t hardware_first = 0u;
+    uint64_t hardware_tail_wait = 0u;
+    uint64_t hardware_second = 0u;
+    uint64_t hardware_check = 0u;
+    uint64_t hardware_instructions = 0u;
+    (void)compact_to_target_le(0x1d00ffffu, target.bytes);
+    bitcoin_hasher_begin(&hardware_hasher, genesis_header);
+    profile_xip_clear();
+    const uint64_t hardware_started_us = time_us_64();
+    for (uint32_t nonce = 0u; nonce < PROFILE_ITERATIONS; ++nonce) {
+        const profile_snapshot_t s0 = profile_counter_read();
+        hardware_hasher.header_words[NONCE_OFFSET / sizeof(uint32_t)] =
+            __builtin_bswap32(nonce);
+        sha256_start();
+        const profile_snapshot_t s1 = profile_counter_read();
+        sha256_write_first_block(&hardware_hasher);
+        const profile_snapshot_t s2 = profile_counter_read();
+        sha256_write_header_tail(hardware_hasher.header_words);
+        sha256_wait_valid_blocking();
+        const profile_snapshot_t s3 = profile_counter_read();
+        const uint32_t digest0 = sha256_hw->sum[0];
+        const uint32_t digest1 = sha256_hw->sum[1];
+        const uint32_t digest2 = sha256_hw->sum[2];
+        const uint32_t digest3 = sha256_hw->sum[3];
+        const uint32_t digest4 = sha256_hw->sum[4];
+        const uint32_t digest5 = sha256_hw->sum[5];
+        const uint32_t digest6 = sha256_hw->sum[6];
+        const uint32_t digest7 = sha256_hw->sum[7];
+        sha256_start();
+        sha256_put_word(digest0);
+        sha256_put_word(digest1);
+        sha256_put_word(digest2);
+        sha256_put_word(digest3);
+        sha256_put_word(digest4);
+        sha256_put_word(digest5);
+        sha256_put_word(digest6);
+        sha256_put_word(digest7);
+        sha256_put_word(0x80000000u);
+        sha256_put_word(0u);
+        sha256_put_word(0u);
+        sha256_put_word(0u);
+        sha256_put_word(0u);
+        sha256_put_word(0u);
+        sha256_put_word(0u);
+        sha256_put_word(HASH_BYTES * 8u);
+        sha256_wait_valid_blocking();
+        const profile_snapshot_t s4 = profile_counter_read();
+        hardware_checksum ^= sha256_hw->sum[0];
+        hardware_checksum ^= current_hash_meets_target(&target);
+        hardware_checksum ^= sha256_err_not_ready();
+        const profile_snapshot_t s5 = profile_counter_read();
+        hardware_setup += profile_counter_delta(s0.cycles, s1.cycles);
+        hardware_first += profile_counter_delta(s1.cycles, s2.cycles);
+        hardware_tail_wait += profile_counter_delta(s2.cycles, s3.cycles);
+        hardware_second += profile_counter_delta(s3.cycles, s4.cycles);
+        hardware_check += profile_counter_delta(s4.cycles, s5.cycles);
+        hardware_instructions += s5.instructions - s0.instructions;
+    }
+    const uint64_t hardware_elapsed_us = time_us_64() - hardware_started_us;
+    const uint32_t hardware_xip_hit = xip_ctrl_hw->ctr_hit;
+    const uint32_t hardware_xip_acc = xip_ctrl_hw->ctr_acc;
+    bitcoin_hasher_end(&hardware_hasher);
+    printf("PROFILE:HARDWARE arch=%s iterations=%u elapsed_us=%" PRIu64
+           " setup_cycles=%" PRIu64 " first_feed_cycles=%" PRIu64
+           " tail_wait_cycles=%" PRIu64 " second_hash_cycles=%" PRIu64
+           " check_cycles=%" PRIu64 " instructions=%" PRIu64
+           " xip_hit=%" PRIu32 " xip_access=%" PRIu32
+           " checksum=%08" PRIx32 " intrusive=1\n",
+           CPU_ARCH, PROFILE_ITERATIONS, hardware_elapsed_us,
+           hardware_setup, hardware_first, hardware_tail_wait,
+           hardware_second, hardware_check, hardware_instructions,
+           hardware_xip_hit, hardware_xip_acc, hardware_checksum);
+
+    software_bitcoin_hasher_t software_hasher;
+    uint32_t scratch[64];
+    volatile uint32_t software_checksum = 0u;
+    uint64_t software_tail = 0u;
+    uint64_t software_second = 0u;
+    uint64_t software_instructions = 0u;
+    software_bitcoin_hasher_begin(&software_hasher, genesis_header);
+    profile_xip_clear();
+    uint64_t software_started_us = time_us_64();
+    for (uint32_t nonce = 0u; nonce < PROFILE_ITERATIONS; ++nonce) {
+        const profile_snapshot_t s0 = profile_counter_read();
+        software_profile_header_tail(&software_hasher, nonce, scratch);
+        const profile_snapshot_t s1 = profile_counter_read();
+        software_checksum ^= software_profile_digest_filter(scratch);
+        const profile_snapshot_t s2 = profile_counter_read();
+        software_tail += profile_counter_delta(s0.cycles, s1.cycles);
+        software_second += profile_counter_delta(s1.cycles, s2.cycles);
+        software_instructions += s2.instructions - s0.instructions;
+    }
+    uint64_t software_elapsed_us = time_us_64() - software_started_us;
+    uint32_t software_xip_hit = xip_ctrl_hw->ctr_hit;
+    uint32_t software_xip_acc = xip_ctrl_hw->ctr_acc;
+    printf("PROFILE:SOFTWARE_FILTER arch=%s iterations=%u elapsed_us=%" PRIu64
+           " header_tail_cycles=%" PRIu64 " second_filter_cycles=%" PRIu64
+           " instructions=%" PRIu64 " xip_hit=%" PRIu32
+           " xip_access=%" PRIu32 " checksum=%08" PRIx32
+           " intrusive=1\n",
+           CPU_ARCH, PROFILE_ITERATIONS, software_elapsed_us, software_tail,
+           software_second, software_instructions, software_xip_hit,
+           software_xip_acc, software_checksum);
+
+    software_checksum = 0u;
+    software_tail = 0u;
+    software_second = 0u;
+    software_instructions = 0u;
+    profile_xip_clear();
+    software_started_us = time_us_64();
+    for (uint32_t nonce = 0u; nonce < PROFILE_ITERATIONS; ++nonce) {
+        const profile_snapshot_t s0 = profile_counter_read();
+        software_profile_header_tail(&software_hasher, nonce, scratch);
+        const profile_snapshot_t s1 = profile_counter_read();
+        software_profile_digest_full(scratch);
+        software_checksum ^= scratch[0];
+        const profile_snapshot_t s2 = profile_counter_read();
+        software_tail += profile_counter_delta(s0.cycles, s1.cycles);
+        software_second += profile_counter_delta(s1.cycles, s2.cycles);
+        software_instructions += s2.instructions - s0.instructions;
+    }
+    software_elapsed_us = time_us_64() - software_started_us;
+    software_xip_hit = xip_ctrl_hw->ctr_hit;
+    software_xip_acc = xip_ctrl_hw->ctr_acc;
+    printf("PROFILE:SOFTWARE_FULL arch=%s iterations=%u elapsed_us=%" PRIu64
+           " header_tail_cycles=%" PRIu64 " second_full_cycles=%" PRIu64
+           " instructions=%" PRIu64 " xip_hit=%" PRIu32
+           " xip_access=%" PRIu32 " checksum=%08" PRIx32
+           " intrusive=1\n",
+           CPU_ARCH, PROFILE_ITERATIONS, software_elapsed_us, software_tail,
+           software_second, software_instructions, software_xip_hit,
+           software_xip_acc, software_checksum);
+}
+#endif
+
 #if !MINER_USE_CORE1
 static MINING_LOOP_OPTIONS void mine_forever(uint led_pin) {
     sha256_result_t hash;
@@ -1110,10 +1335,12 @@ int main(void) {
     printf("BOOT app=pico2_bitcoin_miner board=pico2 package=RP2350A"
            " arch=%s engine=RP2350-SHA256 temperature=disabled"
            " source_id=%s run_id=%08" PRIx32 "-%08" PRIx32
+           " profile=%u"
            " clock_profile=%s requested_clock_khz=%u actual_clock_hz=%" PRIu32
            " sysinfo_package_sel=%" PRIu32 " chip_id=%08" PRIx32
            " silicon_revision=%u\n",
            CPU_ARCH, MINER_SOURCE_ID, chip_id, boot_run_sequence,
+           (unsigned)MINER_PROFILE,
            CLOCK_PROFILE, (unsigned)MINER_SYS_CLOCK_KHZ,
            clock_get_hz(clk_sys), package_sel, chip_id, rp2350_chip_version());
     if (package_sel != 1u) {
@@ -1133,6 +1360,10 @@ int main(void) {
         }
     }
     printf("TEST:SUMMARY pass=8 fail=0\n");
+
+#if MINER_PROFILE
+    run_profile();
+#endif
 
     if (!run_benchmark()) {
         while (true) {

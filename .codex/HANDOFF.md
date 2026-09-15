@@ -10,12 +10,12 @@ changes and keep temperature disabled.
 
 ## Current status
 
-- HEAD before recording RISC-V evidence: `aa6fb87` (`perf: validate E01
-  common windows on ARM`).
-- Firmware/tooling source identity: `f2687597e485`.
+- HEAD: `cf1ab1f` (`perf: retain E01 synchronized measurements`).
+- Retained firmware/tooling source identity: `f2687597e485`; E02 profile
+  candidate is currently dirty until its pre-hardware commit.
 - Device currently runs the retained E01-window RISC-V image at 150 MHz.
-- Working tree contains the intentional RISC-V result updates until their next
-  evidence commit.
+- Working tree contains only the intentional E02 profiling implementation and
+  candidate ledger/handoff updates.
 - E09-b-pending is resolved and retained on both ISAs.
 - E01-identity is implemented, paired-hardware validated, and retained.
 - E01-rare candidate 83 and E01-window candidate 84 are retained on both ISAs.
@@ -43,12 +43,16 @@ changes and keep temperature disabled.
   range 366,550–366,560 H/s, median 366,556; hardware median 336,697 and
   software median 29,860. Complete log `logs/E01-window-riscv.log`, UF2
   SHA-256 `238f314f3012188082c35a2324c0b9f74bee42adeeffb010c8fc1b086e702ac4`.
+- E02 profile mode compiles on both ISAs and adds intrusive stage, CPU-counter,
+  and XIP-counter records only when `MINER_PROFILE=1`. Normal and profile dual
+  builds pass; hardware validation is pending.
 - One ARM flash completion failure was recorded at `bf7b8f4`; retry passed.
 
 ## Work in progress / next actions
 
-1. Commit the archived E01-window RISC-V result and retention decision.
-2. Refresh E02 profiling/cost measurements on the actual dual-worker source.
+1. Commit the E02 profiling candidate before hardware use.
+2. Rebuild both profile images from the committed source, flash/capture ARM
+   then RISC-V, archive and record each result, then restore a normal image.
 3. Use E02 evidence to select the next sequence item, with E06-trigger the
    plan's default next code experiment.
 

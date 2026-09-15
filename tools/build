@@ -28,18 +28,22 @@ picotool_bin="$(find_picotool)" || die "picotool not found."
 export PATH="$(dirname "${picotool_bin}"):${PATH}"
 build_dir="${PROJECT_ROOT}/build/${arch}"
 miner_sys_clock_khz="${MINER_SYS_CLOCK_KHZ:-150000}"
+miner_profile="${MINER_PROFILE:-0}"
 miner_source_id="$(source_identity)"
 
 [[ "${miner_sys_clock_khz}" =~ ^[0-9]+$ ]] \
     || die "MINER_SYS_CLOCK_KHZ must be an integer"
 (( miner_sys_clock_khz >= 12000 && miner_sys_clock_khz <= 550000 )) \
     || die "MINER_SYS_CLOCK_KHZ must be between 12000 and 550000"
+[[ "${miner_profile}" == 0 || "${miner_profile}" == 1 ]] \
+    || die "MINER_PROFILE must be 0 or 1"
 
 printf 'CONFIG arch=%s platform=%s\n' "${arch}" "${platform}"
 printf 'CONFIG sdk=%s\n' "${sdk}"
 printf 'CONFIG toolchain=%s\n' "${toolchain}"
 printf 'CONFIG miner_sys_clock_khz=%s\n' "${miner_sys_clock_khz}"
 printf 'CONFIG miner_source_id=%s\n' "${miner_source_id}"
+printf 'CONFIG miner_profile=%s\n' "${miner_profile}"
 
 "${cmake_bin}" -S "${PROJECT_ROOT}" -B "${build_dir}" -G Ninja \
     -DCMAKE_MAKE_PROGRAM="${ninja_bin}" \
@@ -50,6 +54,7 @@ printf 'CONFIG miner_source_id=%s\n' "${miner_source_id}"
     -DPICO_SDK_PATH="${sdk}" \
     -DPICO_TOOLCHAIN_PATH="${toolchain}" \
     -DMINER_SYS_CLOCK_KHZ="${miner_sys_clock_khz}" \
+    -DMINER_PROFILE="${miner_profile}" \
     -DMINER_SOURCE_ID="${miner_source_id}"
 
 "${cmake_bin}" --build "${build_dir}"
