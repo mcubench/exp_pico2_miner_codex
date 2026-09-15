@@ -10,11 +10,11 @@ changes and keep temperature disabled.
 
 ## Current status
 
-- HEAD before recording attempt 85a: `9181c33` (`perf: add optional E02 stage
-  profiling`); source identity `5559d0ea81c1`.
+- HEAD: `89bf7b7` (`perf: record E02 ARM SysTick profile`); the DWT-only
+  counter revision is dirty until its pre-hardware commit.
 - Device currently runs the E02 ARM profile image at 150 MHz.
-- Working tree contains the archived ARM SysTick result and its intentional
-  ledger/handoff updates until the next evidence commit.
+- Working tree contains only the ARM DWT backend revision and its intentional
+  candidate ledger/handoff updates.
 - E09-b-pending is resolved and retained on both ISAs.
 - E01-identity is implemented, paired-hardware validated, and retained.
 - E01-rare candidate 83 and E01-window candidate 84 are retained on both ISAs.
@@ -51,9 +51,8 @@ changes and keep temperature disabled.
 
 ## Work in progress / next actions
 
-1. Commit archived ARM SysTick attempt 85a and its evidence.
-2. Replace only the ARM SysTick backend with live DWT CYCCNT enable/read,
-   rebuild both ISAs, checkpoint, then repeat ARM profile hardware capture.
+1. Commit the warning-free DWT revision before hardware use.
+2. Repeat the complete ARM profile hardware capture and archive its log.
 3. If ARM passes, run the RISC-V profile, archive and record it, then restore a
    normal retained image.
 4. Use E02 evidence to select the next sequence item, with E06-trigger the

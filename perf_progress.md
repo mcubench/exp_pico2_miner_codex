@@ -3947,3 +3947,18 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Decision: preserve the measurement as a successful exploratory attempt, but
   do not call the ARM counter choice complete. Revise only the counter backend
   to DWT and repeat ARM before advancing to the paired RISC-V profile.
+
+### E02 ARM DWT revision candidate 85b
+
+- Parent `9181c33` plus the recorded attempt-85a evidence commit `89bf7b7`.
+  The only firmware change replaces ARM's SysTick fallback with the live DWT
+  `CYCCNT`: set `DEMCR.TRCENA`, clear `DWT_CYCCNT`, set
+  `DWT_CTRL.CYCCNTENA`, and issue DSB/ISB before sampling. Hazard3 profiling
+  and all measured algorithms are source-unchanged.
+- Both profile-enabled wrapper builds pass with warnings as errors; all 8 host
+  monitor tests pass. Temperature remains disabled and clock remains stock
+  150 MHz.
+- Acceptance: live DWT counter increments, capability bits remain present,
+  stage totals agree reasonably with the independent microsecond wall time,
+  and the complete strict ARM hardware capture passes. This is a counter
+  backend correction, not a hash optimization claim.

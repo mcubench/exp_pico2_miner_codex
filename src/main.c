@@ -740,12 +740,12 @@ static void profile_counter_enable(void) {
                     RVCSR_MCOUNTINHIBIT_CY_BITS
                     | RVCSR_MCOUNTINHIBIT_IR_BITS);
 #else
-    // RP2350 M33 DWT reports NOCYCCNT and NOPRFCNT. SysTick is an otherwise
-    // unused, interrupt-free 24-bit core-clock fallback for short deltas.
-    m33_hw->syst_rvr = M33_SYST_RVR_RELOAD_BITS;
-    m33_hw->syst_cvr = 0u;
-    m33_hw->syst_csr = M33_SYST_CSR_CLKSOURCE_BITS
-                       | M33_SYST_CSR_ENABLE_BITS;
+    // The live connected RP2350 reports both DWT capability-negation bits as
+    // zero. Enable trace globally, clear CYCCNT, then enable cycle counting.
+    m33_hw->demcr |= M33_DEMCR_TRCENA_BITS;
+    m33_hw->dwt_cyccnt = 0u;
+    m33_hw->dwt_ctrl |= M33_DWT_CTRL_CYCCNTENA_BITS;
+    __asm volatile ("dsb\n\tisb" ::: "memory");
 #endif
 }
 
@@ -755,7 +755,7 @@ static inline profile_snapshot_t profile_counter_read(void) {
     result.cycles = riscv_read_csr(RVCSR_MCYCLE_OFFSET);
     result.instructions = riscv_read_csr(RVCSR_MINSTRET_OFFSET);
 #else
-    result.cycles = m33_hw->syst_cvr;
+    result.cycles = m33_hw->dwt_cyccnt;
     result.instructions = 0u;
 #endif
     return result;
@@ -763,11 +763,7 @@ static inline profile_snapshot_t profile_counter_read(void) {
 
 static inline uint32_t profile_counter_delta(uint32_t before,
                                              uint32_t after) {
-#ifdef __riscv
     return after - before;
-#else
-    return (before - after) & M33_SYST_RVR_RELOAD_BITS;
-#endif
 }
 
 static void profile_xip_clear(void) {
@@ -794,7 +790,7 @@ static void run_profile(void) {
            CPU_ARCH, read_cycles * 1000u / 256u,
            read_instructions * 1000u / 256u);
 #else
-    printf("PROFILE:COUNTERS arch=%s source=systick-core-clock"
+    printf("PROFILE:COUNTERS arch=%s source=dwt-cyccnt"
            " read_cycle_overhead_x1000=%" PRIu64
            " dwt_ctrl=%08" PRIx32 " dwt_nocyccnt=%u dwt_noprfcnt=%u"
            " intrusive=1\n",
