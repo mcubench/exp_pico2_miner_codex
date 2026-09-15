@@ -2984,3 +2984,31 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=54000 elapsed_us=2007424 hash_rate_hs=26900 checksum=61 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=55000 elapsed_us=2009027 hash_rate_hs=27376 checksum=73309c95 temperature=disabled
 ```
+
+## 2026-09-15 — E09-c trim unused filter schedule, ARM
+
+- Experiment: `E09c-trim61-arm-61`, candidate commit `3835437`, at the stock
+  150 MHz clock.
+- Reduced the round-61 rejection helper's local schedule from 64 to 61 words
+  and stopped expansion at W60, matching its rounds 0 through 60. The full
+  digest implementation is unchanged. Both architectures built warning-free.
+- All 4,096 oracle cases and all 7 suites passed on M33; no fault occurred.
+- Full-digest software: **26,900 H/s**, unchanged. Exact round-61 filter:
+  **27,447 H/s**, versus 27,376 H/s in both preceding ARM trials: **+0.26%**
+  (+71 H/s).
+- Median of the final 30 dual-worker reports: hardware **325,698 H/s**,
+  software **27,316 H/s**, aggregate **353,014 H/s**.
+- Versus the immediately preceding matched E05 ARM run, sustained software is
+  **+0.26%** (+70 H/s) and aggregate is **+0.011%** (+39 H/s). Versus the
+  retained E09-c aggregate 352,919 H/s, aggregate is **+0.027%** (+95 H/s).
+- Candidate ARM UF2 SHA-256:
+  `41dd0d3e72107a5b506aafdd9272d4fe9b45063cda2a85e412aa407b531fc574`.
+- Archived serial log: `logs/E09c-trim61-arm.log`.
+- Decision: provisionally retain because the isolated and sustained software
+  deltas agree, but the gain is very small; test RISC-V before final decision.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=54000 elapsed_us=2007402 hash_rate_hs=26900 checksum=61 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=55000 elapsed_us=2003894 hash_rate_hs=27447 checksum=73309c95 temperature=disabled
+```
