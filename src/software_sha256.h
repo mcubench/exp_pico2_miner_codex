@@ -22,7 +22,7 @@ void software_bitcoin_hasher_begin(software_bitcoin_hasher_t *hasher,
 void software_bitcoin_hash_nonce(const software_bitcoin_hasher_t *hasher,
                                  uint32_t nonce,
                                  uint8_t hash[32]);
-uint32_t software_bitcoin_hash_nonce_high_word(
+uint32_t software_bitcoin_hash_nonce_high_word_be(
     const software_bitcoin_hasher_t *hasher, uint32_t nonce);
 
 #endif

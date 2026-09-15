@@ -284,7 +284,7 @@ __not_in_flash_func(software_sha256_digest_high_word_after_round61)(
         software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
                               sha256_round_constants[round], schedule[round]);
     }
-    const uint32_t result = __builtin_bswap32(sha256_initial_state[7] + e);
+    const uint32_t result = sha256_initial_state[7] + e;
 #ifndef __riscv
 #undef schedule
 #endif
@@ -373,7 +373,7 @@ void software_bitcoin_hash_nonce(const software_bitcoin_hasher_t *hasher,
     }
 }
 
-uint32_t software_bitcoin_hash_nonce_high_word(
+uint32_t software_bitcoin_hash_nonce_high_word_be(
     const software_bitcoin_hasher_t *hasher, uint32_t nonce) {
 #ifdef __riscv
     uint32_t second_schedule[8];

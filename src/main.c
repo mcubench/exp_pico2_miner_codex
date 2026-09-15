@@ -378,13 +378,13 @@ static bool run_optimized_oracle_vectors(void) {
         software_bitcoin_hasher_begin(&software_hasher, header);
         software_bitcoin_hash_nonce(&software_hasher, nonce, software_hash);
         const uint32_t software_high_word =
-            software_bitcoin_hash_nonce_high_word(&software_hasher, nonce);
+            software_bitcoin_hash_nonce_high_word_be(&software_hasher, nonce);
         uint32_t expected_high_word;
         memcpy(&expected_high_word, &oracle_expected[vector][28],
                sizeof(expected_high_word));
         if (!hashed || memcmp(hash.bytes, oracle_expected[vector], HASH_BYTES) != 0
             || memcmp(software_hash, oracle_expected[vector], HASH_BYTES) != 0
-            || software_high_word != expected_high_word) {
+            || software_high_word != __builtin_bswap32(expected_high_word)) {
             printf("TEST:FAIL kat=optimized_oracle vector=%" PRIu32
                    " nonce=%" PRIu32 "\n",
                    vector, nonce);
@@ -599,8 +599,8 @@ static void run_software_benchmark(void) {
     started_us = time_us_64();
     do {
         for (uint32_t batch = 0u; batch < BENCHMARK_BATCH; ++batch) {
-            high_checksum ^= software_bitcoin_hash_nonce_high_word(&hasher,
-                                                                    nonce++);
+            high_checksum ^= software_bitcoin_hash_nonce_high_word_be(&hasher,
+                                                                       nonce++);
         }
         hashes += BENCHMARK_BATCH;
         elapsed_us = time_us_64() - started_us;
@@ -822,8 +822,8 @@ static void mine_forever(uint led_pin) {
         bool software_candidate;
         if (target.words[7] == 0u) {
             software_candidate =
-                software_bitcoin_hash_nonce_high_word(&software_hasher,
-                                                       software_nonce) == 0u;
+                software_bitcoin_hash_nonce_high_word_be(&software_hasher,
+                                                          software_nonce) == 0u;
             if (software_candidate) {
                 software_bitcoin_hash_nonce(&software_hasher, software_nonce,
                                             software_hash.bytes);
