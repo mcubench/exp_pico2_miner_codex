@@ -4638,3 +4638,44 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Compare emitted assembly and hardware rates to candidate 91. This is an
   implementation-shape experiment, not a new allocation policy; reject if it
   does not recover the hardware-side loss on each ISA.
+
+### E14 nested hardware chunk loop ARM attempt 93a — pass, reject variant
+
+- Candidate commit `5946ae8`, source identity `388e3f5d3d28`, normal profile,
+  stock 150 MHz, temperature disabled, run ID `30004927-00000008`. Both clean
+  wrapper builds, all nine suites, eight synchronized windows and strict
+  capture passed without a fault, timeout or reset.
+- Standalone hardware/full/filter rates were **331,083 / 30,370 / 31,578
+  H/s**. First-seven common medians were aggregate **355,003 H/s** (range
+  354,999–355,005), hardware **323,654 H/s** (323,653–323,659), and software
+  **31,347 H/s** (31,345–31,350).
+- Versus E09-c this is aggregate **-1,528 H/s (-0.43%)**, hardware **-1,469
+  H/s (-0.45%)**, and software **-61 H/s (-0.19%)**. The nested shape recovers
+  9,701 aggregate H/s and 9,715 hardware H/s over candidate 91, consistent
+  with its 28-byte smaller emitted M33 worker, but it does not eliminate the
+  finite-allocation regression. Reject the ARM variant.
+- ARM UF2 SHA-256:
+  `2e2a53a1b2865d35e68c8777fb545fee799e38dda96047851ff37a412e00b25c`.
+  Complete log SHA-256:
+  `43d6eea50351e4188b2e428777946736229b6c430591dd3cba96309d6b0ed2d1`.
+  Archived log: `logs/E14-chunks-nested-arm.log`.
+
+### E14 nested hardware chunk loop RISC-V attempt 93b — pass, reject variant
+
+- The identical committed candidate ran as `30004927-00000009`. Both builds,
+  all nine suites, eight synchronized windows and strict capture passed at
+  stock 150 MHz with temperature disabled.
+- Standalone hardware/full/filter rates were **344,783 / 28,631 / 30,235
+  H/s**. First-seven common medians were aggregate **363,813 H/s** (range
+  363,798–363,817), hardware **333,804 H/s** (333,787–333,807), and software
+  **30,010 H/s** (30,010–30,013).
+- Versus E09-c this is aggregate **-4,675 H/s (-1.27%)**, hardware **-4,630
+  H/s (-1.37%)**, and software **-41 H/s (-0.14%)**. Nesting recovers 3,796
+  aggregate H/s and 3,762 hardware H/s over candidate 91 and reduces the
+  emitted Hazard3 worker by 166 bytes, but a material loss remains. Reject
+  candidate 93 on both ISAs and restore E09-c before another experiment.
+- RISC-V UF2 SHA-256:
+  `86fa63fe6e713cfa5e7209a49dbf7d167cedc96c1e926cc97d86c10bbdd7892d`.
+  Complete log SHA-256:
+  `9cf4719d0be01fbf0b4995cc1d58370ab45acb71d9e7df9ad36c79432e396d4c`.
+  Archived log: `logs/E14-chunks-nested-riscv.log`.

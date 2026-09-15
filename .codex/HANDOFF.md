@@ -85,8 +85,10 @@ changes and keep temperature disabled.
    both ISAs. It is rejected: ARM is unchanged at -3.15%; Hazard3 worsens to
    -3.06%. Allocation frequency is not the cause. Next use a nested inner
    nonce loop with acquisition outside it, returning to 4,096 chunks.
-7. Candidate 93 implements that core-1 nested-loop shape. Build both, inspect
-   assembly, then hardware-test independently.
+7. Candidate 93 nested the core-1 hot loop and passed both ISAs, recovering
+   most of candidate 91's loss, but is rejected: ARM remains -0.43% aggregate
+   and Hazard3 -1.27% versus E09-c. Restore the accepted E09-c source before
+   proceeding to another experiment.
 
 ## Files and evidence
 
