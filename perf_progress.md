@@ -3152,3 +3152,31 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=53000 elapsed_us=2016886 hash_rate_hs=26278 checksum=45 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=54000 elapsed_us=2002387 hash_rate_hs=26968 checksum=3f1babeb temperature=disabled
 ```
+
+## 2026-09-15 — E09-b W31/W32 partial precomputation, RISC-V
+
+- Experiment: `E09b-w31w32-partial-riscv-67`, candidate commit `c8f6857`, at
+  the stock 150 MHz clock.
+- Cached the last two header-schedule sigma terms whose inputs are entirely
+  job-invariant: `640 + sigma0(W16)` for W31 and `W16 + sigma0(W17)` for W32.
+  Schedule words from W33 onward depend on nonce-derived inputs.
+- Both architectures built warning-free. All 4,096 oracle cases and all 7
+  suites passed on Hazard3; no fault occurred.
+- Full-digest software: **26,623 H/s**, versus parent 26,278 H/s: **+1.31%**
+  (+345 H/s). Exact filter: **27,331 H/s**, versus parent 26,968 H/s:
+  **+1.35%** (+363 H/s).
+- Median of the final 30 dual-worker reports: hardware **338,885 H/s**,
+  software **27,080 H/s**, aggregate **365,965 H/s**.
+- Versus the parent run, sustained software is **+1.35%** (+360 H/s) and
+  aggregate is **+0.11%** (+417 H/s); hardware moved +57 H/s.
+- Candidate RISC-V UF2 SHA-256:
+  `d62875c32cfb21e875e1a1cc4a778b9f860463adaa113ceffdd972ca56ad8ac1`.
+- Archived serial log: `logs/E09b-w31w32-partial-riscv.log`.
+- Decision: provisionally retain; all software measurements show a consistent
+  gain. Verify M33 before final retention.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=54000 elapsed_us=2028296 hash_rate_hs=26623 checksum=61 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=55000 elapsed_us=2012337 hash_rate_hs=27331 checksum=73309c95 temperature=disabled
+```
