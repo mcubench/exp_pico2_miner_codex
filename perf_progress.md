@@ -2558,3 +2558,15 @@ MINING:PROGRESS arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=9400000 hardwa
 TEST:SUMMARY pass=7 fail=0
 MINING:PROGRESS arch=ARM-M33 hardware_core=1 hardware_nonce=8400000 hardware_hashes=4200000 hardware_rate_hs=325707 software_core=0 software_nonce=678793 software_hashes=339396 software_rate_hs=26319 total_hashes=4539396 hash_rate_hs=352026 temperature=disabled
 ```
+
+## 2026-09-15 — E05 RISC-V `-mbranch-cost=1` software flag
+
+- Experiment: `E05-branch-cost-riscv-41` at candidate commit `bd99396`.
+- Scoped `-mbranch-cost=1` only to `src/software_sha256.c`; ARM was unchanged.
+- Both architectures built cleanly. The RISC-V UF2 remained byte-identical to
+  the retained code-only SRAM image at
+  `b22558c1f3e4f3bc06ce6e1e313d7640dfefe254ac49728a939db4a71f1f790d`;
+  ARM likewise remained byte-identical.
+- Decision: reject without flashing. The installed Hazard3 compiler's existing
+  choices for this branch-light expanded-schedule kernel are unchanged, so the
+  expected hardware result is exactly the retained binary's measured result.
