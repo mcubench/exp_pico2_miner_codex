@@ -4421,3 +4421,37 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `6fd2b7f053cac2f4ed8b2e8b94626892fbc31ff01e0e69cbf8bdb92165a646b6`.
   Their existing attempts 88a/88b therefore remain the hardware validation
   for the restored baseline; no duplicate flash is needed.
+
+## 2026-09-15 — E14 finite dynamic chunks candidate 90 definition
+
+- Parent checkpoint `effc1ad`, accepted E09-c firmware identity
+  `71b48132e899`, normal profile, stock 150 MHz, temperature disabled. Parent
+  first-seven common medians are ARM **356,531 H/s** and RISC-V **368,488
+  H/s**.
+- Replace permanent even/odd nonce ownership with a shared generation-tagged
+  64-bit cursor over the exact end-exclusive range `[0, 2^32)`. Both workers
+  acquire disjoint 4,096-nonce chunks under a Pico SDK cross-core critical
+  section; the lock is taken only at chunk boundaries and each worker retains
+  its precomputed job state across chunks.
+- Natural exhaustion is no longer a fault. Core 1 reports its validated final
+  partial count, core 0 waits for both workers, and completion succeeds only
+  when reconciled hardware plus software hashes equal exactly `2^32`.
+  Cancellation, job replacement, and FIFO telemetry changes are intentionally
+  excluded from this candidate so their correctness and performance can be
+  evaluated separately.
+- Add a ninth startup KAT for the pure allocator boundary logic. Its seven
+  checks cover the range ending at `2^32`, a final partial chunk, contiguous
+  allocation, one worker draining the range while the other is parked,
+  generation mismatch without cursor movement, zero chunk rejection, and
+  exhaustion without reissue. Update the strict host validation contract and
+  its synthetic tests to require the named ninth suite.
+- Pre-flash gates pass: all 8 host contract unit tests pass, `git diff
+  --check` is clean, and both repository wrapper builds are warning-free.
+  Candidate image size is 189,576 text / 4,740 BSS bytes on ARM and 201,636
+  text / 4,472 BSS bytes on RISC-V, respectively +896/+32 and +764/+32 bytes
+  over the E09-c parent.
+- Hardware acceptance requires all nine suites and strict capture to pass on
+  both ISAs, no fault or protocol stall, and common-window aggregate throughput
+  that does not materially regress. Compare 4,096-nonce chunk synchronization
+  overhead independently on each architecture before attempting the separate
+  65,536-nonce variant.

@@ -19,6 +19,7 @@
 #include "pico/multicore.h"
 #include "pico/sha256.h"
 #include "pico/stdlib.h"
+#include "pico/sync.h"
 
 #include "software_sha256.h"
 
@@ -41,6 +42,9 @@ _Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
 #define BENCHMARK_BATCH 1000u
 #define MINING_REPORT_INTERVAL 100000u
 #define COMMON_WINDOW_REPORT_INTERVAL 16u
+#define MINING_CHUNK_SIZE 4096u
+#define MINING_JOB_GENERATION 1u
+#define MINING_NONCE_SPACE_END (UINT64_C(1) << 32u)
 #define RUN_SEQUENCE_MAGIC 0x4d494e52u
 
 #ifndef MINER_USE_CORE1
@@ -53,6 +57,29 @@ _Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
 
 static uint32_t boot_run_sequence;
 static uint32_t boot_chip_id;
+
+typedef struct nonce_chunk_cursor {
+    uint64_t next;
+    uint64_t end;
+    uint32_t generation;
+} nonce_chunk_cursor_t;
+
+static bool nonce_chunk_take(nonce_chunk_cursor_t *cursor,
+                             uint32_t expected_generation,
+                             uint32_t chunk_size,
+                             uint64_t *start,
+                             uint64_t *end) {
+    if (chunk_size == 0u || cursor->generation != expected_generation
+        || cursor->next >= cursor->end) {
+        return false;
+    }
+    *start = cursor->next;
+    const uint64_t remaining = cursor->end - cursor->next;
+    const uint64_t count = remaining < chunk_size ? remaining : chunk_size;
+    cursor->next += count;
+    *end = cursor->next;
+    return true;
+}
 
 #if MINER_SYS_CLOCK_KHZ > 150000
 #define CLOCK_PROFILE "experimental-overclock"
@@ -576,6 +603,79 @@ static bool run_sha_error_sticky_test(void) {
     return passed;
 }
 
+static bool run_nonce_chunk_allocator_tests(void) {
+    bool passed = true;
+    uint32_t cases = 0u;
+    uint64_t start;
+    uint64_t end;
+
+    nonce_chunk_cursor_t edge = {
+        .next = MINING_NONCE_SPACE_END - 3u,
+        .end = MINING_NONCE_SPACE_END,
+        .generation = 7u,
+    };
+    passed &= nonce_chunk_take(&edge, 7u, 2u, &start, &end)
+              && start == MINING_NONCE_SPACE_END - 3u
+              && end == MINING_NONCE_SPACE_END - 1u;
+    ++cases;
+    passed &= nonce_chunk_take(&edge, 7u, 2u, &start, &end)
+              && start == MINING_NONCE_SPACE_END - 1u
+              && end == MINING_NONCE_SPACE_END;
+    ++cases;
+    passed &= !nonce_chunk_take(&edge, 7u, 2u, &start, &end);
+    ++cases;
+
+    nonce_chunk_cursor_t alternating = {
+        .next = 0u,
+        .end = 3u * MINING_CHUNK_SIZE + 17u,
+        .generation = 11u,
+    };
+    uint64_t covered = 0u;
+    uint64_t expected_start = 0u;
+    uint32_t chunks = 0u;
+    while (nonce_chunk_take(&alternating, 11u, MINING_CHUNK_SIZE,
+                            &start, &end)) {
+        passed &= start == expected_start && end > start;
+        covered += end - start;
+        expected_start = end;
+        ++chunks;
+    }
+    passed &= chunks == 4u && covered == 3u * MINING_CHUNK_SIZE + 17u
+              && expected_start == alternating.end;
+    ++cases;
+
+    nonce_chunk_cursor_t parked_worker = {
+        .next = 123u,
+        .end = 123u + 2u * MINING_CHUNK_SIZE,
+        .generation = 13u,
+    };
+    covered = 0u;
+    while (nonce_chunk_take(&parked_worker, 13u, MINING_CHUNK_SIZE,
+                            &start, &end)) {
+        covered += end - start;
+    }
+    passed &= covered == 2u * MINING_CHUNK_SIZE;
+    ++cases;
+
+    nonce_chunk_cursor_t replaced = {
+        .next = 500u,
+        .end = 900u,
+        .generation = 17u,
+    };
+    passed &= !nonce_chunk_take(&replaced, 16u, MINING_CHUNK_SIZE, &start, &end)
+              && replaced.next == 500u;
+    ++cases;
+    passed &= !nonce_chunk_take(&replaced, 17u, 0u, &start, &end)
+              && replaced.next == 500u;
+    ++cases;
+
+    printf("TEST:%s kat=nonce_chunk_allocator cases=%" PRIu32
+           " chunk_size=%u range_end=%" PRIu64 "\n",
+           passed ? "PASS" : "FAIL", cases, MINING_CHUNK_SIZE,
+           MINING_NONCE_SPACE_END);
+    return passed;
+}
+
 static bool run_known_answer_tests(void) {
     bool passed = true;
     static const uint8_t abc[] = {'a', 'b', 'c'};
@@ -589,6 +689,7 @@ static bool run_known_answer_tests(void) {
     passed &= run_optimized_oracle_vectors();
     passed &= run_target_tests();
     passed &= run_mining_decision_path_tests();
+    passed &= run_nonce_chunk_allocator_tests();
 
     bitcoin_hasher_begin(&hasher, genesis_header);
     const bool genesis_hashed = bitcoin_hasher_hash_nonce(&hasher, 2083236893u);
@@ -1027,7 +1128,27 @@ enum mining_message {
     MINING_MESSAGE_FAULT = 0x4641554cu,
     MINING_MESSAGE_READY = 0x52454144u,
     MINING_MESSAGE_ACK = 0x41434b21u,
+    MINING_MESSAGE_COMPLETE = 0x444f4e45u,
 };
+
+static critical_section_t mining_allocator_lock;
+static nonce_chunk_cursor_t mining_allocator_cursor;
+
+static void mining_allocator_init(void) {
+    critical_section_init(&mining_allocator_lock);
+    mining_allocator_cursor.next = 0u;
+    mining_allocator_cursor.end = MINING_NONCE_SPACE_END;
+    mining_allocator_cursor.generation = MINING_JOB_GENERATION;
+}
+
+static bool mining_allocate_chunk(uint64_t *start, uint64_t *end) {
+    critical_section_enter_blocking(&mining_allocator_lock);
+    const bool allocated = nonce_chunk_take(
+        &mining_allocator_cursor, MINING_JOB_GENERATION, MINING_CHUNK_SIZE,
+        start, end);
+    critical_section_exit(&mining_allocator_lock);
+    return allocated;
+}
 
 static void mining_fifo_push_u64(uint64_t value) {
     multicore_fifo_push_blocking((uint32_t)value);
@@ -1055,6 +1176,8 @@ static MINING_LOOP_OPTIONS void mining_worker_core1(void) {
     sha256_result_t target;
     bitcoin_hasher_t hasher;
     uint32_t nonce = 0u;
+    uint64_t chunk_next = 0u;
+    uint64_t chunk_end = 0u;
     uint32_t since_report = 0u;
     uint64_t total_hashes = 0u;
     uint64_t report_started_us;
@@ -1072,6 +1195,22 @@ static MINING_LOOP_OPTIONS void mining_worker_core1(void) {
     report_started_us = time_us_64();
 
     while (true) {
+        if (chunk_next == chunk_end
+            && !mining_allocate_chunk(&chunk_next, &chunk_end)) {
+#ifdef __riscv
+            if (sha256_err_not_ready()) {
+                bitcoin_hasher_end(&hasher);
+                mining_worker_fault(2u, nonce, since_report);
+            }
+#endif
+            bitcoin_hasher_end(&hasher);
+            multicore_fifo_push_blocking(MINING_MESSAGE_COMPLETE);
+            mining_fifo_push_u64(total_hashes + since_report);
+            while (true) {
+                tight_loop_contents();
+            }
+        }
+        nonce = (uint32_t)chunk_next++;
 #ifdef __riscv
         bitcoin_hasher_hash_nonce_unchecked(&hasher, nonce);
 #else
@@ -1098,12 +1237,6 @@ static MINING_LOOP_OPTIONS void mining_worker_core1(void) {
                 multicore_fifo_push_blocking(hash.words[word]);
             }
         }
-        nonce += 2u;
-        if (nonce == 0u) {
-            bitcoin_hasher_end(&hasher);
-            mining_worker_fault(3u, nonce, since_report);
-        }
-
         if (since_report == MINING_REPORT_INTERVAL) {
 #ifdef __riscv
             if (sha256_err_not_ready()) {
@@ -1137,7 +1270,11 @@ static void mine_forever(uint led_pin) {
     sha256_result_t software_hash;
     sha256_result_t target;
     software_bitcoin_hasher_t software_hasher;
-    uint32_t software_nonce = 1u;
+    uint32_t software_nonce = 0u;
+    uint64_t software_chunk_next = 0u;
+    uint64_t software_chunk_end = 0u;
+    bool software_complete = false;
+    bool hardware_complete = false;
     uint64_t software_hashes = 0u;
     uint64_t hardware_hashes = 0u;
     uint64_t software_started_us;
@@ -1153,12 +1290,15 @@ static void mine_forever(uint led_pin) {
     }
     software_bitcoin_hasher_begin(&software_hasher, genesis_header);
     multicore_fifo_drain();
+    mining_allocator_init();
     printf("MINING:START run_id=%08" PRIx32 "-%08" PRIx32
            " header=bitcoin-genesis target_bits=1d00ffff"
-           " hardware_core=1 hardware_nonce_start=0 hardware_nonce_stride=2"
-           " software_core=0 software_nonce_start=1 software_nonce_stride=2"
+           " allocation=dynamic generation=%u chunk_size=%u"
+           " nonce_start=0 nonce_end_exclusive=%" PRIu64
+           " hardware_core=1 software_core=0"
            " note=standalone-stale-work\n",
-           boot_chip_id, boot_run_sequence);
+           boot_chip_id, boot_run_sequence, MINING_JOB_GENERATION,
+           MINING_CHUNK_SIZE, MINING_NONCE_SPACE_END);
     multicore_launch_core1(mining_worker_core1);
     const uint32_t ready_message = multicore_fifo_pop_blocking();
     if (ready_message != MINING_MESSAGE_READY) {
@@ -1171,23 +1311,47 @@ static void mine_forever(uint led_pin) {
     multicore_fifo_push_blocking(MINING_MESSAGE_ACK);
 
     while (true) {
-        bool full_digest_computed;
-        const bool software_candidate = software_hash_nonce_meets_target(
-            &software_hasher, software_nonce, &target, &software_hash,
-            &full_digest_computed);
-        ++software_hashes;
-        if (software_candidate) {
-            printf("SHARE:FOUND worker=software core=0 nonce=%" PRIu32 " hash=",
-                   software_nonce);
-            print_bitcoin_hash(software_hash.bytes);
-            printf(" software_hashes=%" PRIu64 "\n", software_hashes);
+        if (!software_complete) {
+            if (software_chunk_next == software_chunk_end
+                && !mining_allocate_chunk(&software_chunk_next,
+                                          &software_chunk_end)) {
+                software_complete = true;
+            }
+            if (!software_complete) {
+                software_nonce = (uint32_t)software_chunk_next++;
+                bool full_digest_computed;
+                const bool software_candidate = software_hash_nonce_meets_target(
+                    &software_hasher, software_nonce, &target, &software_hash,
+                    &full_digest_computed);
+                ++software_hashes;
+                if (software_candidate) {
+                    printf("SHARE:FOUND worker=software core=0 nonce=%" PRIu32
+                           " hash=", software_nonce);
+                    print_bitcoin_hash(software_hash.bytes);
+                    printf(" software_hashes=%" PRIu64 "\n", software_hashes);
+                }
+            }
         }
-        software_nonce += 2u;
-        if (software_nonce == 1u) {
-            printf("FAULT type=nonce_exhausted worker=software core=0\n");
+        if (software_complete && hardware_complete) {
+            const uint64_t total_hashes = hardware_hashes + software_hashes;
+            if (total_hashes != MINING_NONCE_SPACE_END) {
+                printf("FAULT type=nonce_accounting expected=%" PRIu64
+                       " actual=%" PRIu64 "\n",
+                       MINING_NONCE_SPACE_END, total_hashes);
+                return;
+            }
+            printf("MINING:COMPLETE run_id=%08" PRIx32 "-%08" PRIx32
+                   " generation=%u hardware_hashes=%" PRIu64
+                   " software_hashes=%" PRIu64
+                   " total_hashes=%" PRIu64 "\n",
+                   boot_chip_id, boot_run_sequence, MINING_JOB_GENERATION,
+                   hardware_hashes, software_hashes, total_hashes);
             return;
         }
         if (!multicore_fifo_rvalid()) {
+            if (software_complete) {
+                tight_loop_contents();
+            }
             continue;
         }
 
@@ -1283,6 +1447,9 @@ static void mine_forever(uint led_pin) {
                 gpio_xor_mask64(1ull << led_pin);
                 sleep_ms(100u);
             }
+        } else if (message == MINING_MESSAGE_COMPLETE) {
+            hardware_hashes = mining_fifo_pop_u64();
+            hardware_complete = true;
         } else {
             printf("FAULT type=multicore_protocol message=%08" PRIx32 "\n",
                    message);
@@ -1354,7 +1521,7 @@ int main(void) {
             sleep_ms(100u);
         }
     }
-    printf("TEST:SUMMARY pass=8 fail=0\n");
+    printf("TEST:SUMMARY pass=9 fail=0\n");
 
 #if MINER_PROFILE
     run_profile();

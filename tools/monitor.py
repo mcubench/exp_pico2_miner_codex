@@ -20,6 +20,7 @@ EXPECTED_KATS = {
     "optimized_oracle",
     "target_boundaries",
     "mining_decision_paths",
+    "nonce_chunk_allocator",
     "bitcoin_genesis",
     "bitcoin_nonce_search",
 }
@@ -77,8 +78,10 @@ class ValidationContract:
             ):
                 return "mining candidate does not match host-known genesis vector"
         elif line.startswith("TEST:SUMMARY "):
-            if self.kats != EXPECTED_KATS or data.get("pass") != "8" or data.get("fail") != "0":
-                return "summary does not match eight required KATs"
+            if (self.kats != EXPECTED_KATS
+                or data.get("pass") != "9"
+                or data.get("fail") != "0"):
+                return "summary does not match nine required KATs"
             self.summary = True
         elif line.startswith("BENCHMARK:PASS "):
             if not self.summary:
@@ -145,7 +148,7 @@ class ValidationContract:
         if self.boot is None:
             missing.append("BOOT")
         if self.kats != EXPECTED_KATS or not self.summary:
-            missing.append("eight-test summary")
+            missing.append("nine-test summary")
         for stage in ("hardware", "software", "filter"):
             if stage not in self.benchmarks:
                 missing.append(f"{stage} benchmark")

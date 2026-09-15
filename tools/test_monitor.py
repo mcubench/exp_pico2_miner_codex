@@ -21,7 +21,7 @@ def complete_lines(source="abc123", arch="ARM-M33", run="30004927-00000001"):
     lines.extend(f"TEST:PASS kat={kat}" for kat in sorted(monitor.EXPECTED_KATS))
     lines.extend(
         [
-            "TEST:SUMMARY pass=8 fail=0",
+            "TEST:SUMMARY pass=9 fail=0",
             "BENCHMARK:PASS hash_rate_hs=1",
             "SOFTWARE_BENCHMARK:PASS hash_rate_hs=1",
             "SOFTWARE_FILTER_BENCHMARK:PASS hash_rate_hs=1",
