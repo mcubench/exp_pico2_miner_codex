@@ -10,10 +10,10 @@ changes and keep temperature disabled.
 
 ## Current status
 
-- HEAD before recording the Hazard3 evidence: `fb49671` (`perf: record E02 ARM
-  DWT profile pass`); source identity `02b7825c7499`.
-- Device currently runs the E02 RISC-V profile image at 150 MHz.
-- Working tree contains the archived successful 85d Hazard3 profile and its
+- HEAD before recording the normal restoration: `18b6b2f` (`perf: record E02
+  Hazard3 profile pass`); source identity `02b7825c7499`.
+- Device currently runs the restored normal RISC-V image at 150 MHz.
+- Working tree contains the archived successful normal restoration and its
   intentional ledger/handoff updates.
 - E09-b-pending is resolved and retained on both ISAs.
 - E01-identity is implemented, paired-hardware validated, and retained.
@@ -55,12 +55,14 @@ changes and keep temperature disabled.
   instructions/hash; its first-block DMA feed is 87.01 cycles/hash. Common
   median 365,328 H/s was -0.335% versus retained normal parent, confirming the
   profile image is intrusive-only. Log `logs/E02-profile-riscv.log`.
+- Normal RISC-V restoration passed all gates: common-window median 366,601
+  H/s (hardware 336,750, software 29,850), a +0.012% match to retained parent.
+  Use this as the immediate E06-trigger control.
 
 ## Work in progress / next actions
 
-1. Commit the successful Hazard3 profile evidence.
-2. Restore and validate a normal (`MINER_PROFILE=0`) retained RISC-V image.
-3. Start E06-trigger on Hazard3: configure the 16-word transfer count once and
+1. Commit the normal restoration/control evidence.
+2. Start E06-trigger on Hazard3: configure the 16-word transfer count once and
    use the read-address trigger for each idle-channel rearm. Build both ISAs,
    commit the candidate before hardware, then capture full normal-mode output.
 
@@ -78,6 +80,8 @@ changes and keep temperature disabled.
   SHA-256 `cbae3ae9973d1ecf272a25bee657d4fc3371c27322bd59f38dc7726dea181fbd`.
 - E02 Hazard3 log: `logs/E02-profile-riscv.log`; RISC-V profile UF2 SHA-256
   `5c658609dcdf811dc617de65f9645a033c74ec4f453781e5637fe28c5e102df4`.
+- Restored normal control: `logs/E02-normal-restored-riscv.log`; normal RISC-V
+  UF2 SHA-256 `00db86d95bd8cacff5654730691f6dfc7f881368d8d69ae1d545c3f330689742`.
 - E01 implementation: `CMakeLists.txt`, `src/main.c`, `tools/common.sh`,
   `tools/build`, `tools/cycle`, `tools/monitor.py`, `tools/test_monitor.py`.
 

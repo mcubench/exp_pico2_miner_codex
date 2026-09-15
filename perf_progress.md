@@ -4070,3 +4070,22 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   it. E03 handoff fusion is not promoted because M33's measured handoff/second
   segment does not isolate a remaining digest spill, and the software paths
   remain dominated by SHA rounds rather than a cross-source call boundary.
+
+### E02 normal-image restoration/control 85e — pass
+
+- Source identity `02b7825c7499`, `MINER_PROFILE=0`, stock 150 MHz,
+  temperature disabled. Both normal architectures rebuilt warning-free before
+  flashing RISC-V. Run ID `30004927-0000000c` passed all 8 suites, standalone
+  benchmarks, seven aligned windows, and strict capture without a fault.
+- Standalone rates: hardware **343,193 H/s**, full software **28,631 H/s**,
+  filter **30,041 H/s**. Seven-window aggregate range
+  **366,596–366,606 H/s**, median **366,601 H/s**; hardware median
+  **336,750 H/s**, software median **29,850 H/s**.
+- The fresh normal aggregate is 45 H/s (+0.012%) versus the retained E01
+  normal median 366,556 H/s. This confirms the parent remains stable and makes
+  **366,601 H/s** the immediate same-session comparator for E06-trigger.
+- Normal UF2 SHA-256: ARM
+  `0d7faf52ddf9baca3fede920b752895e8e9c2aa160644aa3303740d234ecb900`,
+  RISC-V
+  `00db86d95bd8cacff5654730691f6dfc7f881368d8d69ae1d545c3f330689742`.
+  Complete log: `logs/E02-normal-restored-riscv.log`.
