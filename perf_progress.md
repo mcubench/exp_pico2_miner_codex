@@ -3012,3 +3012,32 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=54000 elapsed_us=2007402 hash_rate_hs=26900 checksum=61 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=55000 elapsed_us=2003894 hash_rate_hs=27447 checksum=73309c95 temperature=disabled
 ```
+
+## 2026-09-15 — E09-c trim unused filter schedule, RISC-V and retention
+
+- Experiment: `E09c-trim61-riscv-62`, candidate commit `3835437`, at the
+  stock 150 MHz clock.
+- Both architectures built warning-free. All 4,096 oracle cases and all 7
+  suites passed on Hazard3; no fault occurred.
+- Full-digest software: **25,884 H/s**. This path is source-identical to the
+  preceding candidate and its -0.17% movement is benchmark quantization/noise.
+- Exact round-61 filter: **26,548 H/s**, versus 26,333 H/s in both preceding
+  RISC-V trials: **+0.82%** (+215 H/s).
+- Median of the final 30 dual-worker reports: hardware **338,921 H/s**,
+  software **26,307 H/s**, aggregate **365,228 H/s**.
+- Versus the immediately preceding matched E05 RISC-V run, sustained software
+  is **+0.82%** (+213 H/s) and aggregate is **+0.054%** (+198 H/s). Versus the
+  retained E09-c aggregate 364,453 H/s, aggregate is **+0.21%** (+775 H/s).
+- Candidate RISC-V UF2 SHA-256:
+  `054f1a4455ff11a844e00790bb8ba55b53cb71949caa6f65ca4910a4878a9b7d`.
+- Archived serial log: `logs/E09c-trim61-riscv.log`.
+- Decision: retain. Both M33 and Hazard3 show matching improvements in the
+  isolated exact-filter metric and the sustained software worker, while all
+  full-digest oracle tests remain valid. The aggregate improvement is small
+  because the independent hardware worker dominates total throughput.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=52000 elapsed_us=2008988 hash_rate_hs=25884 checksum=88 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=54000 elapsed_us=2034074 hash_rate_hs=26548 checksum=3f1babeb temperature=disabled
+```
