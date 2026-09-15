@@ -4861,3 +4861,44 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   evaluation, especially on Hazard3. There is no BSS cost. Reject if emitted
   hot work does not decrease, either ISA regresses materially, accounting
   changes, or any validation gate fails.
+
+### E04 exact 32-bit software counter ARM attempt 96a — pass, reject variant
+
+- Candidate commit `30210e8`, source identity `2a603214b584`, normal profile,
+  stock 150 MHz, temperature disabled, run ID `30004927-0000000f`. Both clean
+  builds, all eight suites, eight common windows and strict capture passed.
+- Standalone hardware/full/filter rates were **331,087 / 30,364 / 31,578
+  H/s**. First-seven common-window medians were aggregate **356,521 H/s**
+  (range 356,512–356,525), hardware **325,125 H/s** (325,119–325,130), and
+  software **31,395 H/s** (31,393–31,397). Versus E09-c these are effectively
+  neutral: aggregate **-10 H/s (-0.00%)**, hardware **+2 H/s (+0.00%)**, and
+  software **-13 H/s (-0.04%)**.
+- Text decreased 16 bytes to 188,664 and BSS remained 4,708 bytes, but the M33
+  mining loop still emits a two-instruction `adds`/`adc` carry chain for the
+  live count. Thus the hypothesized hot work was not removed; the size change
+  is cold formatting/layout and does not justify retaining the source change.
+- ARM UF2 SHA-256:
+  `936881ef2009965ea93174c39e2812fb33616425d0f476701ca3f5e93f303ff8`.
+  Complete log SHA-256:
+  `d2276bcdd3a62a1367174eefa8cefb85c68f610f038591d8ee11b76aeb0de298`.
+  Archived log: `logs/E04-software-count32-arm.log`.
+
+### E04 exact 32-bit software counter RISC-V attempt 96b — pass, reject variant
+
+- The identical candidate ran as `30004927-00000010`; all eight suites, eight
+  common windows and strict capture passed. Standalone hardware/full/filter
+  rates were **344,785 / 28,636 / 30,235 H/s**.
+- First-seven medians were aggregate **368,316 H/s** (range 368,270–368,339),
+  hardware **338,277 H/s** (338,236–338,299), and software **30,038 H/s**
+  (30,035–30,040). Versus E09-c these are aggregate **-172 H/s (-0.05%)**,
+  hardware **-157 H/s (-0.05%)**, and software **-13 H/s (-0.04%)**: neutral,
+  with no measurable gain.
+- Text decreased 28 bytes to 200,844 and BSS remained 4,440 bytes. Hazard3
+  nevertheless still emits `addi`/`sltu`/`add` for a low-word increment and
+  carry, so the exact hot-loop rejection rule is met on both ISAs. Reject
+  candidate 96 and restore the accepted E09-c counter/format contract.
+- RISC-V UF2 SHA-256:
+  `a17fe5ef2c1d47854a3055bd906a85a7bf094d315ed4755ab04dbc606c85f34b`.
+  Complete log SHA-256:
+  `3de4abc163f7ac783714920a0937f492cd09939a06bb197fcef0782f15e968bd`.
+  Archived log: `logs/E04-software-count32-riscv.log`.

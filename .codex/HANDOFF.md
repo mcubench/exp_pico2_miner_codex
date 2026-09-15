@@ -112,6 +112,12 @@ changes and keep temperature disabled.
 12. Next candidate 96 is E04 exact 32-bit software accounting: the current odd
     parity worker stops after 2^31 hashes, so its hot counter needs no 64-bit
     increment. Preserve 64-bit window/rate/aggregate math and all cadence.
+13. Candidate 96 passed every hardware gate on both ISAs but is rejected. ARM
+    was neutral at 356,521 H/s and Hazard3 at 368,316 H/s. Disassembly shows
+    that both compilers still maintain the carry chain in the mining loop, so
+    the intended hot work was not removed despite 16/28-byte text reductions.
+    Restore the accepted 64-bit counter and print formats, rebuild both ISAs,
+    and require the exact E09-c UF2 hashes before the next experiment.
 
 ## Files and evidence
 
