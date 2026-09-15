@@ -2603,3 +2603,19 @@ MINING:PROGRESS arch=ARM-M33 hardware_core=1 hardware_nonce=8400000 hardware_has
 - Archived serial log: `logs/E09b3-reusable-blocks-riscv.log`.
 - Decision: reject; the enlarged persistent state/load pattern outweighs the
   saved per-call clears. Restore local blocks and do not spend an ARM flash.
+
+## 2026-09-15 — E05 whole-target link-time optimization build rejection
+
+- Experiment: `E05-whole-target-lto-45`.
+- Enabled CMake interprocedural optimization on the complete retained
+  dual-worker target so cross-translation-unit calls and constants could be
+  optimized together.
+- ARM compilation completed, but the LTO link failed on Pico SDK wrapped
+  `printf`/`puts` references with unsupported ARM/Thumb relocations.
+- RISC-V compilation failed because its Hazard3 toolchain reported that
+  `-fno-fat-lto-objects` requires an unavailable linker plugin.
+- No image was flashed and no throughput measurement was taken. This is a
+  build-system/toolchain incompatibility, not a runtime performance result.
+- Decision: reject portable whole-target LTO and restore the retained build.
+  Any future LTO attempt must be narrowly scoped and must first demonstrate
+  clean builds for both supported architectures.
