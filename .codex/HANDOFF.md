@@ -78,8 +78,9 @@ changes and keep temperature disabled.
    allocation and 4,096-nonce chunks. Both hardware runs passed all correctness
    gates but the variant is rejected: ARM aggregate -25.99%, Hazard3 -1.85%.
 5. Candidate 91 isolates the 64-bit hot-loop cost with 32-bit local
-   nonce/remaining state, retaining the 64-bit shared cursor, 4,096 chunks and
-   exact `[0, 2^32)` accounting. Build both, then test ARM and RISC-V.
+   nonce/remaining state. Both ISAs pass correctness but remain too slow:
+   ARM aggregate -3.15%, Hazard3 -2.30%. Next change only chunk size from
+   4,096 to the planned 65,536 to isolate acquisition frequency.
 
 ## Files and evidence
 

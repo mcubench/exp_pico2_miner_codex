@@ -4521,3 +4521,48 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   experiment. Accept only if all nine suites remain exact and sustained rates
   recover close to E09-c; do not attribute any result to the 65,536 chunk size,
   which remains a later one-variable experiment.
+
+### E14 32-bit local chunk loop ARM attempt 91a — pass, reject variant
+
+- Candidate commit `b8f53c9`, source identity `514ad72bd3ac`, normal profile,
+  stock 150 MHz, temperature disabled, run ID `30004927-00000004`. Both clean
+  builds passed before flash; all nine suites, seven synchronized windows and
+  strict capture passed without a fault or stall.
+- Standalone hardware/full/filter rates were **331,089 / 30,370 / 31,578
+  H/s**, matching the accepted kernels.
+- First-seven common medians were aggregate **345,302 H/s** (range
+  345,298–345,305), hardware **313,939 H/s** (313,932–313,941), and software
+  **31,364 H/s** (31,363–31,366). Versus E09-c this is aggregate **-11,229
+  H/s (-3.15%)**, hardware **-11,184 H/s (-3.44%)**, and software **-44 H/s
+  (-0.14%)**.
+- Native local state recovers 81,442 aggregate H/s relative to candidate 90,
+  confirming that per-hash 64-bit local cursor operations caused most of its
+  catastrophic ARM loss. Reject this 4,096 variant because the remaining
+  3.15% aggregate cost is still material; test the planned 65,536 chunk size
+  without any other change to isolate acquisition frequency.
+- ARM UF2 SHA-256:
+  `4b9e12813540444b494de229e9afd578dab09d4353c622669495ffb8a67a72a0`.
+  Complete log SHA-256:
+  `cdd8f89ee81dbaf1c5e5f8c52eea69602900d5ddd98f8d1c7d64a51e3609308d`.
+  Archived log: `logs/E14-chunks-native-arm.log`.
+
+### E14 32-bit local chunk loop RISC-V attempt 91b — pass, reject variant
+
+- The identical committed candidate ran as `30004927-00000005`. Both builds,
+  all nine suites, eight synchronized windows and strict capture passed at
+  stock 150 MHz with temperature disabled.
+- Standalone hardware/full/filter rates were **344,785 / 28,636 / 30,235
+  H/s**. First-seven common medians were aggregate **360,017 H/s** (range
+  360,003–360,024), hardware **330,042 H/s** (330,027–330,050), and software
+  **29,974 H/s** (29,971–29,976).
+- Versus E09-c this is aggregate **-8,471 H/s (-2.30%)**, hardware **-8,392
+  H/s (-2.48%)**, and software **-77 H/s (-0.26%)**. It is also 1,665 H/s
+  slower than candidate 90's 64-bit Hazard3 shape, demonstrating another ISA
+  split: native local counters help M33 greatly but not Hazard3.
+- Reject the 4,096 native-local variant on both ISAs, while carrying its safer
+  final-range representation into the one-variable 65,536-chunk experiment.
+- RISC-V UF2 SHA-256:
+  `efcaf84f40acb68916e17934bc28e02351c0bf2ad8d9d0bb6c4474b80dfef76b`.
+  Complete log SHA-256:
+  `6c3c6ff08d7d9dacc6bbe282093ddc07584bd535cae3d99321c64b24be02c30a`.
+  Archived log: `logs/E14-chunks-native-riscv.log`.
