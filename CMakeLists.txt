@@ -56,6 +56,8 @@ target_include_directories(pico2_agent PRIVATE "${ORACLE_INCLUDE_DIR}")
 
 if(PICO_PLATFORM STREQUAL "rp2350-riscv")
     target_link_libraries(pico2_agent PRIVATE hardware_dma pico_multicore pico_stdlib pico_sha256)
+    set_property(SOURCE src/software_sha256.c APPEND PROPERTY
+        COMPILE_OPTIONS -fno-code-hoisting)
 else()
     target_link_libraries(pico2_agent PRIVATE pico_multicore pico_stdlib pico_sha256)
 endif()
