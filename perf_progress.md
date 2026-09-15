@@ -5389,3 +5389,28 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   final architecture split with ARM's explicitly unrolled factor-2 body and
   Hazard3's retained factor-1 body. Rebuild both and validate the final images;
   do not advance to factor 4 until the split is resolved.
+
+## 2026-09-15 — E04-c hardware batch architecture-split candidate 102 definition
+
+- Parent evidence is paired candidate 101. Compile the explicitly unrolled
+  two-nonce outer iteration only for ARM, where it improved aggregate by
+  0.311% and the hardware component by 0.348%. Compile Hazard3's original
+  single-nonce loop shape, avoiding candidate 101's neutral 576-byte expansion.
+- No runtime semantics, clock, SHA/DMA path, software worker, report cadence,
+  job, or target changes. The report-interval divisibility assertion remains
+  valid for both architecture-specific factors.
+- Acceptance: both final images must pass all correctness and strict-capture
+  gates. ARM should reproduce attempt 101a within normal variation; Hazard3
+  should return to candidate 98's throughput and hot-body size. Reject or
+  revise the split if conditional source shape changes either expected path.
+
+### E04-c hardware batch split candidate 102 preflight — pass
+
+- Both dirty stock builds pass warning-free and all eight host monitor tests
+  pass. ARM retains two emitted hardware hash bodies at text/BSS
+  189,192/4,708 bytes; Hazard3 returns to one emitted body and candidate 98's
+  200,924/4,440-byte text/BSS footprint.
+- Dirty ARM/RISC-V UF2 SHA-256 values are
+  `e0bc079e7af0eabb3392d4b527108a054709cad59e7bc0e02095b4a68148a586` /
+  `f85e3281c01a9807e95d8c44f1e37c705be7b12df353b02df83428fc78b30dc2`.
+  Commit and rebuild at the final clean source identity before flashing.

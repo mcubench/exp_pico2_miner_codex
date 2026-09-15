@@ -104,6 +104,12 @@ versus candidate 98 despite +576 text bytes. Archive
 `logs/E04c-hardware-batch2-riscv.log`. Retain factor 2 only for ARM, restore
 Hazard3 to factor 1 in a final architecture split, rebuild both, and hardware
 validate the split before considering factor 4.
+Candidate 102 architecture split is now being prepared: ARM factor 2,
+Hazard3 factor 1. Its definition and acceptance criteria are appended to the
+ledger. Build/test and inspect both final loop shapes before committing.
+Dirty preflight passes: ARM text/BSS 189,192/4,708 with two bodies; Hazard3
+200,924/4,440 with one body, and all eight host tests pass. Commit candidate
+102, clean-rebuild, then validate ARM and Hazard3 final images.
 
 0. Candidate 97 is now defined as E04-f telemetry cadence: change only the
    hardware report interval from 100,000 to 340,000 hashes (approximately one
