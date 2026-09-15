@@ -10,12 +10,11 @@ changes and keep temperature disabled.
 
 ## Current status
 
-- HEAD: `cf1ab1f` (`perf: retain E01 synchronized measurements`).
-- Retained firmware/tooling source identity: `f2687597e485`; E02 profile
-  candidate is currently dirty until its pre-hardware commit.
-- Device currently runs the retained E01-window RISC-V image at 150 MHz.
-- Working tree contains only the intentional E02 profiling implementation and
-  candidate ledger/handoff updates.
+- HEAD before recording attempt 85a: `9181c33` (`perf: add optional E02 stage
+  profiling`); source identity `5559d0ea81c1`.
+- Device currently runs the E02 ARM profile image at 150 MHz.
+- Working tree contains the archived ARM SysTick result and its intentional
+  ledger/handoff updates until the next evidence commit.
 - E09-b-pending is resolved and retained on both ISAs.
 - E01-identity is implemented, paired-hardware validated, and retained.
 - E01-rare candidate 83 and E01-window candidate 84 are retained on both ISAs.
@@ -45,15 +44,19 @@ changes and keep temperature disabled.
   SHA-256 `238f314f3012188082c35a2324c0b9f74bee42adeeffb010c8fc1b086e702ac4`.
 - E02 profile mode compiles on both ISAs and adds intrusive stage, CPU-counter,
   and XIP-counter records only when `MINER_PROFILE=1`. Normal and profile dual
-  builds pass; hardware validation is pending.
+  builds pass. ARM attempt 85a passed functionally, but live DWT capability
+  bits disproved the header reset annotation; its counter backend needs a
+  DWT-only revision and repeat before the RISC-V profile.
 - One ARM flash completion failure was recorded at `bf7b8f4`; retry passed.
 
 ## Work in progress / next actions
 
-1. Commit the E02 profiling candidate before hardware use.
-2. Rebuild both profile images from the committed source, flash/capture ARM
-   then RISC-V, archive and record each result, then restore a normal image.
-3. Use E02 evidence to select the next sequence item, with E06-trigger the
+1. Commit archived ARM SysTick attempt 85a and its evidence.
+2. Replace only the ARM SysTick backend with live DWT CYCCNT enable/read,
+   rebuild both ISAs, checkpoint, then repeat ARM profile hardware capture.
+3. If ARM passes, run the RISC-V profile, archive and record it, then restore a
+   normal retained image.
+4. Use E02 evidence to select the next sequence item, with E06-trigger the
    plan's default next code experiment.
 
 ## Files and evidence
@@ -65,6 +68,7 @@ changes and keep temperature disabled.
 - E01 logs: `logs/E01-identity-{arm,riscv}.log` and
   `logs/E01-identity-arm-flash-failure.log`.
 - E01-window logs: `logs/E01-window-{arm,riscv}.log`.
+- E02 exploratory ARM log: `logs/E02-profile-arm-systick.log`.
 - E01 implementation: `CMakeLists.txt`, `src/main.c`, `tools/common.sh`,
   `tools/build`, `tools/cycle`, `tools/monitor.py`, `tools/test_monitor.py`.
 

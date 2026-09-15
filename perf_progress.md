@@ -3903,3 +3903,47 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   capability/overhead must be reported, profile totals must be internally
   plausible against end-to-end elapsed time, and the normal post-profile
   benchmark/common windows must remain functional. Archive each full log.
+
+### E02 ARM SysTick attempt 85a — functional pass, profiler revision required
+
+- Candidate commit `9181c33`, source identity `5559d0ea81c1`, profile=1,
+  stock 150 MHz, temperature disabled. Both profile architectures built
+  warning-free before flashing. All 8 test suites, standalone benchmarks, and
+  seven common windows passed; no fault or capture failure occurred.
+- The live ARM register was `DWT_CTRL=0x40000000`, meaning `NOCYCCNT=0` and
+  `NOPRFCNT=0`. This contradicts the generated register header's reset-value
+  annotations and establishes that the connected silicon exposes DWT counters.
+  The SysTick measurement is retained as evidence, but the ARM profiler must
+  be revised to use the plan-preferred live DWT counter before final E02 use.
+- SysTick read interval overhead averaged 11.527 cycles. Intrusive hardware
+  totals over 4,096 nonces: setup/start 53,532 (**13.07/hash**), first feed
+  336,408 (**82.13/hash**), tail feed plus first-digest wait 797,484
+  (**194.70/hash**), digest handoff plus second hash 709,779 (**173.29/hash**),
+  and target/error/check 259,536 (**63.36/hash**). The staged sum is 526.55
+  cycles/hash; elapsed wall time 15,121 us corresponds to 553.75 cycles/hash,
+  leaving about 27.20 cycles/hash in loop/timer/instrumentation overhead.
+- Intrusive software filter: header tail 9,810,138 (**2,395.05/hash**) and
+  second filter 10,216,184 (**2,494.19/hash**), with 133,922 us end-to-end
+  (**4,904.37 cycles/hash**). Full digest: header tail 9,806,478
+  (**2,394.16/hash**) and second full 10,536,721 (**2,572.44/hash**), with
+  136,101 us end-to-end (**4,984.17 cycles/hash**). This points to a nearly
+  even first/second software split; the exact filter saves about 78.25
+  measured second-stage cycles/hash versus full output.
+- XIP hit/access observations: hardware 902,323/902,443; filter
+  685,447/685,473; full 693,593/693,612. These are global request counters,
+  not stall-cycle counters; the near-total hit ratio does not prove zero fetch
+  contention.
+- Uninstrumented post-profile paths: hardware 330,359 H/s, full software
+  30,017 H/s, filter 30,718 H/s. Common-window aggregate range
+  355,513–355,525 H/s, median **355,519 H/s**, only -0.034% from the retained
+  ARM 355,640 H/s baseline; the dormant profile facility did not materially
+  disrupt normal execution.
+- ARM profile UF2 SHA-256:
+  `138b3860133cb2c7437aca3241e77e5b44311fe4bb2907ea840bcf6c079c5726`.
+  Paired RISC-V profile UF2 at the same candidate:
+  `0a6536526714278c5624759cd8c0dffb2a4699bca7558550a18ba32b4a6ffdcc`.
+  Run ID `30004927-00000008`; archived log
+  `logs/E02-profile-arm-systick.log`.
+- Decision: preserve the measurement as a successful exploratory attempt, but
+  do not call the ARM counter choice complete. Revise only the counter backend
+  to DWT and repeat ARM before advancing to the paired RISC-V profile.
