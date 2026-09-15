@@ -4502,3 +4502,22 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   Complete log SHA-256:
   `521c622e1c79aea3d33b5d652ab48dc207203f345b1ac7a299ecc483111a3f69`.
   Archived log: `logs/E14-chunks-4096-riscv.log`.
+
+## 2026-09-15 — E14 32-bit local chunk-loop candidate 91 definition
+
+- Parent candidate `00a1e22` proved the generation-tagged 64-bit allocator and
+  completion accounting correct on both ISAs, but its per-hash 64-bit local
+  cursor shape was rejected at **-25.99% ARM** and **-1.85% Hazard3** aggregate.
+- Preserve the shared 64-bit cursor, exact `[0, 2^32)` range, SDK critical
+  section, generation, 4,096-nonce chunk size, ninth KAT, and all FIFO/reporting
+  behavior. Change only each worker's acquired-range representation to a
+  32-bit nonce and 32-bit remaining count, so the hot path performs a native
+  increment/decrement and zero test rather than 64-bit increment/comparison.
+- The conversion is safe even for the final chunk: its start is representable
+  as `uint32_t`, its length is at most 4,096, and wrapping the local nonce after
+  hashing `0xffffffff` is ignored when remaining reaches zero. The shared
+  64-bit cursor remains authoritative for exhaustion and final accounting.
+- Build and hardware-test both ISAs as a separate implementation-shape
+  experiment. Accept only if all nine suites remain exact and sustained rates
+  recover close to E09-c; do not attribute any result to the 65,536 chunk size,
+  which remains a later one-variable experiment.

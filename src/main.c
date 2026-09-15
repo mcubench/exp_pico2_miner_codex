@@ -1150,6 +1150,18 @@ static bool mining_allocate_chunk(uint64_t *start, uint64_t *end) {
     return allocated;
 }
 
+static bool mining_allocate_local_chunk(uint32_t *nonce,
+                                        uint32_t *remaining) {
+    uint64_t start;
+    uint64_t end;
+    if (!mining_allocate_chunk(&start, &end)) {
+        return false;
+    }
+    *nonce = (uint32_t)start;
+    *remaining = (uint32_t)(end - start);
+    return true;
+}
+
 static void mining_fifo_push_u64(uint64_t value) {
     multicore_fifo_push_blocking((uint32_t)value);
     multicore_fifo_push_blocking((uint32_t)(value >> 32u));
@@ -1176,8 +1188,7 @@ static MINING_LOOP_OPTIONS void mining_worker_core1(void) {
     sha256_result_t target;
     bitcoin_hasher_t hasher;
     uint32_t nonce = 0u;
-    uint64_t chunk_next = 0u;
-    uint64_t chunk_end = 0u;
+    uint32_t chunk_remaining = 0u;
     uint32_t since_report = 0u;
     uint64_t total_hashes = 0u;
     uint64_t report_started_us;
@@ -1195,8 +1206,8 @@ static MINING_LOOP_OPTIONS void mining_worker_core1(void) {
     report_started_us = time_us_64();
 
     while (true) {
-        if (chunk_next == chunk_end
-            && !mining_allocate_chunk(&chunk_next, &chunk_end)) {
+        if (chunk_remaining == 0u
+            && !mining_allocate_local_chunk(&nonce, &chunk_remaining)) {
 #ifdef __riscv
             if (sha256_err_not_ready()) {
                 bitcoin_hasher_end(&hasher);
@@ -1210,7 +1221,6 @@ static MINING_LOOP_OPTIONS void mining_worker_core1(void) {
                 tight_loop_contents();
             }
         }
-        nonce = (uint32_t)chunk_next++;
 #ifdef __riscv
         bitcoin_hasher_hash_nonce_unchecked(&hasher, nonce);
 #else
@@ -1237,6 +1247,8 @@ static MINING_LOOP_OPTIONS void mining_worker_core1(void) {
                 multicore_fifo_push_blocking(hash.words[word]);
             }
         }
+        ++nonce;
+        --chunk_remaining;
         if (since_report == MINING_REPORT_INTERVAL) {
 #ifdef __riscv
             if (sha256_err_not_ready()) {
@@ -1271,8 +1283,7 @@ static void mine_forever(uint led_pin) {
     sha256_result_t target;
     software_bitcoin_hasher_t software_hasher;
     uint32_t software_nonce = 0u;
-    uint64_t software_chunk_next = 0u;
-    uint64_t software_chunk_end = 0u;
+    uint32_t software_chunk_remaining = 0u;
     bool software_complete = false;
     bool hardware_complete = false;
     uint64_t software_hashes = 0u;
@@ -1312,13 +1323,12 @@ static void mine_forever(uint led_pin) {
 
     while (true) {
         if (!software_complete) {
-            if (software_chunk_next == software_chunk_end
-                && !mining_allocate_chunk(&software_chunk_next,
-                                          &software_chunk_end)) {
+            if (software_chunk_remaining == 0u
+                && !mining_allocate_local_chunk(&software_nonce,
+                                                &software_chunk_remaining)) {
                 software_complete = true;
             }
             if (!software_complete) {
-                software_nonce = (uint32_t)software_chunk_next++;
                 bool full_digest_computed;
                 const bool software_candidate = software_hash_nonce_meets_target(
                     &software_hasher, software_nonce, &target, &software_hash,
@@ -1330,6 +1340,8 @@ static void mine_forever(uint led_pin) {
                     print_bitcoin_hash(software_hash.bytes);
                     printf(" software_hashes=%" PRIu64 "\n", software_hashes);
                 }
+                ++software_nonce;
+                --software_chunk_remaining;
             }
         }
         if (software_complete && hardware_complete) {
