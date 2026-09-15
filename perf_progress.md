@@ -3377,3 +3377,31 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=56000 elapsed_us=2028000 hash_rate_hs=27613 checksum=05 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=57000 elapsed_us=2000016 hash_rate_hs=28500 checksum=dcc0f559 temperature=disabled
 ```
+
+## 2026-09-15 — E10 software FIFO polling every 64 nonces, RISC-V rejection
+
+- Experiment: `E10-fifo-poll64-riscv-75`, candidate commit `a38a3d5`, at the
+  stock 150 MHz clock.
+- Replaced the core-0 FIFO status read after every software nonce with one read
+  per 64 nonces. Expected worst-case control-message latency was about 2.3 ms.
+- Both architectures built warning-free. All 4,096 oracle cases and all 7
+  suites passed on Hazard3; no fault occurred.
+- Isolated full software: **27,613 H/s**; isolated filter: **28,500 H/s**.
+  Both are unchanged from the parent, as expected because polling is outside
+  the isolated benchmark.
+- Median of the final 30 dual-worker reports: hardware **337,838 H/s**,
+  software **28,325 H/s**, aggregate **366,164 H/s**.
+- Versus the parent run, sustained software gains only **+0.039%** (+11 H/s),
+  while hardware loses **-0.33%** (-1,130 H/s) and aggregate loses **-0.30%**
+  (-1,118 H/s). The source/layout or control-timing interaction is harmful.
+- Candidate RISC-V UF2 SHA-256:
+  `661bafca0f6bf0c8eca8e84610abb7a94153a1fba55795cd137b3af2ff5540ba`.
+- Archived serial log: `logs/E10-fifo-poll64-riscv-rejected.log`.
+- Decision: reject and revert. The tiny software saving cannot justify a clear
+  end-to-end loss; do not spend an ARM hardware run on this interval.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=56000 elapsed_us=2028005 hash_rate_hs=27613 checksum=05 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=57000 elapsed_us=2000006 hash_rate_hs=28500 checksum=dcc0f559 temperature=disabled
+```
