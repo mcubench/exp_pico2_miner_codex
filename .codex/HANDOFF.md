@@ -95,6 +95,11 @@ changes and keep temperature disabled.
    fixed complete records, release/acquire publication, lossless share
    backpressure, separate fatal latch, queue-depth/blocked-time telemetry and
    a bounded wrap/full/order KAT. Keep ACK control on the hardware FIFO.
+9. Candidate 94 passed correctness but is rejected as shared code. ARM fell
+   19.89% aggregate despite queue depth one and zero producer blocking;
+   Hazard3 was neutral at -0.06%. Test only one follow-up: poll the queue/fault
+   latch every 64 software hashes, then restore if M33 does not recover or
+   Hazard3 materially regresses.
 
 ## Files and evidence
 

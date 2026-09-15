@@ -4720,3 +4720,48 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   record, unsafe fault behavior, or material sustained regression. A neutral
   hard-target result may still justify later slow-consumer stress only if the
   lifecycle semantics are demonstrably stronger.
+
+### E08 bounded telemetry queue ARM attempt 94a — pass, reject variant
+
+- Candidate commit `4e65e44`, source identity `8dba444a311c`, normal profile,
+  stock 150 MHz, temperature disabled, run ID `30004927-0000000a`. Both clean
+  builds, all nine suites, six synchronized windows and strict capture passed.
+  Queue maximum depth remained one and cumulative producer blocked time stayed
+  zero throughout, proving the normal run never saturated the queue.
+- Standalone hardware/full/filter rates were **331,820 / 30,364 / 31,578
+  H/s**. The midpoint median of all six available windows was aggregate
+  **285,615 H/s** (range 285,424–285,923), hardware **260,775 H/s**
+  (260,592–261,068), and software **24,840 H/s** (24,832–24,855).
+- Versus E09-c this is aggregate **-70,916 H/s (-19.89%)**, hardware **-64,348
+  H/s (-19.79%)**, and software **-6,568 H/s (-20.91%)**. Since standalone
+  kernels are intact and no producer wait occurred, reject this per-hash queue
+  and fault polling shape on M33. The result indicates severe shared-memory,
+  placement or acquire-poll interference rather than backpressure.
+- Candidate size is 189,656 text / 5,132 BSS bytes, respectively +976/+424
+  versus E09-c. ARM UF2 SHA-256:
+  `95aff764b20cdc81dbab1a13767f33666b3b50a973516481f369a5bc569a6d90`.
+  Complete log SHA-256:
+  `2cd7f76f7a497c5a9e2a657361466f8654697903149785025e6016f51af6dcc7`.
+  Archived log: `logs/E08-queue-arm.log`.
+
+### E08 bounded telemetry queue RISC-V attempt 94b — pass, reject shared variant
+
+- The identical candidate ran as `30004927-0000000b`; all nine suites, eight
+  windows and strict capture passed. Queue depth remained one and producer
+  blocked time remained zero.
+- Standalone hardware/full/filter rates were **345,572 / 28,631 / 30,235
+  H/s**. First-seven common medians were aggregate **368,259 H/s** (range
+  368,255–368,262), hardware **338,254 H/s** (338,247–338,256), and software
+  **30,006 H/s** (30,005–30,009). Versus E09-c these are **-0.06%**, **-0.05%**
+  and **-0.15%**: practically neutral, but not a throughput win.
+- Candidate size is 202,424 text / 4,864 BSS bytes, +1,552/+424 versus E09-c.
+  Reject candidate 94 as shared code because of the ARM failure. Before fully
+  restoring, test one bounded variant that polls queue/fault state once per 64
+  software hashes; reject it if M33 does not recover or Hazard3 materially
+  regresses. This differs from rejected E10 polling because outbound records
+  remain atomic complete SPSC entries and the fault latch remains independent.
+- RISC-V UF2 SHA-256:
+  `913c3cbcf132f959b52c49482883bf32ddc1d5e41efb719aa0798ca5bf45045a`.
+  Complete log SHA-256:
+  `12f346a346d3a5a294cf17758394f20d54f0b1266dd5b036c6412e541d687b9d`.
+  Archived log: `logs/E08-queue-riscv.log`.
