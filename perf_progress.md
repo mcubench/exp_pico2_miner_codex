@@ -4679,3 +4679,14 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   Complete log SHA-256:
   `9cf4719d0be01fbf0b4995cc1d58370ab45acb71d9e7df9ad36c79432e396d4c`.
   Archived log: `logs/E14-chunks-nested-riscv.log`.
+
+## 2026-09-15 — E14 rejected-source restoration definition
+
+- Restore only `src/main.c`, `tools/monitor.py`, and `tools/test_monitor.py`
+  from accepted pre-E14 evidence commit `effc1ad`; preserve every E14 ledger
+  entry and archived log. This removes the finite allocator, ninth allocator
+  KAT and corresponding monitor contract after all three implementation shapes
+  were rejected, returning runtime behavior to accepted E09-c.
+- Build both ISAs warning-free and compare UF2 hashes with the accepted E09-c
+  artifacts. Byte identity is sufficient to reference attempts 88a/88b; any
+  mismatch requires fresh paired hardware validation before further work.
