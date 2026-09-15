@@ -5162,3 +5162,16 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   placement, rebuild both architectures, and require candidate 98's exact UF2
   hashes before advancing. Do not test the larger Hazard3 helper in scratch X;
   it does not fit the established stack budget.
+
+### E07 ARM exact-filter placement restoration after candidate 99
+
+- Restoration commit `8a89427` removes only candidate 99's conditional
+  placement macro and returns the helper to the retained `.time_critical`
+  section. Both stock repository builds pass warning-free and all eight host
+  tests pass at restored source identity `1eb3d9edb2b0`.
+- ARM UF2 SHA-256 is exactly the retained candidate-98 hash
+  `5fb2d345ba0f9eb2c99ddb51ceceabf4b9c25e60ab9169812c9685d961bd54ef`;
+  RISC-V is exactly
+  `f109ef25a8a89cd41ec6e4068f5407af6cae9b87708d91aa605b16b5bd404c6a`.
+  Existing attempts 98a/98b therefore remain the hardware-validation basis;
+  no redundant restoration flash is claimed as a new measurement.

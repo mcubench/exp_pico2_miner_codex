@@ -107,7 +107,10 @@ changes and keep temperature disabled.
    restore the default `.time_critical` placement, rebuild both and require
    exact candidate-98 UF2 hashes before the next experiment.
    The source placement has now been restored with a focused inverse patch;
-   dual builds and exact artifact verification are pending.
+   both builds and eight host tests pass. ARM/RISC-V UF2 hashes exactly match
+   retained candidate 98 (`5fb2...54ef` / `f109...04c6a`). Commit this
+   restoration evidence. The board still carries rejected candidate 99 ARM;
+   build artifacts contain the retained source.
 
 1. E09-b-tail-padding is resolved at commit `688148d`: retain explicit fixed
    rounds on ARM and the generic loop on Hazard3. Both final architecture
