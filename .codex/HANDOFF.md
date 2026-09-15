@@ -91,6 +91,10 @@ changes and keep temperature disabled.
    three E14-touched source/test files to accepted E09-c. Both clean UF2 files
    are byte-identical to accepted attempts 88a/88b. Proceed with E08 lifecycle
    and transport work as a separately bounded experiment.
+8. Candidate 94 is defined as an E08 outbound-telemetry SPSC queue experiment:
+   fixed complete records, release/acquire publication, lossless share
+   backpressure, separate fatal latch, queue-depth/blocked-time telemetry and
+   a bounded wrap/full/order KAT. Keep ACK control on the hardware FIFO.
 
 ## Files and evidence
 

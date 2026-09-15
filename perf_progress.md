@@ -4701,3 +4701,22 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `6fd2b7f053cac2f4ed8b2e8b94626892fbc31ff01e0e69cbf8bdb92165a646b6`.
   Both are byte-identical to the accepted E09-c artifacts already validated
   in attempts 88a/88b, so no redundant hardware run is required.
+
+## 2026-09-15 — E08 bounded telemetry queue candidate 94 definition
+
+- Parent is the restored E09-c artifact at source identity `71b48132e899`.
+  Core 1 currently publishes multiword progress/share/fault records through
+  the eight-word hardware FIFO, so a 12-word share necessarily blocks midway
+  and consumer delays can stall the hardware owner with a partial record.
+- Replace only core-1 outbound telemetry with an eight-entry, fixed-record
+  SPSC SRAM queue using C11 release/acquire publication. Keep the FIFO for the
+  one-word startup/window acknowledgements. Preserve lossless shares with
+  explicit producer backpressure; publish faults through a separate atomic
+  latch so a full telemetry queue cannot suppress a fatal stop. Add a bounded
+  wrap/full/order KAT and report queue depth plus cumulative blocked time.
+- Expected removable cost is producer FIFO serialization and partial-record
+  blocking, not SHA work. Resource cost is approximately 384 bytes plus queue
+  metadata. Reject on either correctness/protocol failure, lost/reordered
+  record, unsafe fault behavior, or material sustained regression. A neutral
+  hard-target result may still justify later slow-consumer stress only if the
+  lifecycle semantics are demonstrably stronger.
