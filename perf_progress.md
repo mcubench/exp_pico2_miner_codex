@@ -2586,3 +2586,20 @@ MINING:PROGRESS arch=ARM-M33 hardware_core=1 hardware_nonce=8400000 hardware_has
 - Decision: reject without flashing because generated code did not change.
   This completes the three individually tested Hazard3 flag suggestions from
   E05; none altered this expanded-schedule software kernel.
+
+## 2026-09-15 — E09-b3 reusable padded blocks, RISC-V
+
+- Experiment: `E09b3-reusable-blocks-riscv-44`, candidate commit `720b573`.
+- Prebuilt and retained both padded blocks per job, mutating only nonce/digest
+  words, instead of clearing local blocks per nonce. Both architectures built
+  cleanly; all 4,096 cross-engine oracle vectors and all 7 suites passed.
+- Isolated software: **22,970 H/s**, down 5.69% from the code-only-SRAM
+  reference's 24,357 H/s.
+- Median of the final 30 dual-worker reports: hardware **338,233 H/s**,
+  software **21,770 H/s**, aggregate **360,002 H/s**.
+- Versus retained RISC-V aggregate 361,993 H/s: **-0.55%** (-1,991 H/s).
+- Candidate RISC-V UF2 SHA-256:
+  `33d4df58f9d7fb12dfb5dd5e9b406bacd3f78395ab5cdd5ccc0164ea357c7aa6`.
+- Archived serial log: `logs/E09b3-reusable-blocks-riscv.log`.
+- Decision: reject; the enlarged persistent state/load pattern outweighs the
+  saved per-call clears. Restore local blocks and do not spend an ARM flash.
