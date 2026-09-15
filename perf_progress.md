@@ -2513,3 +2513,26 @@ MINING:PROGRESS arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=9000000 hardwa
 TEST:SUMMARY pass=7 fail=0
 MINING:PROGRESS arch=ARM-M33 hardware_core=1 hardware_nonce=8400000 hardware_hashes=4200000 hardware_rate_hs=325625 software_core=0 software_nonce=681489 software_hashes=340744 software_rate_hs=26412 total_hashes=4540744 hash_rate_hs=352037 temperature=disabled
 ```
+
+## 2026-09-14 — E07-c SHA round constants in SRAM, RISC-V
+
+- Experiment: `E07c-round-constants-sram-riscv-39`.
+- Candidate commit: `2313352`. In addition to the accepted 1,322-byte
+  compression routine, move its 256-byte SHA round-constant table from XIP to
+  SRAM. No algorithm or reporting change.
+- Both architectures built cleanly. All 4,096 cross-engine oracle cases and all
+  7 suites passed; no fault occurred and the cycle passed.
+- Median of the final 30 reports: hardware **338,976 H/s**, software
+  **23,500 H/s**, aggregate **362,477 H/s**.
+- Versus code-only SRAM RISC-V aggregate 361,993 H/s: **+0.13%** (+484 H/s),
+  below the normal retention threshold and small relative to run variation.
+- Candidate RISC-V UF2 SHA-256:
+  `92e2cc22b92ed7fad19d30f937ac4a2bf73bb1a6fad8b404e1cbbbcae4d30062`.
+- Archived serial log: `logs/E07c-round-constants-sram-riscv.log`.
+- Decision: inconclusive/provisional until ARM is measured; likely reject the
+  extra 256-byte SRAM cost unless the second architecture shows a clearer gain.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+MINING:PROGRESS arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=9400000 hardware_hashes=4700000 hardware_rate_hs=339027 software_core=0 software_nonce=655003 software_hashes=327501 software_rate_hs=23615 total_hashes=5027501 hash_rate_hs=362642 temperature=disabled
+```
