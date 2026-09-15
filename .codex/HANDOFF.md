@@ -12,10 +12,12 @@ changes and keep temperature disabled.
 
 - HEAD before E06-trigger source changes: `4409b84` (`perf: record E02 normal
   RISC-V control`); parent source identity `02b7825c7499`.
-- Device currently runs the restored normal RISC-V image at 150 MHz.
-- Working tree contains the E06-trigger source change and its candidate
-  definition. Both normal builds and 8 host tests pass; disassembly confirms
-  one `AL3_READ_ADDR_TRIG` store. It is not yet committed or hardware-tested.
+- The Pico is accessible when hardware commands run outside the filesystem
+  sandbox. It currently runs the retained E06-trigger RISC-V image at stock
+  150 MHz.
+- E06-trigger is retained on Hazard3. Attempt 86b passed all gates with a
+  seven-window median of 368,130 H/s aggregate and 338,274 H/s hardware,
+  +0.42%/+0.45% over immediate control 85e. ARM keeps its CPU feeder.
 - E09-b-pending is resolved and retained on both ISAs.
 - E01-identity is implemented, paired-hardware validated, and retained.
 - E01-rare candidate 83 and E01-window candidate 84 are retained on both ISAs.
@@ -62,9 +64,10 @@ changes and keep temperature disabled.
 
 ## Work in progress / next actions
 
-1. Commit the candidate before hardware, rebuild clean artifacts for both
-   ISAs, then flash/capture RISC-V and compare
-   seven windows with control 85e.
+1. Commit the recorded E06-trigger result, then define and test
+   E09-b-tail-padding at stock 150 MHz. Specialize header-tail rounds 4–15
+   separately from the already-retained second-hash fixed rounds; inspect
+   generated code before hardware and reject a byte-identical/no-op candidate.
 
 ## Files and evidence
 
@@ -82,6 +85,11 @@ changes and keep temperature disabled.
   `5c658609dcdf811dc617de65f9645a033c74ec4f453781e5637fe28c5e102df4`.
 - Restored normal control: `logs/E02-normal-restored-riscv.log`; normal RISC-V
   UF2 SHA-256 `00db86d95bd8cacff5654730691f6dfc7f881368d8d69ae1d545c3f330689742`.
+- E06-trigger failed host attempt:
+  `logs/E06-trigger-riscv-libusb-failure.log`; candidate RISC-V UF2 SHA-256
+  `0bdb6c31236103bda04fafbf49b87d84895ae6d84a754ee2f737b815c891e9a3`.
+- E06-trigger passing hardware log: `logs/E06-trigger-riscv.log`, SHA-256
+  `c3e0d4aeb242e39102c94e2a5a1e1c60490a641d289f355a7815c96e4f7baf05`.
 - E01 implementation: `CMakeLists.txt`, `src/main.c`, `tools/common.sh`,
   `tools/build`, `tools/cycle`, `tools/monitor.py`, `tools/test_monitor.py`.
 
@@ -90,6 +98,10 @@ changes and keep temperature disabled.
 - `python3 -m unittest tools/test_monitor.py`: 8 passed.
 - ARM and RISC-V builds warning-free with SDK 2.3.1 and repository wrappers.
 - Current hardware runs: 8 suites, 4,096 oracle cases, no faults.
+- Sandboxed libusb cannot initialize because `/dev/bus/usb` and libudev
+  hotplug access are hidden. Run `lsusb`, `./tools/doctor`, and hardware cycle
+  commands with the environment's hardware-access escalation. No `sudo` is
+  needed; outside the sandbox the Pico node and `dialout` serial access pass.
 - The retained common-window baseline is ARM 355,640 H/s and RISC-V 366,556
   H/s (medians of seven aligned windows each).
 - Warm-reset run sequence is not persistent across power loss; source/run

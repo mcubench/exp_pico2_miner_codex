@@ -1,0 +1,29 @@
+Experiment: E06-trigger-riscv-86a
+Date: 2026-09-15 Europe/Prague
+Candidate commit: f6d3f9080a314400109c820790275f233a27bc51
+Source identity: 39129d52483f
+Clock: 150 MHz stock
+Temperature: disabled
+
+Fresh preflight builds:
+BUILD:PASS arch=arm uf2=/home/claude/Projects/pico2_miner_codex/build/arm/pico2_agent.uf2
+BUILD:PASS arch=riscv uf2=/home/claude/Projects/pico2_miner_codex/build/riscv/pico2_agent.uf2
+
+Cycle command:
+MONITOR_SECONDS=50 ./tools/cycle riscv
+
+Cycle result after rebuilding both architectures:
+FLASH image=/home/claude/Projects/pico2_miner_codex/build/riscv/pico2_agent.uf2
+ERROR: Failed to initialise libUSB
+
+ERROR: Flashing failed. Check Linux permissions and, in a VM, capture both Pico runtime and BOOTSEL USB identities; see README.md.
+
+Process status: 1
+Serial monitoring did not begin. No BOOT, validation, benchmark, or mining
+record was obtained. A subsequent ./tools/doctor reported no /dev/ttyACM*
+device, and lsusb also returned `unable to initialize libusb: -99`.
+
+ARM UF2 SHA-256:
+26af99da219ee01a87b143caa827bb45508a657313b5d5f753c6b6f9480dbbd9
+RISC-V UF2 SHA-256:
+0bdb6c31236103bda04fafbf49b87d84895ae6d84a754ee2f737b815c891e9a3

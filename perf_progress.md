@@ -4116,3 +4116,58 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   by the unchanged DMA busy wait; the former separate source/count stores are
   absent. Dirty-build text is 200,744 bytes on RISC-V and 188,600 on ARM; clean
   committed artifacts will be rebuilt and hashed before flash.
+
+### E06-trigger RISC-V attempt 86a — host libUSB failure
+
+- Candidate commit `f6d3f90`, source identity `39129d52483f`, normal profile,
+  stock 150 MHz, temperature disabled. Fresh ARM and RISC-V wrapper builds
+  passed warning-free before the cycle attempted to flash Hazard3.
+- `./tools/doctor` could not see `/dev/ttyACM*`. The authorized
+  `MONITOR_SECONDS=50 ./tools/cycle riscv` rebuilt both architectures, then
+  failed before loading the image because picotool reported
+  `ERROR: Failed to initialise libUSB`. The command returned status 1 and
+  serial monitoring never began. A subsequent `lsusb` also failed with
+  `unable to initialize libusb: -99`.
+- This attempt produced no BOOT line, device validation, benchmark, or mining
+  measurement. It does not accept or reject the DMA trigger optimization.
+  Retry the identical committed candidate after the VM/host USB subsystem and
+  Pico runtime or BOOTSEL identity are available; do not add another code
+  experiment while this comparison is pending.
+- ARM UF2 SHA-256:
+  `26af99da219ee01a87b143caa827bb45508a657313b5d5f753c6b6f9480dbbd9`.
+  RISC-V UF2 SHA-256:
+  `0bdb6c31236103bda04fafbf49b87d84895ae6d84a754ee2f737b815c891e9a3`.
+- Archived terminal record:
+  `logs/E06-trigger-riscv-libusb-failure.log`.
+
+### E06-trigger RISC-V attempt 86b — pass and retention
+
+- Retried the identical candidate commit `f6d3f90`, source identity
+  `39129d52483f`, after exposing the host USB devices to this Codex execution
+  environment. Both normal architectures rebuilt warning-free before flash.
+  Run ID `30004927-00000002` passed all 8 suites, the 4,096-case cross-engine
+  oracle, standalone hardware/full-software/filter benchmarks, seven aligned
+  common windows, and strict capture without a fault.
+- Standalone rates were hardware **344,783 H/s**, full software **28,636
+  H/s**, and exact filter **30,041 H/s**. The hardware benchmark is unchanged
+  from the parent, consistent with the benchmark's different control path.
+- The first seven common windows had aggregate range **368,124–368,136 H/s**,
+  median **368,130 H/s**; hardware range **338,268–338,280 H/s**, median
+  **338,274 H/s**; software median **29,856 H/s**.
+- Versus immediate normal control 85e, aggregate improves from 366,601 by
+  **1,529 H/s (+0.42%)**, and hardware improves from 336,750 by **1,524 H/s
+  (+0.45%)**; software moves +6 H/s. The hardware medians correspond to about
+  445.43 cycles/hash before and 443.43 after, a reduction of approximately
+  **2.01 cycles/hash**. This matches the intended removal of one SDK-inlined
+  DMA register write from every sustained hardware nonce.
+- Retain E06-trigger on Hazard3. It is a small, exact source simplification
+  with a stable common-window gain and no new buffer, channel, or state-machine
+  assumption. ARM remains on its retained CPU feeder and is byte-identical to
+  its parent implementation.
+- ARM UF2 SHA-256:
+  `26af99da219ee01a87b143caa827bb45508a657313b5d5f753c6b6f9480dbbd9`.
+  RISC-V UF2 SHA-256:
+  `0bdb6c31236103bda04fafbf49b87d84895ae6d84a754ee2f737b815c891e9a3`.
+  Complete serial log SHA-256:
+  `c3e0d4aeb242e39102c94e2a5a1e1c60490a641d289f355a7815c96e4f7baf05`.
+  Archived log: `logs/E06-trigger-riscv.log`.
