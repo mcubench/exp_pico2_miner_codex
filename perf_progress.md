@@ -5102,3 +5102,35 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   synchronized windows and default-cycle compatibility, and has no measurable
   throughput penalty. The BOOT-advertised reporting contract prevents the
   host validator from silently assuming a stale grouping.
+
+## 2026-09-15 — E07 ARM exact-filter scratch-X candidate 99 definition
+
+- Parent is retained candidate 98 at source identity `1eb3d9edb2b0`, stock
+  150 MHz and temperature disabled. Change only the ARM placement of
+  `software_sha256_digest_high_word_after_round61`: move its 1,712-byte emitted
+  body from the striped main-SRAM `.time_critical` region to scratch X. Keep
+  Hazard3's 2,646-byte helper in main SRAM because it cannot fit alongside the
+  fixed core-1 stack.
+- Current maps place all software compression helpers at the start of main
+  SRAM: ARM filter `0x20000360`, Hazard3 filter `0x20000530`. Both scratch
+  data sections are empty; the linker reserves a 2,048-byte core-1 stack in
+  scratch X and a 2,048-byte core-0 stack in scratch Y. Candidate ARM usage is
+  therefore 1,712 bytes of scratch-X code plus the unchanged 2,048-byte stack,
+  leaving 336 bytes unused in the 4 KiB bank. Core-1 stack/IRQ capacity remains
+  2,048 bytes; scratch Y and core-0 stack capacity are unchanged.
+- Hypothesis: separating core 0's hottest instruction stream from striped
+  main SRAM can reduce instruction/data or cross-master contention. Cost: ARM
+  instruction fetches now share scratch X with the hardware worker's stack;
+  this may instead slow either worker. SHA algorithms, schedules, data
+  placement, clocks, telemetry and error checks are unchanged.
+- Rejection rule: reject on any correctness fault, link overflow, material
+  hardware-worker regression, or aggregate result that is not repeatably
+  better than candidate 98. Hazard3 is a build/artifact control and should not
+  be reflashed unless its loadable image unexpectedly changes.
+- Pre-hardware gates at dirty identity `1eb3d9edb2b0-dirty`: both repository
+  builds pass warning-free and all eight host tests pass. The ARM map places
+  the unchanged 0x6b0-byte helper exactly at `0x20080000..0x200806b0`; the
+  fixed stack remains `0x20080800..0x20081000`, confirming the 0x150-byte gap.
+  Hazard3 retains its helper at `0x20000530` in `.time_critical`. Total
+  text/BSS remains ARM 188,720/4,708 and Hazard3 200,924/4,440 bytes, so this
+  candidate adds no code or static RAM and changes only ARM's load/run address.

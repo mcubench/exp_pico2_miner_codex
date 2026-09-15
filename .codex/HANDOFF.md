@@ -93,6 +93,14 @@ changes and keep temperature disabled.
    about 66.6% lower, and four-second windows restore default-cycle coverage.
    Commit the paired evidence, then select the next untested bounded E07-bank
    placement experiment from the updated plan.
+   Candidate 99 is now defined: place only ARM's 1,712-byte exact-filter helper
+   in scratch X, alongside but not overlapping the fixed 2,048-byte core-1
+   stack (336 bytes remain); keep Hazard3 unchanged because its 2,646-byte
+   helper cannot fit. Both builds and eight host tests pass. The ARM map
+   confirms code `0x20080000..0x200806b0`, stack
+   `0x20080800..0x20081000`, and the 336-byte gap; total sizes are unchanged.
+   Commit before an ARM hardware run, archive it, then retain only for a
+   repeatable aggregate improvement without hardware-worker regression.
 
 1. E09-b-tail-padding is resolved at commit `688148d`: retain explicit fixed
    rounds on ARM and the generic loop on Hazard3. Both final architecture
