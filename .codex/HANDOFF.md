@@ -16,8 +16,8 @@ changes and keep temperature disabled.
 - Working tree was clean when this handoff was created.
 - E09-b-pending is resolved and retained on both ISAs.
 - E01-identity is implemented, paired-hardware validated, and retained.
-- E01-rare candidate 83 is being implemented; E01-window follows, then fresh
-  E02 profiling.
+- E01-rare candidate 83 passes ARM and awaits RISC-V; E01-window follows, then
+  fresh E02 profiling.
 
 ## Completed work in this session
 
@@ -34,7 +34,8 @@ changes and keep temperature disabled.
 
 ## Work in progress / next actions
 
-1. Finish E01-rare candidate 83 and run host/build checks.
+1. Run E01-rare candidate 83 on RISC-V; ARM passed all 8 suites and remained
+   performance-neutral.
 2. Direct fast-comparator/fallback tests cover high-word equality plus
    lower-word reject, exact equality, and valid share; independently verify
    emitted candidates where feasible.

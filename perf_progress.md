@@ -3707,3 +3707,33 @@ SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round6
 - Rejection rule: reject/revise on any path mismatch, missing full-digest
   fallback, incorrect host candidate, build warning, strict-cycle failure, or
   material sustained regression on either ISA.
+
+### E01 rare ARM attempt 83a — pass
+
+- Candidate commit `1a3f619`, firmware source identity `6826dc1fdfe2`, stock
+  150 MHz, temperature disabled. Both architectures built warning-free before
+  flashing ARM.
+- All 8 suites passed, including 4,096 oracle cases and 8 direct mining
+  decision cases. Nonce 2083236892 was rejected by high word `3d34dc8c`
+  without computing the full digest. Nonce 2083236893 exercised full fallback,
+  exact ordered comparison, and produced the host-verified genesis hash.
+  Hardware equal-high/lower-reject, exact-equality and above-target cases also
+  passed. No fault or capture-contract violation occurred.
+- Full software **30,017 H/s**; filter **30,718 H/s**. Final-30 medians:
+  hardware **325,809 H/s**, software **30,516 H/s**, aggregate **356,326
+  H/s**. Versus E01-identity ARM, these move +5, 0, +40, -24, and +17 H/s
+  respectively, with no material regression.
+- Hardware startup benchmark **330,359 H/s**. ARM UF2 SHA-256:
+  `b98f191af6f0de490a9d54fff3ff67c38571f742db981d08bf277e8e6aeb01c1`.
+  Paired RISC-V UF2 SHA-256:
+  `086c113cc64e5e4313b73ab5e49ec3e4f9489cb24102f346dedbe282e02ccf2b`.
+- Run ID `30004927-00000004`; archived log `logs/E01-rare-arm.log`.
+  Decision: ARM passes; retain provisionally pending RISC-V validation.
+
+```text
+TEST:PASS kat=mining_decision_paths cases=8 rejected_nonce=2083236892 rejected_high_word=3d34dc8c candidate_nonce=2083236893 candidate_hash=000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
+TEST:SUMMARY pass=8 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=150000000 hashes=661000 elapsed_us=2000854 hash_rate_hs=330359 checksum=6f temperature=disabled
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=61000 elapsed_us=2032155 hash_rate_hs=30017 checksum=55 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=62000 elapsed_us=2018360 hash_rate_hs=30718 checksum=78fd8ac1 temperature=disabled
+```
