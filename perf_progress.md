@@ -3792,3 +3792,41 @@ SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round6
   inconsistent counts, fewer than five complete windows, any validation
   failure, or a material useful-work regression. Compare future candidates
   against the new common-window baseline rather than summing mixed rates.
+
+### E01 common-window ARM attempt 84a — pass
+
+- Candidate commit `1839955`, firmware source identity `f2687597e485`, stock
+  150 MHz, temperature disabled. Both ARM and RISC-V wrapper builds passed
+  without warnings before the ARM flash.
+- Strict capture passed all 8 suites, including 4,096 oracle cases and the
+  production mining-decision rare paths. Run ID `30004927-00000006`; no
+  `TEST:FAIL`, `FAULT`, timeout, identity mismatch, or protocol failure.
+- Seven synchronized windows completed at sequences 16 through 112. Each
+  covered 1,600,000 hardware hashes and 150,278–150,301 software hashes over
+  4,921,449–4,921,641 us. Aggregate rates were **355,630–355,643 H/s**, with
+  median **355,640 H/s**; hardware median **325,104 H/s** and software median
+  **30,535 H/s**. Counts summed exactly and independently recomputed rates
+  matched every record.
+- Standalone hardware **330,356 H/s**, full software **30,017 H/s**, and
+  software filter **30,718 H/s**. The prior E01-rare mixed-window final-30
+  figures were 325,809 / 30,516 / 356,326 H/s; they are retained only as a
+  historical sanity check because their time bases differ.
+- ARM UF2 SHA-256:
+  `2a1857e60441d9b9ef6239e58628de19ddc33623a0df2cc097f981e756d8d6d9`.
+  Archived complete log: `logs/E01-window-arm.log`.
+- Decision: ARM passes and establishes its common-window baseline. Retain
+  provisionally pending the required RISC-V run of the identical source.
+
+```text
+TEST:SUMMARY pass=8 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=150000000 hashes=661000 elapsed_us=2000870 hash_rate_hs=330356 checksum=6f temperature=disabled
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=61000 elapsed_us=2032148 hash_rate_hs=30017 checksum=55 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=62000 elapsed_us=2018356 hash_rate_hs=30718 checksum=78fd8ac1 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000006 window=1 sequence=16 elapsed_us=4921611 hardware_hashes=1600000 software_hashes=150301 total_hashes=1750301 hardware_rate_hs=325097 software_rate_hs=30539 hash_rate_hs=355636 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000006 window=2 sequence=32 elapsed_us=4921502 hardware_hashes=1600000 software_hashes=150279 total_hashes=1750279 hardware_rate_hs=325104 software_rate_hs=30535 hash_rate_hs=355639 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000006 window=3 sequence=48 elapsed_us=4921641 hardware_hashes=1600000 software_hashes=150285 total_hashes=1750285 hardware_rate_hs=325095 software_rate_hs=30536 hash_rate_hs=355630 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000006 window=4 sequence=64 elapsed_us=4921449 hardware_hashes=1600000 software_hashes=150278 total_hashes=1750278 hardware_rate_hs=325108 software_rate_hs=30535 hash_rate_hs=355643 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000006 window=5 sequence=80 elapsed_us=4921481 hardware_hashes=1600000 software_hashes=150282 total_hashes=1750282 hardware_rate_hs=325105 software_rate_hs=30536 hash_rate_hs=355641 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000006 window=6 sequence=96 elapsed_us=4921497 hardware_hashes=1600000 software_hashes=150280 total_hashes=1750280 hardware_rate_hs=325104 software_rate_hs=30535 hash_rate_hs=355640 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000006 window=7 sequence=112 elapsed_us=4921556 hardware_hashes=1600000 software_hashes=150280 total_hashes=1750280 hardware_rate_hs=325100 software_rate_hs=30535 hash_rate_hs=355635 temperature=disabled
+```
