@@ -3258,3 +3258,32 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=56000 elapsed_us=2031367 hash_rate_hs=27568 checksum=05 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=57000 elapsed_us=2012172 hash_rate_hs=28328 checksum=59f5c0dc temperature=disabled
 ```
+
+## 2026-09-15 — E03 fused second-hash schedule, RISC-V rejection
+
+- Experiment: `E03-fused-second-schedule-riscv-71`, candidate commit
+  `eda2c61`, at the stock 150 MHz clock.
+- Allocated the second-hash expanded schedule in the caller, wrote the first
+  digest directly into W0..W7, and expanded it in place. This removes the
+  digest-to-schedule copy and 32 bytes of nominal peak stack.
+- Both architectures built warning-free. All 4,096 oracle cases and all 7
+  suites passed on Hazard3; no fault occurred.
+- Full-digest software: **26,968 H/s**, versus parent 27,568 H/s: **-2.18%**
+  (-600 H/s). Exact filter: **27,674 H/s**, versus parent 28,328 H/s:
+  **-2.31%** (-654 H/s).
+- Median of the final 30 dual-worker reports: hardware **338,963 H/s**,
+  software **27,494 H/s**, aggregate **366,457 H/s**.
+- Versus the parent run, sustained software is **-2.31%** (-651 H/s) and
+  aggregate is **-0.18%** (-671 H/s); hardware moved -19 H/s.
+- Candidate RISC-V UF2 SHA-256:
+  `5f3686e1143c0031a8f78c250cfc550c9d148df699496c2e78a26c939bb99681`.
+- Archived serial log: `logs/E03-fused-second-schedule-riscv-rejected.log`.
+- Decision: reject on Hazard3. The longer-lived expanded-schedule buffer
+  causes worse generated-code behavior than the eliminated copy saves. Test
+  M33 once to decide between a complete revert and an architecture split.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=54000 elapsed_us=2002372 hash_rate_hs=26968 checksum=61 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=56000 elapsed_us=2023541 hash_rate_hs=27674 checksum=fffebb38 temperature=disabled
+```
