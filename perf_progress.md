@@ -3614,3 +3614,10 @@ SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round6
   disconnect after a verified upload. The full cycle will be retried rather
   than treating the verified flash alone as success.
 - Archived failure record: `logs/E01-identity-arm-flash-failure.log`.
+
+Before retry, review found that candidate `c89e8ee` derived `source_id` from
+repository HEAD, so an evidence-only commit would change the next firmware
+identity. The candidate is revised to hash the committed `CMakeLists.txt`,
+`src`, and `tools` trees and append `-dirty` only for relevant tracked changes.
+This preserves identity across log/ledger-only commits; no result from 82a is
+promoted by this correction.

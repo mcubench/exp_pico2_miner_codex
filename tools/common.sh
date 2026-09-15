@@ -77,8 +77,11 @@ find_picotool() {
 }
 
 source_identity() {
+    local identity_input
     local identity
-    identity="$(git -C "${PROJECT_ROOT}" rev-parse --short=12 HEAD)"
+    identity_input="$(git -C "${PROJECT_ROOT}" rev-parse \
+        HEAD:CMakeLists.txt HEAD:src HEAD:tools)"
+    identity="$(printf '%s' "${identity_input}" | sha256sum | cut -c1-12)"
     if ! git -C "${PROJECT_ROOT}" diff --quiet -- CMakeLists.txt src tools; then
         identity="${identity}-dirty"
     fi

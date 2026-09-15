@@ -27,26 +27,8 @@ include(pico_sdk_import.cmake)
 
 project(pico2_agent C CXX ASM)
 
-find_package(Git QUIET)
-set(MINER_SOURCE_ID "unknown")
-if(Git_FOUND)
-    execute_process(
-        COMMAND "${GIT_EXECUTABLE}" rev-parse --short=12 HEAD
-        WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}"
-        OUTPUT_VARIABLE MINER_SOURCE_ID
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-        ERROR_QUIET
-    )
-    execute_process(
-        COMMAND "${GIT_EXECUTABLE}" diff --quiet --
-                CMakeLists.txt src tools
-        WORKING_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}"
-        RESULT_VARIABLE MINER_SOURCE_DIRTY
-        ERROR_QUIET
-    )
-    if(NOT MINER_SOURCE_DIRTY EQUAL 0)
-        string(APPEND MINER_SOURCE_ID "-dirty")
-    endif()
+if(NOT DEFINED MINER_SOURCE_ID)
+    set(MINER_SOURCE_ID "unknown")
 endif()
 
 set(CMAKE_C_STANDARD 11)
