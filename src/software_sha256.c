@@ -10,8 +10,7 @@ static const uint32_t sha256_initial_state[8] = {
     0x510e527fu, 0x9b05688cu, 0x1f83d9abu, 0x5be0cd19u,
 };
 
-static const uint32_t __not_in_flash("software_sha256_constants")
-    sha256_round_constants[64] = {
+static const uint32_t sha256_round_constants[64] = {
     0x428a2f98u, 0x71374491u, 0xb5c0fbcfu, 0xe9b5dba5u,
     0x3956c25bu, 0x59f111f1u, 0x923f82a4u, 0xab1c5ed5u,
     0xd807aa98u, 0x12835b01u, 0x243185beu, 0x550c7dc3u,
