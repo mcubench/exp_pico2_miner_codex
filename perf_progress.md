@@ -4343,3 +4343,31 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   Complete log SHA-256:
   `4918f56598f9788ef86757b629a6fb6ca5f244879447ff344d68641a211eb1f9`.
   Archived log: `logs/E09c-terminal-riscv.log`.
+
+## 2026-09-15 — E09-b tail W20–W30 schedule-shape candidate 89 definition
+
+- Parent checkpoint `cf839d2`, source identity `71b48132e899`, normal profile,
+  stock 150 MHz, temperature disabled. Parent common medians are ARM **356,531
+  H/s** and RISC-V **368,488 H/s**; standalone full/filter rates are ARM
+  **30,364 / 31,578 H/s** and RISC-V **28,636 / 30,235 H/s**.
+- Replace only the generic header-tail schedule recurrence for W20 through W30
+  with explicit algebraic expressions. Because W5–W14 are zero, W20–W29 need
+  no small-sigma0 term; W30 retains the compile-time constant sigma0(W15=640).
+  Existing nonce-dependent W18/W19, job-precomputed W16/W17 and W31/W32, all
+  W33–W63 expansion, and every SHA round remain unchanged.
+- Expected removable cost is nine dynamically evaluated sigma0 triples plus
+  their zero-input additions per software nonce if GCC did not fully fold the
+  loop. Resource risk is code growth and longer live ranges. The exact
+  expressions are checked by the existing 4,096-case independent oracle; no
+  probabilistic shortcut or persistent RAM is introduced.
+- Build both ISAs and inspect size/disassembly first. Reject without hardware
+  if the emitted kernel is unchanged, or after hardware if either correctness
+  fails or affected software/common-window throughput regresses. Treat ARM
+  and Hazard3 independently if compiler scheduling produces an ISA split.
+- Pre-flash gates pass: both wrapper builds are warning-free and all 8 host
+  monitor tests pass. Total text/BSS are unchanged from the parent at
+  188,680/4,708 bytes on ARM and 200,872/4,440 bytes on RISC-V, but the
+  header-tail disassemblies are not no-ops: they contain the direct W20–W30
+  dependency chain and no zero-input sigma0 work for W20–W29. Hardware remains
+  necessary because the compiler traded the old loop for a differently
+  scheduled sequence without reducing whole-image size.

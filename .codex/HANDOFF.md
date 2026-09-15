@@ -69,8 +69,10 @@ changes and keep temperature disabled.
    images passed at source identity `f0b612529b69`.
 2. E09-c-terminal is retained on both ISAs at candidate commit `a628426`,
    source identity `71b48132e899`: ARM filter +1.58%, Hazard3 filter +0.65%,
-   with every hardware gate passing. Continue with one E09 schedule/round-group
-   or E03 batch subvariant, or move to E08/E14 lifecycle work per the plan.
+   with every hardware gate passing.
+3. Candidate 89 is the narrow E09-b schedule-shape trial for header-tail
+   W20–W30. Build both, inspect emitted cost, commit for stable identity only
+   if it is non-no-op, then validate ARM and RISC-V separately at 150 MHz.
 
 ## Files and evidence
 
