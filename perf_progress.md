@@ -3308,6 +3308,14 @@ SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round6
   first-digest buffer on Hazard3, where the same layout was 2.31% slower.
   Verify architecture-split builds against the two already validated binary
   digests before continuing.
+- Architecture-split verification: after correcting the internal buffer-size
+  declaration that initially failed the M33 warning gate, both builds passed.
+  The ARM UF2 remained exactly
+  `3212cb78915d9d6daef2c6cec1d178fa9751cc7c6c976b723d0cd0d391f1d228`;
+  the RISC-V UF2 exactly matched its pre-fusion winner,
+  `bcae2f578ebfe4144a4bad3d6d92f1b31ccfa974c33f29d42a534447c2368cd9`.
+  No new runtime measurement was needed because both loadable images are
+  byte-identical to the artifacts validated above.
 
 ```text
 TEST:SUMMARY pass=7 fail=0
