@@ -2909,3 +2909,29 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=52000 elapsed_us=2005604 hash_rate_hs=25927 checksum=88 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=53000 elapsed_us=2012667 hash_rate_hs=26333 checksum=90732335 temperature=disabled
 ```
+
+## 2026-09-15 — E09-c exact round-61 rejection, ARM and retention
+
+- Experiment: `E09c-round61-filter-arm-58`, candidate commit `41ab4bd`, at
+  the stock 150 MHz clock.
+- Both architectures built warning-free. The derived high word matched the
+  full oracle digest for all 4,096 deterministic ARM cases; all 7 suites
+  passed and no fault occurred.
+- Full-digest software reference: **26,900 H/s**. Exact round-61 filter:
+  **27,376 H/s**, a **1.77%** filter-path gain.
+- Median of the final 30 dual-worker reports: hardware **325,712 H/s**,
+  software **27,208 H/s**, aggregate **352,919 H/s**.
+- Versus the preceding fixed-second-block ARM aggregate 352,188 H/s:
+  **+0.21%** (+731 H/s).
+- Candidate ARM UF2 SHA-256:
+  `e79f716c22a5623065bed0e6f371236821ee00a3187ae987c7cb1aa95f0d9725`.
+- Archived serial log: `logs/E09c-round61-filter-arm.log`.
+- Decision: retain E09-c on both architectures. It performs exact rejection
+  for the configured zero-high-word target; any rare high-word equality is
+  recomputed through the existing full-digest path before share publication.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=54000 elapsed_us=2007413 hash_rate_hs=26900 checksum=61 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=55000 elapsed_us=2009035 hash_rate_hs=27376 checksum=73309c95 temperature=disabled
+```
