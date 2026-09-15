@@ -10,10 +10,10 @@ changes and keep temperature disabled.
 
 ## Current status
 
-- HEAD before recording the successful retry evidence: `0a03543` (`perf:
-  record E02 ARM DWT flash failure`); source identity `02b7825c7499`.
-- Device currently runs the E02 ARM profile image at 150 MHz.
-- Working tree contains the archived successful 85c DWT retry and its
+- HEAD before recording the Hazard3 evidence: `fb49671` (`perf: record E02 ARM
+  DWT profile pass`); source identity `02b7825c7499`.
+- Device currently runs the E02 RISC-V profile image at 150 MHz.
+- Working tree contains the archived successful 85d Hazard3 profile and its
   intentional ledger/handoff updates.
 - E09-b-pending is resolved and retained on both ISAs.
 - E01-identity is implemented, paired-hardware validated, and retained.
@@ -51,14 +51,18 @@ changes and keep temperature disabled.
   retry passed. Corrected ARM DWT stage profiling is now accepted: hardware
   stage sum 518.38 cycles/hash, common-window median 355,468 H/s (-0.048%
   versus retained parent), complete log `logs/E02-profile-arm-dwt.log`.
+- Hazard3 profile passed: hardware stage sum 482.63 cycles/hash and 230.09
+  instructions/hash; its first-block DMA feed is 87.01 cycles/hash. Common
+  median 365,328 H/s was -0.335% versus retained normal parent, confirming the
+  profile image is intrusive-only. Log `logs/E02-profile-riscv.log`.
 
 ## Work in progress / next actions
 
-1. Commit the successful ARM DWT retry evidence.
-2. Run the identical RISC-V profile candidate, archive and record it, then
-   restore a normal retained image.
-3. Use paired E02 evidence to select the next sequence item, with E06-trigger the
-   plan's default next code experiment.
+1. Commit the successful Hazard3 profile evidence.
+2. Restore and validate a normal (`MINER_PROFILE=0`) retained RISC-V image.
+3. Start E06-trigger on Hazard3: configure the 16-word transfer count once and
+   use the read-address trigger for each idle-channel rearm. Build both ISAs,
+   commit the candidate before hardware, then capture full normal-mode output.
 
 ## Files and evidence
 
@@ -72,6 +76,8 @@ changes and keep temperature disabled.
 - E02 exploratory ARM log: `logs/E02-profile-arm-systick.log`.
 - E02 corrected ARM log: `logs/E02-profile-arm-dwt.log`; ARM profile UF2
   SHA-256 `cbae3ae9973d1ecf272a25bee657d4fc3371c27322bd59f38dc7726dea181fbd`.
+- E02 Hazard3 log: `logs/E02-profile-riscv.log`; RISC-V profile UF2 SHA-256
+  `5c658609dcdf811dc617de65f9645a033c74ec4f453781e5637fe28c5e102df4`.
 - E01 implementation: `CMakeLists.txt`, `src/main.c`, `tools/common.sh`,
   `tools/build`, `tools/cycle`, `tools/monitor.py`, `tools/test_monitor.py`.
 

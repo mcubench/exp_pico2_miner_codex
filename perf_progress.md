@@ -4020,3 +4020,53 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   opportunity is the 194-cycle tail/wait segment, followed by the 174-cycle
   second hash; proceed to paired Hazard3 profiling before selecting a code
   experiment.
+
+### E02 Hazard3 profile attempt 85d — pass
+
+- Candidate commit `30a6fd2` plus evidence-only commits, source identity
+  `02b7825c7499`, profile=1, stock 150 MHz, temperature disabled. Both profile
+  architectures built warning-free before flash. Run ID
+  `30004927-0000000b` passed all 8 test suites, profile workloads, standalone
+  benchmarks, seven common windows, and strict capture with no fault.
+- Hazard3 used `mcycle` and `minstret`; measured read-interval overhead was
+  **17.707 cycles** for the cycle counter and **15.972 instructions** for the
+  retired-instruction counter. Extended HPM counters are hardwired zero.
+- Intrusive hardware totals over 4,096 nonces: setup/start 38,016
+  (**9.28 cycles/hash**), first-block DMA feed 356,404 (**87.01**), tail feed
+  plus first-digest wait 798,232 (**194.88**), digest handoff plus second hash
+  675,730 (**164.97**), and target/error check 108,485 (**26.49**). The stage
+  sum is **482.63 cycles/hash**; 14,444 us wall time is **528.96 cycles/hash**,
+  leaving 46.32 cycles/hash in loop, measurement, and unclassified overhead.
+  The whole measured hardware path retired 942,448 instructions, or
+  **230.09 instructions/hash**.
+- Intrusive software filter: header tail 9,835,560 (**2,401.26 cycles/hash**)
+  and second filter 11,349,523 (**2,770.88**), stage sum **5,172.14** and wall
+  time **5,192.47 cycles/hash**. Full digest: header tail 9,829,868
+  (**2,399.87**) and second full 12,135,189 (**2,962.69**), stage sum
+  **5,362.56** and wall time **5,383.70 cycles/hash**. Full/filter workloads
+  retired 21,757,023/21,069,063 instructions, or about 5,311.77/5,143.81 per
+  hash. The exact filter saves **191.81 second-stage cycles/hash** (6.47% of
+  that stage, 3.58% of the full two-stage cost).
+- XIP hit/access observations: hardware 1,146,035/1,146,136; filter
+  1,129,388/1,129,439; full 1,148,614/1,148,655. They show a near-total global
+  hit ratio, not direct stall-cycle attribution.
+- Uninstrumented post-profile benchmarks were hardware **343,205 H/s**, full
+  software **27,578 H/s**, and filter **29,035 H/s**. Seven aligned common
+  windows had aggregate range **365,320–365,332 H/s**, median
+  **365,328 H/s**; hardware median **336,590 H/s** and software median
+  **28,736 H/s**. Aggregate is 1,228 H/s (-0.335%) below the retained normal
+  parent median 366,556 H/s. This reinforces that the linked profile image is
+  diagnostic and must not replace normal-mode throughput evidence.
+- RISC-V profile UF2 SHA-256:
+  `5c658609dcdf811dc617de65f9645a033c74ec4f453781e5637fe28c5e102df4`;
+  paired ARM UF2:
+  `cbae3ae9973d1ecf272a25bee657d4fc3371c27322bd59f38dc7726dea181fbd`.
+  Complete log: `logs/E02-profile-riscv.log`.
+- E02 conclusion: paired counter evidence confirms the hardware tail/wait and
+  second-hash segments dominate both ISAs. Hazard3 first-block DMA feeding is
+  still a concrete **87.01-cycle/hash** segment, so E06-trigger's removal of
+  one per-nonce MMIO operation is the next bounded experiment. The expected
+  gain is small; only normal-image hardware/common-window evidence can retain
+  it. E03 handoff fusion is not promoted because M33's measured handoff/second
+  segment does not isolate a remaining digest spill, and the software paths
+  remain dominated by SHA rounds rather than a cross-source call boundary.
