@@ -2619,3 +2619,28 @@ MINING:PROGRESS arch=ARM-M33 hardware_core=1 hardware_nonce=8400000 hardware_has
 - Decision: reject portable whole-target LTO and restore the retained build.
   Any future LTO attempt must be narrowly scoped and must first demonstrate
   clean builds for both supported architectures.
+
+## 2026-09-15 — E09-b fixed header-tail precomputation, RISC-V
+
+- Experiment: `E09b-round3-w16w17-riscv-46`, candidate commit `df70e18`.
+- Precomputed the SHA-256 working state after header-tail rounds 0--2 and the
+  nonce-independent schedule words W16/W17 once per job. The per-nonce first
+  compression starts at nonce-dependent round 3 and schedule word W18.
+- Both architectures built warning-free. On RISC-V, all 4,096 cross-engine
+  oracle cases and all 7 suites passed; no fault occurred.
+- Isolated software: **25,530 H/s**, up **4.82%** from the retained code-SRAM
+  reference's 24,357 H/s.
+- Median of the final 30 dual-worker reports: hardware **338,550 H/s**,
+  software **24,588 H/s**, aggregate **363,138 H/s**.
+- Versus retained RISC-V aggregate 361,993 H/s: **+0.32%** (+1,145 H/s).
+- Candidate RISC-V UF2 SHA-256:
+  `9cb1c388c5e11fbce1c6d2ff364933391c516e40ea69f73c7f49544419ed0691`.
+- Archived serial log: `logs/E09b-round3-w16w17-riscv.log`.
+- Decision: provisionally successful because the isolated software gain is
+  substantial and exact; measure ARM before the cross-architecture decision.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=52000 elapsed_us=2036788 hash_rate_hs=25530 checksum=88 temperature=disabled
+MINING:PROGRESS arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=8600000 hardware_hashes=4300000 hardware_rate_hs=338691 software_core=0 software_nonce=623201 software_hashes=311600 software_rate_hs=24534 total_hashes=4611600 hash_rate_hs=363225 temperature=disabled
+```
