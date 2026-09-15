@@ -10,11 +10,10 @@ changes and keep temperature disabled.
 
 ## Current status
 
-- HEAD before candidate 97 source changes: `2066b43` (`perf: verify E04 counter
-  restoration`); accepted source identity `71b48132e899`.
+- Retained candidate 98 source commit is `e2912db`; latest evidence commit
+  before the RISC-V result is `caa008d`, source identity `1eb3d9edb2b0`.
 - The Pico is accessible when hardware commands run outside the filesystem
-  sandbox. It currently runs rejected candidate 96 RISC-V at stock 150 MHz;
-  accepted build artifacts are restored but not yet flashed.
+  sandbox. It currently runs retained candidate 98 RISC-V at stock 150 MHz.
 - E06-trigger is retained on Hazard3. Attempt 86b passed all gates with a
   seven-window median of 368,130 H/s aggregate and 338,274 H/s hardware,
   +0.42%/+0.45% over immediate control 85e. ARM keeps its CPU feeder.
@@ -87,8 +86,13 @@ changes and keep temperature disabled.
    commit is `e2912db`, source identity `1eb3d9edb2b0`. ARM attempt 98a passed
    all gates and eight windows: first-seven median 356,545 H/s aggregate,
    325,092 hardware, 31,450 software; median payload 343.5 B/s. Archive
-   `logs/E04f-cadence1s-window4-arm.log`. Commit this evidence, run the
-   identical default-length Hazard3 cycle, archive it, and decide.
+   `logs/E04f-cadence1s-window4-arm.log`. Hazard3 attempt 98b also passed all
+   gates: median 368,378 aggregate, 338,300 hardware, 30,078 software; payload
+   363.4 B/s. Archive `logs/E04f-cadence1s-window4-riscv.log`. Candidate 98 is
+   retained: both ISAs are throughput-neutral versus E09-c, mining payload is
+   about 66.6% lower, and four-second windows restore default-cycle coverage.
+   Commit the paired evidence, then select the next untested bounded E07-bank
+   placement experiment from the updated plan.
 
 1. E09-b-tail-padding is resolved at commit `688148d`: retain explicit fixed
    rounds on ARM and the generic loop on Hazard3. Both final architecture

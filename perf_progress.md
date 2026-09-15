@@ -5067,3 +5067,38 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Decision: functional and operational pass; defer retention until the
   identical Hazard3 run. ARM supports the hypothesis that the shorter window
   restores strict-cycle usability without a measurable throughput cost.
+
+### E04-f four-report window RISC-V attempt 98b — pass, retain candidate 98
+
+- The identical committed candidate ran at source identity `1eb3d9edb2b0`,
+  run ID `30004927-00000014`, normal profile, stock 150 MHz, temperature
+  disabled. The cycle rebuilt both architectures before flashing Hazard3.
+  All 8 suites, the 4,096-case oracle, standalone benchmarks, eight common
+  windows, and the default 45-second strict capture passed without a fault.
+- Standalone hardware/full/filter rates were **344,783 / 28,636 / 30,235
+  H/s**. The first-seven window medians were aggregate **368,378 H/s** (range
+  368,375–368,381), hardware **338,300 H/s** (338,296–338,303), and software
+  **30,078 H/s** (30,077–30,082).
+- Versus accepted E09-c, aggregate is **-110 H/s (-0.030%)**, hardware **-134
+  H/s (-0.040%)**, and software **+27 H/s (+0.090%)**. Versus candidate 97,
+  aggregate is **-48 H/s (-0.013%)**, hardware **-58 H/s (-0.017%)**, and
+  software **+11 H/s (+0.037%)**. Both paired results establish that the
+  cadence/grouping change is throughput-neutral.
+- Each window covers 1,360,000 hardware hashes and about 120,918 software
+  hashes in 4.0200–4.0202 seconds. Median serialized mining telemetry over the
+  first seven windows is about **363.4 B/s**: **66.6% below** the accepted
+  approximately 1,087.5 B/s and 12.3% above candidate 97's approximately
+  323.5 B/s due to the more frequent window/ACK records.
+- Clean image hashes remain ARM
+  `5fb2d345ba0f9eb2c99ddb51ceceabf4b9c25e60ab9169812c9685d961bd54ef`
+  and RISC-V
+  `f109ef25a8a89cd41ec6e4068f5407af6cae9b87708d91aa605b16b5bd404c6a`.
+  Complete RISC-V log SHA-256:
+  `f9edd141f18a52a6b393397c67c34b1a617416e601da6b883d8ef39e6d6dd6d2`.
+  Archived log: `logs/E04f-cadence1s-window4-riscv.log`.
+- **Decision: retain candidate 98.** It delivers the measured approximately
+  66.6% serial-payload reduction on both architectures, keeps roughly
+  one-second progress visibility, restores approximately four-second
+  synchronized windows and default-cycle compatibility, and has no measurable
+  throughput penalty. The BOOT-advertised reporting contract prevents the
+  host validator from silently assuming a stale grouping.
