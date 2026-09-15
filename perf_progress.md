@@ -3287,3 +3287,30 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=54000 elapsed_us=2002372 hash_rate_hs=26968 checksum=61 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=56000 elapsed_us=2023541 hash_rate_hs=27674 checksum=fffebb38 temperature=disabled
 ```
+
+## 2026-09-15 — E03 fused second-hash schedule, ARM architecture split
+
+- Experiment: `E03-fused-second-schedule-arm-72`, candidate commit `eda2c61`,
+  at the stock 150 MHz clock.
+- Both architectures built warning-free. All 4,096 oracle cases and all 7
+  suites passed on M33; no fault occurred.
+- Full-digest software: **28,142 H/s**, versus parent 27,860 H/s: **+1.01%**
+  (+282 H/s). Exact filter: **28,598 H/s**, versus parent 28,446 H/s:
+  **+0.53%** (+152 H/s).
+- Median of the final 30 dual-worker reports: hardware **325,706 H/s**,
+  software **28,453 H/s**, aggregate **354,160 H/s**.
+- Versus the parent run, sustained software is **+0.55%** (+155 H/s) and
+  aggregate is **+0.045%** (+158 H/s); hardware moved +2 H/s.
+- Candidate ARM UF2 SHA-256:
+  `3212cb78915d9d6daef2c6cec1d178fa9751cc7c6c976b723d0cd0d391f1d228`.
+- Archived serial log: `logs/E03-fused-second-schedule-arm.log`.
+- Decision: retain the fused layout for M33 only. Restore the separate
+  first-digest buffer on Hazard3, where the same layout was 2.31% slower.
+  Verify architecture-split builds against the two already validated binary
+  digests before continuing.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=57000 elapsed_us=2025433 hash_rate_hs=28142 checksum=47 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=58000 elapsed_us=2028113 hash_rate_hs=28598 checksum=db92efaa temperature=disabled
+```
