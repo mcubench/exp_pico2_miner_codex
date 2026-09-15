@@ -3543,3 +3543,40 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=58000 elapsed_us=2025420 hash_rate_hs=28636 checksum=64 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=61000 elapsed_us=2030550 hash_rate_hs=30041 checksum=b2bf5392 temperature=disabled
 ```
+
+## 2026-09-15 — E09-b fixed padding rounds in full digest, ARM and retention
+
+- Experiment: `E09b-fixed-full-rounds-arm-81`, source candidate commit
+  `1a1ea93`, at the stock 150 MHz clock. Repository HEAD also contains later
+  evidence/documentation commits but no later firmware-source change.
+- Before flashing, ARM (`rp2350-arm-s`, toolchain `15_2_Rel1`) and RISC-V
+  (`rp2350-riscv`, toolchain `RISCV_PICO_2_3_1_0`) both built warning-free
+  against Pico SDK 2.3.1.
+- All 4,096 oracle cases and all 7 suites passed on M33; no fault occurred.
+- Full-digest software: **30,012 H/s**, versus parent experiment 78's
+  29,205 H/s: **+2.76%** (+807 H/s). Exact filter: **30,718 H/s**, identical
+  to the parent as expected because its helper is source-unchanged.
+- Median of the final 30 dual-worker reports: hardware **325,746 H/s**,
+  software **30,554 H/s**, aggregate **356,300 H/s**. These equal the parent
+  experiment's recorded medians; the mining worker uses the filter helper, so
+  the full-digest improvement is not expected to raise hard-target steady
+  mining throughput.
+- Hardware startup benchmark: **330,357 H/s**. Candidate ARM UF2 SHA-256:
+  `370a97545aa3f78b9627d2dba98bf437e22128c15c2abc760f2eddc2bdc0b81a`
+  (363,520 bytes). Paired candidate RISC-V UF2 SHA-256 remains
+  `c5406a6a3a65151ae332f1b168e06b4cf520cf4c5b47650ee0c7c3654bc72e10`
+  (395,776 bytes).
+- Fixture SHA-256:
+  `4cf1f1db9d05f9208b74edec0f616497a286269e73a1e89747fed60ac5648f98`.
+  Temperature remained explicitly disabled.
+- Archived serial log: `logs/E09b-fixed-full-rounds-arm.log`.
+- Decision: retain on both architectures. The complete-digest helper gains
+  2.76% on ARM and 0.53% on RISC-V with exact oracle equivalence, while the
+  source-unchanged mining/filter path does not regress on ARM.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=150000000 hashes=661000 elapsed_us=2000868 hash_rate_hs=330357 checksum=6f temperature=disabled
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=61000 elapsed_us=2032553 hash_rate_hs=30012 checksum=55 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=62000 elapsed_us=2018360 hash_rate_hs=30718 checksum=78fd8ac1 temperature=disabled
+```
