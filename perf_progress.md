@@ -3180,3 +3180,28 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=54000 elapsed_us=2028296 hash_rate_hs=26623 checksum=61 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=55000 elapsed_us=2012337 hash_rate_hs=27331 checksum=73309c95 temperature=disabled
 ```
+
+## 2026-09-15 — E09-b W31/W32 partial precomputation, ARM and retention
+
+- Experiment: `E09b-w31w32-partial-arm-68`, candidate commit `c8f6857`, at
+  the stock 150 MHz clock.
+- Both architectures built warning-free. All 4,096 oracle cases and all 7
+  suites passed on M33; no fault occurred.
+- Full-digest software: **27,855 H/s**, versus parent 27,347 H/s: **+1.86%**
+  (+508 H/s). Exact filter: **28,441 H/s**, versus parent 27,911 H/s:
+  **+1.90%** (+530 H/s).
+- Median of the final 30 dual-worker reports: hardware **325,746 H/s**,
+  software **28,300 H/s**, aggregate **354,046 H/s**.
+- Versus the parent run, sustained software is **+1.89%** (+526 H/s) and
+  aggregate is **+0.18%** (+622 H/s); hardware moved +96 H/s.
+- Candidate ARM UF2 SHA-256:
+  `20156f6fd116e3b01fd2be4e16daa04664f669c369539594725e2467bb878a81`.
+- Archived serial log: `logs/E09b-w31w32-partial-arm.log`.
+- Decision: retain W31/W32 partial precomputation on both architectures. The
+  complete correctness gate passed and all three software metrics improved.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=56000 elapsed_us=2010444 hash_rate_hs=27855 checksum=05 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=57000 elapsed_us=2004174 hash_rate_hs=28441 checksum=59f5c0dc temperature=disabled
+```
