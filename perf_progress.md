@@ -2839,3 +2839,27 @@ TEST:SUMMARY pass=7 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persistent-first-block-dma-e06a arch=RISCV-HAZARD3 clock_hz=300000000 hashes=1380000 elapsed_us=2001240 hash_rate_hs=689572 checksum=d6 temperature=disabled
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=300000000 hashes=104000 elapsed_us=2005521 hash_rate_hs=51857 checksum=43 temperature=disabled
 ```
+
+## 2026-09-15 — E11 300 MHz clock profile, ARM
+
+- Experiment: `E11-300mhz-arm-55` using retained source commit `d9c0de8`.
+- Startup reported an actual 300,000,000 Hz system clock; no regulator-voltage
+  change was made.
+- All 4,096 cross-engine oracle cases and all 7 suites passed; no fault
+  occurred during the short capture.
+- Isolated hardware: **662,179 H/s**. Isolated software: **53,810 H/s**.
+- Median of the final 30 dual-worker reports: hardware **651,014 H/s**,
+  software **52,973 H/s**, aggregate **703,987 H/s**.
+- Versus 250 MHz aggregate 586,868 H/s: **+19.96%** (+117,119 H/s).
+  Versus 150 MHz aggregate 352,188 H/s: **+99.89%** (+351,799 H/s), almost
+  exact 2x scaling.
+- Archived serial log: `logs/E11-300mhz-arm.log`.
+- Qualification: short experimental run only, temperature disabled, no
+  long-duration reliability claim.
+
+```text
+BOOT app=pico2_bitcoin_miner board=pico2 package=RP2350A arch=ARM-M33 engine=RP2350-SHA256 temperature=disabled clock_profile=experimental-overclock requested_clock_khz=300000 actual_clock_hz=300000000 sysinfo_package_sel=1 chip_id=30004927 silicon_revision=3
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=300000000 hashes=1325000 elapsed_us=2000969 hash_rate_hs=662179 checksum=d7 temperature=disabled
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=300000000 hashes=108000 elapsed_us=2007049 hash_rate_hs=53810 checksum=5e temperature=disabled
+```
