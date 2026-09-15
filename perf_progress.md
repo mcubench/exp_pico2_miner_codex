@@ -4977,3 +4977,37 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   Archived log: `logs/E04f-cadence1s-arm.log`.
 - Decision: functional pass; defer retain/reject until the identical long
   Hazard3 run. Do not infer a speedup from the +0.020% ARM movement alone.
+
+### E04-f one-second cadence RISC-V attempt 97b — pass, reject exact variant
+
+- The identical candidate ran at source identity `010c23e20b3f`, run ID
+  `30004927-00000012`, normal profile, stock 150 MHz, temperature disabled.
+  Both ISAs built before flash. All 8 suites, the 4,096-case oracle, standalone
+  benchmarks, seven long windows, and strict capture passed without a fault.
+- Standalone hardware/full/filter rates were **343,993 / 28,631 / 30,235
+  H/s**. Seven-window medians were aggregate **368,426 H/s** (range
+  368,422–368,442), hardware **338,358 H/s** (338,355–338,374), and software
+  **30,067 H/s** (30,066–30,068).
+- Versus accepted E09-c, aggregate is **-62 H/s (-0.017%)**, hardware
+  **-76 H/s (-0.022%)**, and software **+16 H/s (+0.053%)**. Together with
+  ARM's +0.020%, candidate 97 is throughput-neutral rather than a mining-speed
+  improvement.
+- Each window covers 5,440,000 hardware hashes and about 483,397 software
+  hashes in 16.0769–16.0778 seconds. Serialized steady telemetry had a median
+  of about **323.5 B/s**, versus about **1,087.5 B/s** in the accepted
+  100,000-hash RISC-V log, a **70.3% reduction**.
+- RISC-V UF2 SHA-256:
+  `89176f5011a121a2de936fd0eef32125497eff4bd4c5ab4718146147205b43f8`.
+  Complete log SHA-256:
+  `64f7c2832c8e3a56d6d4803275f2927f8240157207f3db2935da5ceab595dfbf`.
+  Archived log: `logs/E04f-cadence1s-riscv.log`.
+- Decision: reject candidate 97 **as an exact configuration**. It reduces
+  serial payload with neutral throughput, but retaining 16 reports per window
+  stretches the measurement/ACK period to about 16 seconds and makes the
+  repository's default 45-second strict cycle unable to collect its required
+  five windows. Test one bounded operational follow-up: retain 340,000 hashes
+  per progress report but group four reports per window, restoring about
+  four-second windows/default-cycle compatibility. This changes only window
+  grouping/host expectation and will reveal the cost of restoring the prior
+  ACK cadence. Restore the accepted source if that follow-up does not preserve
+  correctness and neutral throughput.

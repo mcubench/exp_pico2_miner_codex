@@ -74,8 +74,12 @@ changes and keep temperature disabled.
    and restore if rejected.
    ARM attempt 97a passed all gates: seven-window median 356,602 H/s (+0.020%
    versus E09-c), with steady payload reduced about 70.3% to 305 B/s. Archive
-   `logs/E04f-cadence1s-arm.log`. Commit this evidence, then run Hazard3 long
-   enough for seven windows before deciding.
+   `logs/E04f-cadence1s-arm.log`. Hazard3 attempt 97b also passed: median
+   368,426 H/s (-0.017%) and payload 323.5 B/s (-70.3%). Exact candidate 97 is
+   rejected because 16-second windows break the default 45-second strict
+   cycle's five-window contract. Archive `logs/E04f-cadence1s-riscv.log`.
+   Commit evidence, then test one follow-up with four one-second reports per
+   window and matching host expectation; restore accepted E09-c if it fails.
 
 1. E09-b-tail-padding is resolved at commit `688148d`: retain explicit fixed
    rounds on ARM and the generic loop on Hazard3. Both final architecture
