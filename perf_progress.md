@@ -2960,3 +2960,27 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=52000 elapsed_us=2005522 hash_rate_hs=25928 checksum=88 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=53000 elapsed_us=2012659 hash_rate_hs=26333 checksum=90732335 temperature=disabled
 ```
+
+## 2026-09-15 — E05 truthful `restrict` contracts, ARM and rejection
+
+- Experiment: `E05-restrict-arm-60`, candidate commit `4b570b6`, at the stock
+  150 MHz clock. A 45-second cycle captured the filter and a stable mining
+  window after the default 8-second capture proved too short.
+- Both architectures built warning-free. All 4,096 oracle cases and all 7
+  suites passed on M33; no fault occurred.
+- Full-digest software: **26,900 H/s**, exactly the pre-change rate. Exact
+  round-61 filter: **27,376 H/s**, also exactly the pre-change rate.
+- Median of the final 30 dual-worker reports: hardware **325,729 H/s**,
+  software **27,246 H/s**, aggregate **352,975 H/s**.
+- Versus E09-c ARM aggregate 352,919 H/s: **+0.016%** (+56 H/s), well inside
+  run variance and unsupported by either isolated metric.
+- Archived serial log: `logs/E05-restrict-arm.log`.
+- Decision: reject E05 `restrict` as a performance optimization. It is
+  correct on both targets but produces no measurable filter/full-digest gain;
+  revert it to keep the API contracts no stronger than necessary.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=54000 elapsed_us=2007424 hash_rate_hs=26900 checksum=61 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=55000 elapsed_us=2009027 hash_rate_hs=27376 checksum=73309c95 temperature=disabled
+```
