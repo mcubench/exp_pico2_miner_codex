@@ -180,9 +180,7 @@ __not_in_flash_func(software_sha256_compress_header_tail)(
 
 static __attribute__((optimize("unroll-loops"))) void
 __not_in_flash_func(software_sha256_compress_digest)(
-    uint32_t digest[8]) {
-    uint32_t schedule[64];
-    memcpy(schedule, digest, 8u * sizeof(schedule[0]));
+    uint32_t schedule[64]) {
     schedule[8] = 0x80000000u;
     for (unsigned word = 9u; word < 15u; ++word) {
         schedule[word] = 0u;
@@ -213,14 +211,14 @@ __not_in_flash_func(software_sha256_compress_digest)(
                               sha256_round_constants[round], schedule[round]);
     }
 
-    digest[0] = sha256_initial_state[0] + a;
-    digest[1] = sha256_initial_state[1] + b;
-    digest[2] = sha256_initial_state[2] + c;
-    digest[3] = sha256_initial_state[3] + d;
-    digest[4] = sha256_initial_state[4] + e;
-    digest[5] = sha256_initial_state[5] + f;
-    digest[6] = sha256_initial_state[6] + g;
-    digest[7] = sha256_initial_state[7] + h;
+    schedule[0] = sha256_initial_state[0] + a;
+    schedule[1] = sha256_initial_state[1] + b;
+    schedule[2] = sha256_initial_state[2] + c;
+    schedule[3] = sha256_initial_state[3] + d;
+    schedule[4] = sha256_initial_state[4] + e;
+    schedule[5] = sha256_initial_state[5] + f;
+    schedule[6] = sha256_initial_state[6] + g;
+    schedule[7] = sha256_initial_state[7] + h;
 }
 
 // After 61 rounds, e is the value that shifts into h after rounds 61--63.
@@ -229,12 +227,10 @@ __not_in_flash_func(software_sha256_compress_digest)(
 // is zero without executing the final three rounds.
 static __attribute__((optimize("unroll-loops"))) uint32_t
 __not_in_flash_func(software_sha256_digest_high_word_after_round61)(
-    const uint32_t digest[8]) {
+    uint32_t schedule[61]) {
     // The rejection result consumes rounds 0..60 only. Do not materialize
     // W61..W63: those words belong exclusively to the deliberately skipped
     // final three rounds.
-    uint32_t schedule[61];
-    memcpy(schedule, digest, 8u * sizeof(schedule[0]));
     schedule[8] = 0x80000000u;
     for (unsigned word = 9u; word < 15u; ++word) {
         schedule[word] = 0u;
@@ -334,21 +330,21 @@ void software_bitcoin_hasher_begin(software_bitcoin_hasher_t *hasher,
 void software_bitcoin_hash_nonce(const software_bitcoin_hasher_t *hasher,
                                  uint32_t nonce,
                                  uint8_t hash[32]) {
-    uint32_t first_digest[8];
-    software_sha256_compress_header_tail(first_digest, hasher,
+    uint32_t second_schedule[64];
+    software_sha256_compress_header_tail(second_schedule, hasher,
                                          __builtin_bswap32(nonce));
-    software_sha256_compress_digest(first_digest);
+    software_sha256_compress_digest(second_schedule);
 
     for (size_t word = 0u; word < 8u; ++word) {
-        const uint32_t encoded = __builtin_bswap32(first_digest[word]);
+        const uint32_t encoded = __builtin_bswap32(second_schedule[word]);
         memcpy(&hash[word * 4u], &encoded, sizeof(encoded));
     }
 }
 
 uint32_t software_bitcoin_hash_nonce_high_word(
     const software_bitcoin_hasher_t *hasher, uint32_t nonce) {
-    uint32_t first_digest[8];
-    software_sha256_compress_header_tail(first_digest, hasher,
+    uint32_t second_schedule[61];
+    software_sha256_compress_header_tail(second_schedule, hasher,
                                          __builtin_bswap32(nonce));
-    return software_sha256_digest_high_word_after_round61(first_digest);
+    return software_sha256_digest_high_word_after_round61(second_schedule);
 }
