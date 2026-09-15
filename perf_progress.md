@@ -3126,3 +3126,29 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=55000 elapsed_us=2011198 hash_rate_hs=27347 checksum=e2 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=56000 elapsed_us=2006349 hash_rate_hs=27911 checksum=fffebb38 temperature=disabled
 ```
+
+## 2026-09-15 — E09-b W18/W19 partial precomputation, RISC-V and retention
+
+- Experiment: `E09b-w18w19-partial-riscv-66`, candidate commit `fa333bc`, at
+  the stock 150 MHz clock.
+- Both architectures built warning-free. All 4,096 oracle cases and all 7
+  suites passed on Hazard3; no fault occurred.
+- Full-digest software: **26,278 H/s**, versus parent 26,018 H/s: **+1.00%**
+  (+260 H/s). Exact filter: **26,968 H/s**, versus parent 26,694 H/s:
+  **+1.03%** (+274 H/s).
+- Median of the final 30 dual-worker reports: hardware **338,828 H/s**,
+  software **26,720 H/s**, aggregate **365,548 H/s**.
+- Versus the parent run, sustained software is **+1.04%** (+275 H/s) and
+  aggregate is **+0.064%** (+235 H/s); hardware moved -40 H/s.
+- Candidate RISC-V UF2 SHA-256:
+  `12109449758f7bb25513084099bcf11fda357a283f57cfe0615253ee4010e1df`.
+- Archived serial log: `logs/E09b-w18w19-partial-riscv.log`.
+- Decision: retain W18/W19 partial precomputation on both architectures. Its
+  software benefit is present in full-digest, filter, and sustained metrics,
+  with complete oracle agreement.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=53000 elapsed_us=2016886 hash_rate_hs=26278 checksum=45 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=54000 elapsed_us=2002387 hash_rate_hs=26968 checksum=3f1babeb temperature=disabled
+```
