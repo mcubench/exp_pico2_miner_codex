@@ -4089,3 +4089,30 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   RISC-V
   `00db86d95bd8cacff5654730691f6dfc7f881368d8d69ae1d545c3f330689742`.
   Complete log: `logs/E02-normal-restored-riscv.log`.
+
+## 2026-09-15 — E06-trigger candidate 86 definition
+
+- Parent checkpoint `4409b84`, immediate normal RISC-V control
+  **366,601 H/s** aggregate / **336,750 H/s** hardware / **29,850 H/s**
+  software medians, stock 150 MHz, temperature disabled.
+- Hazard3 only: retain the job-time normal 16-word DMA transfer count, then
+  replace the per-nonce non-triggering read-address write plus triggering count
+  write with one `dma_channel_set_read_addr(..., true)`. SDK 2.3.1 maps this to
+  `AL3_READ_ADDR_TRIG`, whose RP2350 register definition states that a nonzero
+  write reloads the channel counter and starts the channel. ARM retains its CPU
+  feeder unchanged.
+- Correctness requirements: every repeated transfer remains exactly 16 words;
+  the channel is idle before rearm; source lifetime, SHA START ordering,
+  completion wait, inter-block/result waits, error checks, and cleanup remain
+  unchanged. Both architectures must build before flashing; all 8 hardware
+  suites, 4,096-case oracle, standalone benchmarks, seven common windows, and
+  strict capture must pass.
+- Performance hypothesis: eliminate one SDK-inlined MMIO store from the
+  profiled 87.01-cycle/hash first-feed segment. Compare the normal image against
+  same-session control 85e; treat the variant as untested until hardware data.
+- Pre-flash gates: both normal wrapper builds pass warning-free and all 8 host
+  monitor tests pass. Hazard3 `mining_worker_core1` disassembly shows one
+  `sw s7,60(t2)` to `AL3_READ_ADDR_TRIG` immediately after SHA START, followed
+  by the unchanged DMA busy wait; the former separate source/count stores are
+  absent. Dirty-build text is 200,744 bytes on RISC-V and 188,600 on ARM; clean
+  committed artifacts will be rebuilt and hashed before flash.

@@ -10,11 +10,12 @@ changes and keep temperature disabled.
 
 ## Current status
 
-- HEAD before recording the normal restoration: `18b6b2f` (`perf: record E02
-  Hazard3 profile pass`); source identity `02b7825c7499`.
+- HEAD before E06-trigger source changes: `4409b84` (`perf: record E02 normal
+  RISC-V control`); parent source identity `02b7825c7499`.
 - Device currently runs the restored normal RISC-V image at 150 MHz.
-- Working tree contains the archived successful normal restoration and its
-  intentional ledger/handoff updates.
+- Working tree contains the E06-trigger source change and its candidate
+  definition. Both normal builds and 8 host tests pass; disassembly confirms
+  one `AL3_READ_ADDR_TRIG` store. It is not yet committed or hardware-tested.
 - E09-b-pending is resolved and retained on both ISAs.
 - E01-identity is implemented, paired-hardware validated, and retained.
 - E01-rare candidate 83 and E01-window candidate 84 are retained on both ISAs.
@@ -61,10 +62,9 @@ changes and keep temperature disabled.
 
 ## Work in progress / next actions
 
-1. Commit the normal restoration/control evidence.
-2. Start E06-trigger on Hazard3: configure the 16-word transfer count once and
-   use the read-address trigger for each idle-channel rearm. Build both ISAs,
-   commit the candidate before hardware, then capture full normal-mode output.
+1. Commit the candidate before hardware, rebuild clean artifacts for both
+   ISAs, then flash/capture RISC-V and compare
+   seven windows with control 85e.
 
 ## Files and evidence
 

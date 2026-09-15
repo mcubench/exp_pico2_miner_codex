@@ -26,7 +26,7 @@ _Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
 
 #ifdef __riscv
 #define CPU_ARCH "RISCV-HAZARD3"
-#define BENCHMARK_PATH "persistent-first-block-dma-e06a"
+#define BENCHMARK_PATH "read-addr-trigger-e06-trigger"
 #define MINING_LOOP_OPTIONS __attribute__((optimize("unroll-loops")))
 #else
 #define CPU_ARCH "ARM-M33"
@@ -134,11 +134,10 @@ static inline __attribute__((always_inline)) void sha256_write_first_block(
     bitcoin_hasher_t *hasher) {
 #ifdef __riscv
     // The channel configuration and fixed WDATA destination persist for the
-    // complete job. Only the incrementing source and transfer count need to
-    // be restored for each invariant first header block.
+    // complete job. The RP2350 read-address trigger both restores the
+    // incrementing source and reloads the saved 16-word transfer count.
     dma_channel_set_read_addr((uint)hasher->dma_channel,
-                              &hasher->header_words[0], false);
-    dma_channel_set_trans_count((uint)hasher->dma_channel, 16u, true);
+                              &hasher->header_words[0], true);
     dma_channel_wait_for_finish_blocking((uint)hasher->dma_channel);
 #else
     // START establishes the ready/reset state, and ordered MMIO stores ensure
