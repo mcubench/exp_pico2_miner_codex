@@ -5233,3 +5233,32 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Decision: ARM alone does not justify retention. Run the identical Hazard3
   image before rejecting the shared candidate; retain an ISA split only if
   Hazard3 shows a clear, repeatable gain that pays for its 172-byte text cost.
+
+### E03 software batch-8 RISC-V attempt 100b — pass correctness, reject
+
+- The identical committed candidate ran at source identity `aebc1223a0d2`,
+  run ID `30004927-00000017`, normal profile, stock 150 MHz, temperature
+  disabled. Both ISAs built before flash. All 8 suites including batch-mask
+  coverage, the 4,096-case oracle, standalone benchmarks, eight windows, and
+  strict capture passed without a fault.
+- Standalone hardware/full/filter rates were **343,994 / 28,636 / 30,235
+  H/s**. First-seven window medians were aggregate **366,841 H/s** (range
+  366,826–366,850), hardware **336,698 H/s** (336,685–336,707), and software
+  **30,143 H/s** (30,141–30,146).
+- Versus retained candidate 98, aggregate is **-1,537 H/s (-0.417%)**,
+  hardware **-1,602 H/s (-0.474%)**, and software **+65 H/s (+0.216%)**.
+  Amortizing software calls and polling does help core 0 slightly, but costs
+  substantially more work on the hardware owner through shared-resource or
+  layout effects. This repeats the earlier warning that a software-local gain
+  is not an aggregate win.
+- Candidate hashes remain ARM
+  `69ed9510bebe18582af9ac3e5a2e3c80348f54ae5db0231a4f598ddf51d93110`
+  and RISC-V
+  `b27f4fedd87e02b99d742ed16f4d49b1d84621849531c92b62c657c16286b1c1`.
+  Complete RISC-V log SHA-256:
+  `2c989353ff8f02bcf045459784fb9123b00071f8f52289eb59f8fa7c4c07201f`.
+  Archived log: `logs/E03-batch8-riscv.log`.
+- **Decision: reject candidate 100 on both ISAs.** ARM is neutral and Hazard3
+  materially regresses aggregate work; an architecture split is unjustified.
+  Restore the single-nonce API/mining loop and require exact candidate-98
+  artifacts. Do not repeat factor 8 unchanged.

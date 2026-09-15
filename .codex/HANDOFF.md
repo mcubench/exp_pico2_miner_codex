@@ -121,7 +121,11 @@ changes and keep temperature disabled.
    ARM attempt 100a passed all gates but is neutral: median 356,553 aggregate,
    325,099 hardware, 31,452 software (+0.002% aggregate versus candidate 98).
    Archive `logs/E03-batch8-arm.log`. Commit evidence, then run Hazard3 and
-   retain an ISA split only for a clear Hazard3 gain.
+   retain an ISA split only for a clear Hazard3 gain. Hazard3 attempt 100b
+   passed correctness but regressed to 366,841 aggregate: software +0.216%,
+   hardware -0.474%, aggregate -0.417%. Archive `logs/E03-batch8-riscv.log`.
+   Reject candidate 100 on both ISAs, commit evidence, restore the single-nonce
+   API/loop, rebuild both, and require exact candidate-98 artifact hashes.
 
 1. E09-b-tail-padding is resolved at commit `688148d`: retain explicit fixed
    rounds on ARM and the generic loop on Hazard3. Both final architecture
