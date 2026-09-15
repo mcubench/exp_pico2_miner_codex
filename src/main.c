@@ -34,6 +34,7 @@ _Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
 #define BENCHMARK_MIN_US 2000000ull
 #define BENCHMARK_BATCH 1000u
 #define MINING_REPORT_INTERVAL 100000u
+#define SOFTWARE_FIFO_POLL_INTERVAL 64u
 
 #ifndef MINER_USE_CORE1
 #define MINER_USE_CORE1 1
@@ -801,6 +802,7 @@ static void mine_forever(uint led_pin) {
     sha256_result_t target;
     software_bitcoin_hasher_t software_hasher;
     uint32_t software_nonce = 1u;
+    uint32_t software_until_fifo_poll = SOFTWARE_FIFO_POLL_INTERVAL;
     uint64_t software_hashes = 0u;
     uint64_t hardware_hashes = 0u;
     uint64_t software_started_us;
@@ -846,6 +848,11 @@ static void mine_forever(uint led_pin) {
             printf("FAULT type=nonce_exhausted worker=software core=0\n");
             return;
         }
+        --software_until_fifo_poll;
+        if (software_until_fifo_poll != 0u) {
+            continue;
+        }
+        software_until_fifo_poll = SOFTWARE_FIFO_POLL_INTERVAL;
         if (!multicore_fifo_rvalid()) {
             continue;
         }
