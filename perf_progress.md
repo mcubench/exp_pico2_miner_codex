@@ -3515,3 +3515,31 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=57000 elapsed_us=2001137 hash_rate_hs=28484 checksum=47 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=60000 elapsed_us=2006062 hash_rate_hs=29909 checksum=a7578a11 temperature=disabled
 ```
+
+## 2026-09-15 — E09-b fixed padding rounds in full digest, RISC-V
+
+- Experiment: `E09b-fixed-full-rounds-riscv-80`, candidate commit `1a1ea93`,
+  at the stock 150 MHz clock.
+- Applied the same fixed second-hash round 8..15 specialization to the complete
+  digest helper. The exact-filter helper is source-unchanged in this attempt.
+- Both architectures built warning-free. All 4,096 oracle cases and all 7
+  suites passed on Hazard3; no fault occurred.
+- Full-digest software: **28,636 H/s**, versus parent 28,484 H/s: **+0.53%**
+  (+152 H/s). Exact filter: **30,041 H/s**, versus parent 29,909 H/s:
+  +0.44% (+132 H/s), attributed primarily to favorable code layout because
+  its helper did not change.
+- Median of the final 30 dual-worker reports: hardware **338,998 H/s**,
+  software **29,835 H/s**, aggregate **368,834 H/s**.
+- Versus the parent run, sustained software is +129 H/s and aggregate +105
+  H/s; hardware moved -26 H/s.
+- Candidate RISC-V UF2 SHA-256:
+  `c5406a6a3a65151ae332f1b168e06b4cf520cf4c5b47650ee0c7c3654bc72e10`.
+- Archived serial log: `logs/E09b-fixed-full-rounds-riscv.log`.
+- Decision: provisionally retain for the measured full-digest gain; verify
+  M33 before final retention.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=58000 elapsed_us=2025420 hash_rate_hs=28636 checksum=64 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=61000 elapsed_us=2030550 hash_rate_hs=30041 checksum=b2bf5392 temperature=disabled
+```
