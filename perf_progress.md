@@ -4566,3 +4566,19 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   Complete log SHA-256:
   `6c3c6ff08d7d9dacc6bbe282093ddc07584bd535cae3d99321c64b24be02c30a`.
   Archived log: `logs/E14-chunks-native-riscv.log`.
+
+## 2026-09-15 — E14 finite 65,536-nonce chunks candidate 92 definition
+
+- Parent implementation candidate `b8f53c9` uses the correct native local
+  nonce/remaining representation but loses 3.15% aggregate on ARM and 2.30%
+  on Hazard3 with 4,096-nonce chunks.
+- Change only `MINING_CHUNK_SIZE` from 4,096 to 65,536, the second size
+  prescribed by E14-chunks. The shared 64-bit end-exclusive allocator,
+  generation, SDK critical section, native local loop, precomputed job state,
+  ninth allocator KAT, FIFO protocol, report cadence, clock and temperature
+  configuration remain identical.
+- This reduces chunk acquisitions and synchronization calls by 16x, while
+  increasing worst-case redistribution/cancellation granularity from 4,096 to
+  65,536 hashes. Hardware-test both ISAs independently; accept only if the
+  sustained aggregate cost becomes small enough to justify finite-work
+  balancing, with correctness and final partial-range coverage intact.

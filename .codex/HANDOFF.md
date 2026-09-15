@@ -81,6 +81,8 @@ changes and keep temperature disabled.
    nonce/remaining state. Both ISAs pass correctness but remain too slow:
    ARM aggregate -3.15%, Hazard3 -2.30%. Next change only chunk size from
    4,096 to the planned 65,536 to isolate acquisition frequency.
+6. Candidate 92 makes that one-variable 65,536 size change. Build and test
+   both ISAs; compare directly to candidate 91 and accepted E09-c.
 
 ## Files and evidence
 
