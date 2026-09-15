@@ -2570,3 +2570,10 @@ MINING:PROGRESS arch=ARM-M33 hardware_core=1 hardware_nonce=8400000 hardware_has
 - Decision: reject without flashing. The installed Hazard3 compiler's existing
   choices for this branch-light expanded-schedule kernel are unchanged, so the
   expected hardware result is exactly the retained binary's measured result.
+
+## 2026-09-15 — E05 RISC-V `-fno-code-hoisting` software flag
+
+- Experiment: `E05-no-code-hoisting-riscv-42`, candidate commit `e887274`.
+- The flag was scoped only to `src/software_sha256.c`; both architectures built
+  cleanly, but both UF2 files remained byte-identical to the retained binaries.
+- Decision: reject without flashing because generated code did not change.
