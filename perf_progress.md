@@ -3098,3 +3098,31 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=55000 elapsed_us=2015963 hash_rate_hs=27282 checksum=e2 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=56000 elapsed_us=2011195 hash_rate_hs=27844 checksum=fffebb38 temperature=disabled
 ```
+
+## 2026-09-15 — E09-b W18/W19 partial precomputation, ARM
+
+- Experiment: `E09b-w18w19-partial-arm-65`, candidate commit `fa333bc`, at
+  the stock 150 MHz clock.
+- W18 and W19 still depend on the nonce, but their invariant schedule terms
+  are now computed once per header. Per nonce, W18 adds `sigma0(nonce)` to its
+  cached base and W19 adds the nonce word to its cached base.
+- Both architectures built warning-free. All 4,096 oracle cases and all 7
+  suites passed on M33; no fault occurred.
+- Full-digest software: **27,347 H/s**, versus parent 27,282 H/s: **+0.24%**
+  (+65 H/s). Exact filter: **27,911 H/s**, versus parent 27,844 H/s:
+  **+0.24%** (+67 H/s).
+- Median of the final 30 dual-worker reports: hardware **325,650 H/s**,
+  software **27,774 H/s**, aggregate **353,424 H/s**.
+- Versus the parent run, sustained software is **+0.28%** (+77 H/s).
+  Aggregate is effectively flat (-6 H/s) because hardware moved -83 H/s.
+- Candidate ARM UF2 SHA-256:
+  `b4bac1775d30e626df21bbb55dc37447b21ae4f399fa88dffe46241213ad4aa6`.
+- Archived serial log: `logs/E09b-w18w19-partial-arm.log`.
+- Decision: provisionally retain; all three software metrics agree on a small
+  gain. Verify Hazard3 before final retention.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=55000 elapsed_us=2011198 hash_rate_hs=27347 checksum=e2 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=56000 elapsed_us=2006349 hash_rate_hs=27911 checksum=fffebb38 temperature=disabled
+```
