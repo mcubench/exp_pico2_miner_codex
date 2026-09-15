@@ -5338,3 +5338,28 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   the measured risk is the doubled approximately 1 KiB hot worker body and its
   changed branch layout. Commit, rebuild at a clean identity, then run the
   complete paired stock-clock hardware comparison.
+
+### E04-c hardware-worker batch factor 2 ARM attempt 101a — pass, improved
+
+- Candidate commit `5216b86`, source identity `8ac61bed6329`, normal profile,
+  stock 150 MHz, temperature disabled, run ID `30004927-00000018`. The cycle
+  rebuilt both architectures before flashing ARM. All 8 suites, the 4,096-case
+  oracle, standalone benchmarks, eight common windows, and strict 45-second
+  capture passed without a fault.
+- Standalone hardware/full/filter rates were **331,083 / 30,364 / 31,578
+  H/s**. First-seven window medians were aggregate **357,655 H/s** (range
+  357,652–357,658), hardware **326,223 H/s** (326,215–326,225), and software
+  **31,433 H/s** (31,432–31,437).
+- Versus retained candidate 98, aggregate is **+1,110 H/s (+0.311%)**,
+  hardware **+1,131 H/s (+0.348%)**, and software **-17 H/s (-0.054%)**.
+  The component-local hardware gain is stable across all seven windows and
+  matches the intended reduction in hot loop/report-boundary overhead.
+- Clean ARM/RISC-V UF2 SHA-256:
+  `6e76ffc1dd361d70b009fb5aafa68e858f63ea9c7541436795a4f2186b9c71a2` /
+  `919fa4cc7e659ce463bea60bcd835323f29f583cc79905914a313c4d894b6e6c`.
+  Complete ARM log SHA-256:
+  `526a333e72ae5eb33f3617ba16ff89fac7fe8962bb43970013cf87f62532dc63`.
+  Archived log: `logs/E04c-hardware-batch2-arm.log`.
+- Decision: ARM provides a promising but sub-1% gain. Run the identical
+  Hazard3 candidate before deciding retention; require its hardware component
+  and aggregate result not to regress materially.

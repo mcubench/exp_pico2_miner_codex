@@ -92,6 +92,12 @@ Preflight A built and passed host tests but the compiler did not unroll the
 inner loop on either ISA; this is logged as a build-only rejection. An explicit
 `#pragma GCC unroll 2` is now being tested as preflight B. Do not flash unless
 disassembly confirms two physical hash bodies without an inner batch branch.
+Preflight B succeeded and candidate commit is `5216b86`, source identity
+`8ac61bed6329`. ARM attempt 101a passed all gates: first-seven median 357,655
+H/s aggregate, 326,223 hardware, 31,433 software, a +0.311% aggregate and
++0.348% hardware gain over candidate 98. Archive
+`logs/E04c-hardware-batch2-arm.log`. Commit this evidence, then run the
+identical Hazard3 image and decide the shared candidate.
 
 0. Candidate 97 is now defined as E04-f telemetry cadence: change only the
    hardware report interval from 100,000 to 340,000 hashes (approximately one
