@@ -3770,3 +3770,25 @@ BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persist
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=58000 elapsed_us=2025412 hash_rate_hs=28636 checksum=64 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=61000 elapsed_us=2030541 hash_rate_hs=30041 checksum=b2bf5392 temperature=disabled
 ```
+
+## 2026-09-15 — E01 common-window candidate definition
+
+- Experiment: `E01-window-84`, parent source identity `6826dc1fdfe2`
+  (`1a3f619` firmware), stock 150 MHz, shared ARM/RISC-V measurement change.
+- Hypothesis: a start handshake and cross-core barrier every 16 hardware
+  progress intervals can snapshot both unique worker counts over one common
+  approximately 4.7-second wall interval. The resulting total includes FIFO,
+  USB printing, stalls and barrier idle time and removes the current mixed
+  recent-hardware/cumulative-software timing ambiguity.
+- Changed feature: READY/ACK protocol, exact count/time deltas, and
+  `MEASUREMENT:WINDOW` records. Ordinary 100,000-hash progress remains for
+  historical comparison. The strict parser verifies identity, sequence,
+  counts and recomputed rates and requires at least five windows.
+- Expected removable cost: measurement ambiguity only. Resource cost is two
+  FIFO control words per common boundary, several counters on core 0, and
+  report code; no inner hash calculation changes. Temperature stays disabled
+  and clock stays at 150 MHz.
+- Rejection rule: reject/revise for deadlock, protocol fault, non-unique or
+  inconsistent counts, fewer than five complete windows, any validation
+  failure, or a material useful-work regression. Compare future candidates
+  against the new common-window baseline rather than summing mixed rates.

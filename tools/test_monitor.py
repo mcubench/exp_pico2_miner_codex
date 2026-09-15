@@ -28,10 +28,16 @@ def complete_lines(source="abc123", arch="ARM-M33", run="30004927-00000001"):
             f"MINING:START run_id={run}",
         ]
     )
-    lines.extend(
-        f"MINING:PROGRESS run_id={run} sequence={sequence}"
-        for sequence in range(1, 6)
-    )
+    for sequence in range(1, 81):
+        if sequence % 16 == 0:
+            window = sequence // 16
+            lines.append(
+                f"MEASUREMENT:WINDOW run_id={run} window={window} sequence={sequence}"
+                " elapsed_us=5000000 hardware_hashes=1600000 software_hashes=150000"
+                " total_hashes=1750000 hardware_rate_hs=320000 software_rate_hs=30000"
+                " hash_rate_hs=350000"
+            )
+        lines.append(f"MINING:PROGRESS run_id={run} sequence={sequence}")
     decision = next(
         i for i, line in enumerate(lines)
         if line == "TEST:PASS kat=mining_decision_paths"
@@ -55,9 +61,11 @@ class ContractTests(unittest.TestCase):
         self.assertEqual(contract.missing(), [])
 
     def test_missing_stage_is_rejected(self):
-        contract, errors = self.validate(complete_lines()[:-1])
+        lines = complete_lines()
+        del lines[-2]
+        contract, errors = self.validate(lines)
         self.assertEqual(errors, [])
-        self.assertIn("five MINING:PROGRESS records (4 seen)", contract.missing())
+        self.assertIn("five MEASUREMENT:WINDOW records (4 seen)", contract.missing())
 
     def test_wrong_source_is_rejected(self):
         _, errors = self.validate(complete_lines(source="wrong"))
@@ -86,6 +94,13 @@ class ContractTests(unittest.TestCase):
         lines[candidate] = lines[candidate].replace("candidate_hash=000", "candidate_hash=100")
         _, errors = self.validate(lines)
         self.assertTrue(any("host-known genesis" in error for error in errors))
+
+    def test_bad_window_sum_is_rejected(self):
+        lines = complete_lines()
+        window = next(i for i, line in enumerate(lines) if line.startswith("MEASUREMENT:WINDOW"))
+        lines[window] = lines[window].replace("total_hashes=1750000", "total_hashes=1")
+        _, errors = self.validate(lines)
+        self.assertTrue(any("window counts" in error for error in errors))
 
 
 if __name__ == "__main__":

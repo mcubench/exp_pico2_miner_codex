@@ -16,8 +16,8 @@ changes and keep temperature disabled.
 - Working tree was clean when this handoff was created.
 - E09-b-pending is resolved and retained on both ISAs.
 - E01-identity is implemented, paired-hardware validated, and retained.
-- E01-rare candidate 83 is paired-hardware validated and retained. E01-window
-  follows, then fresh E02 profiling.
+- E01-rare candidate 83 is retained. E01-window candidate 84 is in progress,
+  then fresh E02 profiling.
 
 ## Completed work in this session
 
@@ -37,8 +37,7 @@ changes and keep temperature disabled.
 
 ## Work in progress / next actions
 
-1. Design and implement E01-window as a separate experiment; do not confuse existing
-   mixed-window `hash_rate_hs` with the future common-window baseline.
+1. Finish E01-window candidate 84 host tests and review its READY/ACK protocol.
 2. Commit candidate, build both, then hardware-test both ISAs with 45-second
    cycles. Archive unique logs and record/commit each result.
 3. Refresh E02 measurements only after the measurement contract is in place.

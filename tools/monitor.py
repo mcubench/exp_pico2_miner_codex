@@ -45,6 +45,8 @@ class ValidationContract:
         self.mining_start = False
         self.progress_count = 0
         self.next_sequence = 1
+        self.window_count = 0
+        self.next_window = 1
 
     def observe(self, line: str) -> str | None:
         if line.startswith("TEST:FAIL") or line.startswith("FAULT"):
@@ -109,6 +111,33 @@ class ValidationContract:
                 return f"progress sequence {sequence}, expected {self.next_sequence}"
             self.next_sequence += 1
             self.progress_count += 1
+        elif line.startswith("MEASUREMENT:WINDOW "):
+            if self.boot is None or data.get("run_id") != self.boot["run_id"]:
+                return "measurement window run identity mismatch"
+            try:
+                window = int(data.get("window", ""))
+                sequence = int(data.get("sequence", ""))
+                elapsed = int(data.get("elapsed_us", ""))
+                hardware = int(data.get("hardware_hashes", ""))
+                software = int(data.get("software_hashes", ""))
+                total = int(data.get("total_hashes", ""))
+                hardware_rate = int(data.get("hardware_rate_hs", ""))
+                software_rate = int(data.get("software_rate_hs", ""))
+                total_rate = int(data.get("hash_rate_hs", ""))
+            except ValueError:
+                return "malformed measurement window"
+            if (window != self.next_window or sequence != window * 16
+                or sequence != self.next_sequence):
+                return "measurement window sequence mismatch"
+            if elapsed <= 0 or hardware <= 0 or software <= 0 or total != hardware + software:
+                return "invalid measurement window counts"
+            rounded = lambda count: (count * 1_000_000 + elapsed // 2) // elapsed
+            if (hardware_rate != rounded(hardware)
+                or software_rate != rounded(software)
+                or total_rate != rounded(total)):
+                return "invalid measurement window rate"
+            self.next_window += 1
+            self.window_count += 1
         return None
 
     def missing(self) -> list[str]:
@@ -124,6 +153,8 @@ class ValidationContract:
             missing.append("MINING:START")
         if self.progress_count < 5:
             missing.append(f"five MINING:PROGRESS records ({self.progress_count} seen)")
+        if self.window_count < 5:
+            missing.append(f"five MEASUREMENT:WINDOW records ({self.window_count} seen)")
         return missing
 
 

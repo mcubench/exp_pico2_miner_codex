@@ -35,6 +35,7 @@ _Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
 #define BENCHMARK_MIN_US 2000000ull
 #define BENCHMARK_BATCH 1000u
 #define MINING_REPORT_INTERVAL 100000u
+#define COMMON_WINDOW_REPORT_INTERVAL 16u
 #define RUN_SEQUENCE_MAGIC 0x4d494e52u
 
 #ifndef MINER_USE_CORE1
@@ -804,6 +805,8 @@ enum mining_message {
     MINING_MESSAGE_PROGRESS = 0x50524752u,
     MINING_MESSAGE_SHARE = 0x53485245u,
     MINING_MESSAGE_FAULT = 0x4641554cu,
+    MINING_MESSAGE_READY = 0x52454144u,
+    MINING_MESSAGE_ACK = 0x41434b21u,
 };
 
 static void mining_fifo_push_u64(uint64_t value) {
@@ -834,12 +837,19 @@ static MINING_LOOP_OPTIONS void mining_worker_core1(void) {
     uint32_t nonce = 0u;
     uint32_t since_report = 0u;
     uint64_t total_hashes = 0u;
-    uint64_t report_started_us = time_us_64();
+    uint64_t report_started_us;
+    uint32_t report_sequence = 0u;
 
     if (!compact_to_target_le(0x1d00ffffu, target.bytes)) {
         mining_worker_fault(1u, nonce, 0u);
     }
     bitcoin_hasher_begin(&hasher, genesis_header);
+    multicore_fifo_push_blocking(MINING_MESSAGE_READY);
+    if (multicore_fifo_pop_blocking() != MINING_MESSAGE_ACK) {
+        bitcoin_hasher_end(&hasher);
+        mining_worker_fault(4u, nonce, 0u);
+    }
+    report_started_us = time_us_64();
 
     while (true) {
 #ifdef __riscv
@@ -890,6 +900,12 @@ static MINING_LOOP_OPTIONS void mining_worker_core1(void) {
             multicore_fifo_push_blocking(nonce);
             mining_fifo_push_u64(total_hashes);
             mining_fifo_push_u64(rate);
+            ++report_sequence;
+            if (report_sequence % COMMON_WINDOW_REPORT_INTERVAL == 0u
+                && multicore_fifo_pop_blocking() != MINING_MESSAGE_ACK) {
+                bitcoin_hasher_end(&hasher);
+                mining_worker_fault(4u, nonce, 0u);
+            }
             since_report = 0u;
             report_started_us = now_us;
         }
@@ -906,6 +922,10 @@ static void mine_forever(uint led_pin) {
     uint64_t hardware_hashes = 0u;
     uint64_t software_started_us;
     uint32_t report_sequence = 0u;
+    uint64_t window_started_us;
+    uint64_t window_hardware_hashes = 0u;
+    uint64_t window_software_hashes = 0u;
+    uint32_t window_sequence = 0u;
 
     if (!compact_to_target_le(0x1d00ffffu, target.bytes)) {
         printf("FAULT type=invalid_compact_target worker_core=0\n");
@@ -920,7 +940,15 @@ static void mine_forever(uint led_pin) {
            " note=standalone-stale-work\n",
            boot_chip_id, boot_run_sequence);
     multicore_launch_core1(mining_worker_core1);
-    software_started_us = time_us_64();
+    const uint32_t ready_message = multicore_fifo_pop_blocking();
+    if (ready_message != MINING_MESSAGE_READY) {
+        printf("FAULT type=multicore_start_protocol message=%08" PRIx32 "\n",
+               ready_message);
+        return;
+    }
+    window_started_us = time_us_64();
+    software_started_us = window_started_us;
+    multicore_fifo_push_blocking(MINING_MESSAGE_ACK);
 
     while (true) {
         bool full_digest_computed;
@@ -954,6 +982,46 @@ static void mine_forever(uint led_pin) {
             const uint64_t software_rate =
                 (software_hashes * 1000000ull + software_elapsed_us / 2u)
                 / software_elapsed_us;
+            if (report_sequence % COMMON_WINDOW_REPORT_INTERVAL == 0u) {
+                const uint64_t window_ended_us = time_us_64();
+                const uint64_t window_elapsed_us =
+                    window_ended_us - window_started_us;
+                const uint64_t window_hardware_delta =
+                    hardware_hashes - window_hardware_hashes;
+                const uint64_t window_software_delta =
+                    software_hashes - window_software_hashes;
+                const uint64_t window_total =
+                    window_hardware_delta + window_software_delta;
+                const uint64_t window_hardware_rate =
+                    (window_hardware_delta * 1000000ull
+                     + window_elapsed_us / 2u) / window_elapsed_us;
+                const uint64_t window_software_rate =
+                    (window_software_delta * 1000000ull
+                     + window_elapsed_us / 2u) / window_elapsed_us;
+                const uint64_t window_total_rate =
+                    (window_total * 1000000ull + window_elapsed_us / 2u)
+                    / window_elapsed_us;
+                ++window_sequence;
+                multicore_fifo_push_blocking(MINING_MESSAGE_ACK);
+                printf("MEASUREMENT:WINDOW run_id=%08" PRIx32 "-%08" PRIx32
+                       " window=%" PRIu32 " sequence=%" PRIu32
+                       " elapsed_us=%" PRIu64
+                       " hardware_hashes=%" PRIu64
+                       " software_hashes=%" PRIu64
+                       " total_hashes=%" PRIu64
+                       " hardware_rate_hs=%" PRIu64
+                       " software_rate_hs=%" PRIu64
+                       " hash_rate_hs=%" PRIu64
+                       " temperature=disabled\n",
+                       boot_chip_id, boot_run_sequence, window_sequence,
+                       report_sequence, window_elapsed_us,
+                       window_hardware_delta, window_software_delta,
+                       window_total, window_hardware_rate,
+                       window_software_rate, window_total_rate);
+                window_started_us = window_ended_us;
+                window_hardware_hashes = hardware_hashes;
+                window_software_hashes = software_hashes;
+            }
             printf("MINING:PROGRESS run_id=%08" PRIx32 "-%08" PRIx32
                    " sequence=%" PRIu32
                    " arch=%s hardware_core=1 hardware_nonce=%" PRIu32
@@ -988,7 +1056,8 @@ static void mine_forever(uint led_pin) {
                    " invalid_batch=%" PRIu32 "\n",
                    code == 1u ? "invalid_compact_target"
                               : (code == 2u ? "sha256_hardware"
-                                            : "nonce_exhausted"),
+                                            : (code == 3u ? "nonce_exhausted"
+                                                          : "multicore_protocol")),
                    nonce, invalid_batch);
             while (true) {
                 gpio_xor_mask64(1ull << led_pin);
