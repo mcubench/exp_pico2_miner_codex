@@ -3205,3 +3205,30 @@ TEST:SUMMARY pass=7 fail=0
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=56000 elapsed_us=2010444 hash_rate_hs=27855 checksum=05 temperature=disabled
 SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=57000 elapsed_us=2004174 hash_rate_hs=28441 checksum=59f5c0dc temperature=disabled
 ```
+
+## 2026-09-15 — E03 direct header digest output, ARM
+
+- Experiment: `E03-direct-header-digest-arm-69`, candidate commit `b4af8dd`,
+  at the stock 150 MHz clock.
+- Removed the caller's 32-byte midstate-to-digest copy. The specialized header
+  tail compressor now writes `midstate + working_state` directly into its
+  output digest instead of feed-forward updating a preinitialized buffer.
+- Both architectures built warning-free. All 4,096 oracle cases and all 7
+  suites passed on M33; no fault occurred.
+- Full-digest software: **27,860 H/s**, versus parent 27,855 H/s (+5 H/s).
+  Exact filter: **28,446 H/s**, versus parent 28,441 H/s (+5 H/s). Both are
+  **+0.018%**, below measurement significance.
+- Median of the final 30 dual-worker reports: hardware **325,704 H/s**,
+  software **28,298 H/s**, aggregate **354,002 H/s**. Sustained software moved
+  -2 H/s and aggregate -44 H/s versus the parent.
+- Candidate ARM UF2 SHA-256:
+  `e8c452ae807fc56bd67a19e36fa57c44d073b131d7e60ca11e85f82b971ceb90`.
+- Archived serial log: `logs/E03-direct-header-digest-arm.log`.
+- Decision: neutral on M33, likely because optimized code already eliminated
+  most copy overhead. Test Hazard3 before rejecting the shared change.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=150000000 hashes=56000 elapsed_us=2010065 hash_rate_hs=27860 checksum=05 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=ARM-M33 clock_hz=150000000 hashes=57000 elapsed_us=2003793 hash_rate_hs=28446 checksum=59f5c0dc temperature=disabled
+```
