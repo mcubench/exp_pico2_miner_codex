@@ -2813,3 +2813,29 @@ TEST:SUMMARY pass=7 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=250000000 hashes=1104000 elapsed_us=2000671 hash_rate_hs=551815 checksum=d3 temperature=disabled
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=250000000 hashes=90000 elapsed_us=2007058 hash_rate_hs=44842 checksum=8f temperature=disabled
 ```
+
+## 2026-09-15 — E11 300 MHz clock profile, RISC-V
+
+- Experiment: `E11-300mhz-riscv-54` using retained source commit `d9c0de8`.
+- Built both architectures warning-free with `MINER_SYS_CLOCK_KHZ=300000`,
+  without changing regulator voltage, then flashed RISC-V. Startup reported an
+  actual 300,000,000 Hz system clock.
+- All 4,096 cross-engine oracle cases and all 7 suites passed; no fault
+  occurred during the short capture.
+- Isolated hardware: **689,572 H/s**. Isolated software: **51,857 H/s**.
+- Median of the final 30 dual-worker reports: hardware **677,580 H/s**,
+  software **50,633 H/s**, aggregate **728,213 H/s**.
+- Versus 250 MHz aggregate 607,106 H/s: **+19.95%** (+121,107 H/s).
+  Versus 150 MHz aggregate 363,300 H/s: **+100.44%** (+364,913 H/s).
+- A few brief periodic throughput dips coincide with host USB/reporting
+  activity in the raw log; the final-30 median excludes their distortion.
+- Archived serial log: `logs/E11-300mhz-riscv.log`.
+- Qualification: short experimental run only, temperature disabled, no
+  long-duration reliability claim.
+
+```text
+BOOT app=pico2_bitcoin_miner board=pico2 package=RP2350A arch=RISCV-HAZARD3 engine=RP2350-SHA256 temperature=disabled clock_profile=experimental-overclock requested_clock_khz=300000 actual_clock_hz=300000000 sysinfo_package_sel=1 chip_id=30004927 silicon_revision=3
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persistent-first-block-dma-e06a arch=RISCV-HAZARD3 clock_hz=300000000 hashes=1380000 elapsed_us=2001240 hash_rate_hs=689572 checksum=d6 temperature=disabled
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=300000000 hashes=104000 elapsed_us=2005521 hash_rate_hs=51857 checksum=43 temperature=disabled
+```
