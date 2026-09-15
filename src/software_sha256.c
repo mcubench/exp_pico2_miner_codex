@@ -98,37 +98,33 @@ __not_in_flash_func(software_sha256_compress)(uint32_t state[8],
 void software_bitcoin_hasher_begin(software_bitcoin_hasher_t *hasher,
                                    const uint8_t header[80]) {
     uint32_t first_block[16];
+    memset(hasher, 0, sizeof(*hasher));
     for (size_t word = 0u; word < 16u; ++word) {
         first_block[word] = load_be32(&header[word * 4u]);
     }
     memcpy(hasher->midstate, sha256_initial_state, sizeof(hasher->midstate));
     software_sha256_compress(hasher->midstate, first_block);
     for (size_t word = 0u; word < 3u; ++word) {
-        hasher->tail_words[word] = load_be32(&header[(16u + word) * 4u]);
+        hasher->tail_block[word] = load_be32(&header[(16u + word) * 4u]);
     }
+    hasher->tail_block[4] = 0x80000000u;
+    hasher->tail_block[15] = 80u * 8u;
+    hasher->second_block[8] = 0x80000000u;
+    hasher->second_block[15] = 32u * 8u;
 }
 
-void software_bitcoin_hash_nonce(const software_bitcoin_hasher_t *hasher,
+void software_bitcoin_hash_nonce(software_bitcoin_hasher_t *hasher,
                                  uint32_t nonce,
                                  uint8_t hash[32]) {
-    uint32_t block[16] = {0};
     uint32_t first_digest[8];
     memcpy(first_digest, hasher->midstate, sizeof(first_digest));
-    block[0] = hasher->tail_words[0];
-    block[1] = hasher->tail_words[1];
-    block[2] = hasher->tail_words[2];
-    block[3] = __builtin_bswap32(nonce);
-    block[4] = 0x80000000u;
-    block[15] = 80u * 8u;
-    software_sha256_compress(first_digest, block);
+    hasher->tail_block[3] = __builtin_bswap32(nonce);
+    software_sha256_compress(first_digest, hasher->tail_block);
 
-    memset(block, 0, sizeof(block));
-    memcpy(block, first_digest, sizeof(first_digest));
-    block[8] = 0x80000000u;
-    block[15] = 32u * 8u;
+    memcpy(hasher->second_block, first_digest, sizeof(first_digest));
     uint32_t second_digest[8];
     memcpy(second_digest, sha256_initial_state, sizeof(second_digest));
-    software_sha256_compress(second_digest, block);
+    software_sha256_compress(second_digest, hasher->second_block);
 
     for (size_t word = 0u; word < 8u; ++word) {
         const uint32_t encoded = __builtin_bswap32(second_digest[word]);
