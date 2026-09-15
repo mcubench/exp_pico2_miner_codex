@@ -5262,3 +5262,20 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   materially regresses aggregate work; an architecture split is unjustified.
   Restore the single-nonce API/mining loop and require exact candidate-98
   artifacts. Do not repeat factor 8 unchanged.
+
+### E03 software batch-8 restoration after candidate 100
+
+- Focused restoration commit `a38b99e` removes only candidate 100's batch API,
+  batch-mask KAT, and eight-nonce mining loop. The retained single-nonce source
+  is exactly candidate 98 at source identity `1eb3d9edb2b0`.
+- Both stock 150 MHz repository builds pass warning-free, and all eight host
+  monitor tests pass. ARM text/BSS is 188,712/4,708 bytes; Hazard3 text/BSS is
+  200,924/4,440 bytes.
+- ARM UF2 SHA-256 is exactly the retained candidate-98 hash
+  `5fb2d345ba0f9eb2c99ddb51ceceabf4b9c25e60ab9169812c9685d961bd54ef`;
+  RISC-V is exactly
+  `f109ef25a8a89cd41ec6e4068f5407af6cae9b87708d91aa605b16b5bd404c6a`.
+  Existing attempts 98a/98b therefore remain the hardware-validation basis;
+  no redundant restoration flash or new performance measurement is claimed.
+- Temperature remains disabled. The board still carries rejected candidate
+  100's RISC-V image until the next validated candidate is flashed.

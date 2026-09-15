@@ -21,6 +21,11 @@ Only one Codex session should actively modify the working tree at a time.
 
 Accounts are used for sequential failover, not concurrent editing.
 
+Before modifying files:
+- acquire .codex/ACTIVE_SESSION
+- if another active session owns it, do not modify the repo
+- release/update it when handing off
+
 ## Handoff
 
 Maintain `.codex/HANDOFF.md` during substantial tasks.

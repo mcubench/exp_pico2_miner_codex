@@ -13,14 +13,23 @@ changes and keep temperature disabled.
 - Retained candidate 98 source commit is `e2912db`; latest evidence commit
   before the RISC-V result is `caa008d`, source identity `1eb3d9edb2b0`.
 - The Pico is accessible when hardware commands run outside the filesystem
-  sandbox. It currently runs retained candidate 98 RISC-V at stock 150 MHz.
+  sandbox. It currently runs rejected candidate 100 RISC-V at stock 150 MHz;
+  the working tree/build outputs are restored to retained candidate 98.
 - E06-trigger is retained on Hazard3. Attempt 86b passed all gates with a
   seven-window median of 368,130 H/s aggregate and 338,274 H/s hardware,
   +0.42%/+0.45% over immediate control 85e. ARM keeps its CPU feeder.
 - E09-b-pending is resolved and retained on both ISAs.
 - E01-identity is implemented, paired-hardware validated, and retained.
 - E01-rare candidate 83 and E01-window candidate 84 are retained on both ISAs.
-  E02 and the updated sequence through candidate 96 are complete.
+  E02 and the updated sequence through candidate 100 are complete.
+- Candidate 100 software batch-8 passed correctness but was rejected: ARM was
+  neutral, while Hazard3 aggregate fell 0.417% because its 0.216% software
+  gain accompanied a 0.474% hardware loss. Restoration commit `a38b99e`
+  returns to source identity `1eb3d9edb2b0`; both rebuilt UF2 hashes exactly
+  match retained candidate 98 and all eight host tests pass.
+- Session `01a09b3f-dda6-7701-af18-c0b3d56eb61e` owns
+  `.codex/ACTIVE_SESSION`. Preserve the newly inherited active-writer rule in
+  `.codex/SESSION_CONTINUITY.md`; do not add the transient lock to a commit.
 
 ## Completed work in this session
 
@@ -62,6 +71,15 @@ changes and keep temperature disabled.
   Use this as the immediate E06-trigger control.
 
 ## Work in progress / next actions
+
+Current continuation point: restoration after candidate 100 is complete and
+verified byte-identical to retained candidate 98. Record/commit the restoration
+evidence, then select the next untested bounded experiment. Do not repeat batch
+factor 8, scratch-X filter placement, E08 queue polling at 1 or 64 hashes, or
+the rejected E14 chunk variants unchanged. Prefer a one-variable E04-c hardware
+worker unroll factor (1/2/4) or another plan item whose exact current hot-loop
+assembly establishes a removable cost. Define hypothesis, parent hashes,
+resource cost, and rejection rule before editing; build both ISAs before flash.
 
 0. Candidate 97 is now defined as E04-f telemetry cadence: change only the
    hardware report interval from 100,000 to 340,000 hashes (approximately one
