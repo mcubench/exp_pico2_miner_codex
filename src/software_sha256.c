@@ -459,20 +459,6 @@ uint32_t software_bitcoin_hash_nonce_high_word_be(
     return software_sha256_digest_high_word_after_round61(second_schedule);
 }
 
-__attribute__((optimize("unroll-loops")))
-uint32_t software_bitcoin_filter_batch8(const software_bitcoin_hasher_t *hasher,
-                                        uint32_t first_nonce,
-                                        uint32_t nonce_stride) {
-    uint32_t candidate_mask = 0u;
-    for (unsigned index = 0u; index < 8u; ++index) {
-        const uint32_t nonce = first_nonce + index * nonce_stride;
-        if (software_bitcoin_hash_nonce_high_word_be(hasher, nonce) == 0u) {
-            candidate_mask |= 1u << index;
-        }
-    }
-    return candidate_mask;
-}
-
 #if MINER_PROFILE
 void software_profile_header_tail(const software_bitcoin_hasher_t *hasher,
                                   uint32_t nonce, uint32_t scratch[64]) {

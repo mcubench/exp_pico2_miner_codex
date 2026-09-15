@@ -126,6 +126,7 @@ changes and keep temperature disabled.
    hardware -0.474%, aggregate -0.417%. Archive `logs/E03-batch8-riscv.log`.
    Reject candidate 100 on both ISAs, commit evidence, restore the single-nonce
    API/loop, rebuild both, and require exact candidate-98 artifact hashes.
+   The focused source restoration is now applied but uncommitted/unbuilt.
 
 1. E09-b-tail-padding is resolved at commit `688148d`: retain explicit fixed
    rounds on ARM and the generic loop on Hazard3. Both final architecture

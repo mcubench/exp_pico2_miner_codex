@@ -26,9 +26,6 @@ void software_bitcoin_hash_nonce(const software_bitcoin_hasher_t *hasher,
                                  uint8_t hash[32]);
 uint32_t software_bitcoin_hash_nonce_high_word_be(
     const software_bitcoin_hasher_t *hasher, uint32_t nonce);
-uint32_t software_bitcoin_filter_batch8(const software_bitcoin_hasher_t *hasher,
-                                        uint32_t first_nonce,
-                                        uint32_t nonce_stride);
 
 #if MINER_PROFILE
 void software_profile_header_tail(const software_bitcoin_hasher_t *hasher,
