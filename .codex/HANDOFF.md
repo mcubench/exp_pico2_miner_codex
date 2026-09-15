@@ -70,9 +70,10 @@ changes and keep temperature disabled.
 2. E09-c-terminal is retained on both ISAs at candidate commit `a628426`,
    source identity `71b48132e899`: ARM filter +1.58%, Hazard3 filter +0.65%,
    with every hardware gate passing.
-3. Candidate 89 is the narrow E09-b schedule-shape trial for header-tail
-   W20–W30. Build both, inspect emitted cost, commit for stable identity only
-   if it is non-no-op, then validate ARM and RISC-V separately at 150 MHz.
+3. E09-b candidate 89 explicit tail W20–W30 passed correctness but is rejected
+   on both ISAs: ARM affected software +0.05%, Hazard3 +0.02%. The work tree
+   restores the exact accepted E09-c generic loop. Commit, rebuild both, and
+   confirm byte-identical artifacts before choosing the next experiment.
 
 ## Files and evidence
 
@@ -100,6 +101,7 @@ changes and keep temperature disabled.
   parent loop in the final architecture split.
 - Final split validation logs: `logs/E09b-header-tail-final-{arm,riscv}.log`.
 - E09-c retained terminal-round logs: `logs/E09c-terminal-{arm,riscv}.log`.
+- Rejected E09-b schedule logs: `logs/E09b-tail-schedule-{arm,riscv}.log`.
 - E01 implementation: `CMakeLists.txt`, `src/main.c`, `tools/common.sh`,
   `tools/build`, `tools/cycle`, `tools/monitor.py`, `tools/test_monitor.py`.
 

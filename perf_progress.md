@@ -4371,3 +4371,45 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   dependency chain and no zero-input sigma0 work for W20–W29. Hardware remains
   necessary because the compiler traded the old loop for a differently
   scheduled sequence without reducing whole-image size.
+
+### E09-b tail W20–W30 ARM attempt 89a — pass, reject
+
+- Candidate commit `1a01c37`, source identity `6484d798b682`, normal profile,
+  stock 150 MHz, temperature disabled, run ID `30004927-00000009`. Both clean
+  architecture builds passed before flash. All 8 suites, the 4,096-case
+  oracle, standalone benchmarks, eight common windows, and strict capture
+  passed without a fault.
+- Standalone hardware was **331,086 H/s**. Full software moved from 30,364 to
+  **30,382 H/s** (+0.06%), and filter from 31,578 to **31,598 H/s** (+0.06%).
+- First-seven common medians were aggregate **356,450 H/s**, hardware
+  **325,026 H/s**, and software **31,424 H/s**. Versus the E09-c parent,
+  software moves only **+16 H/s (+0.05%)**, hardware -97 H/s, and aggregate
+  -81 H/s. The intended affected-path change is well below meaningful noise.
+- Reject on ARM: the source complexity and changed scheduling are not
+  justified by a sub-0.1% affected-path movement.
+- Candidate ARM UF2 SHA-256:
+  `3c7679b9987af8a5defb9185c60227792df397b3c512a7079f2a13e3d8fe8f98`.
+  Complete log SHA-256:
+  `5fe39fcadab038d0d3a41d9f1105eadeee5122cb94a0eb4d2e34b8f4582a9e52`.
+  Archived log: `logs/E09b-tail-schedule-arm.log`.
+
+### E09-b tail W20–W30 RISC-V attempt 89b — pass, reject and restore
+
+- The identical committed candidate ran as `30004927-0000000a`, at stock
+  150 MHz with temperature disabled. Both architectures built before flash;
+  every validation and capture gate passed without a fault.
+- Standalone hardware/full/filter were **344,785 / 28,642 / 30,241 H/s**.
+  The software figures are just **+6 H/s (+0.02%)** from the parent.
+- First-seven common medians were aggregate **368,321 H/s**, hardware
+  **338,265 H/s**, and software **30,056 H/s**. Software is only +5 H/s
+  (+0.02%), while hardware/aggregate move -169/-167 H/s through unaffected
+  run variation.
+- Reject the explicit W20–W30 schedule shape on both ISAs and restore the exact
+  E09-c parent loop. GCC's existing loop shape already captures essentially
+  all available benefit; identical whole-image size and negligible measured
+  movement do not justify maintaining eleven manual expressions.
+- Candidate RISC-V UF2 SHA-256:
+  `0046eb2e95b2ae3d5625197318c8ac839f0052beee3e6ac5c49edbfa2d0ce5f3`.
+  Complete log SHA-256:
+  `795652d4f0c9782237e89fb71470fe7a2e8f27e10a704f45cb9fd75cd00435c9`.
+  Archived log: `logs/E09b-tail-schedule-riscv.log`.

@@ -39,15 +39,6 @@ static inline uint32_t rotate_right(uint32_t value, unsigned shift) {
     return (value >> shift) | (value << (32u - shift));
 }
 
-static inline uint32_t schedule_sigma0(uint32_t value) {
-    return rotate_right(value, 7u) ^ rotate_right(value, 18u) ^ (value >> 3u);
-}
-
-static inline uint32_t schedule_sigma1(uint32_t value) {
-    return rotate_right(value, 17u) ^ rotate_right(value, 19u)
-           ^ (value >> 10u);
-}
-
 static inline void software_sha256_round(uint32_t *a, uint32_t *b,
                                          uint32_t *c, uint32_t *d,
                                          uint32_t *e, uint32_t *f,
@@ -131,21 +122,16 @@ __not_in_flash_func(software_sha256_compress_header_tail)(
         ^ rotate_right(nonce_word, 18u) ^ (nonce_word >> 3u);
     schedule[18] = hasher->tail_schedule18_base + nonce_sigma0;
     schedule[19] = hasher->tail_schedule19_base + nonce_word;
-    // W20--W30 are padding-heavy. Expand this short range explicitly so the
-    // known-zero W5--W14 inputs disappear instead of entering the generic
-    // recurrence. W30 retains the one nonzero sigma0 input, W15 = 640.
-    schedule[20] = 0x80000000u + schedule_sigma1(schedule[18]);
-    schedule[21] = schedule_sigma1(schedule[19]);
-    schedule[22] = 80u * 8u + schedule_sigma1(schedule[20]);
-    schedule[23] = schedule[16] + schedule_sigma1(schedule[21]);
-    schedule[24] = schedule[17] + schedule_sigma1(schedule[22]);
-    schedule[25] = schedule[18] + schedule_sigma1(schedule[23]);
-    schedule[26] = schedule[19] + schedule_sigma1(schedule[24]);
-    schedule[27] = schedule[20] + schedule_sigma1(schedule[25]);
-    schedule[28] = schedule[21] + schedule_sigma1(schedule[26]);
-    schedule[29] = schedule[22] + schedule_sigma1(schedule[27]);
-    schedule[30] = schedule[23] + schedule_sigma0(80u * 8u)
-                   + schedule_sigma1(schedule[28]);
+    for (unsigned word = 20u; word < 31u; ++word) {
+        const uint32_t x = schedule[word - 15u];
+        const uint32_t y = schedule[word - 2u];
+        const uint32_t sigma0 = rotate_right(x, 7u)
+                                ^ rotate_right(x, 18u) ^ (x >> 3u);
+        const uint32_t sigma1 = rotate_right(y, 17u)
+                                ^ rotate_right(y, 19u) ^ (y >> 10u);
+        schedule[word] = schedule[word - 16u] + schedule[word - 7u]
+                         + sigma0 + sigma1;
+    }
     const uint32_t y31 = schedule[29];
     const uint32_t sigma1_31 = rotate_right(y31, 17u)
         ^ rotate_right(y31, 19u) ^ (y31 >> 10u);
