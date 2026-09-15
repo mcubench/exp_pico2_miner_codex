@@ -5279,3 +5279,62 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   no redundant restoration flash or new performance measurement is claimed.
 - Temperature remains disabled. The board still carries rejected candidate
   100's RISC-V image until the next validated candidate is flashed.
+
+## 2026-09-15 — E04-c hardware-worker batch factor 2 candidate 101 definition
+
+- Parent is retained candidate 98 at source identity `1eb3d9edb2b0`, stock
+  150 MHz and temperature disabled. Final ARM and Hazard3 disassembly confirms
+  that `mining_worker_core1` still executes one nonce per infinite-loop
+  back-edge and tests the report boundary after every hash.
+- Change only the hardware worker's outer-loop shape: execute two complete
+  nonce iterations before the report-boundary comparison. Per-nonce target
+  checking, candidate capture/publication, ARM hardware-error checking, nonce
+  increments and exhaustion checks remain inside the two-iteration batch.
+  Hazard3 retains its candidate/report-boundary sticky-error checks.
+- The 340,000-hash report interval is statically required to be divisible by
+  two, so reports, counts, windows and ACK cadence retain exact boundaries.
+  Additional report/control latency is at most one hardware hash (about 3 us
+  at the parent rate). No clock, algorithm, DMA setup, software worker,
+  telemetry payload, target, or job allocation changes.
+- Hypothesis: constant-factor unrolling removes half of the hot report compare
+  and loop back-edge overhead while allowing nonce/hasher state to remain live.
+  Expected resource cost is duplicated hot code and possibly greater register
+  pressure; inspect final disassembly and text size before flash.
+- Rejection rule: reject any KAT/oracle/share/count/error failure, malformed
+  report/window, material software-worker interference, or aggregate result
+  that is not a repeatable improvement over candidate 98. Build both ISAs
+  before flashing shared source and test one architecture at a time.
+
+### E04-c factor-2 candidate 101 preflight A — compiler did not unroll
+
+- Both dirty stock builds passed warning-free and all eight host tests passed.
+  ARM/RISC-V UF2 hashes were
+  `b56635468874b22eea75d06e290db0f1a171cac37c3689252fe13785e13882d6` /
+  `9efab020f120abe317effb51ddb50b3a60fd1c329dc1bb729f7ca4a55d10aaa0`.
+  Text/BSS was 188,744/4,708 bytes on ARM and 200,912/4,440 on Hazard3,
+  changes of +32/-12 text bytes from the parent.
+- Final disassembly shows that `optimize("unroll-loops")` did not expand the
+  new constant two-iteration loop on either ISA. Both retain one hardware hash
+  body and add an inner batch counter/branch per hash; only the report compare
+  moves to every second hash. This does not implement the intended explicit
+  factor-2 hot-body comparison and risks merely exchanging one branch for
+  another.
+- **Decision: reject preflight A without flashing.** Add an explicit
+  factor-two unroll directive and rebuild. Proceed to hardware only if final
+  disassembly contains two physical hash bodies and no inner batch back-edge.
+
+### E04-c factor-2 candidate 101 preflight B — ready for hardware
+
+- Adding `#pragma GCC unroll 2` makes both compilers emit two complete hardware
+  hash/candidate bodies followed by one report-boundary comparison; there is
+  no inner batch counter or back-edge in the final disassembly. Both dirty
+  stock builds pass warning-free and all eight host tests pass.
+- ARM text/BSS is 189,192/4,708 bytes, +480 text bytes from candidate 98.
+  Hazard3 text/BSS is 201,500/4,440 bytes, +576 text bytes. Dirty ARM/RISC-V
+  UF2 SHA-256 values are
+  `445c0e52fd0f249b9229f63242ce4961d732781057f40a9f3d035d200694cec6` /
+  `8d046ce6157558dd26d9a57503bb714980536bbeb4102247eca899722a787f9e`.
+- The intended saving is one report compare/back-edge per two hardware hashes;
+  the measured risk is the doubled approximately 1 KiB hot worker body and its
+  changed branch layout. Commit, rebuild at a clean identity, then run the
+  complete paired stock-clock hardware comparison.

@@ -81,6 +81,18 @@ worker unroll factor (1/2/4) or another plan item whose exact current hot-loop
 assembly establishes a removable cost. Define hypothesis, parent hashes,
 resource cost, and rejection rule before editing; build both ISAs before flash.
 
+Candidate 101 is the selected E04-c factor-2 hardware-worker experiment. It
+nests exactly two complete nonce iterations inside the existing report loop;
+340,000 is statically divisible by two. Per-nonce candidates, ARM error checks,
+nonce progression and exhaustion remain exact. The hypothesis and rejection
+rule are recorded at the end of `perf_progress.md`. Build/test both, inspect
+whether the compiler truly duplicates the hot body and its code/register cost,
+then commit before the first hardware run.
+Preflight A built and passed host tests but the compiler did not unroll the
+inner loop on either ISA; this is logged as a build-only rejection. An explicit
+`#pragma GCC unroll 2` is now being tested as preflight B. Do not flash unless
+disassembly confirms two physical hash bodies without an inner batch branch.
+
 0. Candidate 97 is now defined as E04-f telemetry cadence: change only the
    hardware report interval from 100,000 to 340,000 hashes (approximately one
    second on both retained ISAs), leaving the 16-report common-window structure

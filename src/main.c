@@ -41,7 +41,11 @@ _Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
 #define BENCHMARK_BATCH 1000u
 #define MINING_REPORT_INTERVAL 340000u
 #define COMMON_WINDOW_REPORT_INTERVAL 4u
+#define HARDWARE_MINING_BATCH 2u
 #define RUN_SEQUENCE_MAGIC 0x4d494e52u
+
+_Static_assert(MINING_REPORT_INTERVAL % HARDWARE_MINING_BATCH == 0u,
+               "hardware batch must divide the report interval");
 
 #ifndef MINER_USE_CORE1
 #define MINER_USE_CORE1 1
@@ -1072,36 +1076,39 @@ static MINING_LOOP_OPTIONS void mining_worker_core1(void) {
     report_started_us = time_us_64();
 
     while (true) {
+#pragma GCC unroll 2
+        for (uint32_t batch = 0u; batch < HARDWARE_MINING_BATCH; ++batch) {
 #ifdef __riscv
-        bitcoin_hasher_hash_nonce_unchecked(&hasher, nonce);
+            bitcoin_hasher_hash_nonce_unchecked(&hasher, nonce);
 #else
-        if (!bitcoin_hasher_hash_nonce(&hasher, nonce)) {
-            bitcoin_hasher_end(&hasher);
-            mining_worker_fault(2u, nonce, 1u);
-        }
-#endif
-        ++since_report;
-        const bool candidate = current_hash_meets_target(&target);
-
-        if (candidate) {
-#ifdef __riscv
-            if (sha256_err_not_ready()) {
+            if (!bitcoin_hasher_hash_nonce(&hasher, nonce)) {
                 bitcoin_hasher_end(&hasher);
-                mining_worker_fault(2u, nonce, since_report);
+                mining_worker_fault(2u, nonce, 1u);
             }
 #endif
-            capture_current_hash(&hash);
-            multicore_fifo_push_blocking(MINING_MESSAGE_SHARE);
-            multicore_fifo_push_blocking(nonce);
-            mining_fifo_push_u64(total_hashes + since_report);
-            for (size_t word = 0u; word < 8u; ++word) {
-                multicore_fifo_push_blocking(hash.words[word]);
+            ++since_report;
+            const bool candidate = current_hash_meets_target(&target);
+
+            if (candidate) {
+#ifdef __riscv
+                if (sha256_err_not_ready()) {
+                    bitcoin_hasher_end(&hasher);
+                    mining_worker_fault(2u, nonce, since_report);
+                }
+#endif
+                capture_current_hash(&hash);
+                multicore_fifo_push_blocking(MINING_MESSAGE_SHARE);
+                multicore_fifo_push_blocking(nonce);
+                mining_fifo_push_u64(total_hashes + since_report);
+                for (size_t word = 0u; word < 8u; ++word) {
+                    multicore_fifo_push_blocking(hash.words[word]);
+                }
             }
-        }
-        nonce += 2u;
-        if (nonce == 0u) {
-            bitcoin_hasher_end(&hasher);
-            mining_worker_fault(3u, nonce, since_report);
+            nonce += 2u;
+            if (nonce == 0u) {
+                bitcoin_hasher_end(&hasher);
+                mining_worker_fault(3u, nonce, since_report);
+            }
         }
 
         if (since_report == MINING_REPORT_INTERVAL) {
