@@ -2790,3 +2790,26 @@ TEST:SUMMARY pass=7 fail=0
 BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=persistent-first-block-dma-e06a arch=RISCV-HAZARD3 clock_hz=250000000 hashes=1150000 elapsed_us=2001250 hash_rate_hs=574641 checksum=3d temperature=disabled
 SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=250000000 hashes=87000 elapsed_us=2013243 hash_rate_hs=43214 checksum=cc temperature=disabled
 ```
+
+## 2026-09-15 — E11 250 MHz clock profile, ARM
+
+- Experiment: `E11-250mhz-arm-53` using retained source commit `d9c0de8`.
+- Startup reported an actual 250,000,000 Hz system clock; no regulator-voltage
+  change was made.
+- All 4,096 cross-engine oracle cases and all 7 suites passed; no fault
+  occurred during the short capture.
+- Isolated hardware: **551,815 H/s**. Isolated software: **44,842 H/s**.
+- Median of the final 30 dual-worker reports: hardware **542,516 H/s**,
+  software **44,353 H/s**, aggregate **586,868 H/s**.
+- Versus 200 MHz aggregate 469,460 H/s: **+25.01%** (+117,408 H/s).
+  Versus 150 MHz aggregate 352,188 H/s: **+66.64%** (+234,680 H/s).
+- Archived serial log: `logs/E11-250mhz-arm.log`.
+- Qualification: short experimental run only, with temperature disabled; it
+  is not a long-duration reliability result or a production default.
+
+```text
+BOOT app=pico2_bitcoin_miner board=pico2 package=RP2350A arch=ARM-M33 engine=RP2350-SHA256 temperature=disabled clock_profile=experimental-overclock requested_clock_khz=250000 actual_clock_hz=250000000 sysinfo_package_sel=1 chip_id=30004927 silicon_revision=3
+TEST:SUMMARY pass=7 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=batched-accounting-e04c arch=ARM-M33 clock_hz=250000000 hashes=1104000 elapsed_us=2000671 hash_rate_hs=551815 checksum=d3 temperature=disabled
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=ARM-M33 clock_hz=250000000 hashes=90000 elapsed_us=2007058 hash_rate_hs=44842 checksum=8f temperature=disabled
+```
