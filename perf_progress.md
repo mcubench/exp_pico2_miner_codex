@@ -2881,3 +2881,31 @@ SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e
 ```text
 FAULT type=system_clock requested_khz=350000
 ```
+
+## 2026-09-15 — E09-c exact round-61 rejection, RISC-V
+
+- Experiment: `E09c-round61-filter-riscv-57`, candidate commit `41ab4bd`, at
+  the stock 150 MHz clock.
+- For zero-high-word Bitcoin targets, the software worker now stops after
+  round 60 of the second compression and uses `(IV7 + e_61)` as the exact
+  final numerical digest word 7. Only a zero match triggers full-digest
+  recomputation and the complete uint256 comparison.
+- The derived word was checked against the full oracle digest for all 4,096
+  deterministic cases. All 7 suites passed and no fault occurred.
+- Full-digest software reference: **25,927 H/s**. Exact round-61 filter:
+  **26,333 H/s**, a **1.57%** filter-path gain.
+- Median of the final 30 dual-worker reports: hardware **338,846 H/s**,
+  software **25,608 H/s**, aggregate **364,453 H/s**.
+- Versus the preceding fixed-second-block RISC-V aggregate 363,300 H/s:
+  **+0.32%** (+1,153 H/s).
+- Candidate RISC-V UF2 SHA-256:
+  `3099af51ce1d72b75027f3174f1d2e6272c36c88b48a3eec0d1152d3fe791b6b`.
+- Archived serial log: `logs/E09c-round61-filter-riscv.log`.
+- Decision: provisionally successful; verify M33 before retention. The metric
+  is exact nonce rejection for the configured target, not full digest output.
+
+```text
+TEST:SUMMARY pass=7 fail=0
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=150000000 hashes=52000 elapsed_us=2005604 hash_rate_hs=25927 checksum=88 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=150000000 hashes=53000 elapsed_us=2012667 hash_rate_hs=26333 checksum=90732335 temperature=disabled
+```
