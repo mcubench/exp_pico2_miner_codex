@@ -6518,3 +6518,22 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Complete log `logs/OC-riscv-v1100-f150000-recovery-7.log`, SHA-256
   `71a923c87f43b53a46a4fb5f3443e2f6d329169306376ec5c0bc1c3b2e4c4b3b`.
   Stock recovery is validated; retry the identical 396 MHz/1.30 V point next.
+
+### OC-riscv-v1300-f396000-screen-2 — BOOT_FAIL, reproduced
+
+- The mandatory identical retry rebuilt both architectures warning-free with
+  byte-identical ARM/RISC-V images: SHA-256
+  `e65c28906589a0fcde281d548369ffff8f8f9413bfe4e1e0e31374d0d079e033` /
+  `874d0470d2191fdb3ed9fcb3ec51068db721ad394d5daa369989ea8c369bdf9d`.
+  Hazard3 flash and verification passed.
+- Runtime USB again did not appear during the 50-second strict capture. The
+  bounded check found neither a Raspberry Pi USB device nor `/dev/ttyACM*`.
+  No BOOT, correctness, benchmark, or mining record exists. Classification is
+  **BOOT_FAIL**.
+- Two matching failures establish 1.30 V as a failing lower requested selector
+  at 396 MHz. With no upper pass bracket, the adaptive rule advances two
+  selector indices: after physical recovery and stock validation, hold 396 MHz
+  and test 1.40 V. This voltage uses the explicit unsafe-overvoltage unlock and
+  must report that state in BOOT telemetry if it starts.
+- Failure log `logs/OC-riscv-v1300-f396000-boot-fail-2.log`, SHA-256
+  `74abdb71d8b526f9460bd5dde3ca0a62741a76be10037253ce5211f3224eb48d`.

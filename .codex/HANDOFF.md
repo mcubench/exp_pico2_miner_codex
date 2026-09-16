@@ -74,6 +74,11 @@
   first-seven medians 369,846 aggregate / 338,329 hardware / 31,517 software
   H/s. It is archived as `logs/OC-riscv-v1100-f150000-recovery-7.log`.
   Retry the identical 396 MHz/1.30 V point now; do not change voltage or clock.
+- The identical 396 MHz/1.30 V retry again built and flashed successfully but
+  produced no runtime USB device or BOOT record. The bounded check found no
+  Pico device. This reproduces BOOT_FAIL and establishes 1.30 V as a failing
+  lower bound. Commit this evidence, then request physical BOOTSEL recovery,
+  validate stock, and test 396 MHz/1.40 V (the next two-selector jump).
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both
