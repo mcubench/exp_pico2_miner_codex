@@ -2,6 +2,16 @@
 
 ## Latest checkpoint — authoritative
 
+- The identical 420 MHz / 1.20 V / divider-4 retry reproduced **BOOT_FAIL**.
+  Both architectures built warning-free and artifact hashes exactly match
+  attempt 1; Hazard3 flash/verify passed, but no runtime USB appeared in the
+  50-second capture and no device remains visible. Empty log
+  `logs/OC-riscv-v1200-f420000-d4-boot-fail-2.log` has SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+  Physically recover in BOOTSEL, validate stock, then test the planned
+  discriminating 396 MHz / 1.20 V / divider-4 point. Do not change voltage
+  before that diagnostic.
+
 - Stock recovery 21 after the first 420 MHz / 1.20 V / divider-4 failure is
   complete. Exact 150 MHz / 1.10 V / divider 3 (50 MHz QMI) passed all eight
   suites, the 4,096-case oracle, nine windows, and strict capture. First-seven

@@ -6989,3 +6989,21 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Complete log `logs/OC-riscv-v1100-f150000-d3-recovery-21.log`, SHA-256
   `476d2d4978bd4eddcf7b720ac7364ec4d691c6c5a93bdf3d44021abead5d2f09`.
   Recovery is validated; retry 420 MHz / 1.20 V / divider 4 identically.
+
+### OC-riscv-v1200-f420000-d4-divider-test-2 — BOOT_FAIL, reproduced
+
+- The mandatory identical retry rebuilt both architectures warning-free and
+  produced byte-identical ARM/RISC-V images with SHA-256
+  `6d95f014d1627c28e76c32c561b16ade3c9f4616eff91736a4a3ed939dc2032b` /
+  `012d59045dfaa42c24b1a6f264902877dd425416fe167c94d98e6b6cec1fa6d2`.
+  The Hazard3 image flashed and verified for requested 420 MHz / 1,200 mV /
+  divider 4 (planned 105 MHz QMI SCK).
+- Runtime USB again failed to appear during the bounded 50-second capture;
+  the post-failure check found neither a Raspberry Pi USB device nor a serial
+  node. No BOOT, oracle, benchmark, or mining output exists. Classification
+  is reproduced **BOOT_FAIL**.
+- Empty log `logs/OC-riscv-v1200-f420000-d4-boot-fail-2.log`, SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+  Divider 4 alone does not make 420 MHz boot at 1.20 V in the current image.
+  Physically recover and validate stock, then run the planned discriminating
+  396 MHz / 1.20 V / divider-4 point before changing voltage.
