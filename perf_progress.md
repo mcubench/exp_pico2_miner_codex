@@ -6926,3 +6926,31 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   Stock ARM/RISC-V UF2 SHA-256 values were `03023e4d2274144c419480c7a7893912c4754beb8c073f26e3884a184dbe55a6` /
   `ccb0523e5e127cbe7b98dbbe1e6f3a8578690b37d90664a214e367c274bc3c1e`.
   Recovery is validated; retry 408 MHz / 1.60 V identically.
+
+## 2026-09-16 — QMI-divider pivot infrastructure and stock control
+
+- User-directed pivot stops divider-3 bisection. Source commit `53b3038` adds
+  allow-listed divider 3/4/5 control, an SRAM-resident no-inline transition
+  helper, dummy XIP read plus `__dsb()` before raising `clk_sys`, strict
+  divider/SCK telemetry, a 130 MHz campaign guard, and monitor validation.
+  Source identity is `5a51c8638420`; all 17 host tests pass. Static maps place
+  the helper at `0x200...` for both architectures. The wrapper rejects
+  420 MHz/divider 3 because its 140 MHz QMI SCK exceeds the campaign limit.
+- Committed stock ARM/RISC-V recovery UF2 SHA-256 values are
+  `573db5ece266e57203e9282e785147667082500cf825685c84673f49b35591b7` /
+  `1ff0cb440299c3d450ee6a03219323bb780ced1e99019c97a340c1a40ca1890b`,
+  archived under `artifacts/recovery/qmi-control-*-150mhz-1100mv-div3.uf2`.
+
+### OC-riscv-v1100-f150000-d3-qmi-control-1 — MEASURE_PASS
+
+- Both committed architectures built warning-free before the Hazard3 flash.
+  Run `30004927-00000002` reported exact 150 MHz / 1,100 mV / divider 3 and
+  derived 50 MHz QMI SCK, with USB/peripheral clocks fixed at 48 MHz.
+- All eight suites, the 4,096-case oracle, 13 decision cases, standalone
+  benchmarks, ten windows, and strict capture passed. Standalone
+  hardware/full/filter rates were **343,206 / 28,636 / 31,772 H/s**.
+- First-seven window medians were **369,930 aggregate / 338,339 hardware /
+  31,591 software H/s**, within 0.03% of the retained stock baseline.
+  Complete log `logs/OC-riscv-v1100-f150000-d3-qmi-control-1.log`, SHA-256
+  `853dc755fc6347ee153b4998867e860b7ed6abd07fbcc95a68b7962ab152cbd0`.
+  Infrastructure control passes; next run 420 MHz / 1.20 V / divider 4.

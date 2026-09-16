@@ -2,6 +2,16 @@
 
 ## Latest checkpoint — authoritative
 
+- QMI-divider infrastructure is committed as `53b3038`, source identity
+  `5a51c8638420`. It uses an SRAM-resident transition helper, verifies divider
+  and calculated QMI SCK, and enforces the 130 MHz campaign ceiling. All 17
+  host tests and both committed builds pass. Stock Hazard3 control passed at
+  divider 3 / 50 MHz QMI SCK with first-seven medians 369,930 aggregate /
+  338,339 hardware / 31,591 software H/s. Log
+  `logs/OC-riscv-v1100-f150000-d3-qmi-control-1.log` has SHA-256
+  `853dc755fc6347ee153b4998867e860b7ed6abd07fbcc95a68b7962ab152cbd0`.
+  Next execute the decisive 420 MHz / 1.20 V / divider-4 Hazard3 point.
+
 - User-directed planning pivot: stop the divider-3 frequency bisection and do
   not perform the pending identical 408 MHz retry. Analysis shows successful
   runs use QMI divider 3, putting flash at 132 MHz for the barely viable
