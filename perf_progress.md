@@ -7343,3 +7343,13 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   Log `logs/OC-riscv-v1100-f150000-d3-recovery-35.log`, SHA-256
   `29012f0562b1ce5c6a7cf90b6e5c605bee9e7ac0c189b5b7515dbda368e91233`.
   Proceed to 570 MHz / 1.60 V / divider 5 (114 MHz SCK).
+### OC-riscv-v1600-f570000-d5-phase1-link-1 — RESET_OR_LINK_FAIL
+
+- Both architecture builds and Hazard3 flash verification passed at 570 MHz /
+  1.60 V / divider 5 (114 MHz SCK).
+- Runtime USB serial enumerated, but no BOOT or firmware output appeared during
+  the bounded capture. Strict validation failed with every required stage
+  absent. Classification is **RESET_OR_LINK_FAIL**, not a pass.
+- Log `logs/OC-riscv-v1600-f570000-d5-phase1-link-fail-1.log`, SHA-256
+  `eb80afa478e3223bdaac2c013a007945ae682150d4a69f4a6b1523ab4a475000`.
+  Physically recover, validate stock, then retry this image identically.
