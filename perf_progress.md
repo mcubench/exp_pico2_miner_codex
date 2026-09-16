@@ -7236,3 +7236,11 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   93,496 software H/s**. Log `logs/OC-riscv-v1400-f444000-d4-walk-2.log`,
   SHA-256 `029084a1c90a7b955e43cf8c84fca1c3339c69109cb50f8079a453e118fba05f`.
   Return to stock and validate recovery before advancing to 480 MHz/divider 4.
+### OC-riscv-v1100-f150000-d3-recovery-29 — MEASURE_PASS
+
+- Stock recovery after the 444 MHz / 1.40 V / divider-4 repeat passed all
+  required correctness, oracle, benchmark, window, and strict-capture gates.
+- Log `logs/OC-riscv-v1100-f150000-d3-recovery-29.log`, SHA-256
+  `778284676da7a12418c689d49890b3b9d3e390e0ed19fa6a4a405c32befcc0bd`.
+  Recovery is validated; continue to 480 MHz / divider 4 at the minimum
+  selector that passed 444 MHz (1.40 V).

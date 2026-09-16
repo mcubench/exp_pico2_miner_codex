@@ -2,6 +2,11 @@
 
 ## Latest checkpoint — authoritative
 
+- Stock recovery 29 passed after the 444 MHz / 1.40 V / divider-4 repeat. Log
+  `logs/OC-riscv-v1100-f150000-d3-recovery-29.log` has SHA-256
+  `778284676da7a12418c689d49890b3b9d3e390e0ed19fa6a4a405c32befcc0bd`.
+  Proceed to 480 MHz / divider 4 at 1.40 V.
+
 - Required repeat of 444 MHz / 1.40 V / divider 4 passed all gates, 30 windows,
   and strict capture. First-seven medians were 1,094,633 aggregate / 1,001,137
   hardware / 93,496 software H/s. Log
