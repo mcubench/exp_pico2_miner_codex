@@ -22,13 +22,13 @@
   automatic recovery is exhausted. Failure is logged as BOOT_FAIL, not yet a
   voltage boundary. After physical BOOTSEL reconnect, flash the archived stock
   Hazard3 recovery image and validate it, then retry identical 348/1.10 once.
-- Physical BOOTSEL recovery succeeded and commit `93ed7b6` records a complete
-  stock recovery pass. The identical 348 MHz/1.10 V retry then reproduced the
-  same post-flash USB absence: both builds and flash verification passed, but
-  no runtime device or BOOT record appeared. This is now a reproducible
-  BOOT_FAIL lower-voltage bound. Commit attempt 2 evidence. Another physical
-  BOOTSEL reconnect is required; flash/validate stock, then hold clock at
-  348 MHz and test 1.20 V per the initial two-selector voltage jump.
+- Commit `a9e73dd` records the reproduced 348 MHz/1.10 V BOOT_FAIL boundary.
+  A second physical recovery passed stock again, then 348 MHz/1.20 V passed
+  every correctness gate and 23 windows. First-seven medians are 857,996
+  aggregate / 784,896 hardware / 73,098 software H/s, 99.995% aggregate
+  scaling efficiency. Archive/commit this run and recovery evidence, then test
+  the skipped 1.15 V selector at the same 348 MHz clock. If 1.15 V fails,
+  repeat it identically before accepting 1.20 V as the minimum selector.
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both

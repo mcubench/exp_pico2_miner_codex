@@ -6336,3 +6336,38 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   348 MHz clock at 1.20 V. Do not increase clock at the same time. Failure log
   `logs/OC-riscv-v1100-f348000-boot-fail-2.log`, SHA-256
   `96e62e1a7b54178ec9f9064a2337b17eb4fc20f65c599d71eac90e9f734e8e59`.
+
+### OC-riscv-v1100-f150000-recovery-3 — MEASURE_PASS
+
+- After the second physical BOOTSEL reconnect, both stock architecture builds
+  passed warning-free and again exactly matched the archived recovery UF2s.
+  Hazard3 run `30004927-00000001` passed strict BOOT identity, all correctness
+  gates, standalone benchmarks, and nine synchronized windows.
+- Standalone hardware/full/filter rates are **343,992 / 28,430 / 31,685
+  H/s**. First-seven medians are **369,844 aggregate / 338,327 hardware /
+  31,517 software H/s**, matching both prior stock controls. Complete log
+  `logs/OC-riscv-v1100-f150000-recovery-3.log`, SHA-256
+  `3ff71162a6a8fb0e66d20600684833c08f60d77d23065456aeab8f70f0823874`.
+
+### OC-riscv-v1200-f348000-measure-1 — MEASURE_PASS
+
+- Commit `640dbca`, identity `ac3e4e469db5`, run ID
+  `30004927-00000002`. Both ISAs built warning-free before flashing Hazard3;
+  ARM/RISC-V UF2 SHA-256 values are
+  `011ea4f2ea8e768a7e2450f3c08ceb8cf1da09be4d5df341db2372f4b32389f2` /
+  `c64609beebe13f8f5e73d9af673639abde2ba8bd2d75a577721078ba09b1d42b`.
+- Requested/read-back VREG is 1,200/1,200 mV (selector 13), unsafe flag is 0;
+  requested/actual clock is 348,000/348,000 kHz from a 1.392 GHz VCO and
+  post-dividers 4/1. USB/peripheral clocks remain 48 MHz and QMI divider 3.
+- All eight device suites, the 4,096-case oracle, 13 decision-path cases,
+  standalone benchmarks, 23 synchronized windows, and strict capture passed.
+  Standalone hardware/full/filter rates are **798,070 / 65,958 / 73,510
+  H/s**. First-seven medians are **857,996 aggregate / 784,896 hardware /
+  73,098 software H/s**; aggregate range is 18 H/s and MAD is 6 H/s.
+- Aggregate/hardware/software rates per MHz are 2,465.51 / 2,255.45 / 210.05
+  H/s/MHz. Scaling efficiencies versus the fresh 150 MHz control are
+  **99.995% / 99.997% / 99.971%**. This is a clean linear-scaling pass and the
+  current throughput leader, but not yet the minimum-voltage frontier point:
+  test the skipped 1.15 V selector at the same 348 MHz clock next.
+- Complete log `logs/OC-riscv-v1200-f348000-measure-1.log`, SHA-256
+  `4ac0ee9b1e256102397f932cd6bc4dfd0f5a99b024fd815392fc8a8b71ba7416`.
