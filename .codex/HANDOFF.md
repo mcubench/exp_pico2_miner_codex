@@ -125,6 +125,10 @@
   appeared and the bounded check found no Pico or tty. Record this BOOT_FAIL;
   it is only the first failure. Physical BOOTSEL recovery and stock validation
   are required, then retry the byte-identical 570/1.60 image once.
+- Physical recovery after the first 570 MHz anchor failure is complete. Stock
+  Hazard3 passed all gates and nine windows at first-seven medians 369,847
+  aggregate / 338,330 hardware / 31,517 software H/s. Recovery 12 is archived;
+  retry the identical 570 MHz/1.60 V anchor now.
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both

@@ -6717,3 +6717,15 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   image once before bisection. Failure log
   `logs/OC-riscv-v1600-f570000-boot-fail-1.log`, SHA-256
   `2743f8e44065350c5310901255379ec5f5a5a961d3ca4fe0a0dc8226eba0a96b`.
+
+### OC-riscv-v1100-f150000-recovery-12 — MEASURE_PASS
+
+- Physical BOOTSEL recovery produced a complete verified stock flash. Hazard3
+  run `30004927-00000001` passed exact stock identity, all correctness gates,
+  standalone benchmarks, nine windows, and strict capture.
+- Standalone hardware/full/filter rates are **343,992 / 28,430 / 31,685 H/s**.
+  First-seven medians are **369,847 aggregate / 338,330 hardware / 31,517
+  software H/s**, matching baseline.
+- Complete log `logs/OC-riscv-v1100-f150000-recovery-12.log`, SHA-256
+  `47672930d84f13296eef17b1c9e0f9b3813d4d872d9703034fcba177f434ba7e`.
+  Recovery is validated; retry 570 MHz/1.60 V next.
