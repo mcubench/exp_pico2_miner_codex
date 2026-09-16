@@ -2,6 +2,14 @@
 
 ## Latest checkpoint — authoritative
 
+- Identical 480 MHz / 1.60 V Hazard3 retry reproduced BOOT_FAIL after both
+  architecture builds and verified flash. No USB or `/dev/ttyACM*` appeared
+  during the 50-second capture; empty log
+  `logs/OC-riscv-v1600-f480000-boot-fail-2.log` (SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`).
+  Two failures establish 480 MHz as a failing bound at 1.60 V. Physically
+  recover and validate stock before selecting the next lower exact midpoint.
+
 - Overclock execution has started. Phase-0 source/wrapper/monitor infrastructure
   is implemented and stock-builds on both ISAs; 13 host monitor tests pass.
   It adds allow-listed requested VREG, strict readback/clock identity, PLL/USB/

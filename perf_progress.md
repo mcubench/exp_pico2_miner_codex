@@ -6783,3 +6783,17 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `logs/OC-riscv-v1100-f150000-recovery-14.log`, SHA-256
   `ad481514587ec75115467a290049fc1c100b252908c0b1025fbd883010835af7`.
   Recovery is validated; retry 480 MHz/1.60 V next.
+
+### OC-riscv-v1600-f480000-bisection-2 — BOOT_FAIL, reproduced
+
+- The mandatory identical retry rebuilt both architectures warning-free and
+  flashed/verified the same 480 MHz / 1,600 mV Hazard3 image as bisection 1
+  (ARM `ec62bd8...`, RISC-V `3a83796...`).
+- Runtime USB again did not appear during the 50-second strict capture; no
+  Raspberry Pi USB device or `/dev/ttyACM*` was present, and no BOOT,
+  correctness, benchmark, or mining output was captured. Classification is
+  **BOOT_FAIL**.
+- Empty capture log `logs/OC-riscv-v1600-f480000-boot-fail-2.log`, SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+  Two matching failures establish 480 MHz as a failing bound at 1.60 V.
+  Physically recover and validate stock before the next lower bisection point.
