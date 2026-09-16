@@ -7153,3 +7153,12 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   one full Tier-B capture at exact 420 MHz/divider 4. Recover stock, then
   repeat the 1.30 V Tier-B pass once because it defines a voltage transition;
   only then record 1.30 V as the confirmed minimum requested selector.
+### OC-riscv-v1100-f150000-d3-recovery-25 — MEASURE_PASS
+
+- Stock recovery after the reproduced 420 MHz / 1.25 V / divider-4 failure
+  passed verified flash, all eight suites, the 4,096-case oracle, nine
+  windows, and strict capture.
+- First-seven medians were 369,939 aggregate / 338,344 hardware / 31,596
+  software H/s. Log `logs/OC-riscv-v1100-f150000-d3-recovery-25.log`, SHA-256
+  `86712b86daee38e70fdd580f301df4ebe7aaaadda9770ae361ccb66a0bc4eafe`.
+  Recovery is validated; repeat the clean 420 MHz / 1.30 V / divider-4 point.
