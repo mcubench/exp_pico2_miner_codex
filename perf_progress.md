@@ -6388,3 +6388,18 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `9facecfed2745d1e7982c772d8f63bc2cedc788cff299d74ff8e579ba2b1d146`.
   Runtime USB remains present. Repeat the identical point once before fixing
   the lower-voltage boundary at 1.15 V fail / 1.20 V pass.
+
+### OC-riscv-v1150-f348000-screen-2 — CORRECTNESS_FAIL, reproduced
+
+- The mandatory identical retry used byte-identical ARM/RISC-V images and run
+  `30004927-00000004` again reported exact 348 MHz/1.15 V BOOT identity.
+  NIST empty/ABC and sticky-error tests passed, but the optimized oracle
+  reported `TEST:FAIL` at vector 123, nonce 1129751015. Strict capture stopped
+  immediately; no benchmark or mining result is valid.
+- Classification is **CORRECTNESS_FAIL**. Two independent oracle failures now
+  establish 1.15 V as the failing lower selector at 348 MHz; combined with the
+  clean 1.20 V pass, this brackets the minimum requested selector. Repeat the
+  1.20 V Tier-B measurement once because it defines a voltage transition.
+- Complete failure log `logs/OC-riscv-v1150-f348000-correctness-fail-2.log`,
+  SHA-256
+  `d54e003bf175860e6f79b0e7237bbc6215daae58fc201cec65a361de9f10a55d`.

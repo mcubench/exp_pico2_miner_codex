@@ -1,0 +1,6 @@
+SERIAL_PORT=/dev/ttyACM0
+BOOT app=pico2_bitcoin_miner board=pico2 package=RP2350A arch=RISCV-HAZARD3 engine=RP2350-SHA256 temperature=disabled source_id=ac3e4e469db5 run_id=30004927-00000004 profile=0 report_hashes=340000 window_reports=4 clock_profile=experimental-overclock requested_clock_khz=348000 actual_clock_hz=348000000 requested_vreg_mv=1150 vreg_selector=12 readback_vreg_mv=1150 unsafe_voltage_limit_disabled=0 pll_vco_hz=1392000000 pll_postdiv1=4 pll_postdiv2=1 clk_usb_hz=48000000 clk_peri_hz=48000000 qmi_clkdiv=3 sysinfo_package_sel=1 chip_id=30004927 silicon_revision=3
+TEST:PASS kat=nist_empty engine=RP2350-SHA256
+TEST:PASS kat=nist_abc engine=RP2350-SHA256
+TEST:PASS kat=sha_error_sticky cases=3 burst_words=2500 latched=1 survived_start=1 cleared=1
+TEST:FAIL kat=optimized_oracle vector=123 nonce=1129751015

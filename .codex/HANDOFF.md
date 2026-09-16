@@ -34,6 +34,11 @@
   optimized oracle at vector 1412/nonce 3526006413. USB remains reachable.
   Archive/commit the CORRECTNESS_FAIL, then retry the identical 1.15 V point
   once. A matching failure establishes 1.20 V as the minimum selector here.
+- Commit `2891d69` records 1.15 V attempt 1. Attempt 2 reproduced a strict
+  optimized-oracle failure at vector 123/nonce 1129751015 with byte-identical
+  firmware. Thus 348 MHz is bracketed by 1.15 V fail and 1.20 V pass. Commit
+  attempt 2, repeat the 1.20 V Tier-B pass once as required for a voltage
+  transition, then continue upward from the 1.20 V selector.
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both
