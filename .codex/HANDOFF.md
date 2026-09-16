@@ -102,6 +102,11 @@ changes and keep temperature disabled.
   1,620 bytes and 543 to 517 instructions, total text falls 80 bytes, and the
   56-byte frame is unchanged. Hazard3 remains unchanged. Commit the candidate,
   clean-build both, then run strict ARM hardware validation at stock 150 MHz.
+- Candidate 112 hardware passes correctness but is rejected: first-seven ARM
+  medians are 360,164 aggregate / 328,886 hardware / 31,278 software H/s,
+  -0.049%/-0.008%/-0.484% versus retained candidate 105/109. Isolated filter
+  falls 0.503% to 31,419 H/s. Log `logs/B3-local-o2-arm.log`. Source is restored
+  to the retained O3 helper; rebuild exact candidate 109 and commit evidence.
 
 ## Completed work in this session
 

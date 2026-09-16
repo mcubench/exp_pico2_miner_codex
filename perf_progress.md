@@ -6057,3 +6057,28 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   it passes the static gate. Commit it, clean-build both architectures, recheck
   the final linked shape, then flash only ARM for strict stock-clock hardware
   validation.
+
+### B3 ARM local-O2 attempt 112b — pass, reject
+
+- Candidate commit `15b66ee`, clean identity `1e4970db6a0c`, stock 150 MHz,
+  temperature disabled, run ID `30004927-00000024`. Both architectures built
+  before flashing ARM and all eight host tests passed. Clean ARM/RISC-V UF2
+  SHA-256 values were
+  `6e3fe235a5735a1ebc3474b2962fa87ee0f08eff32a44388995d04266e614ddc` /
+  `4ae486e9edff5cb51615baaa86f14942a4cd9deb8a6edcaa04c8bf57a807119c`.
+- Device validation passed all 8 suites, the 4,096-case oracle, standalone
+  benchmarks, nine common windows, and strict capture without faults.
+  Standalone hardware/full/filter rates were **331,086 / 30,364 / 31,419
+  H/s**.
+- First-seven window medians were aggregate **360,164 H/s** (range
+  360,161-360,167), hardware **328,886 H/s** (328,882-328,889), and software
+  **31,278 H/s** (31,277-31,281). Versus retained candidate 105/109 ARM, these
+  are aggregate **-178 H/s (-0.049%)**, hardware **-26 H/s (-0.008%)**, and
+  software **-152 H/s (-0.484%)**. The isolated filter falls from 31,578 to
+  31,419 H/s, **-159 H/s (-0.503%)**.
+- Complete log `logs/B3-local-o2-arm.log`, SHA-256
+  `b7f3f003407d73f3dc4ae1eca53a326cc02f2c24382df89e5da955a4aa0aa6f6`.
+- **Decision: reject candidate 112.** The smaller 517-instruction O2 helper is
+  measurably slower on M33 despite passing every correctness gate. Restore the
+  retained O3 helper and require exact candidate-109 artifacts. The board is
+  currently running rejected candidate 112 ARM.

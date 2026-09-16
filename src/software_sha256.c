@@ -326,11 +326,7 @@ __not_in_flash_func(software_sha256_compress_digest)(
 // Therefore the final digest's numerical word 7 is IV7 + e_61. This permits
 // exact rejection for the common Bitcoin target whose most-significant word
 // is zero without executing the final three rounds.
-#ifdef __riscv
 static __attribute__((optimize("unroll-loops"))) uint32_t
-#else
-static __attribute__((optimize("O2", "unroll-loops"))) uint32_t
-#endif
 __not_in_flash_func(software_sha256_digest_high_word_after_round61)(
     uint32_t digest[]) {
 #ifdef __riscv
