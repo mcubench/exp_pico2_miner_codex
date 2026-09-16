@@ -101,6 +101,11 @@
   pass. Hazard3 run `30004927-00000001` passed all gates and nine windows at
   first-seven medians 369,847 aggregate / 338,330 hardware / 31,517 software
   H/s. Archive/commit recovery 9, then revalidate 348 MHz/1.20 V.
+- Clean post-recovery 348 MHz/1.20 V revalidation passed all gates and 23
+  windows at first-seven medians 857,997 aggregate / 784,899 hardware / 73,097
+  software H/s. This confirms the device/host path and isolates the silent
+  failures to 396 MHz. Commit the log, then the no-bracket two-selector rule
+  selects 396 MHz/1.60 V; label unsafe-overvoltage and recover stock afterward.
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both

@@ -6611,3 +6611,20 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Complete log `logs/OC-riscv-v1100-f150000-recovery-9.log`, SHA-256
   `e8ddd3cfe38797da822214e3899ad0a7302dbc6f7dab64f62406b585d27b39c3`.
   Device recovery is validated; revalidate 348 MHz/1.20 V next.
+
+### OC-riscv-v1200-f348000-measure-3 — MEASURE_PASS, post-failure control
+
+- Both architecture builds passed warning-free with the byte-identical
+  known-good 348 MHz/1.20 V images. Hazard3 programming and verification were
+  complete, and run `30004927-00000002` reported exact clock, voltage, PLL,
+  USB/peripheral clock, source, and safe-voltage identity.
+- All eight device suites, the 4,096-case oracle, 13 decision cases, standalone
+  benchmarks, 23 synchronized windows, and strict capture passed. Standalone
+  hardware/full/filter rates are **798,074 / 65,958 / 73,510 H/s**.
+- First-seven medians are **857,997 aggregate / 784,899 hardware / 73,097
+  software H/s**, matching the two earlier 348 MHz/1.20 V passes within a few
+  H/s. This confirms the board and host path after the 1.40 V failures.
+- Complete log `logs/OC-riscv-v1200-f348000-measure-3.log`, SHA-256
+  `3ed64eacef308ef33a9055730b0c59b8056223b7463fe97a99ef9732a48d0f14`.
+  With no passing bracket at 396 MHz, the two-selector jump from 1.40 V selects
+  requested 1.60 V next; it is explicitly an unsafe-overvoltage point.
