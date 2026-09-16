@@ -7453,3 +7453,20 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Log `logs/HWONLY-riscv-v1600-f570000-d5-link-fail-1.log`, SHA-256
   `eb80afa478e3223bdaac2c013a007945ae682150d4a69f4a6b1523ab4a475000`.
   Recover and validate stock, then reproduce this point once.
+### HWONLY-riscv-v1600-f558000-d5-measure-1 — MEASURE_PASS, maximum
+
+- Per explicit user override, the 570 MHz failure was not reproduced and no
+  intervening 150 MHz stock-validation run was made. Requested 560 MHz is not
+  an exact PLL point; 558 MHz is the highest exact point at or below it.
+- Hardware-only Hazard3 passed requested/actual 558 MHz, requested/read-back
+  1.60 V, divider 5, 111.6 MHz QMI SCK, unsafe-voltage flag 1, all eight test
+  suites, the full 4,096-case oracle, benchmarks, 22 windows, and strict
+  capture. Sustained software hashes remained zero.
+- First-seven median hardware/aggregate rate: **1,256,632 H/s**; software:
+  **0 H/s**; hardware-only efficiency: **2,252.03 H/s/MHz**. Standalone
+  hardware benchmark: **1,282,597 H/s**.
+- This is **15,630 H/s (1.23%) below** the retained hybrid 516 MHz result of
+  1,272,262 H/s. Lower points down to 528 MHz are dominated and were skipped.
+- Log `logs/HWONLY-riscv-v1600-f558000-d5-measure-1.log`, SHA-256
+  `db05d462d1f065ed6bcaafd0b98a7e074370fdfcc13fb4177e8a45440396e9a9`.
+  Board left running this validated unsafe-voltage hardware-only image.

@@ -1080,3 +1080,29 @@ RISC-V `a3d7e...3bd9`; archive hashes are recorded in the ledger.
 - The board currently enumerates as Pico application USB (`2e8a:0009`) but is
   unresponsive. Physically recover it into BOOTSEL, validate stock, then retry
   the identical hardware-only 570 MHz point once before setting the boundary.
+
+### Hardware-only maximum resolved at 558 MHz
+
+- The user explicitly overrode the earlier retry/recovery policy: do not
+  reproduce the 570 MHz failure, skip 150 MHz stock validation, and descend
+  from about 560 MHz toward 528 MHz at 1.60 V / divider 5.
+- 560 MHz is not an exact catalog point. The highest exact point at or below
+  it is 558 MHz (VCO 1,116 MHz, post-dividers 2/1), so that was tested first.
+- Both architectures built warning-free. Hazard3 passed exact identity at
+  requested/actual 558 MHz, requested/read-back 1.60 V, divider 5, 111.6 MHz
+  QMI SCK, and unsafe-voltage flag 1. It passed all eight suites, the complete
+  4,096-case oracle, 13 decision paths, all standalone benchmarks, 22 mining
+  windows, and strict capture. Every sustained software count and rate was
+  zero as required by hardware-only mode.
+- First-seven median sustained hardware/aggregate throughput is **1,256,632
+  H/s**, software is **0 H/s**, and hardware-only efficiency is **2,252.03
+  H/s/MHz**. Standalone hardware benchmark is **1,282,597 H/s**.
+- This exactly preserves the hardware-only variant's 516 MHz scaling, but is
+  **15,630 H/s (1.23%) below** the hybrid 516 MHz record of 1,272,262 H/s.
+  Therefore removing core-0 software mining does not improve total hashrate.
+- Log `logs/HWONLY-riscv-v1600-f558000-d5-measure-1.log`, SHA-256
+  `db05d462d1f065ed6bcaafd0b98a7e074370fdfcc13fb4177e8a45440396e9a9`.
+- Because the highest requested exact point passed and throughput scales only
+  with clock, the lower 552/546/540/534/532/528 MHz points are dominated and
+  were not run. The board is left on validated 558 MHz / 1.60 V / divider-5
+  hardware-only firmware; no stock recovery was performed per user direction.
