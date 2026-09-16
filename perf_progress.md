@@ -7420,3 +7420,17 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   software H/s**. Log `logs/OC-riscv-v1100-f150000-d3-recovery-40.log`,
   SHA-256 `96bf622419f69d4c45a426308d1724844c44f23e62b4d77c129e599f44456da2`.
   The board is left on validated stock firmware.
+### HWONLY-riscv-v1600-f516000-d5-measure-1 — MEASURE_PASS
+
+- Hardware-only variant (`MINER_HARDWARE_ONLY=1`, source identity
+  `fc6c76ed3474`) passed exact 516 MHz / 1.60 V / divider-5 identity, all eight
+  suites, the 4,096-case oracle, 13 decision paths, 34 windows, and strict
+  capture. BOOT reported `mining_mode=hardware-only`; every mining window had
+  zero software hashes and internally consistent totals.
+- First-seven median sustained hardware/aggregate rate was **1,162,045 H/s**
+  with **0 software H/s**, or **2,252.03 H/s/MHz**. Standalone hardware rate
+  was 1,186,066 H/s. This is 0.13% below the hybrid run's hardware component
+  and 8.66% below its 1,272,262 H/s combined rate.
+- Complete log `logs/HWONLY-riscv-v1600-f516000-d5-measure-1.log`, SHA-256
+  `709373e0c9df6fe77d31d51343d4672fcede22e47c8040c00c9f320fc238ad26`.
+  The variant must pass above 516 MHz to improve overall throughput.

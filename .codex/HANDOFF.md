@@ -2,6 +2,16 @@
 
 ## Latest checkpoint — authoritative
 
+- Hardware-only 516 MHz / 1.60 V / divider-5 run passed all gates, 34 windows,
+  and strict capture. First-seven median sustained hardware/aggregate rate was
+  1,162,045 H/s (2,252.03 H/s/MHz), with software correctly zero. Standalone
+  hardware rate was 1,186,066 H/s. Log
+  `logs/HWONLY-riscv-v1600-f516000-d5-measure-1.log` has SHA-256
+  `709373e0c9df6fe77d31d51343d4672fcede22e47c8040c00c9f320fc238ad26`.
+- At the same clock this is 0.13% below the hybrid hardware component and
+  8.66% below hybrid combined throughput. The hardware-only variant must pass
+  above 516 MHz to win overall. Return to stock before any higher-clock test.
+
 - Hardware-only variant implemented behind `MINER_HARDWARE_ONLY=1`. The full
   software correctness oracle and standalone software benchmarks remain, but
   sustained mining launches only the hardware SHA-256 worker on core 1; core 0
