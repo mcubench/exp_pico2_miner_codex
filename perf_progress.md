@@ -7200,3 +7200,11 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   Two matching failures establish 1.30 V as insufficient at 444 MHz/divider 4.
   Recover and validate stock before retrying 444 MHz at the next selector,
   1.40 V.
+### OC-riscv-v1100-f150000-d3-recovery-27 — MEASURE_PASS
+
+- Stock recovery after reproduced 444 MHz / 1.30 V / divider-4 failure passed
+  all eight suites, the full oracle, nine windows, and strict capture.
+- First-seven medians were 369,936 aggregate / 338,344 hardware / 31,596
+  software H/s. Log `logs/OC-riscv-v1100-f150000-d3-recovery-27.log`, SHA-256
+  `8a8cfcf402def102a8f10073a5b5df72eb4552172a4782bc9a98e58d167922d4`.
+  Recovery is validated; test 444 MHz / 1.40 V / divider 4.
