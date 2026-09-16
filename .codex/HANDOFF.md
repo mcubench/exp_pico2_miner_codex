@@ -80,12 +80,20 @@ changes and keep temperature disabled.
 ## Work in progress / next actions
 
 Current continuation point: candidate 103 ARM factor 4 passed all hardware
-gates and is retained; record/commit its evidence. The planned current-worker
-factor 1/2/4 comparison is complete. Select the next untested bounded plan
-item from the actual hot assembly/profile, defining hypothesis, parent hashes,
-resource cost, and rejection rule before editing. Do not repeat software batch
-factor 8, scratch-X filter placement, E08 queue polling at 1 or 64 hashes, or
-the rejected E14 chunk variants unchanged.
+gates, is retained, and its evidence is committed at `6268865`. The planned
+factor 1/2/4 comparison is complete. Candidate 104 is a bounded ARM-only E07
+placement test: move the approximately 2.2 KiB factor-4 hardware worker from
+XIP to ordinary main SRAM, leaving Hazard3 and both scratch stacks untouched.
+Its hypothesis, resource/contention risk, and rejection rule are in the ledger.
+Do not repeat software batch factor 8, scratch-X filter placement, E08 queue
+polling at 1 or 64 hashes, or the rejected E14 chunk variants unchanged.
+
+Candidate 104 dirty preflight passes. ARM's complete four-body worker is at
+`0x20000110`, its 188-byte frame is unchanged, copied data/code ends at
+`0x200032dc`, and scratch stacks are untouched. Link veneers cost 48 text
+bytes and lie only on startup/rare/report paths. Hazard3 remains factor 1 in
+XIP at its exact retained size. Both builds and all 8 host tests pass; commit,
+clean-rebuild, then run ARM hardware only.
 
 Candidate 103 commit `b2b8dfb`, identity `104da455bdbb`, passed ARM hardware:
 359,558 aggregate / 328,122 hardware / 31,435 software H/s, +0.532%/+0.582%

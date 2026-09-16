@@ -5528,3 +5528,44 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   its compile-time factor-1 path and retained 200,924/4,440 text/BSS size.
   The planned current-worker factor 1/2/4 comparison is complete. The board
   is left running accepted candidate 103 ARM.
+
+## 2026-09-16 — E07 ARM hardware-worker SRAM candidate 104 definition
+
+- Parent is retained candidate 103 at source identity `104da455bdbb`. ARM's
+  factor-4 `mining_worker_core1` currently executes from XIP at `0x10000344`
+  and spans roughly 2.2 KiB. Move only that ARM function into the SDK's normal
+  copied-to-SRAM `.time_critical` region. Keep Hazard3's factor-1 worker in XIP
+  and leave both scratch banks and stacks unchanged.
+- This is distinct from the historically neutral whole-image SRAM trial and
+  rejected candidate 99 filter-in-scratch-X trial: it targets the now-expanded
+  core-1 hot body only, uses ordinary main SRAM, and does not overlap the fixed
+  2 KiB core-1 scratch-X stack. The scratch banks cannot safely hold the current
+  function because only 2 KiB remains beside each reserved stack.
+- Hypothesis: factor 4's strong scaling indicates that instruction fetch and
+  branch layout contribute measurable cost; removing XIP fetches for the hot
+  hardware owner may improve its 328,122 H/s rate and reduce XIP contention.
+  Resource cost is about 2.2 KiB of main SRAM plus possible contention with
+  the retained software SHA helpers already executing from SRAM.
+- Rejection rule: preflight must place the complete ARM worker at `0x200...`,
+  preserve its four bodies/frame and all other semantics, keep Hazard3 at its
+  retained XIP factor-1 size, and fit SRAM without warnings. Reject any gate
+  failure, software-worker regression, or non-repeatable aggregate/hardware
+  gain that does not justify the extra SRAM and placement complexity. Build
+  both ISAs before an ARM-only hardware run.
+
+### E07 ARM hardware-worker SRAM candidate 104 preflight — pass
+
+- Both dirty stock builds pass warning-free and all eight host monitor tests
+  pass. ARM places the complete worker at `0x20000110`; its four bodies and
+  188-byte frame are unchanged. The copied `.data`/code region is 12,748
+  bytes and ends at `0x200032dc`, far below the main-SRAM limit; BSS remains
+  4,708 bytes. Link veneers add 48 loadable text bytes, for 190,176 total.
+- Hot hash/MMIO/target bodies remain self-contained in SRAM. Calls requiring
+  veneers are startup, rare share/fault, or report-path operations rather than
+  the normal per-nonce fast path. Scratch X/Y remain code-empty with their
+  fixed 2,048-byte stacks untouched.
+- Hazard3 remains at XIP address `0x10001478`, factor 1, and exactly
+  200,924/4,440 text/BSS. Dirty ARM/RISC-V UF2 SHA-256 values are
+  `89bb40bd263caf6bc78709d54c186ddb08902456542f8369d7d78f837af2cbc4` /
+  `c4cb72e1de12c321803048a7efd4ea7a3a1dcacba95f87f217a0286f9552c083`.
+  Commit and clean-rebuild before the ARM hardware comparison.
