@@ -2,6 +2,15 @@
 
 ## Latest checkpoint — authoritative
 
+- The first 408 MHz / 1.60 V Hazard3 bisection image built both architectures
+  warning-free and flashed/verified, but runtime USB never reappeared during
+  the 50-second strict capture. No Pico USB device or serial node remains.
+  Classification is **BOOT_FAIL**. Empty log
+  `logs/OC-riscv-v1600-f408000-boot-fail-1.log` has SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+  This is not yet a confirmed boundary: physically recover in BOOTSEL,
+  validate stock, then retry the identical 408 MHz / 1.60 V point once.
+
 - Identical 480 MHz / 1.60 V Hazard3 retry reproduced BOOT_FAIL after both
   architecture builds and verified flash. No USB or `/dev/ttyACM*` appeared
   during the 50-second capture; empty log

@@ -6895,3 +6895,19 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   software H/s. Log `logs/OC-riscv-v1100-f150000-recovery-19.log`, SHA-256
   `9fb27115d09df596da2ac58250645ef1194571f0c81c4e10ba33f9f895c456ce`.
   Recovery is validated; next midpoint is approximately 408 MHz / 1.60 V.
+
+### OC-riscv-v1600-f408000-bisection-1 — BOOT_FAIL, recovery required
+
+- Both architecture builds passed warning-free; ARM/RISC-V UF2 SHA-256 values
+  are `9934df8d6eb92431ce23c722187a4c50fee3e894203ce12119866dfe36a245dc` /
+  `6b78b4bb53cf36992a1e39c2bf80e63b65b7cd54bbfd9487fac96ba4de18d700`.
+  The Hazard3 image flashed and verified successfully at the requested
+  408 MHz / 1,600 mV unsafe-overvoltage profile.
+- Runtime USB did not reappear during the 50-second strict capture; bounded
+  checks found no Raspberry Pi USB device or `/dev/ttyACM*`. No BOOT,
+  correctness, benchmark, or mining output exists. Classification is
+  **BOOT_FAIL**.
+- Empty capture log `logs/OC-riscv-v1600-f408000-boot-fail-1.log`, SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+  This is one failure only. Physically recover and validate stock, then retry
+  408 MHz / 1.60 V identically before changing the frequency boundary.
