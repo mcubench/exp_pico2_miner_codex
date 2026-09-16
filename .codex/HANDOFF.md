@@ -44,10 +44,9 @@ changes and keep temperature disabled.
   ARM reached 360,342 aggregate / 328,912 hardware H/s, +0.218%/+0.241% over
   candidate 103, while removing 616 total text bytes. Hazard3 remains factor 1.
   The board now runs accepted candidate 105 ARM.
-- Candidate 106 A2 changes only ARM factor 4 to factor 8 on top of A1. Dirty
-  preflight passes with eight physical bodies, no inner loop, unchanged
-  156-byte frame, 2,532-byte worker, and +1,080 ARM text bytes. Hazard3 remains
-  exact factor 1.
+- Candidate 106 A2 is rejected after passing correctness. ARM factor 8 measured
+  359,709 aggregate / 328,281 hardware H/s, -0.176%/-0.192% versus retained
+  candidate 105 factor 4. The board currently runs rejected candidate 106 ARM.
 
 ## Completed work in this session
 
@@ -98,13 +97,12 @@ work was requested for the planning update. Do not repeat main-SRAM hardware-
 worker placement, software batch factor 8, scratch-X filter placement, E08 queue
 polling at 1 or 64 hashes, or rejected E14 chunk variants unchanged.
 
-Candidate 106 A2 is implemented and passes dirty preflight: both builds and all
-eight host tests pass; ARM has eight physical bodies and rare stubs, no inner
-batch loop, no hot helper call/completed-count work, and no frame growth. Commit
-candidate 106, clean-rebuild both architectures, run a strict ARM cycle, and
-compare against candidate 105's 360,342 aggregate / 328,912 hardware H/s.
-Retain only a repeatable gain that justifies +1,080 text bytes; otherwise restore
-factor 4 while preserving A1. The board currently runs accepted candidate 105.
+Candidate 106 A2 passed all gates but regressed and is rejected. Log
+`logs/A2-batch8-arm.log` has SHA-256 `ea19760a...675120`. Record/commit the
+negative evidence, restore only ARM batch/unroll factors to four while keeping
+A1, commit the restoration, rebuild both architectures, and require exact
+candidate-105 UF2 hashes `0c12f2...a351f` / `e8b324...0d942`. Do not retry
+factor 8 unchanged. The board currently runs rejected candidate 106 ARM.
 
 Candidate 104 commit `6dc1941`, identity `638fe640df92`, passed correctness but
 is rejected. ARM worker-in-main-SRAM measured 358,620 aggregate / 327,806

@@ -5715,3 +5715,30 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `f57a07c5dd26798ad937750a3d78c3f5f7a53da895597ce0d1f1ceac5171c0c1` /
   `ba0254b08c5fd15e8a353aa716e251776459ac29f2d03dc64798d535ea55f928`.
   Commit and clean-rebuild both architectures before the ARM hardware run.
+
+### A2 ARM hardware batch factor 8 attempt 106a — pass correctness, reject
+
+- Candidate commit `12fb47a`, source identity `86cb92eb6be0`, normal profile,
+  stock 150 MHz, temperature disabled, run ID `30004927-0000001f`. The cycle
+  rebuilt both architectures before flashing ARM. All 8 suites, the 4,096-case
+  oracle, standalone benchmarks, nine common windows, and strict capture passed
+  without a fault.
+- Standalone hardware/full/filter rates were **331,087 / 30,364 / 31,578
+  H/s**. First-seven window medians were aggregate **359,709 H/s** (range
+  359,700-359,724), hardware **328,281 H/s** (328,273-328,291), and software
+  **31,428 H/s** (31,428-31,433).
+- Versus retained candidate 105 factor 4, aggregate is **-633 H/s (-0.176%)**,
+  hardware **-631 H/s (-0.192%)**, and software **-2 H/s (-0.006%)**. The
+  regression is stable across all windows. Halving the remaining outer-loop
+  overhead does not repay the 1,080-byte hot-worker expansion; factor 8 crosses
+  an ARM XIP fetch/layout threshold.
+- Clean ARM/RISC-V UF2 SHA-256 values are
+  `b9ecfefc3dda42982dfddba49876b9b11200bcd459db46f6c7df764197e7a157` /
+  `30d769f106de37070a98b1100e94830269c987a85ac8b2e50054c51fc84ef0b1`.
+  Clean text/BSS is **190,584/4,708** ARM and **200,924/4,440** Hazard3.
+  Complete ARM log SHA-256 is
+  `ea19760a6aa09acd9e18b697b66e910292ffd4a4dffeb67413e9867f40675120`;
+  archived as `logs/A2-batch8-arm.log`.
+- **Decision: reject candidate 106.** Restore only ARM's batch/unroll factors to
+  four, preserving retained A1. Rebuild both architectures and require exact
+  candidate-105 UF2 hashes. Do not retry factor 8 unchanged.
