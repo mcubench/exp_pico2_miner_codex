@@ -6144,3 +6144,44 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   differently. There is no firmware candidate, artifact change, or hardware
   measurement for this analysis. Proceed to D1; C2/C3 remain gated on refreshed
   profiling and a demonstrated distinct resource/slack interval.
+
+## 2026-09-16 — Candidate 114: D1 two-phase odd-tail takeover
+
+- Parent is retained candidate 109. Preserve the ordinary even/odd phase and
+  both hot nonce strides exactly. Only when core 1 finishes nonce `0xfffffffe`
+  does it replace the old exhaustion fault with a cold handoff request.
+- Core 0 completes its current odd nonce before observing the request, so its
+  next odd nonce is an exact exclusive frontier. It sends that frontier once
+  and permanently stops software hashing. Core 1 then hashes the remaining odd
+  suffix with stride two until `0xffffffff`, preserving candidate/error/report
+  handling. Expected accounting is `2^31` even hashes + the processed odd
+  prefix + the transferred odd suffix = exactly `2^32`, with no overlap.
+- Add bounded startup arithmetic cases for empty, small, near-complete, and
+  complete odd prefixes. Add explicit takeover/complete protocol records and
+  reject malformed parity/frontier/counts. The normal phase must not gain a
+  per-hash coordination check; takeover code is a separate noinline cold path.
+- Static gates: both builds/tests pass, normal hot loop does not gain work/frame
+  pressure, and protocol FIFO payloads remain bounded. Short hardware runs on
+  both ISAs validate unchanged normal performance/correctness; full-space D1
+  completion is qualified by exact arithmetic/protocol tests because reaching
+  takeover at stock speed takes roughly 106 minutes.
+
+### D1 preflight 114a — static pass
+
+- Both dirty architecture builds pass warning-free and all ten host monitor
+  tests pass, including valid takeover/completion and bad-frontier rejection.
+  Startup `mining_decision_paths` now checks five prefix/suffix boundaries.
+- Moving hasher initialization into the separate takeover helper recovered the
+  normal ARM worker's retained 156-byte local frame; Hazard3 remains at 256
+  bytes. Normal worker sizes are 1,460 bytes ARM (+8) and 1,056 Hazard3 (+28),
+  localized to replacing the terminal exhaustion fault with a no-return cold
+  call and the Hazard3 terminal sticky-error check. There is no new normal
+  per-hash coordination branch. Separate takeover helpers are 668/1,044 bytes.
+- Total text is 190,792 ARM (+1,288) and 203,576 Hazard3 (+1,884), with BSS
+  unchanged. Dirty UF2 SHA-256 values are
+  `af3ac6ea9af2c98eaae53afb3cc5fc67e6a92bdc46aacd0dbafdcc21b26d27d9` /
+  `587fce539300b240da96b888685137565b42fef78fee61aca31a57835cb236eb`.
+- Static gates pass. Commit and clean-build both, then run paired stock-clock
+  short hardware validation to prove ordinary correctness/performance remains
+  intact. Treat full-space completion as protocol/arithmetic qualified, not as
+  a measured 106-minute endurance result.

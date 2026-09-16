@@ -104,6 +104,29 @@ class ContractTests(unittest.TestCase):
         _, errors = self.validate(lines)
         self.assertTrue(any("window counts" in error for error in errors))
 
+    def test_tail_takeover_and_completion(self):
+        run = "30004927-00000001"
+        lines = complete_lines(run=run)
+        lines.extend([
+            f"MINING:TAKEOVER run_id={run} odd_frontier=189"
+            " even_hashes=2147483648 odd_prefix_hashes=94",
+            f"MINING:COMPLETE run_id={run} hardware_hashes=4294967202"
+            " software_hashes=94 total_hashes=4294967296 nonce_space=4294967296",
+        ])
+        contract, errors = self.validate(lines)
+        self.assertEqual(errors, [])
+        self.assertTrue(contract.complete)
+
+    def test_bad_tail_frontier_is_rejected(self):
+        run = "30004927-00000001"
+        lines = [
+            *complete_lines(run=run),
+            f"MINING:TAKEOVER run_id={run} odd_frontier=191"
+            " even_hashes=2147483648 odd_prefix_hashes=94",
+        ]
+        _, errors = self.validate(lines)
+        self.assertIn("invalid takeover accounting", errors)
+
 
 if __name__ == "__main__":
     unittest.main()

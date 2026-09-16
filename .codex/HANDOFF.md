@@ -124,6 +124,16 @@ changes and keep temperature disabled.
   trigger/count-reload store plus the same address calculation and completion
   wait. No source or hardware candidate was created. Next is D1 two-phase tail
   takeover; leave C2/C3 gated on refreshed profiling evidence.
+- Candidate 114 begins D1. Keep the normal even/odd loops unchanged; at even
+  exhaustion core 1 requests core 0's next-unprocessed odd frontier once, core
+  0 stops hashing, and core 1 consumes the remaining odd suffix. Require exact
+  `2^32` final accounting, parity/frontier checks, bounded startup tests, and no
+  new normal hot-path coordination check. Detailed gates are in the ledger.
+- Candidate 114 static preflight passes after moving tail hasher initialization
+  fully into the noinline takeover helper: retained normal frames are restored,
+  worker growth is only 8/28 bytes at the terminal branch, both builds pass,
+  and ten host tests cover takeover/completion parsing. Commit and clean-build,
+  then perform paired short stock-clock hardware validation.
 
 ## Completed work in this session
 

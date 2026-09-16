@@ -532,6 +532,22 @@ static bool run_mining_decision_path_tests(void) {
               && full_digest_computed;
     ++cases;
 
+    static const uint64_t odd_prefix_cases[] = {
+        0u, 1u, 94u, (1ull << 31u) - 1u, (1ull << 31u),
+    };
+    for (size_t i = 0u;
+         i < sizeof(odd_prefix_cases) / sizeof(odd_prefix_cases[0]); ++i) {
+        const uint64_t odd_prefix = odd_prefix_cases[i];
+        const uint32_t frontier = (uint32_t)(1ull + 2ull * odd_prefix);
+        const uint64_t odd_suffix = (1ull << 31u) - odd_prefix;
+        const uint32_t after_suffix =
+            (uint32_t)((uint64_t)frontier + 2ull * odd_suffix);
+        passed &= (frontier & 1u) != 0u
+                  && after_suffix == 1u
+                  && (1ull << 31u) + odd_prefix + odd_suffix == (1ull << 32u);
+        ++cases;
+    }
+
     printf("TEST:%s kat=mining_decision_paths cases=%u rejected_nonce=%" PRIu32
            " rejected_high_word=%08" PRIx32 " candidate_nonce=%" PRIu32
            " candidate_hash=",
@@ -1032,6 +1048,9 @@ enum mining_message {
     MINING_MESSAGE_FAULT = 0x4641554cu,
     MINING_MESSAGE_READY = 0x52454144u,
     MINING_MESSAGE_ACK = 0x41434b21u,
+    MINING_MESSAGE_TAKEOVER_REQUEST = 0x54414b45u,
+    MINING_MESSAGE_TAKEOVER_ACK = 0x5441434bu,
+    MINING_MESSAGE_COMPLETE = 0x444f4e45u,
 };
 
 static void mining_fifo_push_u64(uint64_t value) {
@@ -1073,6 +1092,107 @@ static void mining_worker_fault(uint32_t code, uint32_t nonce,
     multicore_fifo_push_blocking(invalid_batch);
     while (true) {
         tight_loop_contents();
+    }
+}
+
+static __attribute__((noinline, noreturn)) void mining_worker_takeover_tail(
+    uint64_t completed_hashes, uint32_t report_sequence) {
+#ifdef __riscv
+    sha256_result_t hash;
+#endif
+    sha256_result_t target;
+    bitcoin_hasher_t hasher;
+    if (!compact_to_target_le(0x1d00ffffu, target.bytes)) {
+        mining_worker_fault(1u, 0u, 0u);
+    }
+    bitcoin_hasher_begin(&hasher, genesis_header);
+    multicore_fifo_push_blocking(MINING_MESSAGE_TAKEOVER_REQUEST);
+    mining_fifo_push_u64(completed_hashes);
+    if (multicore_fifo_pop_blocking() != MINING_MESSAGE_TAKEOVER_ACK) {
+        bitcoin_hasher_end(&hasher);
+        mining_worker_fault(4u, 0u, 0u);
+    }
+    uint32_t nonce = multicore_fifo_pop_blocking();
+    if ((nonce & 1u) == 0u) {
+        bitcoin_hasher_end(&hasher);
+        mining_worker_fault(4u, nonce, 0u);
+    }
+
+    uint32_t since_report = 0u;
+    uint64_t report_started_us = time_us_64();
+    while (true) {
+#ifdef __riscv
+        bitcoin_hasher_hash_nonce_unchecked(&hasher, nonce);
+#else
+        if (!bitcoin_hasher_hash_nonce(&hasher, nonce)) {
+            bitcoin_hasher_end(&hasher);
+            mining_worker_fault(2u, nonce, 1u);
+        }
+#endif
+        ++since_report;
+#ifdef __riscv
+        if (current_hash_meets_target(&target)) {
+            if (sha256_err_not_ready()) {
+                bitcoin_hasher_end(&hasher);
+                mining_worker_fault(2u, nonce, since_report);
+            }
+            capture_current_hash(&hash);
+            multicore_fifo_push_blocking(MINING_MESSAGE_SHARE);
+            multicore_fifo_push_blocking(nonce);
+            mining_fifo_push_u64(completed_hashes + since_report);
+            for (size_t word = 0u; word < 8u; ++word) {
+                multicore_fifo_push_blocking(hash.words[word]);
+            }
+        }
+#else
+        if (__builtin_expect(target.words[7] != 0u
+                             || sha256_hw->sum[7] == 0u, false)) {
+            mining_worker_publish_share_if_valid(
+                &target, nonce, completed_hashes + since_report);
+        }
+#endif
+        nonce += 2u;
+        if (nonce == 1u) {
+#ifdef __riscv
+            if (sha256_err_not_ready()) {
+                bitcoin_hasher_end(&hasher);
+                mining_worker_fault(2u, nonce, since_report);
+            }
+#endif
+            completed_hashes += since_report;
+            bitcoin_hasher_end(&hasher);
+            multicore_fifo_push_blocking(MINING_MESSAGE_COMPLETE);
+            mining_fifo_push_u64(completed_hashes);
+            while (true) {
+                tight_loop_contents();
+            }
+        }
+
+        if (since_report == MINING_REPORT_INTERVAL) {
+#ifdef __riscv
+            if (sha256_err_not_ready()) {
+                bitcoin_hasher_end(&hasher);
+                mining_worker_fault(2u, nonce, MINING_REPORT_INTERVAL);
+            }
+#endif
+            const uint64_t now_us = time_us_64();
+            const uint64_t elapsed_us = now_us - report_started_us;
+            const uint64_t rate = ((uint64_t)since_report * 1000000ull
+                                   + elapsed_us / 2u) / elapsed_us;
+            completed_hashes += since_report;
+            multicore_fifo_push_blocking(MINING_MESSAGE_PROGRESS);
+            multicore_fifo_push_blocking(nonce);
+            mining_fifo_push_u64(completed_hashes);
+            mining_fifo_push_u64(rate);
+            ++report_sequence;
+            if (report_sequence % COMMON_WINDOW_REPORT_INTERVAL == 0u
+                && multicore_fifo_pop_blocking() != MINING_MESSAGE_ACK) {
+                bitcoin_hasher_end(&hasher);
+                mining_worker_fault(4u, nonce, 0u);
+            }
+            since_report = 0u;
+            report_started_us = now_us;
+        }
     }
 }
 
@@ -1141,8 +1261,15 @@ static MINING_LOOP_OPTIONS void mining_worker_core1(void) {
 #endif
             nonce += 2u;
             if (nonce == 0u) {
+#ifdef __riscv
+                if (sha256_err_not_ready()) {
+                    bitcoin_hasher_end(&hasher);
+                    mining_worker_fault(2u, nonce, since_report);
+                }
+#endif
                 bitcoin_hasher_end(&hasher);
-                mining_worker_fault(3u, nonce, since_report);
+                mining_worker_takeover_tail(total_hashes + since_report,
+                                            report_sequence);
             }
         }
 
@@ -1188,6 +1315,8 @@ static void mine_forever(uint led_pin) {
     uint64_t window_hardware_hashes = 0u;
     uint64_t window_software_hashes = 0u;
     uint32_t window_sequence = 0u;
+    bool takeover_active = false;
+    uint32_t message;
 
     if (!compact_to_target_le(0x1d00ffffu, target.bytes)) {
         printf("FAULT type=invalid_compact_target worker_core=0\n");
@@ -1233,7 +1362,8 @@ static void mine_forever(uint led_pin) {
             continue;
         }
 
-        const uint32_t message = multicore_fifo_pop_blocking();
+        message = multicore_fifo_pop_blocking();
+handle_mining_message:
         if (message == MINING_MESSAGE_PROGRESS) {
             ++report_sequence;
             const uint32_t nonce = multicore_fifo_pop_blocking();
@@ -1325,6 +1455,56 @@ static void mine_forever(uint led_pin) {
                 gpio_xor_mask64(1ull << led_pin);
                 sleep_ms(100u);
             }
+        } else if (message == MINING_MESSAGE_TAKEOVER_REQUEST) {
+            hardware_hashes = mining_fifo_pop_u64();
+            const uint32_t expected_frontier =
+                (uint32_t)(1ull + 2ull * software_hashes);
+            if (hardware_hashes != (1ull << 31u)
+                || software_nonce != expected_frontier
+                || (software_nonce & 1u) == 0u) {
+                printf("FAULT type=takeover_accounting hardware_hashes=%" PRIu64
+                       " software_hashes=%" PRIu64
+                       " software_nonce=%" PRIu32
+                       " expected_frontier=%" PRIu32 "\n",
+                       hardware_hashes, software_hashes, software_nonce,
+                       expected_frontier);
+                while (true) {
+                    gpio_xor_mask64(1ull << led_pin);
+                    sleep_ms(100u);
+                }
+            }
+            multicore_fifo_push_blocking(MINING_MESSAGE_TAKEOVER_ACK);
+            multicore_fifo_push_blocking(software_nonce);
+            printf("MINING:TAKEOVER run_id=%08" PRIx32 "-%08" PRIx32
+                   " odd_frontier=%" PRIu32
+                   " even_hashes=%" PRIu64
+                   " odd_prefix_hashes=%" PRIu64 "\n",
+                   boot_chip_id, boot_run_sequence, software_nonce,
+                   hardware_hashes, software_hashes);
+            takeover_active = true;
+        } else if (message == MINING_MESSAGE_COMPLETE) {
+            hardware_hashes = mining_fifo_pop_u64();
+            const uint64_t total_hashes = hardware_hashes + software_hashes;
+            if (!takeover_active || total_hashes != (1ull << 32u)) {
+                printf("FAULT type=completion_accounting hardware_hashes=%" PRIu64
+                       " software_hashes=%" PRIu64
+                       " total_hashes=%" PRIu64 "\n",
+                       hardware_hashes, software_hashes, total_hashes);
+                while (true) {
+                    gpio_xor_mask64(1ull << led_pin);
+                    sleep_ms(100u);
+                }
+            }
+            printf("MINING:COMPLETE run_id=%08" PRIx32 "-%08" PRIx32
+                   " hardware_hashes=%" PRIu64
+                   " software_hashes=%" PRIu64
+                   " total_hashes=%" PRIu64 " nonce_space=4294967296\n",
+                   boot_chip_id, boot_run_sequence, hardware_hashes,
+                   software_hashes, total_hashes);
+            while (true) {
+                gpio_xor_mask64(1ull << led_pin);
+                sleep_ms(500u);
+            }
         } else {
             printf("FAULT type=multicore_protocol message=%08" PRIx32 "\n",
                    message);
@@ -1332,6 +1512,10 @@ static void mine_forever(uint led_pin) {
                 gpio_xor_mask64(1ull << led_pin);
                 sleep_ms(100u);
             }
+        }
+        if (takeover_active) {
+            message = multicore_fifo_pop_blocking();
+            goto handle_mining_message;
         }
     }
 }

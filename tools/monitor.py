@@ -47,6 +47,8 @@ class ValidationContract:
         self.next_sequence = 1
         self.window_count = 0
         self.next_window = 1
+        self.takeover = None
+        self.complete = False
 
     def observe(self, line: str) -> str | None:
         if line.startswith("TEST:FAIL") or line.startswith("FAULT"):
@@ -119,6 +121,36 @@ class ValidationContract:
                 return f"progress sequence {sequence}, expected {self.next_sequence}"
             self.next_sequence += 1
             self.progress_count += 1
+        elif line.startswith("MINING:TAKEOVER "):
+            if not self.mining_start or self.boot is None:
+                return "MINING:TAKEOVER before MINING:START"
+            if self.takeover is not None or data.get("run_id") != self.boot["run_id"]:
+                return "invalid takeover identity or duplicate"
+            try:
+                frontier = int(data.get("odd_frontier", ""))
+                even_hashes = int(data.get("even_hashes", ""))
+                odd_prefix = int(data.get("odd_prefix_hashes", ""))
+            except ValueError:
+                return "malformed takeover accounting"
+            if (even_hashes != 1 << 31 or frontier & 1 == 0
+                    or frontier != (1 + 2 * odd_prefix) & 0xffffffff):
+                return "invalid takeover accounting"
+            self.takeover = data
+        elif line.startswith("MINING:COMPLETE "):
+            if self.takeover is None or self.boot is None:
+                return "MINING:COMPLETE before MINING:TAKEOVER"
+            if self.complete or data.get("run_id") != self.boot["run_id"]:
+                return "invalid completion identity or duplicate"
+            try:
+                hardware = int(data.get("hardware_hashes", ""))
+                software = int(data.get("software_hashes", ""))
+                total = int(data.get("total_hashes", ""))
+                nonce_space = int(data.get("nonce_space", ""))
+            except ValueError:
+                return "malformed completion accounting"
+            if hardware + software != total or total != 1 << 32 or nonce_space != 1 << 32:
+                return "invalid completion accounting"
+            self.complete = True
         elif line.startswith("MEASUREMENT:WINDOW "):
             if self.boot is None or data.get("run_id") != self.boot["run_id"]:
                 return "measurement window run identity mismatch"
