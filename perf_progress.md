@@ -6259,3 +6259,24 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   and Hazard3
   `ccb0523e5e127cbe7b98dbbe1e6f3a8578690b37d90664a214e367c274bc3c1e`.
   The board runs this validated stock Hazard3 recovery image.
+
+### OC-riscv-v1100-f300000-measure-1 — MEASURE_PASS
+
+- Commit `640dbca`, identity `ac3e4e469db5`, run ID
+  `30004927-00000003`. Both ISAs built warning-free at 300 MHz/1.10 V before
+  flashing Hazard3. VREG readback is 1,100 mV, unsafe flag 0; actual clock is
+  300 MHz from a 1.5 GHz VCO and post-dividers 5/1. USB/peripheral clocks remain
+  48 MHz and QMI divider remains 3.
+- All correctness gates and strict capture passed. Standalone hardware/full/
+  filter rates are **687,990 / 56,860 / 63,370 H/s**. The 50-second capture
+  produced 20 complete windows; the first-seven medians are **739,679 aggregate
+  / 676,659 hardware / 63,022 software H/s**.
+- Versus the fresh 150 MHz control, ideal 2x aggregate is 739,690 H/s; measured
+  is only 11 H/s lower (**99.999% scaling efficiency**). Hardware and software
+  likewise scale within measurement resolution. This validates the 300 MHz
+  default-voltage starting point and permits frontier search.
+- Complete log `logs/OC-riscv-v1100-f300000-measure-1.log`, SHA-256
+  `9052d21262f817e353aded239baed87d3e436e9e117d46537744fda400f4529b`.
+  ARM/RISC-V UF2 SHA-256 at this point:
+  `e872ddd7ed7071799ad5bf768281268b0acc21f0b7de4f855b7758457fdbc75d` /
+  `dd0111aa037b5c2ed4933337dc8d1f58a3b74fb1721bdba8a184ea979acb4881`.

@@ -13,6 +13,10 @@
   `OC-riscv-v1100-f150000-measure-1` passed at 369,845 aggregate / 338,328
   hardware / 31,517 software H/s, matching retained baseline. Next commit this
   evidence and run the fresh 300 MHz/1.10 V Hazard3 control.
+- Hazard3 300 MHz/1.10 V run `OC-riscv-v1100-f300000-measure-1` passed at
+  739,679 aggregate / 676,659 hardware / 63,022 software H/s, 99.999% of the
+  fresh stock-control linear prediction. Commit its complete log/evidence, then
+  continue the default-voltage frontier at the exact 348 MHz PLL point.
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both
