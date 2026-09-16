@@ -44,6 +44,11 @@
   784,895 hardware / 73,099 software H/s, matching attempt 1. Archive/commit
   this repeat. The 348 MHz frontier is closed at minimum requested 1.20 V;
   select the next exact roughly +48 MHz PLL point and start at 1.20 V.
+- Commit `93ed95b` closes the 348 MHz frontier. Exact 396 MHz/1.20 V attempt 1
+  then built/flashed/verified, but runtime USB never appeared and the bounded
+  check finds no Pico device. Record/commit this BOOT_FAIL. Physical BOOTSEL
+  recovery is required; validate stock, then retry identical 396/1.20 once.
+  Do not raise voltage based on only this first failure.
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both

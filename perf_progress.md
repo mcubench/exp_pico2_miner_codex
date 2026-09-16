@@ -6421,3 +6421,20 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   Continue upward from 1.20 V at the next roughly +48 MHz exact PLL point.
 - Complete log `logs/OC-riscv-v1200-f348000-measure-2.log`, SHA-256
   `10dda84b9eb36d476186cf78f751f894e9770d79ccc934f4558874aad6f1d3ed`.
+
+### OC-riscv-v1200-f396000-screen-1 — BOOT_FAIL, recovery required
+
+- The PLL catalog confirms exact 396 MHz from a 1.584 GHz VCO and post-dividers
+  4/1. Both 396 MHz/1.20 V architecture builds passed warning-free; ARM/RISC-V
+  UF2 SHA-256 values are
+  `ad5746e04c44572ab3f340cc613490d0452518755d329220cd9c105aa367f449` /
+  `a08f629aaaa9e4c8c1cb76b8da3c4eb0f524ed5d3bdc370c9889891b67c40b9c`.
+- Hazard3 flash and verification passed, but runtime USB did not appear during
+  the 50-second capture. The bounded recovery check found no Raspberry Pi USB
+  device or `/dev/ttyACM*`. No BOOT, correctness, benchmark, or mining record
+  exists. Classification is **BOOT_FAIL**.
+- This single failure does not establish a voltage boundary. Physically
+  recover with BOOTSEL, flash/validate stock, then retry the identical
+  396 MHz/1.20 V point once before changing voltage. Failure log
+  `logs/OC-riscv-v1200-f396000-boot-fail-1.log`, SHA-256
+  `97427887dcf38d0c8a051abf0dc532e20c7d38590c9632767e51fefd5bc5322a`.
