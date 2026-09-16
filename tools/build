@@ -29,6 +29,7 @@ export PATH="$(dirname "${picotool_bin}"):${PATH}"
 build_dir="${PROJECT_ROOT}/build/${arch}"
 miner_sys_clock_khz="${MINER_SYS_CLOCK_KHZ:-150000}"
 miner_vreg_mv="${MINER_VREG_MV:-1100}"
+miner_qmi_clkdiv="${MINER_QMI_CLKDIV:-3}"
 miner_profile="${MINER_PROFILE:-0}"
 miner_source_id="$(source_identity)"
 
@@ -40,6 +41,12 @@ case "${miner_vreg_mv}" in
     1100|1150|1200|1250|1300|1350|1400|1500|1600) ;;
     *) die "MINER_VREG_MV must be one of: 1100 1150 1200 1250 1300 1350 1400 1500 1600" ;;
 esac
+case "${miner_qmi_clkdiv}" in
+    3|4|5) ;;
+    *) die "MINER_QMI_CLKDIV must be one of: 3 4 5" ;;
+esac
+(( miner_sys_clock_khz <= 130000 * miner_qmi_clkdiv )) \
+    || die "QMI SCK would exceed the 130000 kHz campaign limit"
 [[ "${miner_profile}" == 0 || "${miner_profile}" == 1 ]] \
     || die "MINER_PROFILE must be 0 or 1"
 
@@ -48,6 +55,7 @@ printf 'CONFIG sdk=%s\n' "${sdk}"
 printf 'CONFIG toolchain=%s\n' "${toolchain}"
 printf 'CONFIG miner_sys_clock_khz=%s\n' "${miner_sys_clock_khz}"
 printf 'CONFIG miner_vreg_mv=%s\n' "${miner_vreg_mv}"
+printf 'CONFIG miner_qmi_clkdiv=%s\n' "${miner_qmi_clkdiv}"
 printf 'CONFIG miner_source_id=%s\n' "${miner_source_id}"
 printf 'CONFIG miner_profile=%s\n' "${miner_profile}"
 
@@ -61,6 +69,7 @@ printf 'CONFIG miner_profile=%s\n' "${miner_profile}"
     -DPICO_TOOLCHAIN_PATH="${toolchain}" \
     -DMINER_SYS_CLOCK_KHZ="${miner_sys_clock_khz}" \
     -DMINER_VREG_MV="${miner_vreg_mv}" \
+    -DMINER_QMI_CLKDIV="${miner_qmi_clkdiv}" \
     -DMINER_PROFILE="${miner_profile}" \
     -DMINER_SOURCE_ID="${miner_source_id}"
 

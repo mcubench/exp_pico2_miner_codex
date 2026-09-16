@@ -21,7 +21,8 @@ def complete_lines(source="abc123", arch="ARM-M33", run="30004927-00000001"):
         f" requested_clock_khz=150000 requested_vreg_mv=1100 vreg_selector=11"
         f" readback_vreg_mv=1100 unsafe_voltage_limit_disabled=0"
         f" pll_vco_hz=1500000000 pll_postdiv1=5 pll_postdiv2=2"
-        f" clk_usb_hz=48000000 clk_peri_hz=48000000 qmi_clkdiv=2"
+        f" clk_usb_hz=48000000 clk_peri_hz=48000000"
+        f" requested_qmi_clkdiv=3 qmi_clkdiv=3 qmi_sck_hz=50000000"
         f" report_hashes=340000 window_reports={window_reports}"
     ]
     lines.extend(f"TEST:PASS kat={kat}" for kat in sorted(monitor.EXPECTED_KATS))
@@ -92,6 +93,34 @@ class ContractTests(unittest.TestCase):
         lines[0] = lines[0].replace("readback_vreg_mv=1100", "readback_vreg_mv=1150")
         _, errors = self.validate(lines)
         self.assertIn("regulator readback does not match request", errors)
+
+    def test_wrong_qmi_expectation_is_rejected(self):
+        contract = monitor.ValidationContract("ARM-M33", "abc123", 150000, 1100, 4)
+        errors = [error for line in complete_lines() if (error := contract.observe(line))]
+        self.assertIn("wrong requested QMI divider 3", errors)
+
+    def test_qmi_readback_mismatch_is_rejected(self):
+        lines = complete_lines()
+        lines[0] = lines[0].replace("qmi_clkdiv=3", "qmi_clkdiv=4", 1)
+        _, errors = self.validate(lines)
+        self.assertIn("QMI clock divider readback does not match request", errors)
+
+    def test_inconsistent_qmi_sck_is_rejected(self):
+        lines = complete_lines()
+        lines[0] = lines[0].replace("qmi_sck_hz=50000000", "qmi_sck_hz=50000001")
+        _, errors = self.validate(lines)
+        self.assertIn("QMI SCK does not match system clock and divider", errors)
+
+    def test_qmi_sck_above_limit_is_rejected(self):
+        lines = complete_lines()
+        lines[0] = lines[0].replace("actual_clock_hz=150000000", "actual_clock_hz=420000000")
+        lines[0] = lines[0].replace("requested_clock_khz=150000", "requested_clock_khz=420000")
+        lines[0] = lines[0].replace("pll_vco_hz=1500000000", "pll_vco_hz=1260000000")
+        lines[0] = lines[0].replace("pll_postdiv1=5", "pll_postdiv1=3")
+        lines[0] = lines[0].replace("pll_postdiv2=2", "pll_postdiv2=1")
+        lines[0] = lines[0].replace("qmi_sck_hz=50000000", "qmi_sck_hz=140000000")
+        _, errors = self.validate(lines)
+        self.assertIn("QMI SCK exceeds campaign limit", errors)
 
     def test_duplicate_boot_is_rejected(self):
         lines = complete_lines()

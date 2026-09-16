@@ -5,7 +5,9 @@
 #include <string.h>
 
 #include "hardware/clocks.h"
+#include "hardware/regs/addressmap.h"
 #include "hardware/regs/qmi.h"
+#include "hardware/sync.h"
 #include "hardware/structs/qmi.h"
 #include "hardware/structs/xip.h"
 #include "hardware/vreg.h"
@@ -47,6 +49,7 @@ _Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
 #define MINING_REPORT_INTERVAL 340000u
 #define COMMON_WINDOW_REPORT_INTERVAL 4u
 #define RUN_SEQUENCE_MAGIC 0x4d494e52u
+#define QMI_SCK_LIMIT_HZ 130000000u
 
 _Static_assert(MINING_REPORT_INTERVAL % HARDWARE_MINING_BATCH == 0u,
                "hardware batch must divide the report interval");
@@ -61,6 +64,23 @@ _Static_assert(MINING_REPORT_INTERVAL % HARDWARE_MINING_BATCH == 0u,
 
 static uint32_t boot_run_sequence;
 static uint32_t boot_chip_id;
+
+static bool __no_inline_not_in_flash_func(configure_qmi_clkdiv)(
+    uint32_t divider) {
+    const uint32_t timing = qmi_hw->m[0].timing;
+    qmi_hw->m[0].timing =
+        (timing & ~QMI_M0_TIMING_CLKDIV_BITS)
+        | (divider << QMI_M0_TIMING_CLKDIV_LSB);
+    __dsb();
+    const volatile uint32_t *const xip_probe =
+        (const volatile uint32_t *)(uintptr_t)XIP_BASE;
+    (void)*xip_probe;
+    __dsb();
+    const uint32_t readback =
+        (qmi_hw->m[0].timing & QMI_M0_TIMING_CLKDIV_BITS)
+        >> QMI_M0_TIMING_CLKDIV_LSB;
+    return readback == divider;
+}
 
 #if MINER_SYS_CLOCK_KHZ > 150000
 #define CLOCK_PROFILE "experimental-overclock"
@@ -1580,10 +1600,13 @@ int main(void) {
     busy_wait_us_32(1000u);
     const enum vreg_voltage vreg_readback = vreg_get_voltage();
     const bool voltage_configured = vreg_readback == MINER_VREG_ENUM;
-    if (clock_supported && voltage_configured) {
+    const bool qmi_preconfigured =
+        configure_qmi_clkdiv((uint32_t)MINER_QMI_CLKDIV);
+    if (clock_supported && voltage_configured && qmi_preconfigured) {
         set_sys_clock_pll(pll_vco_hz, pll_postdiv1, pll_postdiv2);
     }
-    const bool clock_configured = clock_supported && voltage_configured;
+    const bool clock_configured =
+        clock_supported && voltage_configured && qmi_preconfigured;
     stdio_init_all();
 
     const uint led_pin = PICO_DEFAULT_LED_PIN;
@@ -1599,6 +1622,24 @@ int main(void) {
                " readback_selector=%u readback_vreg_mv=%" PRIu32 "\n",
                (unsigned)MINER_VREG_MV, (unsigned)vreg_readback,
                vreg_selector_mv(vreg_readback));
+        while (true) {
+            gpio_xor_mask(1u << led_pin);
+            sleep_ms(100u);
+        }
+    }
+    const uint32_t qmi_clkdiv =
+        (qmi_hw->m[0].timing & QMI_M0_TIMING_CLKDIV_BITS)
+        >> QMI_M0_TIMING_CLKDIV_LSB;
+    const uint32_t qmi_sck_hz = qmi_clkdiv == 0u
+        ? 0u : clock_get_hz(clk_sys) / qmi_clkdiv;
+    if (!qmi_preconfigured || qmi_clkdiv != (uint32_t)MINER_QMI_CLKDIV
+        || qmi_sck_hz > QMI_SCK_LIMIT_HZ) {
+        printf("FAULT type=qmi_clock requested_qmi_clkdiv=%u"
+               " qmi_clkdiv=%" PRIu32 " requested_clock_khz=%u"
+               " actual_clock_hz=%" PRIu32 " qmi_sck_hz=%" PRIu32 "\n",
+               (unsigned)MINER_QMI_CLKDIV, qmi_clkdiv,
+               (unsigned)MINER_SYS_CLOCK_KHZ, clock_get_hz(clk_sys),
+               qmi_sck_hz);
         while (true) {
             gpio_xor_mask(1u << led_pin);
             sleep_ms(100u);
@@ -1638,9 +1679,6 @@ int main(void) {
     watchdog_hw->scratch[0] = RUN_SEQUENCE_MAGIC;
     watchdog_hw->scratch[1] = boot_run_sequence;
     boot_chip_id = chip_id;
-    const uint32_t qmi_clkdiv =
-        (qmi_hw->m[0].timing & QMI_M0_TIMING_CLKDIV_BITS)
-        >> QMI_M0_TIMING_CLKDIV_LSB;
     printf("BOOT app=pico2_bitcoin_miner board=pico2 package=RP2350A"
            " arch=%s engine=RP2350-SHA256 temperature=disabled"
            " source_id=%s run_id=%08" PRIx32 "-%08" PRIx32
@@ -1649,7 +1687,8 @@ int main(void) {
            " requested_vreg_mv=%u vreg_selector=%u readback_vreg_mv=%" PRIu32
            " unsafe_voltage_limit_disabled=%u pll_vco_hz=%" PRIu32
            " pll_postdiv1=%u pll_postdiv2=%u clk_usb_hz=%" PRIu32
-           " clk_peri_hz=%" PRIu32 " qmi_clkdiv=%" PRIu32
+           " clk_peri_hz=%" PRIu32 " requested_qmi_clkdiv=%u"
+           " qmi_clkdiv=%" PRIu32 " qmi_sck_hz=%" PRIu32
            " sysinfo_package_sel=%" PRIu32 " chip_id=%08" PRIx32
            " silicon_revision=%u\n",
            CPU_ARCH, MINER_SOURCE_ID, chip_id, boot_run_sequence,
@@ -1660,7 +1699,8 @@ int main(void) {
            (unsigned)vreg_readback, vreg_selector_mv(vreg_readback),
            (unsigned)MINER_UNSAFE_VOLTAGE, (uint32_t)pll_vco_hz,
            pll_postdiv1, pll_postdiv2, clock_get_hz(clk_usb),
-           clock_get_hz(clk_peri), qmi_clkdiv, package_sel, chip_id,
+           clock_get_hz(clk_peri), (unsigned)MINER_QMI_CLKDIV, qmi_clkdiv,
+           qmi_sck_hz, package_sel, chip_id,
            rp2350_chip_version());
     if (package_sel != 1u) {
         printf("FAULT type=package_mismatch expected_sysinfo_package_sel=1"

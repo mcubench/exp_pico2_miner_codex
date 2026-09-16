@@ -41,11 +41,13 @@ class ValidationContract:
         expected_source: str | None,
         expected_clock_khz: int | None = None,
         expected_vreg_mv: int | None = None,
+        expected_qmi_clkdiv: int | None = None,
     ):
         self.expected_arch = expected_arch
         self.expected_source = expected_source
         self.expected_clock_khz = expected_clock_khz
         self.expected_vreg_mv = expected_vreg_mv
+        self.expected_qmi_clkdiv = expected_qmi_clkdiv
         self.boot = None
         self.kats = set()
         self.summary = False
@@ -71,7 +73,8 @@ class ValidationContract:
                 "requested_clock_khz", "requested_vreg_mv", "vreg_selector",
                 "readback_vreg_mv", "unsafe_voltage_limit_disabled",
                 "pll_vco_hz", "pll_postdiv1", "pll_postdiv2", "clk_usb_hz",
-                "clk_peri_hz", "qmi_clkdiv",
+                "clk_peri_hz", "requested_qmi_clkdiv", "qmi_clkdiv",
+                "qmi_sck_hz",
             }
             if not required.issubset(data) or not data["run_id"]:
                 return "malformed BOOT identity"
@@ -93,6 +96,8 @@ class ValidationContract:
                 usb_clock = int(data["clk_usb_hz"])
                 peri_clock = int(data["clk_peri_hz"])
                 qmi_clkdiv = int(data["qmi_clkdiv"])
+                requested_qmi_clkdiv = int(data["requested_qmi_clkdiv"])
+                qmi_sck_hz = int(data["qmi_sck_hz"])
             except ValueError:
                 return "malformed BOOT configuration"
             if actual_clock != requested_clock * 1000:
@@ -107,14 +112,23 @@ class ValidationContract:
                 return "invalid PLL configuration"
             if usb_clock != 48_000_000 or peri_clock != 48_000_000:
                 return "USB/peripheral clock is not fixed at 48 MHz"
-            if qmi_clkdiv <= 0:
+            if qmi_clkdiv not in (3, 4, 5):
                 return "invalid QMI clock divider"
+            if qmi_clkdiv != requested_qmi_clkdiv:
+                return "QMI clock divider readback does not match request"
+            if qmi_sck_hz != actual_clock // qmi_clkdiv:
+                return "QMI SCK does not match system clock and divider"
+            if qmi_sck_hz > 130_000_000:
+                return "QMI SCK exceeds campaign limit"
             if (self.expected_clock_khz is not None
                     and requested_clock != self.expected_clock_khz):
                 return f"wrong requested clock {requested_clock} kHz"
             if (self.expected_vreg_mv is not None
                     and requested_vreg != self.expected_vreg_mv):
                 return f"wrong requested regulator {requested_vreg} mV"
+            if (self.expected_qmi_clkdiv is not None
+                    and requested_qmi_clkdiv != self.expected_qmi_clkdiv):
+                return f"wrong requested QMI divider {requested_qmi_clkdiv}"
             self.boot = data
         elif line.startswith("TEST:PASS "):
             if self.boot is None:
@@ -282,6 +296,7 @@ def main() -> int:
     parser.add_argument("--expected-source")
     parser.add_argument("--expected-clock-khz", type=int)
     parser.add_argument("--expected-vreg-mv", type=int)
+    parser.add_argument("--expected-qmi-clkdiv", type=int)
     args = parser.parse_args()
 
     deadline = time.monotonic() + args.seconds
@@ -320,6 +335,7 @@ def main() -> int:
         args.expected_source,
         args.expected_clock_khz,
         args.expected_vreg_mv,
+        args.expected_qmi_clkdiv,
     )
     pending = b""
     try:
