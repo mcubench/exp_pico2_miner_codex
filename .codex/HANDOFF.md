@@ -2,6 +2,15 @@
 
 ## Latest checkpoint — authoritative
 
+- The 420 MHz / 1.30 V / divider-4 point passed all eight suites, the
+  4,096-case oracle, 28 windows, and strict capture with the unsafe unlock
+  disabled. First-seven medians were 1,035,761 aggregate / 947,326 hardware /
+  88,448 software H/s. Log `logs/OC-riscv-v1300-f420000-d4-descend-1.log`
+  has SHA-256
+  `6d0106c6cc3c1d8612d591f9c0520c653a3c2e7e21fb693e6f134a5700fba4df`.
+  Commit this point, then test exact 1.25 V at unchanged 420 MHz/divider 4 to
+  bracket the minimum against the reproduced 1.20 V BOOT_FAIL boundary.
+
 - The 420 MHz / 1.40 V / divider-4 midpoint passed all eight suites, the
   4,096-case oracle, 28 windows, and strict capture. First-seven medians were
   1,035,484 aggregate / 947,033 hardware / 88,466 software H/s, essentially

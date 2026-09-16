@@ -7083,3 +7083,22 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `e0475831666f3223a8aa0896cecb6425dc26ecc96c7fd56d7f4bc9bf78354f08`.
   Continue downward at fixed clock/divider to 1.30 V, the user's suspected
   lower boundary.
+
+### OC-riscv-v1300-f420000-d4-descend-1 — MEASURE_PASS
+
+- The suspected 1.30 V boundary passed at exact 420 MHz / requested and
+  read-back 1,300 mV / divider 4 / 105 MHz QMI. Both architectures built
+  warning-free; ARM/RISC-V UF2 SHA-256 values were
+  `08d587fe427d4394eccf4f481644596824a5c9d03d5529544190fc5e2b80fadc` /
+  `0182d265b35211671f4f5ae9a1d61d5f1efb5a3f91bfdb45d286d2b656dc2954`.
+  BOOT correctly reported the normal SDK voltage range with unsafe unlock
+  disabled.
+- All eight suites, the 4,096-case oracle, standalone benchmarks, 28 complete
+  windows, and strict capture passed. Standalone hardware/full/filter rates
+  were **960,991 / 80,182 / 88,963 H/s**. First-seven progress medians were
+  **1,035,761 aggregate / 947,326 hardware / 88,448 software H/s**. The small
+  +0.027% difference from 1.40 V is measurement noise, not a voltage speedup.
+- Complete log `logs/OC-riscv-v1300-f420000-d4-descend-1.log`, SHA-256
+  `6d0106c6cc3c1d8612d591f9c0520c653a3c2e7e21fb693e6f134a5700fba4df`.
+  Probe 1.25 V next to bracket the minimum against the reproduced 1.20 V
+  BOOT_FAIL boundary.
