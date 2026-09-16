@@ -77,6 +77,14 @@ changes and keep temperature disabled.
   105. The exact filter improved 4.796% to 31,685 H/s. Complete log:
   `logs/B1-rotated-filter-riscv.log`. The board runs retained candidate 109
   Hazard3; ARM remains candidate 105 code apart from firmware identity.
+- Candidate 110 B1 ARM rotated-role preflight is rejected without flashing.
+  Although both builds and all host tests passed, the ARM exact-filter helper
+  grew from 1,712 to 2,256 bytes (+31.8%), total text grew 552 bytes, and its
+  56-byte frame did not improve. Hazard3 stayed unchanged. ARM has been
+  restored to the compact candidate-109 architecture split. Both clean builds,
+  all eight host tests, helper sizes, text/BSS, and UF2 hashes exactly match
+  retained candidate 109. Commit the rejection/restoration evidence, then
+  proceed to B2.
 
 ## Completed work in this session
 
@@ -136,6 +144,11 @@ test a separately bounded ARM rotated-role four-round exact-filter shape only
 if static disassembly reduces moves/instructions without frame/spill growth;
 otherwise reject it build-only and proceed to B2's single four-word
 schedule/round interleave. Keep Hazard3's retained B1 path unchanged.
+Candidate 110's ARM rotated-round preflight failed its static gate and was not
+flashed. Source and both rebuilt artifacts are exact retained candidate-109
+matches. Commit the build-only rejection/restoration evidence, then begin one bounded B2 four-word
+schedule/round interleave experiment only if disassembly identifies a concrete
+reload reduction. Keep Hazard3's retained B1 path unchanged.
 
 Candidate 104 commit `6dc1941`, identity `638fe640df92`, passed correctness but
 is rejected. ARM worker-in-main-SRAM measured 358,620 aggregate / 327,806

@@ -5933,3 +5933,50 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   factor-4 worker. The board is left running retained candidate 109 Hazard3.
   Continue with B1 on ARM only as a separately bounded static experiment, then
   B2 if its linked code exposes a concrete reload reduction.
+
+## 2026-09-16 — Candidate 110: B1 ARM rotated-role filter rounds
+
+- Parent is retained candidate 109. Extend the already validated rotated-role
+  four-round macros only to ARM's exact second-hash high-word filter; preserve
+  Hazard3's retained candidate-109 expansion and every other helper/path.
+- ARM baseline uses a 56-byte total saved-register/local frame and a 44-round
+  loop whose emitted body contains state moves and stack spill/reload traffic.
+  Express rounds 16-59 as five pairs of rotated four-round groups plus one
+  final four-round group, with the same explicit terminal role mapping already
+  validated on Hazard3.
+- Static rejection gates: both builds and host tests pass; Hazard3's filter
+  frame and repeated body remain unchanged; ARM must reduce state moves or
+  round-region instructions without increasing its frame or stack traffic, and
+  text growth must remain bounded. An unchanged or statically worse ARM image
+  is a build-only rejection and must not be flashed.
+- If static gates pass, run ARM only at stock 150 MHz with temperature disabled
+  and compare its isolated filter, software worker, hardware worker, and
+  aggregate against retained candidate 105/109 ARM (31,578 filter, 31,430
+  software, 328,912 hardware, 360,342 aggregate H/s).
+
+### B1 ARM rotated-role preflight 110a — static reject, no flash
+
+- Both architecture builds and all eight host monitor tests passed for the
+  trial. The dirty ARM/RISC-V UF2 SHA-256 values were
+  `f3c94b361d6c5148540b0b3663bd346ab825dbc6c4737beb0fde8539cb1160fd`
+  and
+  `46c1978071cf21c899a39e475a19790b44a80c215e48a74f3303c80532e071b1`.
+- ARM text grew from 189,504 to **190,056 bytes (+552)**. Its exact-filter
+  helper grew from 1,712 to **2,256 bytes (+544, +31.8%)**, while its total
+  saved-register/local frame remained **56 bytes**. The expanded round region
+  therefore failed the required instruction/code-size improvement and did not
+  reduce frame pressure.
+- Hazard3 remained at 201,692 text bytes and preserved its 288-byte exact-filter
+  frame and retained candidate-109 rotated loop shape.
+- **Decision: reject candidate 110 without flashing.** Restore ARM to its
+  compact pointer-style filter while retaining candidate 109 on Hazard3. B1 is
+  now closed independently for both architectures: retained on Hazard3 and
+  rejected on ARM. Continue to B2 only if a single bounded four-word
+  schedule/round interleave has a concrete static reload-reduction target.
+- Restoration is byte-exact to retained candidate 109: source identity
+  `525dd4932d37`; ARM/RISC-V text and BSS 189,504/4,708 and 201,692/4,440;
+  helper sizes 1,712/3,430 bytes; and UF2 SHA-256
+  `81dde72e8cd7be15e26a9b436ebcb38310170e4a1c29fdd44fdc33f321ad9f3b` /
+  `8bad952bd188e6e35a0a33b677690802e782be8a97f5163c30334ed022d18612`.
+  Both wrapper builds and all eight host tests pass. No restoration flash is
+  needed; the board remains on retained candidate 109 Hazard3.
