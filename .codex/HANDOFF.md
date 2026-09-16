@@ -2,6 +2,14 @@
 
 ## Latest checkpoint — authoritative
 
+- Stock recovery 24 after the first 1.25 V failure passed all eight suites,
+  the 4,096-case oracle, nine windows, and strict capture. First-seven medians
+  were 369,939 aggregate / 338,344 hardware / 31,596 software H/s. Log
+  `logs/OC-riscv-v1100-f150000-d3-recovery-24.log` has SHA-256
+  `675e6de11b5b4e46659eb98758451af98b06e4d6be9696407cb588b688173846`.
+  Commit this recovery, then retry the byte-identical 420 MHz / 1.25 V /
+  divider-4 image. A matching failure closes the minimum selector at 1.30 V.
+
 - First 420 MHz / 1.25 V / divider-4 attempt built both architectures and
   flash-verified, but runtime USB never appeared. No Pico USB device remains;
   classify as **BOOT_FAIL**. Empty log

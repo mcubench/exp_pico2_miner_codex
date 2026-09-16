@@ -7118,3 +7118,19 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   This first failure provisionally brackets the transition between 1.25 V and
   the clean 1.30 V pass, but it must be reproduced after stock recovery before
   declaring 1.30 V the minimum requested selector.
+
+### OC-riscv-v1100-f150000-d3-recovery-24 — MEASURE_PASS
+
+- Physical BOOTSEL recovery after the first 1.25 V failure passed completely.
+  Both architectures built warning-free; ARM/RISC-V recovery UF2 hashes were
+  the committed stock values
+  `573db5ece266e57203e9282e785147667082500cf825685c84673f49b35591b7` /
+  `1ff0cb440299c3d450ee6a03219323bb780ced1e99019c97a340c1a40ca1890b`.
+- Run `30004927-00000001` reported exact 150 MHz / 1,100 mV / divider 3 /
+  50 MHz QMI. All eight suites, the 4,096-case oracle, standalone benchmarks,
+  nine windows, and strict capture passed. Standalone hardware/full/filter
+  rates were **343,205 / 28,636 / 31,772 H/s**; first-seven progress medians
+  were **369,939 aggregate / 338,344 hardware / 31,596 software H/s**.
+- Complete log `logs/OC-riscv-v1100-f150000-d3-recovery-24.log`, SHA-256
+  `675e6de11b5b4e46659eb98758451af98b06e4d6be9696407cb588b688173846`.
+  Recovery is validated; retry 420 MHz / 1.25 V / divider 4 identically.
