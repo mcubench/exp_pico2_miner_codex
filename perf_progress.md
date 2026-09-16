@@ -6318,3 +6318,21 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   Recovery is validated and the identical 348 MHz/1.10 V retry is permitted.
   Complete log `logs/OC-riscv-v1100-f150000-recovery-2.log`, SHA-256
   `a21c8fd4ff9fa8b326b4115bf09f5cb35034079f50578e11ad50c8aa7dea618a`.
+
+### OC-riscv-v1100-f348000-screen-2 — BOOT_FAIL, reproduced
+
+- After validated stock recovery, the identical 348 MHz/1.10 V point was
+  rebuilt for both ISAs. Both builds passed warning-free and exactly reproduced
+  attempt 1's ARM/RISC-V UF2 hashes:
+  `91e6a4fbd1621b46fe804134696f42bb87cb0108cc76e00b395183df98eacad5` /
+  `72c6dd6c7afa503fdc59a0e27fd53ad755e218ab48e773734bdb1f023114cc73`.
+- Hazard3 flash and verification again passed, but runtime USB did not appear
+  during the 50-second strict capture. The bounded post-failure check found no
+  Raspberry Pi USB device and no `/dev/ttyACM*`; no BOOT, KAT, benchmark, or
+  mining record exists. Classification is **BOOT_FAIL**.
+- This second identical failure establishes 348 MHz/1.10 V as a reproducible
+  failing lower-voltage bound. Following the adaptive algorithm's initial
+  two-selector jump, recover and validate stock again, then test the same
+  348 MHz clock at 1.20 V. Do not increase clock at the same time. Failure log
+  `logs/OC-riscv-v1100-f348000-boot-fail-2.log`, SHA-256
+  `96e62e1a7b54178ec9f9064a2337b17eb4fc20f65c599d71eac90e9f734e8e59`.
