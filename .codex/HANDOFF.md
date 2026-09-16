@@ -59,6 +59,9 @@ changes and keep temperature disabled.
 - Candidate 108 requests 32-byte ARM worker alignment. Dirty preflight passes:
   entry `0x100003e0`, unchanged 1,452-byte body/156-byte frame, +32 ARM text
   bytes, and exact retained Hazard3 size/path.
+- Candidate 108 is rejected: 360,301 aggregate / 328,864 hardware H/s,
+  -0.011%/-0.015% versus candidate 105. With candidate 107 also neutral/slightly
+  negative, A3 is closed without a 64-byte run. Board runs rejected 108 ARM.
 
 ## Completed work in this session
 
@@ -109,10 +112,10 @@ work was requested for the planning update. Do not repeat main-SRAM hardware-
 worker placement, software batch factor 8, scratch-X filter placement, E08 queue
 polling at 1 or 64 hashes, or rejected E14 chunk variants unchanged.
 
-Candidate 108 A3-32 is implemented and passes dirty preflight. Commit it,
-clean-rebuild both architectures, then run a strict ARM cycle against unaligned
-candidate 105's 360,342 aggregate / 328,912 hardware H/s. Reject regression or
-neutrality. The board currently runs rejected candidate 107 ARM.
+Candidate 108 A3-32 is rejected and A3 is closed after two neutral/slightly
+negative placements. Archive/commit its evidence, remove the alignment macro
+entirely to restore candidate 105, commit, rebuild both architectures, and
+require exact candidate-105 UF2 hashes. The board runs rejected candidate 108.
 
 Candidate 104 commit `6dc1941`, identity `638fe640df92`, passed correctness but
 is rejected. ARM worker-in-main-SRAM measured 358,620 aggregate / 327,806
