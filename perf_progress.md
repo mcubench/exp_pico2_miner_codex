@@ -6299,3 +6299,22 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   identical 348 MHz/1.10 V point be retried once.
 - Failure record `logs/OC-riscv-v1100-f348000-boot-fail-1.log`, SHA-256
   `b97e4d2f773aaa40c1c375a3a3cca498be55bbeb046990a27efa2264cb87b6b0`.
+
+### OC-riscv-v1100-f150000-recovery-2 — MEASURE_PASS
+
+- After the physical BOOTSEL reconnect, both stock 150 MHz/1.10 V architecture
+  builds passed warning-free and exactly matched the archived recovery images:
+  ARM `03023e4d2274144c419480c7a7893912c4754beb8c073f26e3884a184dbe55a6`
+  and Hazard3
+  `ccb0523e5e127cbe7b98dbbe1e6f3a8578690b37d90664a214e367c274bc3c1e`.
+- Hazard3 recovery run `30004927-00000003` passed BOOT identity, all eight
+  device suites, the 4,096-case oracle, 13 decision-path cases, standalone
+  benchmarks, nine synchronized windows, and strict capture. Requested/read-
+  back VREG is 1,100/1,100 mV, actual clock is 150 MHz, unsafe flag is 0,
+  PLL is 1.5 GHz with post-dividers 5/2, and USB/peripheral clocks are 48 MHz.
+- Standalone hardware/full/filter rates are **343,991 / 28,430 / 31,685
+  H/s**. First-seven medians are **369,845 aggregate / 338,328 hardware /
+  31,517 software H/s**, exactly matching the fresh pre-failure stock control.
+  Recovery is validated and the identical 348 MHz/1.10 V retry is permitted.
+  Complete log `logs/OC-riscv-v1100-f150000-recovery-2.log`, SHA-256
+  `a21c8fd4ff9fa8b326b4115bf09f5cb35034079f50578e11ad50c8aa7dea618a`.

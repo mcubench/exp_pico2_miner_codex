@@ -22,6 +22,12 @@
   automatic recovery is exhausted. Failure is logged as BOOT_FAIL, not yet a
   voltage boundary. After physical BOOTSEL reconnect, flash the archived stock
   Hazard3 recovery image and validate it, then retry identical 348/1.10 once.
+- Physical BOOTSEL recovery succeeded. Both stock builds exactly match the
+  archived recovery UF2s, and Hazard3 recovery run `30004927-00000003` passed
+  all correctness gates plus nine windows at 369,845 aggregate / 338,328
+  hardware / 31,517 software H/s. Its archived log is
+  `logs/OC-riscv-v1100-f150000-recovery-2.log` (SHA-256 `a21c8fd...618a`).
+  Commit this recovery evidence, then retry identical 348/1.10.
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both
