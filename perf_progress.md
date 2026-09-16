@@ -5569,3 +5569,31 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `89bb40bd263caf6bc78709d54c186ddb08902456542f8369d7d78f837af2cbc4` /
   `c4cb72e1de12c321803048a7efd4ea7a3a1dcacba95f87f217a0286f9552c083`.
   Commit and clean-rebuild before the ARM hardware comparison.
+
+### E07 ARM hardware-worker SRAM attempt 104a — pass correctness, reject
+
+- Candidate commit `6dc1941`, source identity `638fe640df92`, normal profile,
+  stock 150 MHz, temperature disabled, run ID `30004927-0000001d`. The cycle
+  rebuilt both architectures before flashing ARM. All 8 suites, the 4,096-case
+  oracle, standalone benchmarks, nine common windows, and strict capture
+  passed without a fault.
+- Standalone hardware/full/filter rates were **331,082 / 30,364 / 31,578
+  H/s**. First-seven window medians were aggregate **358,620 H/s** (range
+  358,619–358,624), hardware **327,806 H/s** (327,805–327,808), and software
+  **30,815 H/s** (30,814–30,818).
+- Versus retained candidate 103, aggregate is **-938 H/s (-0.261%)**,
+  hardware **-316 H/s (-0.096%)**, and software **-620 H/s (-1.972%)**.
+  Moving the hardware owner into the same main-SRAM region as the retained
+  software SHA helpers creates enough inter-core SRAM contention to regress
+  both components, especially the software worker; any XIP-fetch benefit is
+  more than cancelled.
+- Clean candidate ARM/RISC-V UF2 SHA-256 values are
+  `97d8974aa757ef2e47c5519df48a19a4949b88825aa8792dd070064ef8fb4236` /
+  `d48e79553f48ecea0b3b9eb30f28183be2fe723e037274f7b6a86f8ad0630b77`.
+  Complete ARM log SHA-256 is
+  `6f79f3f1d84fc76197c1f6dadb342b63177686b4c11f8194936567c9f633cd49`;
+  archived as `logs/E07-hardware-worker-sram-arm.log`.
+- **Decision: reject candidate 104.** Restore only the conditional worker
+  placement so ARM factor 4 executes from XIP again; rebuild both ISAs and
+  require exact candidate-103 UF2 hashes. Do not repeat normal main-SRAM
+  placement of the current hardware worker unchanged.
