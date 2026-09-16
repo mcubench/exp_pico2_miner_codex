@@ -6972,3 +6972,20 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   failure. Physically recover and validate stock, then retry the identical
   point once. If it fails again, run the planned 396 MHz/1.20 V/divider-4
   diagnostic before changing voltage.
+
+### OC-riscv-v1100-f150000-d3-recovery-21 — MEASURE_PASS
+
+- Physical BOOTSEL recovery after the first 420 MHz/divider-4 failure passed
+  a complete stock control. Both architectures built warning-free; the
+  Hazard3 image flashed and verified with the committed recovery artifact
+  hashes ARM/RISC-V `573db5ece266e57203e9282e785147667082500cf825685c84673f49b35591b7` /
+  `1ff0cb440299c3d450ee6a03219323bb780ced1e99019c97a340c1a40ca1890b`.
+- Run `30004927-00000001` reported exact 150 MHz / 1,100 mV / divider 3 and
+  50 MHz QMI SCK. All eight suites, the 4,096-case oracle, standalone
+  benchmarks, nine complete windows, and the strict capture passed.
+  Standalone hardware/full/filter rates were **343,196 / 28,636 / 31,772
+  H/s**; first-seven progress medians were **369,936 aggregate / 338,343
+  hardware / 31,596 software H/s**.
+- Complete log `logs/OC-riscv-v1100-f150000-d3-recovery-21.log`, SHA-256
+  `476d2d4978bd4eddcf7b720ac7364ec4d691c6c5a93bdf3d44021abead5d2f09`.
+  Recovery is validated; retry 420 MHz / 1.20 V / divider 4 identically.

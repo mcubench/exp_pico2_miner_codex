@@ -2,6 +2,17 @@
 
 ## Latest checkpoint — authoritative
 
+- Stock recovery 21 after the first 420 MHz / 1.20 V / divider-4 failure is
+  complete. Exact 150 MHz / 1.10 V / divider 3 (50 MHz QMI) passed all eight
+  suites, the 4,096-case oracle, nine windows, and strict capture. First-seven
+  medians were 369,936 aggregate / 338,343 hardware / 31,596 software H/s.
+  Log `logs/OC-riscv-v1100-f150000-d3-recovery-21.log` has SHA-256
+  `476d2d4978bd4eddcf7b720ac7364ec4d691c6c5a93bdf3d44021abead5d2f09`.
+  Commit this recovery evidence, then retry the byte-identical 420 MHz /
+  1.20 V / divider-4 point. If the retry also BOOT_FAILs, physically recover,
+  validate stock, then diagnose 396 MHz / 1.20 V / divider 4 before changing
+  voltage.
+
 - First 420 MHz / 1.20 V / divider-4 Hazard3 attempt built both architectures
   and flashed/verified, but runtime USB never appeared. Classification is
   **BOOT_FAIL** with empty log
