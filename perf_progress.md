@@ -6911,3 +6911,18 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
   This is one failure only. Physically recover and validate stock, then retry
   408 MHz / 1.60 V identically before changing the frequency boundary.
+
+### OC-riscv-v1100-f150000-recovery-20 — MEASURE_PASS
+
+- Physical BOOTSEL recovery after the first 408 MHz failure produced a complete
+  verified stock flash. Both architecture builds passed warning-free; Hazard3
+  run `30004927-00000001` passed exact identity, all eight correctness suites,
+  standalone benchmarks, ten complete windows, and strict capture.
+- Standalone hardware/full/filter rates were **343,988 / 28,430 / 31,685
+  H/s**. First-seven window medians were **369,845 aggregate / 338,328
+  hardware / 31,517 software H/s**, matching the retained stock baseline.
+- Complete log `logs/OC-riscv-v1100-f150000-recovery-20.log`, SHA-256
+  `28ea7f8c941170cd0f9bcc702a03bcf393049467b15699ce719f12341a867786`.
+  Stock ARM/RISC-V UF2 SHA-256 values were `03023e4d2274144c419480c7a7893912c4754beb8c073f26e3884a184dbe55a6` /
+  `ccb0523e5e127cbe7b98dbbe1e6f3a8578690b37d90664a214e367c274bc3c1e`.
+  Recovery is validated; retry 408 MHz / 1.60 V identically.

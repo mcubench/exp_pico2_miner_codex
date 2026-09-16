@@ -2,6 +2,13 @@
 
 ## Latest checkpoint — authoritative
 
+- Physical BOOTSEL recovery after 408 MHz attempt 1 passed stock validation.
+  Recovery 20 passed all correctness gates and ten complete windows, with
+  first-seven medians 369,845 aggregate / 338,328 hardware / 31,517 software
+  H/s. Log `logs/OC-riscv-v1100-f150000-recovery-20.log` has SHA-256
+  `28ea7f8c941170cd0f9bcc702a03bcf393049467b15699ce719f12341a867786`.
+  Retry the identical 408 MHz / 1.60 V Hazard3 point now.
+
 - The first 408 MHz / 1.60 V Hazard3 bisection image built both architectures
   warning-free and flashed/verified, but runtime USB never reappeared during
   the 50-second strict capture. No Pico USB device or serial node remains.
