@@ -2,6 +2,13 @@
 
 ## Latest checkpoint — authoritative
 
+- Phase-1 point 468 MHz / 1.60 V / divider 4 passed all gates and strict
+  capture. First-seven medians were 1,153,797 aggregate / 1,055,253 hardware /
+  98,545 software H/s (2,465.38 H/s/MHz). Log
+  `logs/OC-riscv-v1600-f468000-d4-phase1-1.log` has SHA-256
+  `d9ed320b1380349049d960c1d44595b839ec3e6fec90ad2ee400a361ebc4088d`.
+  Return to stock and validate recovery before 516 MHz / divider 4 / 1.60 V.
+
 - User revised the objective to maximize Hazard3 hashrate using a one-variable
   upward clock walk at fixed 1.60 V, auto-selecting the smallest QMI divider
   with SCK <=120 MHz. SCREEN mode is not implemented; strict monitor remains

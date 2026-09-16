@@ -7277,3 +7277,14 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Log `logs/OC-riscv-v1100-f150000-d3-recovery-31.log`, SHA-256
   `ebfe5b7d44d9da77b593ab7b1046a2d54ae70bd674705f1601ca9934187b49f3`.
   The revised campaign now starts Phase 1 at 468 MHz / 1.60 V / divider 4.
+### OC-riscv-v1600-f468000-d4-phase1-1 — MEASURE_PASS
+
+- First revised Phase-1 point at 468 MHz / 1.60 V / divider 4 passed exact
+  BOOT identity (117 MHz QMI SCK), all eight suites, the full 4,096-case
+  oracle, 13 decision paths, and strict capture.
+- First-seven medians were **1,153,797 aggregate / 1,055,253 hardware /
+  98,545 software H/s**, or **2,465.38 H/s/MHz**, consistent with the measured
+  2,465.5 slope. Log `logs/OC-riscv-v1600-f468000-d4-phase1-1.log`, SHA-256
+  `d9ed320b1380349049d960c1d44595b839ec3e6fec90ad2ee400a361ebc4088d`.
+  Return to stock and validate recovery before the next step, 516 MHz /
+  divider 4 at 1.60 V.
