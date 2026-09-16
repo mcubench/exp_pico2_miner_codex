@@ -5902,3 +5902,34 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   byte-identical final code and was removed. The common repeated region has a
   clear instruction/state-move improvement and the 0.38% text growth is
   bounded, so retain this candidate for correctness and throughput testing.
+
+### B1 Hazard3 rotated-role filter attempt 109a — pass, retain
+
+- Candidate commit `71e9c28`, source identity `525dd4932d37`, normal profile,
+  stock 150 MHz, temperature disabled, run ID `30004927-00000023`. Both clean
+  architectures built before flashing Hazard3, and all eight host monitor
+  tests passed. On device, all 8 suites, the 4,096-case oracle, standalone
+  benchmarks, nine common windows, and strict 50-second capture passed without
+  a fault.
+- Standalone hardware/full/filter rates were **344,776 / 28,430 / 31,685
+  H/s**. First-seven window medians were aggregate **369,894 H/s** (range
+  369,890-369,896), hardware **338,379 H/s** (338,375-338,382), and software
+  **31,515 H/s** (31,514-31,519).
+- Versus retained candidate 105 Hazard3, aggregate is **+1,517 H/s (+0.412%)**,
+  hardware **+80 H/s (+0.024%)**, and software **+1,436 H/s (+4.774%)**.
+  The isolated exact filter rises from 30,235 to 31,685 H/s, **+1,450 H/s
+  (+4.796%)**. The rare full-digest benchmark is about 0.72% slower, but the
+  measured mining path gains consistently and every exact candidate/fallback
+  correctness case passes.
+- Clean ARM/RISC-V text/BSS is 189,504/4,708 and 201,692/4,440 bytes. UF2
+  SHA-256 values are
+  `81dde72e8cd7be15e26a9b436ebcb38310170e4a1c29fdd44fdc33f321ad9f3b` /
+  `8bad952bd188e6e35a0a33b677690802e782be8a97f5163c30334ed022d18612`.
+  Complete RISC-V log SHA-256 is
+  `ffadd7aff5414d19709335eb0f5088a9f3719805356a55ef453bba3aba47cb05`;
+  archived as `logs/B1-rotated-filter-riscv.log`.
+- **Decision: retain candidate 109.** Hazard3 uses the rotated-role exact
+  filter; ARM remains on candidate 105's unchanged filter and retained A1
+  factor-4 worker. The board is left running retained candidate 109 Hazard3.
+  Continue with B1 on ARM only as a separately bounded static experiment, then
+  B2 if its linked code exposes a concrete reload reduction.

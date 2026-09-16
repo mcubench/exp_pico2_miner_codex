@@ -71,6 +71,12 @@ changes and keep temperature disabled.
   from the repeated eight-round body (211 instructions total), keep its frame
   at 288 bytes, and add 768 total text bytes. Both dirty builds and all 8 host
   tests pass; commit and clean-build before any Hazard3 flash.
+- Candidate 109 commit `71e9c28`, identity `525dd4932d37`, is now retained.
+  Hazard3 attempt 109a passed all gates at 369,894 aggregate / 338,379 hardware
+  / 31,515 software H/s: +0.412% aggregate and +4.774% software over candidate
+  105. The exact filter improved 4.796% to 31,685 H/s. Complete log:
+  `logs/B1-rotated-filter-riscv.log`. The board runs retained candidate 109
+  Hazard3; ARM remains candidate 105 code apart from firmware identity.
 
 ## Completed work in this session
 
@@ -124,12 +130,12 @@ polling at 1 or 64 hashes, or rejected E14 chunk variants unchanged.
 Candidate 108 rejection evidence is committed in `eec17b6`; A3 is closed.
 Restoration commit `70c31a0` has been clean-built and verified byte-exact to
 retained candidate 105 on both architectures, with all host tests passing.
-Candidate 109 implements B1 only on Hazard3. Dirty preflight passes both builds
-and all host tests; its repeated round body has no state-rotation moves and its
-frame is unchanged, at a bounded +768 text-byte cost. Commit the candidate,
-clean-build both architectures, recheck the linked shape, then run the strict
-Hazard3 cycle if the evidence remains exact. The board still runs rejected
-candidate 108 ARM.
+Candidate 109 B1 is hardware-validated and retained on Hazard3. Record/commit
+attempt 109a and its archived log. Next follow `planned_optimizations_update2`:
+test a separately bounded ARM rotated-role four-round exact-filter shape only
+if static disassembly reduces moves/instructions without frame/spill growth;
+otherwise reject it build-only and proceed to B2's single four-word
+schedule/round interleave. Keep Hazard3's retained B1 path unchanged.
 
 Candidate 104 commit `6dc1941`, identity `638fe640df92`, passed correctness but
 is rejected. ARM worker-in-main-SRAM measured 358,620 aggregate / 327,806
