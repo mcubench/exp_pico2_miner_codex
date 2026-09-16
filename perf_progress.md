@@ -5790,3 +5790,27 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `3dcc5fa4ed0fd2015ef02ea68004ce33bf1ebf012f45e636553cbdc96167707a` /
   `ba0254b08c5fd15e8a353aa716e251776459ac29f2d03dc64798d535ea55f928`.
   Commit and clean-rebuild both architectures before the ARM hardware run.
+
+### A3 ARM worker 16-byte alignment attempt 107a — pass correctness, reject
+
+- Candidate commit `1e509af`, source identity `5523959a39f6`, normal profile,
+  stock 150 MHz, temperature disabled, run ID `30004927-00000020`. Both
+  architectures rebuilt before flashing ARM. All 8 suites, the 4,096-case
+  oracle, standalone benchmarks, nine common windows, and strict capture passed.
+- Standalone hardware/full/filter rates were **331,084 / 30,364 / 31,578
+  H/s**. First-seven window medians were aggregate **360,299 H/s** (range
+  360,297-360,301), hardware **328,863 H/s** (328,858-328,865), and software
+  **31,436 H/s** (31,436-31,440).
+- Versus retained unaligned candidate 105, aggregate is **-43 H/s (-0.012%)**,
+  hardware **-49 H/s (-0.015%)**, and software **+6 H/s (+0.019%)**. This is
+  neutral to slightly negative and does not justify a fragile linked placement.
+- Clean ARM/RISC-V UF2 SHA-256 values are
+  `90f835cedd1fb7039d4259b91bb665656536297887cdb5820858882f4c20132a` /
+  `43c3e11d919c105526995f28e89e5474713b63d3a74779ac3bec46d0f2550a37`.
+  Clean text/BSS is **189,512/4,708** ARM and **200,924/4,440** Hazard3.
+  Complete ARM log SHA-256 is
+  `0307a05addc68263807d8c6e7fa1a14ef242ddbe94e6aded09e7af43ad9466ab`;
+  archived as `logs/A3-align16-arm.log`.
+- **Decision: reject candidate 107.** Do not retain 16-byte worker alignment.
+  Test 32 bytes only as a separate placement; do not infer its result from this
+  nonlinear layout experiment and do not combine boundaries.

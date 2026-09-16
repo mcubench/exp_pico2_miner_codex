@@ -53,6 +53,9 @@ changes and keep temperature disabled.
 - Candidate 107 A3 requests 16-byte alignment for the ARM worker only. Dirty
   preflight passes: entry moves `0x100003c4` to `0x100003d0`, body/frame remain
   1,452/156 bytes, ARM text adds 16 bytes, and Hazard3 remains exact.
+- Candidate 107 is rejected after passing correctness: 360,299 aggregate /
+  328,863 hardware H/s, -0.012%/-0.015% versus candidate 105. The board runs
+  rejected candidate 107 ARM.
 
 ## Completed work in this session
 
@@ -103,11 +106,10 @@ work was requested for the planning update. Do not repeat main-SRAM hardware-
 worker placement, software batch factor 8, scratch-X filter placement, E08 queue
 polling at 1 or 64 hashes, or rejected E14 chunk variants unchanged.
 
-Candidate 107 A3-16 is implemented and passes dirty preflight. Commit it,
-clean-rebuild both architectures, and run a strict ARM cycle against candidate
-105's 360,342 aggregate / 328,912 hardware H/s. Reject regression or neutrality
-that does not justify fragile layout padding. Do not use broad label alignment.
-The board currently runs rejected candidate 106 ARM until the next flash.
+Candidate 107 A3-16 is rejected. Archive/commit its log and evidence, then test
+32-byte ARM worker alignment as a separate A3 candidate against unaligned
+candidate 105. Inspect the exact address/body/frame/padding before flashing; do
+not use broad label alignment. The board currently runs rejected candidate 107.
 
 Candidate 104 commit `6dc1941`, identity `638fe640df92`, passed correctness but
 is rejected. ARM worker-in-main-SRAM measured 358,620 aggregate / 327,806
