@@ -2,6 +2,13 @@
 
 ## Latest checkpoint — authoritative
 
+- Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
+  is planning-only; no voltage, clock, firmware, or device state was changed.
+  The plan adaptively traces the minimum-voltage stability frontier for both
+  architectures instead of sweeping a full grid, with hard campaign caps of
+  570 MHz and requested 1.60 V. On resume, implement its Phase 0 measurement,
+  PLL-catalog, identity, and recovery infrastructure as one isolated commit
+  before any overclock flash.
 - Pause checkpoint after completing candidate 114 (D1 two-phase odd-tail
   takeover). Candidate source commit `b54dd2d`, identity `0a0357882807`, is
   **retained**. Evidence is being committed with this handoff.
