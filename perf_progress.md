@@ -5597,3 +5597,17 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   placement so ARM factor 4 executes from XIP again; rebuild both ISAs and
   require exact candidate-103 UF2 hashes. Do not repeat normal main-SRAM
   placement of the current hardware worker unchanged.
+
+### E07 hardware-worker XIP restoration after candidate 104
+
+- Focused restoration commit `093a1c2` removes only candidate 104's
+  architecture-specific function-placement macro and returns ARM's factor-4
+  worker to XIP. Firmware source is exactly retained candidate 103 at source
+  identity `104da455bdbb`.
+- Both stock builds pass warning-free and all eight host monitor tests pass.
+  ARM/RISC-V UF2 SHA-256 values exactly match retained candidate 103:
+  `fae22274b14d9fb3857267266635f531f05fd6ba5bf369eb780bc9f0b3c4e67b` /
+  `fc1f13304fca8b2ec620a38115f02c7c51627f1051391a35a23eb19c3b506693`.
+  Existing candidate-103 ARM and candidate-102 Hazard3 hardware evidence
+  therefore remains valid; no redundant restoration run is claimed. The board
+  still carries rejected candidate 104 ARM until the next accepted flash.

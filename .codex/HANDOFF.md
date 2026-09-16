@@ -13,7 +13,8 @@ changes and keep temperature disabled.
 - Retained candidate 103 source commit is `b2b8dfb`, source identity
   `104da455bdbb`: ARM uses hardware-worker batch factor 4 and Hazard3 factor 1.
 - The Pico is accessible when hardware commands run outside the filesystem
-  sandbox. It currently runs accepted candidate 103 ARM at stock 150 MHz.
+  sandbox. It currently runs rejected candidate 104 ARM at stock 150 MHz;
+  working source/build artifacts are restored to accepted candidate 103.
 - E06-trigger is retained on Hazard3. Attempt 86b passed all gates with a
   seven-window median of 368,130 H/s aggregate and 338,274 H/s hardware,
   +0.42%/+0.45% over immediate control 85e. ARM keeps its CPU feeder.
@@ -79,14 +80,12 @@ changes and keep temperature disabled.
 
 ## Work in progress / next actions
 
-Current continuation point: candidate 103 ARM factor 4 passed all hardware
-gates, is retained, and its evidence is committed at `6268865`. The planned
-factor 1/2/4 comparison is complete. Candidate 104 is a bounded ARM-only E07
-placement test: move the approximately 2.2 KiB factor-4 hardware worker from
-XIP to ordinary main SRAM, leaving Hazard3 and both scratch stacks untouched.
-Its hypothesis, resource/contention risk, and rejection rule are in the ledger.
-Do not repeat software batch factor 8, scratch-X filter placement, E08 queue
-polling at 1 or 64 hashes, or the rejected E14 chunk variants unchanged.
+Current continuation point: candidate 104 is rejected and focused restoration
+commit `093a1c2` returns source to retained candidate 103. Both builds, 8 host
+tests, and exact candidate-103 UF2 hashes pass. Record/commit this restoration
+evidence, then select the next bounded plan item. Do not repeat main-SRAM
+hardware-worker placement, software batch factor 8, scratch-X filter placement,
+E08 queue polling at 1 or 64 hashes, or rejected E14 chunk variants unchanged.
 
 Candidate 104 commit `6dc1941`, identity `638fe640df92`, passed correctness but
 is rejected. ARM worker-in-main-SRAM measured 358,620 aggregate / 327,806
@@ -95,8 +94,10 @@ Inter-core SRAM contention outweighs XIP relief. Archive
 `logs/E07-hardware-worker-sram-arm.log`; commit the evidence, restore only the
 worker placement to XIP, rebuild both, and require candidate-103 UF2 hashes.
 
-The focused candidate-104 inverse patch is applied. Commit this restoration,
-then rebuild both and require ARM `fae222...e67b` and RISC-V `fc1f13...6693`.
+The candidate-104 restoration is complete: source identity `104da455bdbb`,
+both builds and 8 host tests pass, and ARM `fae222...e67b` / RISC-V
+`fc1f13...6693` exactly match retained candidate 103 artifacts. Commit the
+restoration evidence. Board still carries rejected candidate 104 ARM.
 
 Candidate 103 commit `b2b8dfb`, identity `104da455bdbb`, passed ARM hardware:
 359,558 aggregate / 328,122 hardware / 31,435 software H/s, +0.532%/+0.582%
