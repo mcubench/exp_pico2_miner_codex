@@ -76,12 +76,19 @@ changes and keep temperature disabled.
 ## Work in progress / next actions
 
 Current continuation point: candidate 102 final split is paired-hardware
-validated and retained; record/commit its evidence. The next bounded E04-c
-experiment may compare ARM factor 4 against retained factor 2 while leaving
-Hazard3 factor 1 unchanged, but only after defining the removable branch cost,
-expected code-growth/fetch risk, parent hashes, and rejection rule. Do not
-repeat software batch factor 8, scratch-X filter placement, E08 queue polling
-at 1 or 64 hashes, or the rejected E14 chunk variants unchanged.
+validated, retained, and its evidence committed at `31f6e92`. Candidate 103 is
+the ARM-only E04-c factor-4 comparison against retained factor 2, leaving
+Hazard3 factor 1. Its removable branch cost, expected code-growth/fetch risk,
+parent identity, and rejection rule are recorded in the ledger. Build both,
+inspect the final body count/size/spills, and reject without hardware if the
+intended shape is not emitted. Do not repeat software batch factor 8,
+scratch-X filter placement, E08 queue polling at 1 or 64 hashes, or the
+rejected E14 chunk variants unchanged.
+
+Candidate 103 dirty preflight passes: both builds are warning-free, 8 host
+tests pass, ARM emits four bodies without an inner back-edge at 190,128/4,708
+text/BSS (+936 text, unchanged 188-byte worker frame), and Hazard3 remains
+factor 1 at 200,924/4,440. Commit, clean-rebuild, then run ARM hardware only.
 
 Candidate 101 is the selected E04-c factor-2 hardware-worker experiment. It
 nests exactly two complete nonce iterations inside the existing report loop;

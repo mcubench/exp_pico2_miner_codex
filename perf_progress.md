@@ -5459,3 +5459,45 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - **Decision: retain candidate 102.** ARM uses explicit factor 2 and Hazard3
   factor 1. The board is left running this accepted Hazard3 image. Candidate
   102 is the new parent for any factor-4 ARM comparison.
+
+## 2026-09-16 — E04-c ARM hardware batch factor 4 candidate 103 definition
+
+- Parent is retained candidate 102 at source identity `8c8ea1cbf514`, with
+  ARM factor 2 and Hazard3 factor 1. Change only ARM's compile-time batch and
+  explicit unroll factor from two to four; Hazard3 must remain byte-identical
+  apart from source identity metadata. The 340,000-hash report interval is
+  divisible by four, so exact report boundaries and counts are preserved.
+- The factor-2 result attributes about 1,132 ARM hardware H/s (+0.348%) to
+  halving the hot report comparison/back-edge frequency. Factor 4 removes
+  half of that remaining boundary work, so the plausible incremental gain is
+  small (roughly 0.17% hardware at most) rather than another full factor-2
+  gain. Per-nonce hashing, error checks, target tests, candidate publication,
+  nonce progression, exhaustion, clocks, and all telemetry semantics remain
+  unchanged.
+- Expected resource cost is two additional physical hot bodies beyond the
+  retained ARM parent, likely about another 0.9–1.0 KiB of text, with greater
+  instruction-fetch/layout and register-allocation risk. Preflight must show
+  exactly four bodies with no inner batch back-edge and no unexpected spills;
+  otherwise reject without flashing.
+- Rejection rule: reject any build warning, KAT/oracle/share/count/fault or
+  strict-capture failure, meaningful software-worker interference, or an ARM
+  aggregate/hardware result that does not improve repeatably over candidate
+  102 enough to justify the extra code. Build both ISAs first and require the
+  final Hazard3 loop/size to remain at factor 1 before an ARM-only hardware
+  run.
+
+### E04-c ARM hardware batch factor 4 candidate 103 preflight — pass
+
+- Both dirty stock builds pass warning-free and all eight host monitor tests
+  pass. ARM text/BSS is **190,128/4,708 bytes**, +936 text bytes over retained
+  candidate 102; its worker frame remains 188 bytes. Hazard3 remains exactly
+  **200,924/4,440 bytes** with its single factor-1 body.
+- Final ARM disassembly contains four physical complete hash/target bodies,
+  advances `since_report` by four, and performs one report compare/back-edge
+  after them; no inner batch counter/back-edge is emitted. The stack frame is
+  unchanged and inspection found no new loop-carried spill traffic. Hazard3's
+  conditional path and retained text size are unchanged.
+- Dirty ARM/RISC-V UF2 SHA-256 values are
+  `174fe3c4086b9542eb9cf43678b3ef10af93890c8d5d194139c17f9b110328e9` /
+  `1ed92927ac0eeddf010f58c6fcaf4dd27542a3acb8f9f28cca55764da3a06cd0`.
+  Commit and clean-rebuild before the ARM hardware comparison.
