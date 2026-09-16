@@ -112,6 +112,10 @@
   indeterminate (empty tracked serial, no load/verify, silent tty). Commit both
   artifacts. Physical BOOTSEL recovery and stock validation are required, then
   repeat 396/1.60 once because it defines the voltage transition.
+- Physical post-1.60 V recovery is complete. Stock Hazard3 passed all gates and
+  nine windows at first-seven medians 369,845 aggregate / 338,328 hardware /
+  31,517 software H/s. Archive/commit recovery 10, then run the required
+  396 MHz/1.60 V Tier-B repeat; return to stock again immediately afterward.
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both

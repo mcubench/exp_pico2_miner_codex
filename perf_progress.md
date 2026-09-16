@@ -6658,3 +6658,16 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `logs/OC-riscv-v1100-f150000-post-v1600-recovery-link-fail-1.log`, SHA-256
   `72e058713afe342a1acb664ac33bdc23d4b526d5848c312a01ad47bd43f90c4f`.
   Physical BOOTSEL recovery is required before any further overclock test.
+
+### OC-riscv-v1100-f150000-recovery-10 — MEASURE_PASS
+
+- Physical BOOTSEL recovery produced a complete verified stock flash. Both
+  architecture builds passed warning-free and matched the archived recovery
+  images. Hazard3 run `30004927-00000001` passed exact identity, all
+  correctness gates, standalone benchmarks, nine windows, and strict capture.
+- Standalone hardware/full/filter rates are **343,991 / 28,430 / 31,685
+  H/s**. First-seven medians are **369,845 aggregate / 338,328 hardware /
+  31,517 software H/s**, matching the retained baseline.
+- Complete log `logs/OC-riscv-v1100-f150000-recovery-10.log`, SHA-256
+  `f7c84f296610ee6b14313814b97077252ed942c041a95da61de907f4d49b6f1a`.
+  Recovery is validated; repeat 396 MHz/1.60 V once for the transition.
