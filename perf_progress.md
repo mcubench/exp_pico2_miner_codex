@@ -7359,3 +7359,12 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   required gates. Log `logs/OC-riscv-v1100-f150000-d3-recovery-36.log`,
   SHA-256 `5b0373b09b3e0ca12a61d14132cf2ddab197e30e1ed4e12f79820b2f67c8e370`.
   Retry 570 MHz / 1.60 V / divider 5 identically.
+### OC-riscv-v1600-f570000-d5-phase1-link-2 — RESET_OR_LINK_FAIL, reproduced
+
+- The identical 570 MHz / 1.60 V / divider-5 retry flash-verified and again
+  enumerated USB serial without emitting BOOT or any firmware output.
+- Strict capture reproduced **RESET_OR_LINK_FAIL**. Log
+  `logs/OC-riscv-v1600-f570000-d5-phase1-link-fail-2.log`, SHA-256
+  `eb80afa478e3223bdaac2c013a007945ae682150d4a69f4a6b1523ab4a475000`.
+- Phase 1 closes with **f_max = 516 MHz**. Recover and validate stock, then
+  begin Phase 2 at 516 MHz / divider 5 by descending to 1.40 V.

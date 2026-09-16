@@ -2,6 +2,14 @@
 
 ## Latest checkpoint — authoritative
 
+- Identical 570 MHz / 1.60 V / divider-5 retry reproduced
+  **RESET_OR_LINK_FAIL**: USB serial enumerated after verified flash, but no
+  BOOT or firmware output appeared. Log
+  `logs/OC-riscv-v1600-f570000-d5-phase1-link-fail-2.log` has SHA-256
+  `eb80afa478e3223bdaac2c013a007945ae682150d4a69f4a6b1523ab4a475000`.
+- Phase 1 closes with f_max = 516 MHz. Recover and validate stock, then begin
+  Phase 2 at 516 MHz / divider 5 by testing 1.40 V.
+
 - Stock recovery 36 passed after the first 570 MHz/divider-5 link failure.
   Log `logs/OC-riscv-v1100-f150000-d3-recovery-36.log` has SHA-256
   `5b0373b09b3e0ca12a61d14132cf2ddab197e30e1ed4e12f79820b2f67c8e370`.
