@@ -1,0 +1,11 @@
+EXPERIMENT id=OC-riscv-v1400-f396000-screen-1 label=unsafe-overvoltage
+CONFIG source_commit=640dbca source_id=ac3e4e469db5 arch=RISCV-HAZARD3 requested_clock_khz=396000 requested_vreg_mv=1400 monitor_seconds=50
+PLL_CATALOG realized_khz=396000 vco_khz=1584000 postdiv1=4 postdiv2=1
+BUILD:PASS arch=arm uf2_sha256=353645f873956ead7e5c7705fb69ed82652ceac685977a2edd8ad15ebd304867
+BUILD:PASS arch=riscv uf2_sha256=b3c03774b86726a7cf5550d8f37329fd2bfca858b5ebe6ebdf90b341f895bcdd
+FLASH:PASS arch=riscv verification=OK
+SERIAL_PORT=/dev/ttyACM0
+ERROR: incomplete validation output: BOOT, eight-test summary, hardware benchmark, software benchmark, filter benchmark, MINING:START, five MINING:PROGRESS records (0 seen), five MEASUREMENT:WINDOW records (0 seen)
+CYCLE:FAIL status=5 classification=RESET_OR_LINK_FAIL
+RECOVERY_CHECK lsusb_vendor_2e8a=present_product_0009 tty_acm=/dev/ttyACM0
+NOTE Runtime USB enumerated but emitted no BOOT or test bytes during the full capture. The port remains present. Repeat the identical point once before changing voltage.

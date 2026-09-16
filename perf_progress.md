@@ -6551,3 +6551,19 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Complete log `logs/OC-riscv-v1100-f150000-recovery-8.log`, SHA-256
   `03d8ac909a758d56d7245adc0e666504a65ff46b553871756a055df594fe8441`.
   Recovery is validated; hold 396 MHz and test requested 1.40 V next.
+
+### OC-riscv-v1400-f396000-screen-1 — RESET_OR_LINK_FAIL
+
+- This point is explicitly labeled **unsafe-overvoltage**. Both architecture
+  builds passed warning-free; ARM/RISC-V UF2 SHA-256 values are
+  `353645f873956ead7e5c7705fb69ed82652ceac685977a2edd8ad15ebd304867` /
+  `b3c03774b86726a7cf5550d8f37329fd2bfca858b5ebe6ebdf90b341f895bcdd`.
+  Hazard3 flash and verification passed, and runtime `/dev/ttyACM0` enumerated.
+- The device emitted no BOOT or test bytes during the full 50-second capture.
+  Strict monitoring returned status 5 with every required report absent. A
+  bounded check found the Pico product `0009` and `/dev/ttyACM0` still present.
+  Classification is **RESET_OR_LINK_FAIL**; no voltage-pass claim is valid.
+- Complete annotated capture
+  `logs/OC-riscv-v1400-f396000-reset-link-fail-1.log`, SHA-256
+  `fb46b9a411728ed4d6752f78b64933fe99ab2b626eec6969bd7bd656f5cd907d`.
+  Repeat the identical 396 MHz/1.40 V point once before changing voltage.

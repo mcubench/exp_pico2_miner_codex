@@ -84,6 +84,10 @@
   first-seven medians 369,846 aggregate / 338,328 hardware / 31,517 software
   H/s. Recovery log is `logs/OC-riscv-v1100-f150000-recovery-8.log`. Commit
   it, then test 396 MHz/1.40 V with the explicit unsafe-voltage telemetry.
+- 396 MHz/1.40 V attempt 1 built/flashed/verified and enumerated `/dev/ttyACM0`,
+  but emitted no BOOT or test bytes during the full 50-second capture. The port
+  remains present. Classification is RESET_OR_LINK_FAIL, not a pass or voltage
+  boundary. Commit the evidence, then repeat the identical 1.40 V point once.
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both
