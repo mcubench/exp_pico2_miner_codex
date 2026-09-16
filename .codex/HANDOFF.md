@@ -2,6 +2,11 @@
 
 ## Latest checkpoint — authoritative
 
+- Stock recovery 36 passed after the first 570 MHz/divider-5 link failure.
+  Log `logs/OC-riscv-v1100-f150000-d3-recovery-36.log` has SHA-256
+  `5b0373b09b3e0ca12a61d14132cf2ddab197e30e1ed4e12f79820b2f67c8e370`.
+  Retry 570 MHz / 1.60 V / divider 5 identically.
+
 - First 570 MHz / 1.60 V / divider-5 attempt flash-verified and enumerated USB
   serial, but emitted no BOOT or firmware output. Strict capture classified it
   **RESET_OR_LINK_FAIL**. Log

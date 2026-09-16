@@ -7353,3 +7353,9 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Log `logs/OC-riscv-v1600-f570000-d5-phase1-link-fail-1.log`, SHA-256
   `eb80afa478e3223bdaac2c013a007945ae682150d4a69f4a6b1523ab4a475000`.
   Physically recover, validate stock, then retry this image identically.
+### OC-riscv-v1100-f150000-d3-recovery-36 — MEASURE_PASS
+
+- Stock recovery after the first 570 MHz/divider-5 link failure passed all
+  required gates. Log `logs/OC-riscv-v1100-f150000-d3-recovery-36.log`,
+  SHA-256 `5b0373b09b3e0ca12a61d14132cf2ddab197e30e1ed4e12f79820b2f67c8e370`.
+  Retry 570 MHz / 1.60 V / divider 5 identically.
