@@ -138,6 +138,9 @@
   first-seven medians 369,847 aggregate / 338,330 hardware / 31,517 software
   H/s. Recovery 13 is archived; test the exact midpoint candidate around 480 MHz
   at 1.60 V next.
+- Physical recovery after the first 480 MHz bisection failure passed stock at
+  first-seven medians 369,845 aggregate / 338,328 hardware / 31,517 software
+  H/s. Recovery 14 is archived; retry the identical 480 MHz/1.60 V point now.
 - 480 MHz/1.60 V bisection attempt 1 built/flashed/verified but produced no
   runtime USB device. Record BOOT_FAIL, recover and validate stock, then retry
   the identical 480 MHz/1.60 V point before narrowing toward 396 MHz.
