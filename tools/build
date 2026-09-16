@@ -31,6 +31,7 @@ miner_sys_clock_khz="${MINER_SYS_CLOCK_KHZ:-150000}"
 miner_vreg_mv="${MINER_VREG_MV:-1100}"
 miner_qmi_clkdiv="${MINER_QMI_CLKDIV:-3}"
 miner_profile="${MINER_PROFILE:-0}"
+miner_hardware_only="${MINER_HARDWARE_ONLY:-0}"
 miner_source_id="$(source_identity)"
 
 [[ "${miner_sys_clock_khz}" =~ ^[0-9]+$ ]] \
@@ -49,6 +50,8 @@ esac
     || die "QMI SCK would exceed the 130000 kHz campaign limit"
 [[ "${miner_profile}" == 0 || "${miner_profile}" == 1 ]] \
     || die "MINER_PROFILE must be 0 or 1"
+[[ "${miner_hardware_only}" == 0 || "${miner_hardware_only}" == 1 ]] \
+    || die "MINER_HARDWARE_ONLY must be 0 or 1"
 
 printf 'CONFIG arch=%s platform=%s\n' "${arch}" "${platform}"
 printf 'CONFIG sdk=%s\n' "${sdk}"
@@ -58,6 +61,7 @@ printf 'CONFIG miner_vreg_mv=%s\n' "${miner_vreg_mv}"
 printf 'CONFIG miner_qmi_clkdiv=%s\n' "${miner_qmi_clkdiv}"
 printf 'CONFIG miner_source_id=%s\n' "${miner_source_id}"
 printf 'CONFIG miner_profile=%s\n' "${miner_profile}"
+printf 'CONFIG miner_hardware_only=%s\n' "${miner_hardware_only}"
 
 "${cmake_bin}" -S "${PROJECT_ROOT}" -B "${build_dir}" -G Ninja \
     -DCMAKE_MAKE_PROGRAM="${ninja_bin}" \
@@ -71,6 +75,7 @@ printf 'CONFIG miner_profile=%s\n' "${miner_profile}"
     -DMINER_VREG_MV="${miner_vreg_mv}" \
     -DMINER_QMI_CLKDIV="${miner_qmi_clkdiv}" \
     -DMINER_PROFILE="${miner_profile}" \
+    -DMINER_HARDWARE_ONLY="${miner_hardware_only}" \
     -DMINER_SOURCE_ID="${miner_source_id}"
 
 "${cmake_bin}" --build "${build_dir}"

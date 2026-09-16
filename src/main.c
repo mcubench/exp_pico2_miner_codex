@@ -62,6 +62,10 @@ _Static_assert(MINING_REPORT_INTERVAL % HARDWARE_MINING_BATCH == 0u,
 #define MINER_PROFILE 0
 #endif
 
+#ifndef MINER_HARDWARE_ONLY
+#define MINER_HARDWARE_ONLY 0
+#endif
+
 static uint32_t boot_run_sequence;
 static uint32_t boot_chip_id;
 
@@ -1161,6 +1165,7 @@ static void mining_worker_fault(uint32_t code, uint32_t nonce,
     }
 }
 
+#if !MINER_HARDWARE_ONLY
 static __attribute__((noinline, noreturn)) void mining_worker_takeover_tail(
     uint64_t completed_hashes, uint32_t report_sequence) {
 #ifdef __riscv
@@ -1261,6 +1266,7 @@ static __attribute__((noinline, noreturn)) void mining_worker_takeover_tail(
         }
     }
 }
+#endif
 
 static MINING_LOOP_OPTIONS void mining_worker_core1(void) {
 #ifdef __riscv
@@ -1325,7 +1331,7 @@ static MINING_LOOP_OPTIONS void mining_worker_core1(void) {
                     &target, nonce, total_hashes + since_report);
             }
 #endif
-            nonce += 2u;
+            nonce += MINER_HARDWARE_ONLY ? 1u : 2u;
             if (nonce == 0u) {
 #ifdef __riscv
                 if (sha256_err_not_ready()) {
@@ -1334,8 +1340,16 @@ static MINING_LOOP_OPTIONS void mining_worker_core1(void) {
                 }
 #endif
                 bitcoin_hasher_end(&hasher);
+#if MINER_HARDWARE_ONLY
+                multicore_fifo_push_blocking(MINING_MESSAGE_COMPLETE);
+                mining_fifo_push_u64(total_hashes + since_report);
+                while (true) {
+                    tight_loop_contents();
+                }
+#else
                 mining_worker_takeover_tail(total_hashes + since_report,
                                             report_sequence);
+#endif
             }
         }
 
@@ -1369,33 +1383,54 @@ static MINING_LOOP_OPTIONS void mining_worker_core1(void) {
 
 static void mine_forever(uint led_pin) {
     bool led_on = false;
+#if !MINER_HARDWARE_ONLY
     sha256_result_t software_hash;
     sha256_result_t target;
     software_bitcoin_hasher_t software_hasher;
+#endif
+#if MINER_HARDWARE_ONLY
+    uint32_t software_nonce = 0u;
+#else
     uint32_t software_nonce = 1u;
+#endif
     uint64_t software_hashes = 0u;
     uint64_t hardware_hashes = 0u;
+#if !MINER_HARDWARE_ONLY
     uint64_t software_started_us;
+#endif
     uint32_t report_sequence = 0u;
     uint64_t window_started_us;
     uint64_t window_hardware_hashes = 0u;
     uint64_t window_software_hashes = 0u;
     uint32_t window_sequence = 0u;
+#if !MINER_HARDWARE_ONLY
     bool takeover_active = false;
+#endif
     uint32_t message;
 
+#if !MINER_HARDWARE_ONLY
     if (!compact_to_target_le(0x1d00ffffu, target.bytes)) {
         printf("FAULT type=invalid_compact_target worker_core=0\n");
         return;
     }
     software_bitcoin_hasher_begin(&software_hasher, genesis_header);
+#endif
     multicore_fifo_drain();
+#if MINER_HARDWARE_ONLY
+    printf("MINING:START run_id=%08" PRIx32 "-%08" PRIx32
+           " header=bitcoin-genesis target_bits=1d00ffff"
+           " hardware_core=1 hardware_nonce_start=0 hardware_nonce_stride=1"
+           " software_core=disabled software_nonce_start=0 software_nonce_stride=0"
+           " note=standalone-stale-work\n",
+           boot_chip_id, boot_run_sequence);
+#else
     printf("MINING:START run_id=%08" PRIx32 "-%08" PRIx32
            " header=bitcoin-genesis target_bits=1d00ffff"
            " hardware_core=1 hardware_nonce_start=0 hardware_nonce_stride=2"
            " software_core=0 software_nonce_start=1 software_nonce_stride=2"
            " note=standalone-stale-work\n",
            boot_chip_id, boot_run_sequence);
+#endif
     multicore_launch_core1(mining_worker_core1);
     const uint32_t ready_message = multicore_fifo_pop_blocking();
     if (ready_message != MINING_MESSAGE_READY) {
@@ -1404,10 +1439,15 @@ static void mine_forever(uint led_pin) {
         return;
     }
     window_started_us = time_us_64();
+#if !MINER_HARDWARE_ONLY
     software_started_us = window_started_us;
+#endif
     multicore_fifo_push_blocking(MINING_MESSAGE_ACK);
 
     while (true) {
+#if MINER_HARDWARE_ONLY
+        message = multicore_fifo_pop_blocking();
+#else
         bool full_digest_computed;
         const bool software_candidate = software_hash_nonce_meets_target(
             &software_hasher, software_nonce, &target, &software_hash,
@@ -1429,17 +1469,24 @@ static void mine_forever(uint led_pin) {
         }
 
         message = multicore_fifo_pop_blocking();
+#endif
+#if !MINER_HARDWARE_ONLY
 handle_mining_message:
+#endif
         if (message == MINING_MESSAGE_PROGRESS) {
             ++report_sequence;
             const uint32_t nonce = multicore_fifo_pop_blocking();
             hardware_hashes = mining_fifo_pop_u64();
             const uint64_t hardware_rate = mining_fifo_pop_u64();
+#if MINER_HARDWARE_ONLY
+            const uint64_t software_rate = 0u;
+#else
             const uint64_t software_elapsed_us =
                 time_us_64() - software_started_us;
             const uint64_t software_rate =
                 (software_hashes * 1000000ull + software_elapsed_us / 2u)
                 / software_elapsed_us;
+#endif
             if (report_sequence % COMMON_WINDOW_REPORT_INTERVAL == 0u) {
                 const uint64_t window_ended_us = time_us_64();
                 const uint64_t window_elapsed_us =
@@ -1484,7 +1531,11 @@ handle_mining_message:
                    " sequence=%" PRIu32
                    " arch=%s hardware_core=1 hardware_nonce=%" PRIu32
                    " hardware_hashes=%" PRIu64 " hardware_rate_hs=%" PRIu64
+#if MINER_HARDWARE_ONLY
+                   " software_core=disabled software_nonce=%" PRIu32
+#else
                    " software_core=0 software_nonce=%" PRIu32
+#endif
                    " software_hashes=%" PRIu64 " software_rate_hs=%" PRIu64
                    " total_hashes=%" PRIu64 " hash_rate_hs=%" PRIu64
                    " temperature=disabled\n",
@@ -1522,6 +1573,14 @@ handle_mining_message:
                 sleep_ms(100u);
             }
         } else if (message == MINING_MESSAGE_TAKEOVER_REQUEST) {
+#if MINER_HARDWARE_ONLY
+            printf("FAULT type=multicore_protocol message=%08" PRIx32 "\n",
+                   message);
+            while (true) {
+                gpio_xor_mask64(1ull << led_pin);
+                sleep_ms(100u);
+            }
+#else
             hardware_hashes = mining_fifo_pop_u64();
             const uint32_t expected_frontier =
                 (uint32_t)(1ull + 2ull * software_hashes);
@@ -1548,10 +1607,17 @@ handle_mining_message:
                    boot_chip_id, boot_run_sequence, software_nonce,
                    hardware_hashes, software_hashes);
             takeover_active = true;
+#endif
         } else if (message == MINING_MESSAGE_COMPLETE) {
             hardware_hashes = mining_fifo_pop_u64();
             const uint64_t total_hashes = hardware_hashes + software_hashes;
-            if (!takeover_active || total_hashes != (1ull << 32u)) {
+            if (
+#if MINER_HARDWARE_ONLY
+                total_hashes != (1ull << 32u)
+#else
+                !takeover_active || total_hashes != (1ull << 32u)
+#endif
+            ) {
                 printf("FAULT type=completion_accounting hardware_hashes=%" PRIu64
                        " software_hashes=%" PRIu64
                        " total_hashes=%" PRIu64 "\n",
@@ -1579,10 +1645,12 @@ handle_mining_message:
                 sleep_ms(100u);
             }
         }
+#if !MINER_HARDWARE_ONLY
         if (takeover_active) {
             message = multicore_fifo_pop_blocking();
             goto handle_mining_message;
         }
+#endif
     }
 }
 #endif
@@ -1682,6 +1750,7 @@ int main(void) {
     printf("BOOT app=pico2_bitcoin_miner board=pico2 package=RP2350A"
            " arch=%s engine=RP2350-SHA256 temperature=disabled"
            " source_id=%s run_id=%08" PRIx32 "-%08" PRIx32
+           " mining_mode=%s"
            " profile=%u report_hashes=%u window_reports=%u"
            " clock_profile=%s requested_clock_khz=%u actual_clock_hz=%" PRIu32
            " requested_vreg_mv=%u vreg_selector=%u readback_vreg_mv=%" PRIu32
@@ -1692,6 +1761,7 @@ int main(void) {
            " sysinfo_package_sel=%" PRIu32 " chip_id=%08" PRIx32
            " silicon_revision=%u\n",
            CPU_ARCH, MINER_SOURCE_ID, chip_id, boot_run_sequence,
+           MINER_HARDWARE_ONLY ? "hardware-only" : "hybrid",
            (unsigned)MINER_PROFILE, (unsigned)MINING_REPORT_INTERVAL,
            (unsigned)COMMON_WINDOW_REPORT_INTERVAL,
            CLOCK_PROFILE, (unsigned)MINER_SYS_CLOCK_KHZ,

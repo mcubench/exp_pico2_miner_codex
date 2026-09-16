@@ -22,5 +22,6 @@ esac
     --expected-clock-khz "${MINER_SYS_CLOCK_KHZ:-150000}" \
     --expected-vreg-mv "${MINER_VREG_MV:-1100}" \
     --expected-qmi-clkdiv "${MINER_QMI_CLKDIV:-3}" \
+    --expected-mining-mode "$([[ ${MINER_HARDWARE_ONLY:-0} == 1 ]] && printf hardware-only || printf hybrid)" \
     | tee "${PROJECT_ROOT}/logs/${arch}-latest.log"
 printf 'CYCLE:PASS arch=%s\n' "${arch}"

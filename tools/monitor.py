@@ -42,12 +42,14 @@ class ValidationContract:
         expected_clock_khz: int | None = None,
         expected_vreg_mv: int | None = None,
         expected_qmi_clkdiv: int | None = None,
+        expected_mining_mode: str | None = None,
     ):
         self.expected_arch = expected_arch
         self.expected_source = expected_source
         self.expected_clock_khz = expected_clock_khz
         self.expected_vreg_mv = expected_vreg_mv
         self.expected_qmi_clkdiv = expected_qmi_clkdiv
+        self.expected_mining_mode = expected_mining_mode
         self.boot = None
         self.kats = set()
         self.summary = False
@@ -74,7 +76,7 @@ class ValidationContract:
                 "readback_vreg_mv", "unsafe_voltage_limit_disabled",
                 "pll_vco_hz", "pll_postdiv1", "pll_postdiv2", "clk_usb_hz",
                 "clk_peri_hz", "requested_qmi_clkdiv", "qmi_clkdiv",
-                "qmi_sck_hz",
+                "qmi_sck_hz", "mining_mode",
             }
             if not required.issubset(data) or not data["run_id"]:
                 return "malformed BOOT identity"
@@ -82,6 +84,11 @@ class ValidationContract:
                 return f"wrong architecture {data['arch']}"
             if self.expected_source and data["source_id"] != self.expected_source:
                 return f"wrong source identity {data['source_id']}"
+            if data["mining_mode"] not in ("hybrid", "hardware-only"):
+                return "invalid mining mode"
+            if (self.expected_mining_mode is not None
+                    and data["mining_mode"] != self.expected_mining_mode):
+                return f"wrong mining mode {data['mining_mode']}"
             try:
                 if int(data["report_hashes"]) <= 0 or int(data["window_reports"]) <= 0:
                     return "invalid BOOT reporting configuration"
@@ -194,7 +201,9 @@ class ValidationContract:
                 return "invalid takeover accounting"
             self.takeover = data
         elif line.startswith("MINING:COMPLETE "):
-            if self.takeover is None or self.boot is None:
+            if self.boot is None:
+                return "MINING:COMPLETE before BOOT"
+            if self.boot["mining_mode"] != "hardware-only" and self.takeover is None:
                 return "MINING:COMPLETE before MINING:TAKEOVER"
             if self.complete or data.get("run_id") != self.boot["run_id"]:
                 return "invalid completion identity or duplicate"
@@ -227,7 +236,10 @@ class ValidationContract:
             if (window != self.next_window or sequence != window * window_reports
                 or sequence != self.next_sequence):
                 return "measurement window sequence mismatch"
-            if elapsed <= 0 or hardware <= 0 or software <= 0 or total != hardware + software:
+            hardware_only = self.boot["mining_mode"] == "hardware-only"
+            if (elapsed <= 0 or hardware <= 0 or total != hardware + software
+                    or (hardware_only and (software != 0 or software_rate != 0))
+                    or (not hardware_only and software <= 0)):
                 return "invalid measurement window counts"
             rounded = lambda count: (count * 1_000_000 + elapsed // 2) // elapsed
             if (hardware_rate != rounded(hardware)
@@ -297,6 +309,7 @@ def main() -> int:
     parser.add_argument("--expected-clock-khz", type=int)
     parser.add_argument("--expected-vreg-mv", type=int)
     parser.add_argument("--expected-qmi-clkdiv", type=int)
+    parser.add_argument("--expected-mining-mode", choices=("hybrid", "hardware-only"))
     args = parser.parse_args()
 
     deadline = time.monotonic() + args.seconds
@@ -336,6 +349,7 @@ def main() -> int:
         args.expected_clock_khz,
         args.expected_vreg_mv,
         args.expected_qmi_clkdiv,
+        args.expected_mining_mode,
     )
     pending = b""
     try:

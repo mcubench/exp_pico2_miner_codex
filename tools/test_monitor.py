@@ -23,6 +23,7 @@ def complete_lines(source="abc123", arch="ARM-M33", run="30004927-00000001"):
         f" pll_vco_hz=1500000000 pll_postdiv1=5 pll_postdiv2=2"
         f" clk_usb_hz=48000000 clk_peri_hz=48000000"
         f" requested_qmi_clkdiv=3 qmi_clkdiv=3 qmi_sck_hz=50000000"
+        f" mining_mode=hybrid"
         f" report_hashes=340000 window_reports={window_reports}"
     ]
     lines.extend(f"TEST:PASS kat={kat}" for kat in sorted(monitor.EXPECTED_KATS))
@@ -64,6 +65,23 @@ class ContractTests(unittest.TestCase):
 
     def test_complete_session(self):
         contract, errors = self.validate(complete_lines())
+        self.assertEqual(errors, [])
+        self.assertEqual(contract.missing(), [])
+
+    def test_hardware_only_session(self):
+        lines = complete_lines()
+        lines[0] = lines[0].replace("mining_mode=hybrid", "mining_mode=hardware-only")
+        lines = [
+            line.replace("software_hashes=150000", "software_hashes=0")
+                .replace("total_hashes=1750000", "total_hashes=1600000")
+                .replace("software_rate_hs=30000", "software_rate_hs=0")
+                .replace("hash_rate_hs=350000", "hash_rate_hs=320000")
+            for line in lines
+        ]
+        contract = monitor.ValidationContract(
+            "ARM-M33", "abc123", expected_mining_mode="hardware-only"
+        )
+        errors = [error for line in lines if (error := contract.observe(line))]
         self.assertEqual(errors, [])
         self.assertEqual(contract.missing(), [])
 

@@ -2,6 +2,16 @@
 
 ## Latest checkpoint — authoritative
 
+- Hardware-only variant implemented behind `MINER_HARDWARE_ONLY=1`. The full
+  software correctness oracle and standalone software benchmarks remain, but
+  sustained mining launches only the hardware SHA-256 worker on core 1; core 0
+  reports zero software hashes. BOOT identifies `mining_mode=hardware-only`,
+  and strict monitoring verifies zero-software window accounting.
+- All 18 host monitor tests pass. Both ARM and Hazard3 hardware-only stock
+  builds pass warning-free. Commit this isolated implementation, rebuild both
+  architectures for a clean source identity, then test only the current
+  maximum configuration: 516 MHz / 1.60 V / divider 5.
+
 - Final stock recovery 40 passed after the completed Hazard3 campaign. It
   passed all eight suites, the full oracle, benchmarks, nine windows, and
   strict capture. First-seven medians were 369,929 aggregate / 338,338

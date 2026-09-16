@@ -25,6 +25,7 @@ set(MINER_SYS_CLOCK_KHZ 150000 CACHE STRING "Miner system clock in kHz")
 set(MINER_VREG_MV 1100 CACHE STRING "Requested RP2350 core regulator selector in mV")
 set(MINER_QMI_CLKDIV 3 CACHE STRING "Requested RP2350 QMI flash clock divider")
 set(MINER_PROFILE 0 CACHE STRING "Enable intrusive E02 profiling")
+set(MINER_HARDWARE_ONLY 0 CACHE STRING "Disable the software mining worker")
 
 set(MINER_ALLOWED_VREG_MV 1100 1150 1200 1250 1300 1350 1400 1500 1600)
 list(FIND MINER_ALLOWED_VREG_MV "${MINER_VREG_MV}" MINER_VREG_INDEX)
@@ -96,6 +97,7 @@ target_compile_definitions(pico2_agent PRIVATE
     MINER_QMI_CLKDIV=${MINER_QMI_CLKDIV}
     MINER_SOURCE_ID="${MINER_SOURCE_ID}"
     MINER_PROFILE=${MINER_PROFILE}
+    MINER_HARDWARE_ONLY=${MINER_HARDWARE_ONLY}
 )
 
 message(STATUS "Miner system clock: ${MINER_SYS_CLOCK_KHZ} kHz")
@@ -103,5 +105,6 @@ message(STATUS "Miner regulator selector: ${MINER_VREG_MV} mV")
 message(STATUS "Miner QMI clock divider: ${MINER_QMI_CLKDIV}")
 message(STATUS "Miner source identity: ${MINER_SOURCE_ID}")
 message(STATUS "Miner profiling mode: ${MINER_PROFILE}")
+message(STATUS "Miner hardware-only mode: ${MINER_HARDWARE_ONLY}")
 
 pico_add_extra_outputs(pico2_agent)
