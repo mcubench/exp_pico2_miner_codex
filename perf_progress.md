@@ -6845,3 +6845,12 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
   Two failures establish 444 MHz as a failing bound at 1.60 V. Physically
   recover and validate stock before the next lower midpoint.
+
+### OC-riscv-v1100-f150000-recovery-17 — MEASURE_PASS
+
+- Physical BOOTSEL recovery passed complete verified stock validation: all
+  correctness gates, standalone benchmarks, nine windows, and strict capture.
+- First-seven medians were 369,845 aggregate / 338,328 hardware / 31,517
+  software H/s. Log `logs/OC-riscv-v1100-f150000-recovery-17.log`, SHA-256
+  `3d97c76eef0b4491abdd5ce29e10501d244a394f1f6cf54ff777f03a3d65136f`.
+  Recovery is validated; next lower midpoint is approximately 420 MHz / 1.60 V.
