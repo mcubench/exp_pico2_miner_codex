@@ -1106,3 +1106,24 @@ RISC-V `a3d7e...3bd9`; archive hashes are recorded in the ledger.
   with clock, the lower 552/546/540/534/532/528 MHz points are dominated and
   were not run. The board is left on validated 558 MHz / 1.60 V / divider-5
   hardware-only firmware; no stock recovery was performed per user direction.
+
+### Hardware-only exact-point ceiling: 558 MHz
+
+- The requested 4 MHz walk from 558 toward 570 MHz cannot be represented by
+  the RP2350 PLL catalog: 562 and 566 MHz are not exact points. The only exact
+  points in the interval are 558, 564, and 570 MHz, so 564 MHz was the sole
+  useful intermediate test.
+- Both architectures built warning-free and the Hazard3 564 MHz / requested
+  1.60 V / divider-5 image flash-verified. Runtime serial enumerated at
+  `/dev/ttyACM0`, but no BOOT or firmware output appeared during the bounded
+  capture. Strict validation exited 5 with every runtime gate absent. This is
+  **RESET_OR_LINK_FAIL**.
+- Failure log `logs/HWONLY-riscv-v1600-f564000-d5-link-fail-1.log`, SHA-256
+  `eb80afa478e3223bdaac2c013a007945ae682150d4a69f4a6b1523ab4a475000`.
+- Per the user's instruction not to reproduce failures, do not repeat 564 or
+  the already-failed 570 MHz point. There is no exact PLL point between the
+  passing 558 and failing 564 MHz settings; therefore **558 MHz is the maximum
+  validated hardware-only clock** at 1.60 V / divider 5.
+- The board currently exposes application USB (`2e8a:0009`, `/dev/ttyACM0`)
+  but emits no output under the failing 564 MHz image. A physical BOOTSEL
+  recovery is required before another flash.

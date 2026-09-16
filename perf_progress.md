@@ -7470,3 +7470,15 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Log `logs/HWONLY-riscv-v1600-f558000-d5-measure-1.log`, SHA-256
   `db05d462d1f065ed6bcaafd0b98a7e074370fdfcc13fb4177e8a45440396e9a9`.
   Board left running this validated unsafe-voltage hardware-only image.
+### HWONLY-riscv-v1600-f564000-d5-link-1 — RESET_OR_LINK_FAIL, ceiling
+
+- A 4 MHz requested walk is not synthesizable: 562 and 566 MHz are absent
+  from the exact PLL catalog. The sole exact intermediate point is 564 MHz.
+- Both architectures built and the Hazard3 564 MHz / requested 1.60 V /
+  divider-5 image flash-verified, but enumerated serial emitted no BOOT or
+  runtime output. Strict validation exited 5 with every gate absent.
+- Log `logs/HWONLY-riscv-v1600-f564000-d5-link-fail-1.log`, SHA-256
+  `eb80afa478e3223bdaac2c013a007945ae682150d4a69f4a6b1523ab4a475000`.
+- Per the no-repeat instruction, this failure was not retried. Since no exact
+  PLL point exists between 558 MHz pass and 564 MHz fail, the hardware-only
+  clock ceiling is **558 MHz** at requested/read-back 1.60 V and divider 5.
