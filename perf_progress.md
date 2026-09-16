@@ -7374,3 +7374,10 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   gates. Log `logs/OC-riscv-v1100-f150000-d3-recovery-37.log`, SHA-256
   `501bd3a26448910a6615672fce380f5b17894c23dfcfe5f3f4b8fe06335d958f`.
   Begin Phase 2 at 516 MHz / divider 5 / 1.40 V.
+### OC-riscv-v1400-f516000-d5-phase2-boot-1 — BOOT_FAIL
+
+- Both architectures built and Hazard3 flash-verified at 516 MHz / 1.40 V /
+  divider 5, but runtime USB did not appear. Classification is **BOOT_FAIL**.
+- Empty log `logs/OC-riscv-v1400-f516000-d5-phase2-boot-fail-1.log`, SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+  Recover and validate stock, then retry this point identically.

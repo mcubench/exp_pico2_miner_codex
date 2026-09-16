@@ -2,6 +2,12 @@
 
 ## Latest checkpoint — authoritative
 
+- First Phase-2 516 MHz / 1.40 V / divider-5 attempt flash-verified but
+  produced no runtime USB, classified **BOOT_FAIL**. Empty log
+  `logs/OC-riscv-v1400-f516000-d5-phase2-boot-fail-1.log` has SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+  Recover and validate stock, then retry this point identically.
+
 - Stock recovery 37 passed after the reproduced 570 MHz failure. Log
   `logs/OC-riscv-v1100-f150000-d3-recovery-37.log` has SHA-256
   `501bd3a26448910a6615672fce380f5b17894c23dfcfe5f3f4b8fe06335d958f`.
