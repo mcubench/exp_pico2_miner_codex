@@ -1048,3 +1048,21 @@ RISC-V `a3d7e...3bd9`; archive hashes are recorded in the ledger.
 - A build/verified flash is not runtime success; nonzero cycle status is logged
   as failure and retried.
 - No OTP/erase/security/partition/sudo operations. One serial/flash owner only.
+
+## Hardware-only 570 MHz campaign (2026-09-16)
+
+- The hardware-only variant is implemented and retained in commit `51f18ea`;
+  evidence through its passing 516 MHz run is in commit `8819c2a`. Build with
+  `MINER_HARDWARE_ONLY=1`; core 1 covers every nonce with the RP2350 SHA-256
+  peripheral while core 0 reports, and sustained software hashes remain zero.
+- Before testing 570 MHz, source identity `fc6c76ed3474` was rebuilt
+  warning-free for ARM and Hazard3. The default stock Hazard3 image then
+  passed exact 150 MHz / requested and read-back 1.10 V / divider 3 / 50 MHz
+  QMI identity, all eight suites, the complete 4,096-case oracle, decision
+  paths, benchmarks, nine windows, and strict capture.
+- Stock preflight log:
+  `logs/HWONLY-riscv-v1100-f150000-d3-recovery-1.log`, SHA-256
+  `8641f75eb9fc822342734df799afca4e3ff7d661a33ee3426991db538f941187`.
+- Next action is exactly one changed run: hardware-only 570 MHz / 1.60 V /
+  divider 5 (114 MHz QMI SCK), with a full 50-second strict capture. A failure
+  must be recovered to stock and reproduced before declaring the boundary.

@@ -7434,3 +7434,12 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Complete log `logs/HWONLY-riscv-v1600-f516000-d5-measure-1.log`, SHA-256
   `709373e0c9df6fe77d31d51343d4672fcede22e47c8040c00c9f320fc238ad26`.
   The variant must pass above 516 MHz to improve overall throughput.
+### HWONLY-riscv-v1100-f150000-d3-recovery-1 — MEASURE_PASS
+
+- Stock recovery/preflight before the hardware-only 570 MHz test rebuilt both
+  architectures and passed strict Hazard3 validation: exact stock identity,
+  all eight suites, full 4,096-case oracle, benchmarks, and nine measurement
+  windows.
+- Log `logs/HWONLY-riscv-v1100-f150000-d3-recovery-1.log`, SHA-256
+  `8641f75eb9fc822342734df799afca4e3ff7d661a33ee3426991db538f941187`.
+  Proceed to hardware-only 570 MHz / 1.60 V / divider 5 (114 MHz QMI SCK).
