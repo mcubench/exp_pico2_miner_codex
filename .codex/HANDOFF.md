@@ -2,6 +2,16 @@
 
 ## Latest checkpoint — authoritative
 
+- First 420 MHz / 1.20 V / divider-4 Hazard3 attempt built both architectures
+  and flashed/verified, but runtime USB never appeared. Classification is
+  **BOOT_FAIL** with empty log
+  `logs/OC-riscv-v1200-f420000-d4-boot-fail-1.log` (SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`).
+  No Pico USB device or serial node remains. Physically recover in BOOTSEL,
+  validate the new stock divider-control image, then retry the identical
+  420/1.20/divider-4 point. If reproduced, test 396/1.20/divider 4 before any
+  voltage change.
+
 - QMI-divider infrastructure is committed as `53b3038`, source identity
   `5a51c8638420`. It uses an SRAM-resident transition helper, verifies divider
   and calculated QMI SCK, and enforces the 130 MHz campaign ceiling. All 17

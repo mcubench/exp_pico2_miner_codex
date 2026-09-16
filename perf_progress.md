@@ -6954,3 +6954,21 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   Complete log `logs/OC-riscv-v1100-f150000-d3-qmi-control-1.log`, SHA-256
   `853dc755fc6347ee153b4998867e860b7ed6abd07fbcc95a68b7962ab152cbd0`.
   Infrastructure control passes; next run 420 MHz / 1.20 V / divider 4.
+
+### OC-riscv-v1200-f420000-d4-divider-test-1 — BOOT_FAIL, recovery required
+
+- Both committed architectures built warning-free; ARM/RISC-V UF2 SHA-256
+  values were `6d95f014d1627c28e76c32c561b16ade3c9f4616eff91736a4a3ed939dc2032b` /
+  `012d59045dfaa42c24b1a6f264902877dd425416fe167c94d98e6b6cec1fa6d2`.
+  Hazard3 flash and verification passed for requested 420 MHz / 1,200 mV /
+  divider 4 (planned 105 MHz QMI SCK).
+- Runtime USB did not appear during the 50-second strict capture. Bounded
+  checks found no Raspberry Pi USB device or `/dev/ttyACM*`, so no BOOT
+  telemetry, oracle, benchmark, or mining record exists. Classification is
+  **BOOT_FAIL**.
+- Empty log `logs/OC-riscv-v1200-f420000-d4-boot-fail-1.log`, SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+  One attempt cannot distinguish core marginality from divider-transition
+  failure. Physically recover and validate stock, then retry the identical
+  point once. If it fails again, run the planned 396 MHz/1.20 V/divider-4
+  diagnostic before changing voltage.
