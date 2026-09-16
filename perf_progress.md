@@ -7311,3 +7311,13 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Log `logs/OC-riscv-v1100-f150000-d3-recovery-33.log`, SHA-256
   `e563a1e346408a64f784b9089e2b9a06f2f41f1bd006d31d1bb251d9cbabf410`.
   Retry 516 MHz / 1.60 V / divider 4 identically.
+### OC-riscv-v1600-f516000-d4-phase1-boot-2 — BOOT_FAIL, reproduced
+
+- Identical 516 MHz / 1.60 V / divider-4 retry built and flash-verified but
+  again produced no runtime USB or serial output. Classification is
+  **BOOT_FAIL**.
+- Empty log `logs/OC-riscv-v1600-f516000-d4-phase1-boot-fail-2.log`, SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+  Two failures establish 516 MHz as the failing upper bound at divider 4.
+  Recover and validate stock before testing the paired 516 MHz / divider-5
+  control at 1.60 V.

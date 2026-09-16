@@ -2,6 +2,13 @@
 
 ## Latest checkpoint — authoritative
 
+- Identical 516 MHz / 1.60 V / divider-4 retry reproduced BOOT_FAIL after
+  verified flash; no runtime USB or serial output appeared. Empty log
+  `logs/OC-riscv-v1600-f516000-d4-phase1-boot-fail-2.log` has SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+  Two failures establish divider-4 516 MHz as failing. Recover and validate
+  stock, then test the paired 516 MHz / divider-5 control at 1.60 V.
+
 - Stock recovery 33 passed after the first 516 MHz / 1.60 V / divider-4
   failure. Log `logs/OC-riscv-v1100-f150000-d3-recovery-33.log` has SHA-256
   `e563a1e346408a64f784b9089e2b9a06f2f41f1bd006d31d1bb251d9cbabf410`.
