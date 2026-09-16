@@ -97,12 +97,13 @@ work was requested for the planning update. Do not repeat main-SRAM hardware-
 worker placement, software batch factor 8, scratch-X filter placement, E08 queue
 polling at 1 or 64 hashes, or rejected E14 chunk variants unchanged.
 
-Candidate 106 A2 passed all gates but regressed and is rejected. Log
-`logs/A2-batch8-arm.log` has SHA-256 `ea19760a...675120`. Record/commit the
-negative evidence, restore only ARM batch/unroll factors to four while keeping
-A1, commit the restoration, rebuild both architectures, and require exact
-candidate-105 UF2 hashes `0c12f2...a351f` / `e8b324...0d942`. Do not retry
-factor 8 unchanged. The board currently runs rejected candidate 106 ARM.
+Candidate 106 A2 passed all gates but regressed and is rejected. Its evidence
+is committed in `f47ac9c`; log `logs/A2-batch8-arm.log` has SHA-256
+`ea19760a...675120`. A focused source restoration now returns ARM batch/unroll
+factors to four while preserving A1. Commit it, rebuild both architectures, and
+require exact candidate-105 UF2 hashes `0c12f2...a351f` /
+`e8b324...0d942`. Do not retry factor 8 unchanged. The board currently runs
+rejected candidate 106 ARM.
 
 Candidate 104 commit `6dc1941`, identity `638fe640df92`, passed correctness but
 is rejected. ARM worker-in-main-SRAM measured 358,620 aggregate / 327,806

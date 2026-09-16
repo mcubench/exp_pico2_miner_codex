@@ -5742,3 +5742,11 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - **Decision: reject candidate 106.** Restore only ARM's batch/unroll factors to
   four, preserving retained A1. Rebuild both architectures and require exact
   candidate-105 UF2 hashes. Do not retry factor 8 unchanged.
+
+### A2 factor-4 restoration after candidate 106
+
+- Focused restoration returns only ARM's compile-time batch and explicit unroll
+  factors from eight to four. The A1 cold comparison/capture/publication helper
+  remains retained; Hazard3 remains factor 1. Commit before the final clean
+  build, then require candidate-105 source identity, sizes, disassembly shape,
+  host tests, and exact ARM/RISC-V UF2 hashes.
