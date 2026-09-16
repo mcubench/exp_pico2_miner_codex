@@ -1,0 +1,9 @@
+EXPERIMENT id=OC-riscv-v1100-f348000-screen-1
+CONFIG source_commit=640dbca source_id=ac3e4e469db5 arch=RISCV-HAZARD3 requested_clock_khz=348000 requested_vreg_mv=1100 monitor_seconds=40
+BUILD:PASS arch=arm uf2_sha256=91e6a4fbd1621b46fe804134696f42bb87cb0108cc76e00b395183df98eacad5
+BUILD:PASS arch=riscv uf2_sha256=72c6dd6c7afa503fdc59a0e27fd53ad755e218ab48e773734bdb1f023114cc73
+FLASH:PASS arch=riscv verification=OK
+ERROR: Raspberry Pi USB serial device did not appear
+CYCLE:FAIL status=2 classification=BOOT_FAIL
+RECOVERY_CHECK doctor_usb_serial=FAIL lsusb_vendor_2e8a=absent tty_acm=absent
+NOTE No BOOT, KAT, benchmark, or mining output was observed. This is not a performance result and does not yet establish a voltage boundary.

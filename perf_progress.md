@@ -6280,3 +6280,22 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   ARM/RISC-V UF2 SHA-256 at this point:
   `e872ddd7ed7071799ad5bf768281268b0acc21f0b7de4f855b7758457fdbc75d` /
   `dd0111aa037b5c2ed4933337dc8d1f58a3b74fb1721bdba8a184ea979acb4881`.
+
+### OC-riscv-v1100-f348000-screen-1 — BOOT_FAIL, recovery required
+
+- Commit `640dbca`, identity `ac3e4e469db5`. Both ISAs built warning-free at
+  the exact 348 MHz PLL point and requested 1.10 V. ARM/RISC-V UF2 SHA-256:
+  `91e6a4fbd1621b46fe804134696f42bb87cb0108cc76e00b395183df98eacad5` /
+  `72c6dd6c7afa503fdc59a0e27fd53ad755e218ab48e773734bdb1f023114cc73`.
+- Hazard3 flash and verification completed successfully, but the runtime USB
+  serial device did not appear within the 40-second capture. Cycle status was
+  2. A bounded post-failure check found no `/dev/ttyACM*` device and no USB
+  device with Raspberry Pi vendor ID `2e8a`, so an identical automatic retry
+  cannot be initiated from the host.
+- No BOOT/KAT/benchmark output exists. Classification is **BOOT_FAIL**, not a
+  correctness or hashrate result and not yet a proven voltage boundary. Per the
+  plan, pause for physical reconnect/BOOTSEL recovery, then first flash the
+  archived stock Hazard3 recovery image. Only after stock passes should the
+  identical 348 MHz/1.10 V point be retried once.
+- Failure record `logs/OC-riscv-v1100-f348000-boot-fail-1.log`, SHA-256
+  `b97e4d2f773aaa40c1c375a3a3cca498be55bbeb046990a27efa2264cb87b6b0`.

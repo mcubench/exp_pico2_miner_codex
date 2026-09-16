@@ -17,6 +17,11 @@
   739,679 aggregate / 676,659 hardware / 63,022 software H/s, 99.999% of the
   fresh stock-control linear prediction. Commit its complete log/evidence, then
   continue the default-voltage frontier at the exact 348 MHz PLL point.
+- Hazard3 348 MHz/1.10 V attempt 1 built/flashed/verified but runtime USB never
+  reappeared. Host doctor and `lsusb -d 2e8a:` find no device, so bounded
+  automatic recovery is exhausted. Failure is logged as BOOT_FAIL, not yet a
+  voltage boundary. After physical BOOTSEL reconnect, flash the archived stock
+  Hazard3 recovery image and validate it, then retry identical 348/1.10 once.
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both
