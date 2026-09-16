@@ -7102,3 +7102,19 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `6d0106c6cc3c1d8612d591f9c0520c653a3c2e7e21fb693e6f134a5700fba4df`.
   Probe 1.25 V next to bracket the minimum against the reproduced 1.20 V
   BOOT_FAIL boundary.
+
+### OC-riscv-v1250-f420000-d4-descend-1 — BOOT_FAIL, recovery required
+
+- Both architectures built warning-free for exact 420 MHz / 1,250 mV /
+  divider 4; ARM/RISC-V UF2 SHA-256 values were
+  `b297c496d87af5ce0285c34181a2fa33a0158ede968be86238981fb926a66999` /
+  `88ae98574b043978e6dbe4fc35b9b94557971e265433658388927b186c176a2a`.
+  The Hazard3 image flashed and verified successfully.
+- Runtime USB did not appear during the bounded 50-second capture, and the
+  post-failure device check found no Raspberry Pi USB device. No BOOT,
+  oracle, benchmark, or mining output exists. Classification is **BOOT_FAIL**.
+- Empty log `logs/OC-riscv-v1250-f420000-d4-boot-fail-1.log`, SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+  This first failure provisionally brackets the transition between 1.25 V and
+  the clean 1.30 V pass, but it must be reproduced after stock recovery before
+  declaring 1.30 V the minimum requested selector.

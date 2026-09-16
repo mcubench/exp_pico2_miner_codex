@@ -2,6 +2,15 @@
 
 ## Latest checkpoint — authoritative
 
+- First 420 MHz / 1.25 V / divider-4 attempt built both architectures and
+  flash-verified, but runtime USB never appeared. No Pico USB device remains;
+  classify as **BOOT_FAIL**. Empty log
+  `logs/OC-riscv-v1250-f420000-d4-boot-fail-1.log` has SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+  Commit this result, physically recover in BOOTSEL, validate stock, then
+  retry the identical 1.25 V point once. A matching failure plus the clean
+  1.30 V run brackets the minimum requested selector at 1.30 V.
+
 - The 420 MHz / 1.30 V / divider-4 point passed all eight suites, the
   4,096-case oracle, 28 windows, and strict capture with the unsafe unlock
   disabled. First-seven medians were 1,035,761 aggregate / 947,326 hardware /
