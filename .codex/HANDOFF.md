@@ -2,6 +2,13 @@
 
 ## Latest checkpoint — authoritative
 
+- 516 MHz / 1.60 V / divider 5 passed all gates and strict capture. First-seven
+  medians were 1,272,262 aggregate / 1,163,606 hardware / 108,659 software
+  H/s (2,465.62 H/s/MHz). Log
+  `logs/OC-riscv-v1600-f516000-d5-phase1-1.log` has SHA-256
+  `5464bf145bc20ac91d696af62be0883a22148f8337e06a4eeef1e46bc952e2f6`.
+  Return to stock and validate recovery before 570 MHz / divider 5 / 1.60 V.
+
 - Stock recovery 34 passed after the reproduced 516 MHz/divider-4 failure.
   Log `logs/OC-riscv-v1100-f150000-d3-recovery-34.log` has SHA-256
   `eb1d8eec6caaf20f4b5e96719f28fd5232b136a793de1f5a3cff587d55e4c908`.

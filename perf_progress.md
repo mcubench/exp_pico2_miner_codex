@@ -7327,3 +7327,13 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   required gates. Log `logs/OC-riscv-v1100-f150000-d3-recovery-34.log`,
   SHA-256 `eb1d8eec6caaf20f4b5e96719f28fd5232b136a793de1f5a3cff587d55e4c908`.
   Test 516 MHz / 1.60 V using auto-selected divider 5 (103.2 MHz SCK).
+### OC-riscv-v1600-f516000-d5-phase1-1 — MEASURE_PASS
+
+- 516 MHz / 1.60 V / divider 5 passed exact BOOT identity (103.2 MHz SCK),
+  all eight suites, the 4,096-case oracle, 13 decision paths, and strict
+  capture.
+- First-seven medians were **1,272,262 aggregate / 1,163,606 hardware /
+  108,659 software H/s**, or **2,465.62 H/s/MHz**, consistent with the
+  2,465.5 slope. Log `logs/OC-riscv-v1600-f516000-d5-phase1-1.log`, SHA-256
+  `5464bf145bc20ac91d696af62be0883a22148f8337e06a4eeef1e46bc952e2f6`.
+  Return to stock and validate recovery before 570 MHz / divider 5 / 1.60 V.
