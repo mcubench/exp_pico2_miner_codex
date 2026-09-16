@@ -6537,3 +6537,17 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   must report that state in BOOT telemetry if it starts.
 - Failure log `logs/OC-riscv-v1300-f396000-boot-fail-2.log`, SHA-256
   `74abdb71d8b526f9460bd5dde3ca0a62741a76be10037253ce5211f3224eb48d`.
+
+### OC-riscv-v1100-f150000-recovery-8 — MEASURE_PASS
+
+- Following the confirmed 396 MHz/1.30 V boot boundary, physical BOOTSEL
+  recovery succeeded. Both stock architecture builds passed warning-free and
+  matched the archived recovery images. Hazard3 run `30004927-00000001`
+  passed exact BOOT identity, all correctness gates, standalone benchmarks,
+  nine synchronized windows, and strict capture.
+- Standalone hardware/full/filter rates are **343,990 / 28,430 / 31,685
+  H/s**. First-seven medians are **369,846 aggregate / 338,328 hardware /
+  31,517 software H/s**, consistent with every valid stock recovery.
+- Complete log `logs/OC-riscv-v1100-f150000-recovery-8.log`, SHA-256
+  `03d8ac909a758d56d7245adc0e666504a65ff46b553871756a055df594fe8441`.
+  Recovery is validated; hold 396 MHz and test requested 1.40 V next.

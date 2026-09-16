@@ -79,6 +79,11 @@
   Pico device. This reproduces BOOT_FAIL and establishes 1.30 V as a failing
   lower bound. Commit this evidence, then request physical BOOTSEL recovery,
   validate stock, and test 396 MHz/1.40 V (the next two-selector jump).
+- Physical recovery after the confirmed 1.30 V boundary is complete. Stock
+  Hazard3 run `30004927-00000001` passed all gates and nine windows with
+  first-seven medians 369,846 aggregate / 338,328 hardware / 31,517 software
+  H/s. Recovery log is `logs/OC-riscv-v1100-f150000-recovery-8.log`. Commit
+  it, then test 396 MHz/1.40 V with the explicit unsafe-voltage telemetry.
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both
