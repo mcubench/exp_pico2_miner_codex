@@ -2,6 +2,15 @@
 
 ## Latest checkpoint — authoritative
 
+- Mandatory stock recovery 23 after the 1.60 V pass completed cleanly. All
+  eight suites, the 4,096-case oracle, nine windows, and strict capture passed
+  at first-seven medians 369,937 aggregate / 338,344 hardware / 31,596
+  software H/s. Log `logs/OC-riscv-v1100-f150000-d3-recovery-23.log` has
+  SHA-256 `6c7de048d543615fd109338de4cd21db0ca0f6be6e6d64c218bbce3025728bea`.
+  Commit this recovery, then efficiently descend at fixed 420 MHz/divider 4:
+  test 1.40 V (midpoint of known 1.20 V fail and 1.60 V pass); if pass test
+  1.30 V, if fail test 1.50 V. Keep the oracle mandatory and log every point.
+
 - The user-directed top-down voltage point passed: 420 MHz / 1.60 V /
   divider 4 (105 MHz QMI) completed all eight suites, the 4,096-case oracle,
   27 windows, and strict capture. First-seven medians were 1,035,500

@@ -7045,3 +7045,22 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Complete log `logs/OC-riscv-v1600-f420000-d4-descend-1.log`, SHA-256
   `0b451d6f7cdbd2a875ac2891610e780852aadbe8d56e96be42b7a2e4f889683f`.
   Return to stock and validate recovery before descending to a lower voltage.
+
+### OC-riscv-v1100-f150000-d3-recovery-23 — MEASURE_PASS
+
+- The mandatory recovery immediately after the 1.60 V unsafe-overvoltage run
+  passed. Both architectures built warning-free and the stock ARM/RISC-V UF2
+  hashes returned exactly to
+  `573db5ece266e57203e9282e785147667082500cf825685c84673f49b35591b7` /
+  `1ff0cb440299c3d450ee6a03219323bb780ced1e99019c97a340c1a40ca1890b`.
+- Run `30004927-00000003` reported exact stock voltage, clock, and 50 MHz QMI.
+  All eight suites, the 4,096-case oracle, standalone benchmarks, nine
+  windows, and strict capture passed. Standalone hardware/full/filter rates
+  were **343,203 / 28,636 / 31,772 H/s**; first-seven medians were **369,937
+  aggregate / 338,344 hardware / 31,596 software H/s**.
+- Complete log `logs/OC-riscv-v1100-f150000-d3-recovery-23.log`, SHA-256
+  `6c7de048d543615fd109338de4cd21db0ca0f6be6e6d64c218bbce3025728bea`.
+  Post-overvoltage recovery is validated. Continue the descending search at
+  fixed 420 MHz/divider 4 using 1.40 V as the midpoint between the known
+  1.20 V failure and 1.60 V pass; if it passes, descend to 1.30 V, otherwise
+  bracket upward at 1.50 V.
