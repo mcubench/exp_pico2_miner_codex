@@ -40,9 +40,10 @@ changes and keep temperature disabled.
   after candidate 104. It is a planning-only update; no device test or source
   experiment was performed while preparing it. Its first recommendation is an
   ARM factor-4 hot/cold worker split, followed conditionally by ARM factor 8.
-- Candidate 105 implements that A1 split for ARM only. Dirty preflight passes:
-  ARM worker size/frame fall from 2,196/188 to 1,452/156 bytes and image text
-  falls 608 bytes; Hazard3 remains 1,028-byte factor 1 and 200,924-byte text.
+- Candidate 105 commit `421121c`, source identity `8b850732e27f`, is retained.
+  ARM reached 360,342 aggregate / 328,912 hardware H/s, +0.218%/+0.241% over
+  candidate 103, while removing 616 total text bytes. Hazard3 remains factor 1.
+  The board now runs accepted candidate 105 ARM.
 
 ## Completed work in this session
 
@@ -93,13 +94,13 @@ work was requested for the planning update. Do not repeat main-SRAM hardware-
 worker placement, software batch factor 8, scratch-X filter placement, E08 queue
 polling at 1 or 64 hashes, or rejected E14 chunk variants unchanged.
 
-Candidate 105 A1 is implemented and has passed dirty preflight. Both stock
-builds and all eight host tests pass. Final disassembly confirms the common ARM
-path has no helper call or completion-count arithmetic; only four rare stubs
-call the shared exact comparison/capture/publication helper. Record commit,
-clean-rebuild both architectures, then run a strict ARM cycle and compare with
-candidate 103's 359,558 aggregate / 328,122 hardware H/s. Do not start factor 8
-until candidate 105 has a recorded retain/reject decision.
+Candidate 105 A1 passed and is retained. All correctness gates and nine windows
+passed; first-seven medians are 360,342 aggregate / 328,912 hardware / 31,430
+software H/s. Log `logs/A1-cold-share-arm.log` has SHA-256
+`9a4f2f...a5daaab`. Record/commit this evidence, then define A2 as an ARM-only
+factor-8 change on candidate 105. Preflight must show eight physical bodies,
+no inner counter, no hot helper call or completion-count arithmetic, no frame
+growth/spills, and acceptable text growth. Hazard3 remains factor 1.
 
 Candidate 104 commit `6dc1941`, identity `638fe640df92`, passed correctness but
 is rejected. ARM worker-in-main-SRAM measured 358,620 aggregate / 327,806

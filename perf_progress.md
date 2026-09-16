@@ -5652,3 +5652,31 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   are `fdad37e01368db2d1722d7061ecf4590a4653ec4caa381f780af3266b004a64f` /
   `c4cb72e1de12c321803048a7efd4ea7a3a1dcacba95f87f217a0286f9552c083`.
   Commit and clean-rebuild both architectures before the ARM hardware run.
+
+### A1 ARM factor-4 cold share path attempt 105a — pass, retain
+
+- Candidate commit `421121c`, source identity `8b850732e27f`, normal profile,
+  stock 150 MHz, temperature disabled, run ID `30004927-0000001e`. The cycle
+  rebuilt both architectures before flashing ARM. All 8 suites, the 4,096-case
+  oracle, standalone benchmarks, nine common windows, and strict 50-second
+  capture passed without a fault.
+- Standalone hardware/full/filter rates were **331,085 / 30,364 / 31,578
+  H/s**, exactly matching candidate 103's recorded standalone values. The
+  first-seven window medians were aggregate **360,342 H/s** (range
+  360,338-360,349), hardware **328,912 H/s** (328,908-328,918), and software
+  **31,430 H/s** (31,429-31,434).
+- Versus retained candidate 103, aggregate is **+784 H/s (+0.218%)**,
+  hardware **+790 H/s (+0.241%)**, and software **-5 H/s (-0.016%)**. The
+  hardware gain is stable across every window while software is effectively
+  unchanged, supporting the intended XIP-locality mechanism.
+- Clean ARM/RISC-V UF2 SHA-256 values are
+  `0c12f2464dd682cfc91855b5051d139d0420115c3e291c7a7bf3e9564cea351f` /
+  `e8b32412926d19c609e8e72b66c6b3492d7efd2d6f650e79583d38467b00d942`.
+  Clean text/BSS is **189,504/4,708** ARM and **200,924/4,440** Hazard3.
+  Complete ARM log SHA-256 is
+  `9a4f2f512f6f57fd5633f8b05a78b3ffbd2277ec9c863f17374348800a5daaab`;
+  archived as `logs/A1-cold-share-arm.log`.
+- **Decision: retain candidate 105.** It improves ARM hardware and aggregate
+  throughput while removing 616 total text bytes and 744 bytes from the
+  worker. The board is left running accepted candidate 105 ARM. Candidate 105
+  is the parent for the separately measured A2 ARM factor-8 experiment.
