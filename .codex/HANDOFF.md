@@ -119,6 +119,11 @@ changes and keep temperature disabled.
   the winner of the ARM O2/O3/Os comparison. Both restored artifacts, sizes,
   identity, and all eight host tests exactly match candidate 109. Commit this
   evidence, then perform C1's required static equivalence check.
+- C1 is closed by static equivalence. Retained Hazard3 emits one
+  `al3_read_addr_trig` store at `0x10001544`; a 64-byte ring still needs one
+  trigger/count-reload store plus the same address calculation and completion
+  wait. No source or hardware candidate was created. Next is D1 two-phase tail
+  takeover; leave C2/C3 gated on refreshed profiling evidence.
 
 ## Completed work in this session
 

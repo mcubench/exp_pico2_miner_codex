@@ -6125,3 +6125,22 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `81dde72e8cd7be15e26a9b436ebcb38310170e4a1c29fdd44fdc33f321ad9f3b` /
   `8bad952bd188e6e35a0a33b677690802e782be8a97f5163c30334ed022d18612`.
   Both builds and all eight host tests pass; no device run was performed.
+
+## 2026-09-16 — C1 Hazard3 DMA-ring static comparison — equivalent, closed
+
+- Inspected retained candidate 109's linked Hazard3 `mining_worker_core1`
+  (1,028 bytes). The E06-trigger first-block restart is already exactly one hot
+  MMIO store: `sw s7,60(t2)` at `0x10001544`, corresponding to
+  `al3_read_addr_trig`. The channel index/address calculation precedes it and
+  the required DMA busy wait follows it.
+- That trigger write simultaneously restores the fixed 64-byte source address,
+  starts the channel, and reloads the saved 16-word transfer count. Configuring
+  a 64-byte read-address ring would wrap the address automatically, but the
+  exhausted transfer count would still require one trigger write on every
+  nonce. A count-trigger alias uses the same one store, channel-address work,
+  and completion wait; it does not eliminate an instruction or MMIO operation.
+- **Decision: close C1 as statically equivalent.** Per update2, do not implement
+  or flash a DMA ring that merely expresses the retained one-write control path
+  differently. There is no firmware candidate, artifact change, or hardware
+  measurement for this analysis. Proceed to D1; C2/C3 remain gated on refreshed
+  profiling and a demonstrated distinct resource/slack interval.
