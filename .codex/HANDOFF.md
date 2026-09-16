@@ -58,6 +58,17 @@
   1.20 V a failing lower bound at 396 MHz. Commit recovery 4 and attempt 2.
   Physical BOOTSEL recovery is again required; after stock validation test
   396 MHz/1.30 V (two selector indices higher), then 1.25 V if 1.30 V passes.
+- Commit `ded6724` records that reproduced boundary. After physical recovery,
+  a 25-second stock capture passed firmware checks but failed the host contract
+  because only three of five required windows fit; it is retained as an
+  incomplete RESET_OR_LINK_FAIL. The immediate 50-second recovery repeat
+  passed nine windows at 369,846 aggregate / 338,329 hardware / 31,517
+  software H/s. Test 396 MHz/1.30 V next.
+- The stock recovery evidence includes an intentionally short 25-second
+  incomplete capture and a clean 50-second pass. Then 396 MHz/1.30 V attempt 1
+  built/flashed/verified but again produced no runtime USB device or BOOT.
+  Record/commit the BOOT_FAIL. Physical recovery and an identical 396/1.30
+  retry are required; do not change voltage or clock before that retry.
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both

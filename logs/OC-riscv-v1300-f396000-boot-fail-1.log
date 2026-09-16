@@ -1,0 +1,10 @@
+EXPERIMENT id=OC-riscv-v1300-f396000-screen-1
+CONFIG source_commit=640dbca source_id=ac3e4e469db5 arch=RISCV-HAZARD3 requested_clock_khz=396000 requested_vreg_mv=1300 monitor_seconds=50
+PLL_CATALOG realized_khz=396000 vco_khz=1584000 postdiv1=4 postdiv2=1
+BUILD:PASS arch=arm uf2_sha256=e65c28906589a0fcde281d548369ffff8f8f9413bfe4e1e0e31374d0d079e033
+BUILD:PASS arch=riscv uf2_sha256=874d0470d2191fdb3ed9fcb3ec51068db721ad394d5daa369989ea8c369bdf9d
+FLASH:PASS arch=riscv verification=OK
+ERROR: Raspberry Pi USB serial device did not appear
+CYCLE:FAIL status=2 classification=BOOT_FAIL
+RECOVERY_CHECK lsusb_vendor_2e8a=absent tty_acm=absent
+NOTE No BOOT, KAT, benchmark, or mining output was observed. One failure does not establish the 1.30 V result. Physical BOOTSEL recovery and an identical retry are required before changing voltage.

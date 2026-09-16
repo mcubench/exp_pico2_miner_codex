@@ -6464,3 +6464,43 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   selector indices to 1.30 V. If 1.30 V passes, test skipped 1.25 V next.
   Failure log `logs/OC-riscv-v1200-f396000-boot-fail-2.log`, SHA-256
   `36abc9d99fbde544cc91be4b38cd63b5c6f19eba64a6b5f87f0d5e6cc69c473b`.
+
+### OC-riscv-v1100-f150000-recovery-incomplete-5 — RESET_OR_LINK_FAIL
+
+- A deliberately shortened 25-second stock recovery capture passed exact BOOT
+  identity, all eight correctness suites, standalone benchmarks, and three
+  complete synchronized windows. The host contract requires five windows, so
+  it returned nonzero with `incomplete validation output` and is classified
+  **RESET_OR_LINK_FAIL** by the missing-required-reports rule. This was a host
+  capture-duration mistake, not evidence of a firmware reset or computation
+  failure; no stock validation claim is based on it.
+- Incomplete log SHA-256 is
+  `a4653984c465a3ada43d5af24423096e5717dc09808f197aa37fffc706f034ba`.
+  Repeat stock recovery with the established 50-second duration.
+
+### OC-riscv-v1100-f150000-recovery-6 — MEASURE_PASS
+
+- The immediate 50-second repeat used the byte-identical archived stock image.
+  Run `30004927-00000002` passed all correctness and strict-capture gates with
+  nine synchronized windows. Standalone hardware/full/filter rates are
+  **343,991 / 28,430 / 31,685 H/s**; first-seven medians are **369,846
+  aggregate / 338,329 hardware / 31,517 software H/s**, matching baseline.
+- Complete log `logs/OC-riscv-v1100-f150000-recovery-6.log`, SHA-256
+  `4528327da8349999caf33d144d9944b3e193531d29e28b8ed81e14704c3efb6f`.
+  Stock recovery is validated; test 396 MHz/1.30 V next.
+
+### OC-riscv-v1300-f396000-screen-1 — BOOT_FAIL, recovery required
+
+- Both architecture builds passed warning-free at exact 396 MHz and requested
+  1.30 V. ARM/RISC-V UF2 SHA-256 values are
+  `e65c28906589a0fcde281d548369ffff8f8f9413bfe4e1e0e31374d0d079e033` /
+  `874d0470d2191fdb3ed9fcb3ec51068db721ad394d5daa369989ea8c369bdf9d`.
+  Hazard3 flash and verification passed, but runtime USB did not appear during
+  the 50-second strict capture; the bounded check found no Pico USB device or
+  `/dev/ttyACM*`. No BOOT or test output exists. Classification is
+  **BOOT_FAIL**.
+- One failure does not establish the 1.30 V result. Physically recover and
+  validate stock, then retry the identical 396 MHz/1.30 V image once before
+  selecting another voltage or changing frequency. Failure log
+  `logs/OC-riscv-v1300-f396000-boot-fail-1.log`, SHA-256
+  `2c5f03ade6d6898252469406ff829ec61a8ffff3a89c3e2cd4b67ad44a03c9ab`.
