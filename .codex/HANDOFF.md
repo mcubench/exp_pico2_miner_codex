@@ -2,6 +2,14 @@
 
 ## Latest checkpoint — authoritative
 
+- Required repeat of 420 MHz / 1.30 V / divider 4 passed all gates, 27 windows,
+  and strict capture. First-seven medians were 1,035,719 aggregate / 947,300
+  hardware / 88,421 software H/s. Log
+  `logs/OC-riscv-v1300-f420000-d4-descend-2.log` has SHA-256
+  `6e7976a838aa0756309a9d5038b11bb49647d59bd349da1d3227e32a98126587`.
+  The 1.30 V minimum requested selector is confirmed; next is 444 MHz /
+  divider 4 at 1.30 V after the required stock return.
+
 - Stock recovery 25 after the reproduced 420 MHz / 1.25 V / divider-4 failure
   passed all required gates and strict capture. First-seven medians were
   369,939 aggregate / 338,344 hardware / 31,596 software H/s. Log

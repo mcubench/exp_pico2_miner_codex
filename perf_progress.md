@@ -7162,3 +7162,14 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   software H/s. Log `logs/OC-riscv-v1100-f150000-d3-recovery-25.log`, SHA-256
   `86712b86daee38e70fdd580f301df4ebe7aaaadda9770ae361ccb66a0bc4eafe`.
   Recovery is validated; repeat the clean 420 MHz / 1.30 V / divider-4 point.
+### OC-riscv-v1300-f420000-d4-descend-2 — MEASURE_PASS, transition confirmed
+
+- Required Tier-B repeat at 420 MHz / 1.30 V / divider 4 passed exact BOOT
+  identity (105 MHz QMI SCK), all eight suites, the 4,096-case oracle, 13
+  decision paths, 27 windows, and strict capture.
+- First-seven medians were **1,035,719 aggregate / 947,300 hardware / 88,421
+  software H/s**. Standalone rates were 960,992 / 80,182 / 88,963 H/s.
+- Complete log `logs/OC-riscv-v1300-f420000-d4-descend-2.log`, SHA-256
+  `6e7976a838aa0756309a9d5038b11bb49647d59bd349da1d3227e32a98126587`.
+  The 1.30 V minimum requested selector at 420 MHz/divider 4 is confirmed;
+  proceed with the divider-4 upward walk at the same selector.
