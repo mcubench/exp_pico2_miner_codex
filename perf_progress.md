@@ -7534,3 +7534,17 @@ short-run captures are represented by these measured console records; the
 564 MHz failure is archived as
 `logs/HWONLY-riscv-v1600-f564000-d5-link-fail-1.log` (SHA-256
 `eb80afa478e3223bdaac2c013a007945ae682150d4a69f4a6b1523ab4a475000`).
+
+### Delayed dual-core startup reruns
+
+- **516 MHz / 1.60 V / divider 5:** full capture passed with BOOT, oracle,
+  benchmarks, and required mining/window records; total rate remained about
+  **1,272,4xx H/s**. Log:
+  `logs/DUAL-DELAY-riscv-v1600-f516000-d5-rerun.log`, SHA-256
+  `c02a2669b716d42748bfe9440a5bb149c52ead5fa1b7a41220119cb2cdf1c41e`.
+- **558 MHz / 1.60 V / divider 5:** BOOT, oracle, benchmarks, and mining
+  output passed; the 50-second wrapper ended with only three progress records
+  and zero measurement windows, so classify as **screen PASS / capture
+  incomplete**, not a throughput retention result. Log:
+  `logs/DUAL-DELAY-riscv-v1600-f558000-d5-rerun.log`, SHA-256
+  `8d6014245fafd1b669ba91d6ebbab1a4e464ed6ae3fb241122e5deb8e300c272`.
