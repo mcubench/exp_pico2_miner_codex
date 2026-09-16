@@ -40,6 +40,9 @@ changes and keep temperature disabled.
   after candidate 104. It is a planning-only update; no device test or source
   experiment was performed while preparing it. Its first recommendation is an
   ARM factor-4 hot/cold worker split, followed conditionally by ARM factor 8.
+- Candidate 105 implements that A1 split for ARM only. Dirty preflight passes:
+  ARM worker size/frame fall from 2,196/188 to 1,452/156 bytes and image text
+  falls 608 bytes; Hazard3 remains 1,028-byte factor 1 and 200,924-byte text.
 
 ## Completed work in this session
 
@@ -90,11 +93,13 @@ work was requested for the planning update. Do not repeat main-SRAM hardware-
 worker placement, software batch factor 8, scratch-X filter placement, E08 queue
 polling at 1 or 64 hashes, or rejected E14 chunk variants unchanged.
 
-For the next source experiment, use `planned_optimizations_update2.md`. First
-try candidate A1 by sharing only the ARM factor-4 worker's cold candidate,
-publication, fault/exhaustion, and report paths. The common no-share path must
-gain no call, load, or branch. Measure candidate A1 separately before trying
-ARM factor 8. Hazard3 remains factor 1.
+Candidate 105 A1 is implemented and has passed dirty preflight. Both stock
+builds and all eight host tests pass. Final disassembly confirms the common ARM
+path has no helper call or completion-count arithmetic; only four rare stubs
+call the shared exact comparison/capture/publication helper. Record commit,
+clean-rebuild both architectures, then run a strict ARM cycle and compare with
+candidate 103's 359,558 aggregate / 328,122 hardware H/s. Do not start factor 8
+until candidate 105 has a recorded retain/reject decision.
 
 Candidate 104 commit `6dc1941`, identity `638fe640df92`, passed correctness but
 is rejected. ARM worker-in-main-SRAM measured 358,620 aggregate / 327,806

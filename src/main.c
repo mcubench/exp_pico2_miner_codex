@@ -1044,6 +1044,27 @@ static uint64_t mining_fifo_pop_u64(void) {
     return low | ((uint64_t)multicore_fifo_pop_blocking() << 32u);
 }
 
+#ifndef __riscv
+static __attribute__((cold, noinline)) void mining_worker_publish_share_if_valid(
+    const sha256_result_t *target, uint32_t nonce, uint64_t completed_hashes) {
+    // The unrolled ARM worker performs only the usual high-word rejection in
+    // each hot body. Keep the exact generic comparison, digest capture, and
+    // multiword FIFO publication in one shared cold path.
+    if (!current_hash_meets_target(target)) {
+        return;
+    }
+
+    sha256_result_t hash;
+    capture_current_hash(&hash);
+    multicore_fifo_push_blocking(MINING_MESSAGE_SHARE);
+    multicore_fifo_push_blocking(nonce);
+    mining_fifo_push_u64(completed_hashes);
+    for (size_t word = 0u; word < 8u; ++word) {
+        multicore_fifo_push_blocking(hash.words[word]);
+    }
+}
+#endif
+
 static void mining_worker_fault(uint32_t code, uint32_t nonce,
                                 uint32_t invalid_batch) {
     multicore_fifo_push_blocking(MINING_MESSAGE_FAULT);
@@ -1056,7 +1077,9 @@ static void mining_worker_fault(uint32_t code, uint32_t nonce,
 }
 
 static MINING_LOOP_OPTIONS void mining_worker_core1(void) {
+#ifdef __riscv
     sha256_result_t hash;
+#endif
     sha256_result_t target;
     bitcoin_hasher_t hasher;
     uint32_t nonce = 0u;
@@ -1093,15 +1116,14 @@ static MINING_LOOP_OPTIONS void mining_worker_core1(void) {
             }
 #endif
             ++since_report;
+#ifdef __riscv
             const bool candidate = current_hash_meets_target(&target);
 
             if (candidate) {
-#ifdef __riscv
                 if (sha256_err_not_ready()) {
                     bitcoin_hasher_end(&hasher);
                     mining_worker_fault(2u, nonce, since_report);
                 }
-#endif
                 capture_current_hash(&hash);
                 multicore_fifo_push_blocking(MINING_MESSAGE_SHARE);
                 multicore_fifo_push_blocking(nonce);
@@ -1110,6 +1132,13 @@ static MINING_LOOP_OPTIONS void mining_worker_core1(void) {
                     multicore_fifo_push_blocking(hash.words[word]);
                 }
             }
+#else
+            if (__builtin_expect(target.words[7] != 0u
+                                 || sha256_hw->sum[7] == 0u, false)) {
+                mining_worker_publish_share_if_valid(
+                    &target, nonce, total_hashes + since_report);
+            }
+#endif
             nonce += 2u;
             if (nonce == 0u) {
                 bitcoin_hasher_end(&hasher);

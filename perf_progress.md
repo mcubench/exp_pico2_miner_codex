@@ -5611,3 +5611,44 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   Existing candidate-103 ARM and candidate-102 Hazard3 hardware evidence
   therefore remains valid; no redundant restoration run is claimed. The board
   still carries rejected candidate 104 ARM until the next accepted flash.
+
+## 2026-09-16 — A1 ARM factor-4 cold share path candidate 105 definition
+
+- Parent is retained candidate 103 at source identity `104da455bdbb`; planning
+  checkpoint `7bcd29e` changes no firmware identity. ARM's factor-4 worker
+  currently duplicates the exact eight-word target comparison, digest capture,
+  and multiword share publication in all four emitted nonce bodies.
+- Change only ARM: retain the common zero-high-target rejection in each hot
+  body, then call one no-inline cold helper only when the target high word is
+  nonzero or hardware SUM7 is zero. The helper repeats the safety gate, performs
+  the unchanged generic comparison, captures all eight words, and publishes the
+  same nonce/completed count/digest record. Hazard3 retains its original factor-1
+  candidate path.
+- Hypothesis: removing four copies of rare comparison/publication machinery will
+  improve ARM XIP locality directly and make a later factor-8 candidate viable.
+  The normal difficulty-1 no-share path must gain no load, comparison, branch,
+  call, or completion-count arithmetic versus candidate 103.
+- Rejection rule: reject any warning, KAT/oracle/share/count/fault or strict
+  capture failure, any hot-path spill/frame growth, failure to reduce the ARM
+  worker materially, or a repeatable aggregate/hardware regression versus
+  candidate 103's 359,558 / 328,122 H/s. A throughput-neutral result may be
+  retained only if correctness is exact and its code-size reduction is useful
+  for the separately measured factor-8 follow-up.
+
+### A1 ARM factor-4 cold share path candidate 105 preflight — pass
+
+- Both dirty stock builds pass warning-free and all eight host monitor tests
+  pass. ARM text/BSS is **189,512/4,708 bytes**, 608 fewer text bytes than the
+  restored candidate-103 image; Hazard3 remains exactly **200,924/4,440**.
+- ARM `mining_worker_core1` is `0x100003c4..0x10000970`, **1,452 bytes** versus
+  the parent's 2,196 bytes (-744), and its frame falls from 188 to 156 bytes.
+  The single cold comparison/capture/publication helper is 128 bytes with a
+  36-byte frame. Each hot body still emits only the target-word-7 load/check and
+  SUM7 load/check before continuing; helper calls and 64-bit completed-count
+  arithmetic appear only in four out-of-line rare stubs. No hot FIFO call or
+  inner batch loop was introduced.
+- Hazard3's worker remains `0x10001478..0x1000187c`, **1,028 bytes**, with the
+  original candidate and publication path. Dirty ARM/RISC-V UF2 SHA-256 values
+  are `fdad37e01368db2d1722d7061ecf4590a4653ec4caa381f780af3266b004a64f` /
+  `c4cb72e1de12c321803048a7efd4ea7a3a1dcacba95f87f217a0286f9552c083`.
+  Commit and clean-rebuild both architectures before the ARM hardware run.
