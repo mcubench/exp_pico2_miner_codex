@@ -6797,3 +6797,17 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
   Two matching failures establish 480 MHz as a failing bound at 1.60 V.
   Physically recover and validate stock before the next lower bisection point.
+
+### OC-riscv-v1100-f150000-recovery-15 — MEASURE_PASS
+
+- Physical BOOTSEL recovery after the reproduced 480 MHz failure produced a
+  complete verified stock flash. Hazard3 run `30004927-00000001` passed exact
+  stock identity, all correctness gates, standalone benchmarks, nine windows,
+  and strict capture.
+- Standalone hardware/full/filter rates are **343,993 / 28,430 / 31,685 H/s**;
+  first-seven medians are **369,847 aggregate / 338,330 hardware / 31,517
+  software H/s**, matching baseline.
+- Complete log `logs/OC-riscv-v1100-f150000-recovery-15.log`, SHA-256
+  `37f4c0420aebee09eba1dde7923590c7ac3e120cacb7effe048f2259b2b0b126`.
+  Recovery is validated; select the next lower exact PLL midpoint in the
+  396 MHz pass / 480 MHz fail interval (approximately 444 MHz) at 1.60 V.

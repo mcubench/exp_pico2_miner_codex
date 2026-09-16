@@ -9,6 +9,12 @@
   `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`).
   Two failures establish 480 MHz as a failing bound at 1.60 V. Physically
   recover and validate stock before selecting the next lower exact midpoint.
+- Physical BOOTSEL recovery after that failure passed stock again. Recovery
+  log `logs/OC-riscv-v1100-f150000-recovery-15.log` has SHA-256
+  `37f4c0420aebee09eba1dde7923590c7ac3e120cacb7effe048f2259b2b0b126` and
+  first-seven medians 369,847 aggregate / 338,330 hardware / 31,517 software
+  H/s. Select the next lower exact PLL midpoint in the 396–480 MHz interval
+  (approximately 444 MHz) at 1.60 V.
 
 - Overclock execution has started. Phase-0 source/wrapper/monitor infrastructure
   is implemented and stock-builds on both ISAs; 13 host monitor tests pass.
