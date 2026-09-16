@@ -2,6 +2,16 @@
 
 ## Latest checkpoint — authoritative
 
+- User explicitly changed the next search order: test 420 MHz / divider 4 at
+  1.60 V, then descend voltage after a clean pass; do not run the previously
+  planned 396 MHz / 1.20 V diagnostic first. Stock recovery 22 has passed all
+  eight suites, the 4,096-case oracle, nine windows, and strict capture at
+  369,934 aggregate / 338,341 hardware / 31,595 software H/s first-seven
+  medians. Log `logs/OC-riscv-v1100-f150000-d3-recovery-22.log` has SHA-256
+  `09e37a45222920accc986a8f6aa2393806d8e19d59f51741f3150983cabda458`.
+  Commit this evidence, then run 420 MHz / 1.60 V / divider 4. Label it unsafe
+  overvoltage, retain the full oracle gate, and return to stock after it.
+
 - The identical 420 MHz / 1.20 V / divider-4 retry reproduced **BOOT_FAIL**.
   Both architectures built warning-free and artifact hashes exactly match
   attempt 1; Hazard3 flash/verify passed, but no runtime USB appeared in the

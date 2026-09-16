@@ -7007,3 +7007,22 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   Divider 4 alone does not make 420 MHz boot at 1.20 V in the current image.
   Physically recover and validate stock, then run the planned discriminating
   396 MHz / 1.20 V / divider-4 point before changing voltage.
+
+### OC-riscv-v1100-f150000-d3-recovery-22 — MEASURE_PASS
+
+- After the reproduced 420 MHz / 1.20 V / divider-4 failure, physical BOOTSEL
+  recovery and the stock control completed successfully. Both architectures
+  built warning-free; committed ARM/RISC-V recovery UF2 hashes remained
+  `573db5ece266e57203e9282e785147667082500cf825685c84673f49b35591b7` /
+  `1ff0cb440299c3d450ee6a03219323bb780ced1e99019c97a340c1a40ca1890b`.
+- Run `30004927-00000001` reported exact 150 MHz / 1,100 mV / divider 3 and
+  50 MHz QMI SCK. All eight suites, the 4,096-case oracle, standalone
+  benchmarks, nine windows, and strict capture passed. Standalone
+  hardware/full/filter rates were **343,206 / 28,636 / 31,772 H/s**;
+  first-seven progress medians were **369,934 aggregate / 338,341 hardware /
+  31,595 software H/s**.
+- Complete log `logs/OC-riscv-v1100-f150000-d3-recovery-22.log`, SHA-256
+  `09e37a45222920accc986a8f6aa2393806d8e19d59f51741f3150983cabda458`.
+  Per explicit user direction, test 420 MHz / divider 4 at 1.60 V next and
+  descend voltage only after a clean pass. This supersedes the plan's prior
+  396 MHz diagnostic and low-to-high voltage order.
