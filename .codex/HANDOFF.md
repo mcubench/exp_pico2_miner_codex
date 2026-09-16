@@ -106,6 +106,12 @@
   software H/s. This confirms the device/host path and isolates the silent
   failures to 396 MHz. Commit the log, then the no-bracket two-selector rule
   selects 396 MHz/1.60 V; label unsafe-overvoltage and recover stock afterward.
+- 396 MHz/1.60 V attempt 1 passed all gates and 23 windows at first-seven
+  medians 976,340 aggregate / 893,137 hardware / 83,201 software H/s, with
+  correct unsafe flag/readback. The immediate automatic stock return was
+  indeterminate (empty tracked serial, no load/verify, silent tty). Commit both
+  artifacts. Physical BOOTSEL recovery and stock validation are required, then
+  repeat 396/1.60 once because it defines the voltage transition.
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both

@@ -1,0 +1,9 @@
+EXPERIMENT id=OC-riscv-v1100-f150000-post-v1600-recovery-1
+CONFIG source_commit=640dbca source_id=ac3e4e469db5 arch=RISCV-HAZARD3 requested_clock_khz=150000 requested_vreg_mv=1100 monitor_seconds=50
+BUILD:PASS arch=arm uf2_sha256=03023e4d2274144c419480c7a7893912c4754beb8c073f26e3884a184dbe55a6
+BUILD:PASS arch=riscv uf2_sha256=ccb0523e5e127cbe7b98dbbe1e6f3a8578690b37d90664a214e367c274bc3c1e
+FLASH:INDETERMINATE arch=riscv note=picotool_reported_success_without_normal_load_or_verify_transcript tracked_serial_empty
+SERIAL_PORT=/dev/ttyACM0
+ERROR: incomplete validation output: BOOT, eight-test summary, hardware benchmark, software benchmark, filter benchmark, MINING:START, five MINING:PROGRESS records (0 seen), five MEASUREMENT:WINDOW records (0 seen)
+CYCLE:FAIL status=5 classification=RESET_OR_LINK_FAIL
+NOTE The mandatory post-1.60 V stock return did not produce programming/verification evidence and the tty remained silent. Physical BOOTSEL recovery is required; this is not a stock firmware result.

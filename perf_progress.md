@@ -6628,3 +6628,33 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `3ed64eacef308ef33a9055730b0c59b8056223b7463fe97a99ef9732a48d0f14`.
   With no passing bracket at 396 MHz, the two-selector jump from 1.40 V selects
   requested 1.60 V next; it is explicitly an unsafe-overvoltage point.
+
+### OC-riscv-v1600-f396000-measure-1 — MEASURE_PASS, unsafe-overvoltage
+
+- Both architecture builds passed warning-free; ARM/RISC-V UF2 SHA-256 values
+  are `98c1b8bc65a4aa6ed0718209383674a6c3b1bb112813493f4107d17e6f2aa467` /
+  `a5262b6dc6a15bca3bc6f7ab5340c831b61cc260fb684181ac63715c6d2ac44c`.
+  Hazard3 run `30004927-00000003` reported exact 396 MHz, requested/read-back
+  1,600/1,600 mV, selector 19, and `unsafe_voltage_limit_disabled=1`.
+- All eight device suites, the 4,096-case oracle, 13 decision cases, standalone
+  benchmarks, 23 windows, and strict capture passed. Standalone hardware/full/
+  filter rates are **908,150 / 75,055 / 83,649 H/s**.
+- First-seven medians are **976,340 aggregate / 893,137 hardware / 83,201
+  software H/s**. Aggregate range is 31 H/s and MAD is 7 H/s. Rates per MHz
+  are 2,465.51 / 2,255.40 / 210.10 H/s/MHz; scaling efficiencies versus the
+  fresh stock control are approximately 99.995% / 99.994% / 99.995%.
+- Complete log `logs/OC-riscv-v1600-f396000-measure-1.log`, SHA-256
+  `919667e82d67056417f3d7d5997ffaab34f255598ca2ce857765b98c82c9738b`.
+  Because this point defines the transition above reproduced 1.40 V failure,
+  repeat Tier B once after the mandatory stock recovery.
+
+### OC-riscv-v1100-f150000-post-v1600-recovery-1 — RESET_OR_LINK_FAIL, flash indeterminate
+
+- The immediate required return to stock rebuilt both recovery images, but
+  picotool reported an empty tracked serial and returned success without its
+  normal load/verify transcript. `/dev/ttyACM0` then emitted zero bytes for the
+  complete capture. This is **RESET_OR_LINK_FAIL**, not a stock firmware run.
+- Annotated capture
+  `logs/OC-riscv-v1100-f150000-post-v1600-recovery-link-fail-1.log`, SHA-256
+  `72e058713afe342a1acb664ac33bdc23d4b526d5848c312a01ad47bd43f90c4f`.
+  Physical BOOTSEL recovery is required before any further overclock test.
