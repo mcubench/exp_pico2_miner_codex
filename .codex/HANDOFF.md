@@ -41,6 +41,11 @@
   `logs/OC-riscv-v1600-f420000-boot-fail-1.log` has SHA-256
   `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
   Physically recover and validate stock, then retry 420 MHz identically.
+- Stock recovery 18 passed after the 420 MHz failure. Log
+  `logs/OC-riscv-v1100-f150000-recovery-18.log` has SHA-256
+  `ff2b250b6d0a2b262ab88f2ed03055f3759d79d135bdb57b52c047c2d22d795d` and
+  first-seven medians 369,844 aggregate / 338,327 hardware / 31,517 software
+  H/s. Retry 420 MHz / 1.60 V identically.
 
 - Overclock execution has started. Phase-0 source/wrapper/monitor infrastructure
   is implemented and stock-builds on both ISAs; 13 host monitor tests pass.

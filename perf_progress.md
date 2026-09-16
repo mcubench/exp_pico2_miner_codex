@@ -6865,3 +6865,12 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Empty log `logs/OC-riscv-v1600-f420000-boot-fail-1.log`, SHA-256
   `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
   Physically recover and validate stock, then retry 420 MHz identically.
+
+### OC-riscv-v1100-f150000-recovery-18 — MEASURE_PASS
+
+- Stock recovery after the first 420 MHz failure passed verified flash, all
+  correctness gates, benchmarks, nine windows, and strict capture.
+- First-seven medians were 369,844 aggregate / 338,327 hardware / 31,517
+  software H/s. Log `logs/OC-riscv-v1100-f150000-recovery-18.log`, SHA-256
+  `ff2b250b6d0a2b262ab88f2ed03055f3759d79d135bdb57b52c047c2d22d795d`.
+  Recovery is validated; retry 420 MHz / 1.60 V identically.
