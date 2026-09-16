@@ -7219,3 +7219,11 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `d4bfd0e7877170434ef758b05ff919232b0615abdd4360d4f1b9610d4404c23d`.
   Return to stock and validate recovery before the required repeat of this
   new highest passing clock.
+### OC-riscv-v1100-f150000-d3-recovery-28 — MEASURE_PASS
+
+- Stock recovery after the 444 MHz / 1.40 V / divider-4 run passed all eight
+  suites, the full oracle, nine windows, and strict capture.
+- First-seven medians were 369,934 aggregate / 338,342 hardware / 31,592
+  software H/s. Log `logs/OC-riscv-v1100-f150000-d3-recovery-28.log`, SHA-256
+  `05a544876b62bd545d477677bb6393b7c2649311827242cf555104ef03c6e92b`.
+  Recovery is validated; repeat 444 MHz / 1.40 V / divider 4.
