@@ -109,6 +109,16 @@ changes and keep temperature disabled.
   to the retained O3 helper. Restoration commit `9439905` rebuilds both exact
   candidate-109 UF2 hashes with all eight host tests passing. Commit this final
   restoration evidence; the board remains on rejected candidate 112 ARM.
+- Candidate 113 completes B3's ARM local-level comparison with `Os` plus the
+  existing unroll request on only the exact filter. It is build-only unless it
+  preserves the hot structure/frame while improving linked code; a smaller
+  branchier helper is explicitly insufficient after candidate 112.
+- Candidate 113 is rejected without flashing: the helper shrank to 680 bytes
+  but introduced a `memset` call and compact common-path loops/branches. Frame
+  stayed 56 bytes and Hazard3 remained unchanged. O3 is restored and remains
+  the winner of the ARM O2/O3/Os comparison. Both restored artifacts, sizes,
+  identity, and all eight host tests exactly match candidate 109. Commit this
+  evidence, then perform C1's required static equivalence check.
 
 ## Completed work in this session
 

@@ -6089,3 +6089,39 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `8bad952bd188e6e35a0a33b677690802e782be8a97f5163c30334ed022d18612`.
   Both builds and all eight host tests pass; no redundant restoration flash was
   performed, so the board remains on rejected candidate 112 ARM.
+
+## 2026-09-16 — Candidate 113: B3 ARM exact-filter local `Os`
+
+- Parent is restored candidate 109. Complete the local O2/O3/Os comparison by
+  applying `Os` plus the existing `unroll-loops` request only to ARM's exact
+  filter; retained O3 is the control and Hazard3 remains unchanged.
+- This is build-only unless `Os` preserves the hot loop structure, 56-byte
+  frame, and common-path instruction quality while reducing code. Reject a
+  smaller helper if it introduces extra loop branches, calls, spills, or hot
+  loads/stores; compactness alone is not evidence after candidate 112's smaller
+  O2 helper measured 0.503% slower.
+
+### B3 ARM local-Os preflight 113a — static reject, no flash
+
+- Both wrapper builds and all eight host tests pass. Dirty ARM/RISC-V UF2
+  SHA-256 values are
+  `2fc3dc4ff910bc73ad5ed23059249e2a4e95f62f00238126828f04e4e1277148` /
+  `46c1978071cf21c899a39e475a19790b44a80c215e48a74f3303c80532e071b1`.
+- ARM total text falls from 189,504 to 188,480 bytes and the helper from 1,712
+  to **680 bytes**; its frame stays 56 bytes. This reduction comes from
+  replacing straight-line setup with a `memset` veneer call and emitting
+  compact schedule/round loops with repeated common-path branches (230 linked
+  instructions, not 230 dynamically executed instructions).
+- Hazard3 stays at 201,692 text bytes with its 3,430-byte helper and 288-byte
+  frame unchanged.
+- **Decision: reject candidate 113 without flashing.** It fails the explicit
+  hot-structure gate: static compactness was purchased with calls/loop control,
+  and candidate 112 already proved that even the less aggressive O2 size win
+  slowed the M33 filter. Restore retained O3. The ARM O2/O3/Os comparison is
+  closed with O3 retained.
+- Restoration is byte-exact candidate 109 again: identity `525dd4932d37`,
+  189,504/201,692 text bytes, 4,708/4,440 BSS bytes, 1,712/3,430-byte helpers,
+  and UF2 SHA-256
+  `81dde72e8cd7be15e26a9b436ebcb38310170e4a1c29fdd44fdc33f321ad9f3b` /
+  `8bad952bd188e6e35a0a33b677690802e782be8a97f5163c30334ed022d18612`.
+  Both builds and all eight host tests pass; no device run was performed.
