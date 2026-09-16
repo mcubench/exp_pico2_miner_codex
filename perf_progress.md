@@ -7064,3 +7064,22 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   fixed 420 MHz/divider 4 using 1.40 V as the midpoint between the known
   1.20 V failure and 1.60 V pass; if it passes, descend to 1.30 V, otherwise
   bracket upward at 1.50 V.
+
+### OC-riscv-v1400-f420000-d4-descend-1 — MEASURE_PASS
+
+- The midpoint in the descending search passed at exact 420 MHz / requested
+  and read-back 1,400 mV / divider 4 / 105 MHz QMI. Both architectures built
+  warning-free; ARM/RISC-V UF2 SHA-256 values were
+  `21a2cb528b9789af40d0c7c994d95058146d91ae7b8f34c2f4c17634110d1277` /
+  `0f58ed4d1844b95ed4cc591e2feca76fececa687177b23c849a6886a3972811f`.
+  BOOT correctly labelled the run **unsafe-overvoltage** with the voltage
+  limit unlock active.
+- All eight suites, the 4,096-case oracle, standalone benchmarks, 28 complete
+  windows, and strict capture passed. Standalone hardware/full/filter rates
+  were **960,990 / 80,182 / 88,963 H/s**. First-seven progress medians were
+  **1,035,484 aggregate / 947,033 hardware / 88,466 software H/s**, within
+  0.002% of the 1.60 V result.
+- Complete log `logs/OC-riscv-v1400-f420000-d4-descend-1.log`, SHA-256
+  `e0475831666f3223a8aa0896cecb6425dc26ecc96c7fd56d7f4bc9bf78354f08`.
+  Continue downward at fixed clock/divider to 1.30 V, the user's suspected
+  lower boundary.

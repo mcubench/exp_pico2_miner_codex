@@ -2,6 +2,16 @@
 
 ## Latest checkpoint — authoritative
 
+- The 420 MHz / 1.40 V / divider-4 midpoint passed all eight suites, the
+  4,096-case oracle, 28 windows, and strict capture. First-seven medians were
+  1,035,484 aggregate / 947,033 hardware / 88,466 software H/s, essentially
+  identical to 1.60 V. Log `logs/OC-riscv-v1400-f420000-d4-descend-1.log`
+  has SHA-256
+  `e0475831666f3223a8aa0896cecb6425dc26ecc96c7fd56d7f4bc9bf78354f08`.
+  Commit this point, then descend to exact 1.30 V at the same 420 MHz/divider
+  4. This transition leaves the unsafe-voltage range; retain full oracle and
+  measurement gating.
+
 - Mandatory stock recovery 23 after the 1.60 V pass completed cleanly. All
   eight suites, the 4,096-case oracle, nine windows, and strict capture passed
   at first-seven medians 369,937 aggregate / 338,344 hardware / 31,596
