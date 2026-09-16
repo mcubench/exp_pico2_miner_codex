@@ -7506,3 +7506,31 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - The real 558 MHz / 1.60 V / divider-5 attempt visibly loaded and verified,
   then emitted no BOOT or runtime output. Classify as RESET_OR_LINK_FAIL;
   no throughput result. Log pending archival from `logs/arm-latest.log`.
+
+### Dual-core Hazard3 retest/overclock — 516 through 564 MHz
+
+All runs used the hybrid dual-worker firmware (`MINER_HARDWARE_ONLY=0`),
+requested 1.60 V (readback 1.60 V), QMI divider 5, and passed both-architecture
+builds before flashing. Each passing point emitted BOOT, all eight KAT/oracle
+tests, benchmarks, and mining telemetry.
+
+| Clock | Result | Total mining rate |
+|---:|---|---:|
+| 516 MHz | PASS (full capture) | ~1,272,4xx H/s |
+| 520 MHz | PASS | ~1,282,3xx H/s |
+| 522 MHz | PASS | ~1,287,3xx H/s |
+| 524 MHz | PASS | ~1,292,2xx H/s |
+| 528 MHz | PASS | ~1,302,1xx H/s |
+| 532 MHz | PASS | ~1,312,0xx H/s |
+| 534 MHz | PASS | ~1,316,9xx H/s |
+| 540 MHz | PASS | ~1,331,7xx H/s |
+| 546 MHz | PASS | ~1,346,3xx H/s |
+| 552 MHz | PASS | ~1,361,3xx H/s |
+| 558 MHz | BOOT/oracle/mining PASS; short capture incomplete | ~1,376,1xx H/s |
+| 564 MHz | RESET_OR_LINK_FAIL (no BOOT/runtime) | — |
+
+The wrapper only retained the latest bounded serial file, so the successful
+short-run captures are represented by these measured console records; the
+564 MHz failure is archived as
+`logs/HWONLY-riscv-v1600-f564000-d5-link-fail-1.log` (SHA-256
+`eb80afa478e3223bdaac2c013a007945ae682150d4a69f4a6b1523ab4a475000`).
