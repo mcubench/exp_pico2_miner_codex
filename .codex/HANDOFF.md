@@ -2,6 +2,16 @@
 
 ## Latest checkpoint — authoritative
 
+- The identical 420 MHz / 1.25 V / divider-4 retry reproduced **BOOT_FAIL**
+  with byte-identical ARM/RISC-V artifacts and successful flash verification,
+  followed by no runtime USB. Empty log
+  `logs/OC-riscv-v1250-f420000-d4-boot-fail-2.log` has SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+  This establishes 1.25 V as the failing lower selector. Physically recover,
+  validate stock, then repeat the clean 1.30 V Tier-B point once because the
+  plan requires a repeat for a voltage transition. If that repeat passes,
+  1.30 V is the confirmed minimum requested selector at 420 MHz/divider 4.
+
 - Stock recovery 24 after the first 1.25 V failure passed all eight suites,
   the 4,096-case oracle, nine windows, and strict capture. First-seven medians
   were 369,939 aggregate / 338,344 hardware / 31,596 software H/s. Log

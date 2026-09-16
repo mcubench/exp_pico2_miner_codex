@@ -7134,3 +7134,22 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Complete log `logs/OC-riscv-v1100-f150000-d3-recovery-24.log`, SHA-256
   `675e6de11b5b4e46659eb98758451af98b06e4d6be9696407cb588b688173846`.
   Recovery is validated; retry 420 MHz / 1.25 V / divider 4 identically.
+
+### OC-riscv-v1250-f420000-d4-descend-2 — BOOT_FAIL, reproduced
+
+- The mandatory identical retry rebuilt both architectures warning-free and
+  reproduced the exact attempt-1 ARM/RISC-V UF2 SHA-256 values
+  `b297c496d87af5ce0285c34181a2fa33a0158ede968be86238981fb926a66999` /
+  `88ae98574b043978e6dbe4fc35b9b94557971e265433658388927b186c176a2a`.
+  The Hazard3 image again flashed and verified at requested 420 MHz /
+  1,250 mV / divider 4.
+- Runtime USB again failed to appear during the bounded 50-second capture;
+  the post-failure check found no Raspberry Pi USB device. No BOOT, oracle,
+  benchmark, or mining output exists. Classification is reproduced
+  **BOOT_FAIL**.
+- Empty log `logs/OC-riscv-v1250-f420000-d4-boot-fail-2.log`, SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+  The voltage boundary is now bracketed: 1.25 V fails twice and 1.30 V passed
+  one full Tier-B capture at exact 420 MHz/divider 4. Recover stock, then
+  repeat the 1.30 V Tier-B pass once because it defines a voltage transition;
+  only then record 1.30 V as the confirmed minimum requested selector.
