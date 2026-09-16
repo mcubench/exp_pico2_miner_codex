@@ -7387,3 +7387,11 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   gates. Log `logs/OC-riscv-v1100-f150000-d3-recovery-38.log`, SHA-256
   `e2d485e21514fee19d3f736d7512b62d14fee0ac371fea5c3051debf742ee2ee`.
   Retry 516 MHz / 1.40 V / divider 5 identically.
+### OC-riscv-v1400-f516000-d5-phase2-boot-2 — BOOT_FAIL, reproduced
+
+- Identical 516 MHz / 1.40 V / divider-5 retry flash-verified but again
+  produced no runtime USB. Classification is reproduced **BOOT_FAIL**.
+- Empty log `logs/OC-riscv-v1400-f516000-d5-phase2-boot-fail-2.log`, SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+- Phase 2 closes with **V_min = 1.60 V requested/read-back** at f_max 516 MHz.
+  Recover and validate stock before the final ceiling confirmation.
