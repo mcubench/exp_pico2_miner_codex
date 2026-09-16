@@ -6237,3 +6237,25 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   150 MHz/1.10 V architecture builds pass warning-free. Hardware validation and
   recovery-artifact creation remain pending until this infrastructure is
   committed and rebuilt with a clean source identity.
+
+### OC-riscv-v1100-f150000-measure-1 — MEASURE_PASS
+
+- Infrastructure commit `640dbca`, source identity `ac3e4e469db5`, run ID
+  `30004927-00000002`. Both ISAs built warning-free before the Hazard3 flash.
+  Requested/read-back VREG is 1,100/1,100 mV (selector 11), unsafe limit flag
+  is 0, and requested/actual clock is 150,000/150,000 kHz. PLL is 1.5 GHz with
+  post-dividers 5 and 2; USB/peripheral clocks are 48 MHz and QMI divider is 3.
+- All 8 device suites, 4,096-case oracle, 13 decision-path cases, standalone
+  benchmarks, nine synchronized windows, and strict host capture passed.
+  Standalone hardware/full/filter rates are **343,973 / 28,430 / 31,685 H/s**.
+- First-seven medians are **369,845 aggregate / 338,328 hardware / 31,517
+  software H/s**. Versus candidate-114 retained Hazard3 control 369,844 /
+  338,331 / 31,510, the deltas are +1 (+0.0003%) / -3 (-0.0009%) / +7
+  (+0.022%): an exact stock-control match.
+- Complete log `logs/OC-riscv-v1100-f150000-measure-1.log`, SHA-256
+  `f56baf3cd5ea660ac1c0bfd3c0827780bdf0e67ece2b70bad5416e8fb3bf4eac`.
+  Clean recovery UF2 hashes are ARM
+  `03023e4d2274144c419480c7a7893912c4754beb8c073f26e3884a184dbe55a6`
+  and Hazard3
+  `ccb0523e5e127cbe7b98dbbe1e6f3a8578690b37d90664a214e367c274bc3c1e`.
+  The board runs this validated stock Hazard3 recovery image.

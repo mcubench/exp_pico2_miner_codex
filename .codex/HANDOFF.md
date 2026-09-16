@@ -8,6 +8,11 @@
   peri/QMI telemetry, and an exact PLL catalog. No device flash has occurred
   yet. Commit the infrastructure, clean-build both recovery images, archive
   them, then hardware-validate stock Hazard3 before any overclock point.
+- Phase 0 is committed as `640dbca`, identity `ac3e4e469db5`. Clean stock
+  recovery images are archived under `artifacts/recovery/`. Hazard3 stock run
+  `OC-riscv-v1100-f150000-measure-1` passed at 369,845 aggregate / 338,328
+  hardware / 31,517 software H/s, matching retained baseline. Next commit this
+  evidence and run the fresh 300 MHz/1.10 V Hazard3 control.
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both
