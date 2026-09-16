@@ -36,6 +36,11 @@
   `3d97c76eef0b4491abdd5ce29e10501d244a394f1f6cf54ff777f03a3d65136f` and
   first-seven medians 369,845 aggregate / 338,328 hardware / 31,517 software
   H/s. Next lower midpoint is approximately 420 MHz / 1.60 V.
+- The first 420 MHz / 1.60 V image built and verified but produced no runtime
+  USB or serial output, classified **BOOT_FAIL**. Empty log
+  `logs/OC-riscv-v1600-f420000-boot-fail-1.log` has SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+  Physically recover and validate stock, then retry 420 MHz identically.
 
 - Overclock execution has started. Phase-0 source/wrapper/monitor infrastructure
   is implemented and stock-builds on both ISAs; 13 host monitor tests pass.

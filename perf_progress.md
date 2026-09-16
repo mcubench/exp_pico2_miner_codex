@@ -6854,3 +6854,14 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   software H/s. Log `logs/OC-riscv-v1100-f150000-recovery-17.log`, SHA-256
   `3d97c76eef0b4491abdd5ce29e10501d244a394f1f6cf54ff777f03a3d65136f`.
   Recovery is validated; next lower midpoint is approximately 420 MHz / 1.60 V.
+
+### OC-riscv-v1600-f420000-bisection-1 — BOOT_FAIL, recovery required
+
+- Both architecture builds passed warning-free; Hazard3 flash and verification
+  passed for 420 MHz / 1,600 mV.
+- Runtime USB did not appear during the 50-second strict capture; bounded
+  checks found no Pico USB device or `/dev/ttyACM*`. Classification is
+  **BOOT_FAIL** with no runtime output.
+- Empty log `logs/OC-riscv-v1600-f420000-boot-fail-1.log`, SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+  Physically recover and validate stock, then retry 420 MHz identically.
