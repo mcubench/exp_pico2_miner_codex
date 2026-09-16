@@ -7395,3 +7395,9 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
 - Phase 2 closes with **V_min = 1.60 V requested/read-back** at f_max 516 MHz.
   Recover and validate stock before the final ceiling confirmation.
+### OC-riscv-v1100-f150000-d3-recovery-39 — MEASURE_PASS
+
+- Stock recovery after the reproduced 516 MHz / 1.40 V failure passed all
+  required gates. Log `logs/OC-riscv-v1100-f150000-d3-recovery-39.log`,
+  SHA-256 `8a206fd33cb0f843855b9f5cea34b4adc7d1b7172e71ad1a93ab1cd5b0b30d85`.
+  Run the final 570 MHz / 1.60 V / divider-5 ceiling confirmation.
