@@ -6746,3 +6746,15 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `b09a08bc17c8ab4920481f2902274760a24676416c70c9e099fbaa839b269d95`.
   After physical recovery and stock validation, bisect to the nearest exact
   midpoint between 396 MHz pass and 570 MHz fail (target 480 MHz/1.60 V).
+
+### OC-riscv-v1100-f150000-recovery-13 — MEASURE_PASS
+
+- Physical recovery after the reproduced 570 MHz failure produced a complete
+  verified stock flash. Hazard3 run `30004927-00000001` passed all correctness
+  gates, standalone benchmarks, nine windows, and strict capture.
+- Standalone hardware/full/filter rates are **343,991 / 28,430 / 31,685 H/s**;
+  first-seven medians are **369,847 aggregate / 338,330 hardware / 31,517
+  software H/s**. Complete log
+  `logs/OC-riscv-v1100-f150000-recovery-13.log`, SHA-256
+  `5c83019e2cf05723dae0ad8420ec61def29f8f6ebcb8d50ceec2890bbb6871f8`.
+  Recovery is validated; bisect the 396–570 MHz interval near 480 MHz/1.60 V.
