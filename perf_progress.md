@@ -7368,3 +7368,9 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `eb80afa478e3223bdaac2c013a007945ae682150d4a69f4a6b1523ab4a475000`.
 - Phase 1 closes with **f_max = 516 MHz**. Recover and validate stock, then
   begin Phase 2 at 516 MHz / divider 5 by descending to 1.40 V.
+### OC-riscv-v1100-f150000-d3-recovery-37 — MEASURE_PASS
+
+- Stock recovery after the reproduced 570 MHz failure passed all required
+  gates. Log `logs/OC-riscv-v1100-f150000-d3-recovery-37.log`, SHA-256
+  `501bd3a26448910a6615672fce380f5b17894c23dfcfe5f3f4b8fe06335d958f`.
+  Begin Phase 2 at 516 MHz / divider 5 / 1.40 V.

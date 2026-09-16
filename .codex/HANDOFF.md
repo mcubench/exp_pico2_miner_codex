@@ -2,6 +2,11 @@
 
 ## Latest checkpoint — authoritative
 
+- Stock recovery 37 passed after the reproduced 570 MHz failure. Log
+  `logs/OC-riscv-v1100-f150000-d3-recovery-37.log` has SHA-256
+  `501bd3a26448910a6615672fce380f5b17894c23dfcfe5f3f4b8fe06335d958f`.
+  Begin Phase 2 at 516 MHz / divider 5 / 1.40 V.
+
 - Identical 570 MHz / 1.60 V / divider-5 retry reproduced
   **RESET_OR_LINK_FAIL**: USB serial enumerated after verified flash, but no
   BOOT or firmware output appeared. Log
