@@ -2,6 +2,11 @@
 
 ## Latest checkpoint — authoritative
 
+- Stock recovery 33 passed after the first 516 MHz / 1.60 V / divider-4
+  failure. Log `logs/OC-riscv-v1100-f150000-d3-recovery-33.log` has SHA-256
+  `e563a1e346408a64f784b9089e2b9a06f2f41f1bd006d31d1bb251d9cbabf410`.
+  Retry 516 MHz / 1.60 V / divider 4 identically.
+
 - First Phase-1 516 MHz / 1.60 V / divider-4 attempt flash-verified but
   produced no runtime USB or serial output, classified **BOOT_FAIL**. Empty log
   `logs/OC-riscv-v1600-f516000-d4-phase1-boot-fail-1.log` has SHA-256
