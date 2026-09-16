@@ -5680,3 +5680,38 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   throughput while removing 616 total text bytes and 744 bytes from the
   worker. The board is left running accepted candidate 105 ARM. Candidate 105
   is the parent for the separately measured A2 ARM factor-8 experiment.
+
+## 2026-09-16 — A2 ARM hardware batch factor 8 candidate 106 definition
+
+- Parent is retained candidate 105 at source identity `8b850732e27f`, with the
+  ARM cold share helper and factor 4. Change only ARM's compile-time batch and
+  explicit unroll factor from four to eight; Hazard3 remains factor 1. The
+  340,000-hash report interval is exactly divisible by eight.
+- Hypothesis: A1 removed the rare-code duplication that previously made a
+  factor-8 attempt unattractive. Eight physical bodies can halve the remaining
+  report comparison/back-edge frequency relative to factor 4 while retaining
+  the same two high-word checks and per-nonce ARM SHA error check.
+- Preflight must show eight complete bodies, eight rare helper stubs, no inner
+  batch counter/back-edge, no common-path helper call or completed-count work,
+  no frame growth/spills, and reasonable text growth. Reject any correctness,
+  strict-capture, or throughput regression versus candidate 105's 360,342
+  aggregate / 328,912 hardware H/s; retain only a repeatable gain sufficient to
+  justify the larger XIP hot footprint.
+
+### A2 ARM hardware batch factor 8 candidate 106 preflight — pass
+
+- Both dirty stock builds pass warning-free and all eight host monitor tests
+  pass. ARM disassembly contains exactly eight complete hardware hash bodies
+  and eight out-of-line calls to the shared cold helper. The only outer-loop
+  progression advances by eight after all bodies; there is no inner batch
+  branch or counter.
+- ARM `mining_worker_core1` is `0x100003c4..0x10000da8`, **2,532 bytes**, +1,080
+  bytes over candidate 105 factor 4 but still only 336 bytes above candidate
+  103's cold-code-duplicating factor-4 worker. Its frame remains **156 bytes**.
+  Dirty ARM text/BSS is **190,592/4,708**, +1,080 text bytes over candidate
+  105's dirty image.
+- Hazard3 remains `0x10001478..0x1000187c`, **1,028 bytes**, and exactly
+  **200,924/4,440** text/BSS. Dirty ARM/RISC-V UF2 SHA-256 values are
+  `f57a07c5dd26798ad937750a3d78c3f5f7a53da895597ce0d1f1ceac5171c0c1` /
+  `ba0254b08c5fd15e8a353aa716e251776459ac29f2d03dc64798d535ea55f928`.
+  Commit and clean-rebuild both architectures before the ARM hardware run.

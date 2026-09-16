@@ -33,7 +33,7 @@ _Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
 #define CPU_ARCH "ARM-M33"
 #define BENCHMARK_PATH "batched-accounting-e04c"
 #define MINING_LOOP_OPTIONS __attribute__((optimize("unroll-loops")))
-#define HARDWARE_MINING_BATCH 4u
+#define HARDWARE_MINING_BATCH 8u
 #endif
 
 #define BITCOIN_HEADER_BYTES 80u
@@ -1101,7 +1101,7 @@ static MINING_LOOP_OPTIONS void mining_worker_core1(void) {
 
     while (true) {
 #ifndef __riscv
-#pragma GCC unroll 4
+#pragma GCC unroll 8
         for (uint32_t batch = 0u; batch < HARDWARE_MINING_BATCH; ++batch) {
 #endif
 #ifdef __riscv
