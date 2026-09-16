@@ -5872,3 +5872,33 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `e8b32412926d19c609e8e72b66c6b3492d7efd2d6f650e79583d38467b00d942`
   (RISC-V). No redundant restoration flash was performed; the board still
   carries rejected candidate 108 ARM.
+
+## Candidate 109: B1 Hazard3 rotated-role filter rounds
+
+- Scope is the exact second-hash high-word filter only, and Hazard3 only. ARM
+  remains byte-identical to retained candidate 105. The baseline Hazard3
+  `software_sha256_digest_high_word_after_round61` has a 288-byte frame; its
+  rounds 16--59 loop advances two rounds per branch and materializes explicit
+  state-rotation `mv` instructions. The corresponding ARM allocation differs,
+  so it is not changed in this first architecture-specific experiment.
+- Replace Hazard3 rounds 16--59 with five eight-round loop iterations expressed
+  as two rotated-role four-round groups, followed by one four-round group for
+  rounds 56--59. Each round writes only its physical `d` and `h` roles. Remap
+  the live roles explicitly for the partial terminal round 60, preserving the
+  exact `IV7 + e_61` rejection result and unsigned/rotate semantics.
+- Build-only gates before any flash: both wrapper builds and all host monitor
+  tests pass; ARM filter linked bytes stay exact apart from address/literal
+  relocation caused by the changed embedded source identity; the Hazard3 round
+  region has fewer state moves/instructions, no frame growth or new stack
+  traffic, and bounded text growth. Reject without device work if those gates
+  are not met.
+- Preflight A passes both builds and all eight host tests, and ARM's filter is
+  unchanged at 543 linked instructions with the same frame. Hazard3 retains a
+  five-iteration eight-round loop: its repeated body is 211 instructions with
+  zero `mv` state rotations, or about 26.4 instructions/round. The full helper
+  grows from 719 to 921 linked instructions and total text grows 768 bytes,
+  chiefly because rounds 56--59 are now an expanded one-time group; the frame
+  remains exactly 288 bytes. A trial local `#pragma GCC unroll 1` produced
+  byte-identical final code and was removed. The common repeated region has a
+  clear instruction/state-move improvement and the 0.38% text growth is
+  bounded, so retain this candidate for correctness and throughput testing.

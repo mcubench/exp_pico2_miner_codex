@@ -62,6 +62,39 @@ static inline void software_sha256_round(uint32_t *a, uint32_t *b,
     *a = temp1 + temp2;
 }
 
+#ifdef __riscv
+#define SOFTWARE_SHA256_ROTATED_ROUND(a, b, c, d, e, f, g, h, constant, word) \
+    do {                                                                       \
+        const uint32_t rotated_sum1 = rotate_right((e), 6u)                    \
+            ^ rotate_right((e), 11u) ^ rotate_right((e), 25u);                 \
+        const uint32_t rotated_choice = (g) ^ ((e) & ((f) ^ (g)));             \
+        const uint32_t rotated_temp1 = (h) + rotated_sum1 + rotated_choice     \
+            + (constant) + (word);                                             \
+        const uint32_t rotated_sum0 = rotate_right((a), 2u)                    \
+            ^ rotate_right((a), 13u) ^ rotate_right((a), 22u);                 \
+        const uint32_t rotated_majority = ((a) & (b))                          \
+            | ((c) & ((a) | (b)));                                             \
+        (d) += rotated_temp1;                                                   \
+        (h) = rotated_temp1 + rotated_sum0 + rotated_majority;                  \
+    } while (0)
+
+#define SOFTWARE_SHA256_ROTATED_GROUP4(round, a, b, c, d, e, f, g, h, words) \
+    do {                                                                        \
+        SOFTWARE_SHA256_ROTATED_ROUND(                                          \
+            a, b, c, d, e, f, g, h, sha256_round_constants[(round)],           \
+            (words)[(round)]);                                                  \
+        SOFTWARE_SHA256_ROTATED_ROUND(                                          \
+            h, a, b, c, d, e, f, g, sha256_round_constants[(round) + 1u],      \
+            (words)[(round) + 1u]);                                             \
+        SOFTWARE_SHA256_ROTATED_ROUND(                                          \
+            g, h, a, b, c, d, e, f, sha256_round_constants[(round) + 2u],      \
+            (words)[(round) + 2u]);                                             \
+        SOFTWARE_SHA256_ROTATED_ROUND(                                          \
+            f, g, h, a, b, c, d, e, sha256_round_constants[(round) + 3u],      \
+            (words)[(round) + 3u]);                                             \
+    } while (0)
+#endif
+
 static __attribute__((optimize("unroll-loops"))) void
 __not_in_flash_func(software_sha256_compress)(uint32_t state[8],
                                               const uint32_t block[16]) {
@@ -342,19 +375,45 @@ __not_in_flash_func(software_sha256_digest_high_word_after_round61)(
     }
     software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
                           sha256_round_constants[15] + 32u * 8u, 0u);
+#ifdef __riscv
+    for (unsigned round = 16u; round < 56u; round += 8u) {
+        SOFTWARE_SHA256_ROTATED_GROUP4(round, a, b, c, d, e, f, g, h,
+                                       schedule);
+        SOFTWARE_SHA256_ROTATED_GROUP4(round + 4u, e, f, g, h, a, b, c, d,
+                                       schedule);
+    }
+    SOFTWARE_SHA256_ROTATED_GROUP4(56u, a, b, c, d, e, f, g, h, schedule);
+#else
     for (unsigned round = 16u; round < 60u; ++round) {
         software_sha256_round(&a, &b, &c, &d, &e, &f, &g, &h,
                               sha256_round_constants[round], schedule[round]);
     }
+#endif
     // Only e after round 60 becomes the final digest's high word. Compute the
     // live half of the terminal round: new e = old d + T1. New a/T2 and the
     // remaining state rotation are dead for this exact rejection decision.
-    const uint32_t sum1 = rotate_right(e, 6u) ^ rotate_right(e, 11u)
-                          ^ rotate_right(e, 25u);
-    const uint32_t choice = g ^ (e & (f ^ g));
-    const uint32_t temp1 = h + sum1 + choice
+#ifdef __riscv
+    // One final four-round group leaves logical a..h in physical e..d.
+    const uint32_t terminal_d = h;
+    const uint32_t terminal_e = a;
+    const uint32_t terminal_f = b;
+    const uint32_t terminal_g = c;
+    const uint32_t terminal_h = d;
+#else
+    const uint32_t terminal_d = d;
+    const uint32_t terminal_e = e;
+    const uint32_t terminal_f = f;
+    const uint32_t terminal_g = g;
+    const uint32_t terminal_h = h;
+#endif
+    const uint32_t sum1 = rotate_right(terminal_e, 6u)
+                          ^ rotate_right(terminal_e, 11u)
+                          ^ rotate_right(terminal_e, 25u);
+    const uint32_t choice = terminal_g
+                            ^ (terminal_e & (terminal_f ^ terminal_g));
+    const uint32_t temp1 = terminal_h + sum1 + choice
                            + sha256_round_constants[60] + schedule[60];
-    const uint32_t result = sha256_initial_state[7] + d + temp1;
+    const uint32_t result = sha256_initial_state[7] + terminal_d + temp1;
 #ifndef __riscv
 #undef schedule
 #endif
