@@ -1,0 +1,269 @@
+CONFIG arch=arm platform=rp2350-arm-s
+CONFIG sdk=/home/claude/.pico-sdk/sdk/2.3.1
+CONFIG toolchain=/home/claude/.pico-sdk/toolchain/15_2_Rel1
+CONFIG miner_sys_clock_khz=558000
+CONFIG miner_vreg_mv=1600
+CONFIG miner_qmi_clkdiv=5
+CONFIG miner_source_id=23ebcc93979f
+CONFIG miner_profile=0
+CONFIG miner_hardware_only=0
+PICO_SDK_PATH is /home/claude/.pico-sdk/sdk/2.3.1
+Target board (PICO_BOARD) is 'pico2'.
+Using board configuration from /home/claude/.pico-sdk/sdk/2.3.1/src/boards/include/boards/pico2.h
+Pico Platform (PICO_PLATFORM) is 'rp2350-arm-s'.
+Build type is Debug
+Using regular optimized debug build (set PICO_DEOPTIMIZED_DEBUG=1 to de-optimize)
+Using picotool from /home/claude/.pico-sdk/picotool/2.3.1/picotool/picotool
+TinyUSB available at /home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/hw/bsp/rp2040; enabling build support for USB.
+Compiling TinyUSB with CFG_TUSB_DEBUG=1
+BTstack available at /home/claude/.pico-sdk/sdk/2.3.1/lib/btstack
+cyw43-driver available at /home/claude/.pico-sdk/sdk/2.3.1/lib/cyw43-driver
+mbedtls available at /home/claude/.pico-sdk/sdk/2.3.1/lib/mbedtls
+lwIP available at /home/claude/.pico-sdk/sdk/2.3.1/lib/lwip
+C library type is newlib
+-- Miner system clock: 558000 kHz
+-- Miner regulator selector: 1600 mV
+-- Miner QMI clock divider: 5
+-- Miner source identity: 23ebcc93979f
+-- Miner profiling mode: 0
+-- Miner hardware-only mode: 0
+-- Configuring done (1.0s)
+-- Generating done (0.3s)
+-- Build files have been written to: /home/claude/Projects/pico2_miner_codex/build/arm
+[1/91] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_platform_panic/custom_panic_function.S.o
+[2/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2350/pico_platform/platform.c.o
+[3/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_platform_common/common.c.o
+[4/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_vreg/vreg.c.o
+[5/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_platform_panic/panic.c.o
+[6/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_sync_spin_lock/sync_spin_lock.c.o
+[7/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/hardware_claim/claim.c.o
+[8/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_sync/lock_core.c.o
+[9/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_sync/critical_section.c.o
+[10/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_sync/sync.c.o
+[11/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_sync/sem.c.o
+[12/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_time/timeout_helper.c.o
+[13/91] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_irq/irq_handler_chain.S.o
+[14/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_sync/mutex.c.o
+[15/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_util/fixed_bitset.c.o
+[16/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_util/datetime.c.o
+[17/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_multicore/multicore.c.o
+[18/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_util/queue.c.o
+[19/91] Building C object CMakeFiles/pico2_agent.dir/src/software_sha256.c.o
+[20/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_stdlib/stdlib.c.o
+[21/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_pll/pll.c.o
+[22/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_uart/uart.c.o
+[23/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_util/pheap.c.o
+[24/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_ticks/ticks.c.o
+[25/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_watchdog/watchdog.c.o
+[26/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_irq/irq.c.o
+[27/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_timer/timer.c.o
+[28/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_time/time.c.o
+[29/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_bootrom/bootrom_lock.c.o
+[30/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_xosc/xosc.c.o
+[31/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_gpio/gpio.c.o
+[32/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_divider/divider.c.o
+[33/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_boot_lock/boot_lock.c.o
+[34/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_flash/flash.c.o
+[35/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_clocks/clocks.c.o
+[36/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_runtime_init/runtime_init_stack_guard.c.o
+[37/91] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_double/double_aeabi_dcp.S.o
+[38/91] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_bit_ops/bit_ops_aeabi.S.o
+[39/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_bootrom/bootrom.c.o
+[40/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_runtime_init/runtime_init_clocks.c.o
+[41/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_runtime/runtime.c.o
+[42/91] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_double/double_sci_m33.S.o
+[43/91] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_double/double_fma_dcp.S.o
+[44/91] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_double/double_conv_m33.S.o
+[45/91] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_float/float_conv32_vfp.S.o
+[46/91] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_float/float_sci_m33_vfp.S.o
+[47/91] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_float/float_common_m33.S.o
+[48/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_runtime_init/runtime_init.c.o
+[49/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.o
+[50/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_divider/divider_compiler.c.o
+[51/91] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_crt0/crt0.S.o
+[52/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_malloc/malloc.c.o
+[53/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_atomic/atomic.c.o
+[54/91] Building CXX object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_cxx_options/new_delete.cpp.o
+[55/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_clib_interface/cxa_guard.c.o
+[56/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_unique_id/unique_id.c.o
+[57/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_clib_interface/newlib_interface.c.o
+[58/91] Building C object CMakeFiles/pico2_agent.dir/src/main.c.o
+[59/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_xip_cache/xip_cache.c.o
+[60/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_stdio_usb/stdio_usb.c.o
+[61/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_float/float_math.c.o
+[62/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_stdio_usb/stdio_usb_descriptors.c.o
+[63/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_stdio/stdio.c.o
+[64/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/audio/audio_device.c.o
+[65/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_flash/flash.c.o
+[66/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_double/double_math.c.o
+[67/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/dfu/dfu_device.c.o
+[68/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_usb_reset/usb_reset.c.o
+[69/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/dfu/dfu_rt_device.c.o
+[70/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/portable/raspberrypi/rp2040/rp2040_usb.c.o
+[71/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_printf/printf.c.o
+[72/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/hid/hid_device.c.o
+[73/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/midi/midi_device.c.o
+[74/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/device/usbd_control.c.o
+[75/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/msc/msc_device.c.o
+[76/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/net/ecm_rndis_device.c.o
+[77/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/net/ncm_device.c.o
+[78/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/usbtmc/usbtmc_device.c.o
+[79/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/portable/raspberrypi/rp2040/dcd_rp2040.c.o
+[80/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_fix/rp2040_usb_device_enumeration/rp2040_usb_device_enumeration.c.o
+[81/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/vendor/vendor_device.c.o
+[82/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/video/video_device.c.o
+[83/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/cdc/cdc_device.c.o
+[84/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_sha256/sha256.c.o
+[85/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_thread_local/thread_local.c.o
+[86/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_dma/dma.c.o
+[87/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_sha256/sha256.c.o
+[88/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/tusb.c.o
+[89/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/common/tusb_fifo.c.o
+[90/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/device/usbd.c.o
+[91/91] Linking CXX executable pico2_agent.elf
+BUILD:PASS arch=arm uf2=/home/claude/Projects/pico2_miner_codex/build/arm/pico2_agent.uf2
+CONFIG arch=riscv platform=rp2350-riscv
+CONFIG sdk=/home/claude/.pico-sdk/sdk/2.3.1
+CONFIG toolchain=/home/claude/.pico-sdk/toolchain/RISCV_PICO_2_3_1_0
+CONFIG miner_sys_clock_khz=558000
+CONFIG miner_vreg_mv=1600
+CONFIG miner_qmi_clkdiv=5
+CONFIG miner_source_id=23ebcc93979f
+CONFIG miner_profile=0
+CONFIG miner_hardware_only=0
+PICO_SDK_PATH is /home/claude/.pico-sdk/sdk/2.3.1
+Target board (PICO_BOARD) is 'pico2'.
+Using board configuration from /home/claude/.pico-sdk/sdk/2.3.1/src/boards/include/boards/pico2.h
+Pico Platform (PICO_PLATFORM) is 'rp2350-riscv'.
+Build type is Debug
+Using regular optimized debug build (set PICO_DEOPTIMIZED_DEBUG=1 to de-optimize)
+TinyUSB available at /home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/hw/bsp/rp2040; enabling build support for USB.
+Compiling TinyUSB with CFG_TUSB_DEBUG=1
+BTstack available at /home/claude/.pico-sdk/sdk/2.3.1/lib/btstack
+cyw43-driver available at /home/claude/.pico-sdk/sdk/2.3.1/lib/cyw43-driver
+mbedtls available at /home/claude/.pico-sdk/sdk/2.3.1/lib/mbedtls
+lwIP available at /home/claude/.pico-sdk/sdk/2.3.1/lib/lwip
+C library type is newlib
+-- Miner system clock: 558000 kHz
+-- Miner regulator selector: 1600 mV
+-- Miner QMI clock divider: 5
+-- Miner source identity: 23ebcc93979f
+-- Miner profiling mode: 0
+-- Miner hardware-only mode: 0
+Using picotool from /home/claude/.pico-sdk/picotool/2.3.1/picotool/picotool
+-- Configuring done (1.0s)
+-- Generating done (0.3s)
+-- Build files have been written to: /home/claude/Projects/pico2_miner_codex/build/riscv
+[1/83] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_platform_panic/custom_panic_function.S.o
+[2/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_platform_common/common.c.o
+[3/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2350/pico_platform/platform.c.o
+[4/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_sync_spin_lock/sync_spin_lock.c.o
+[5/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_sync/sync.c.o
+[6/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_platform_panic/panic.c.o
+[7/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/hardware_claim/claim.c.o
+[8/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_dma/dma.c.o
+[9/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_vreg/vreg.c.o
+[10/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_sync/lock_core.c.o
+[11/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_sync/critical_section.c.o
+[12/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_sync/sem.c.o
+[13/83] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_irq/irq_handler_chain.S.o
+[14/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_time/timeout_helper.c.o
+[15/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_sync/mutex.c.o
+[16/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_util/fixed_bitset.c.o
+[17/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_multicore/multicore.c.o
+[18/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_util/datetime.c.o
+[19/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_timer/timer.c.o
+[20/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_stdlib/stdlib.c.o
+[21/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_irq/irq.c.o
+[22/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_uart/uart.c.o
+[23/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_pll/pll.c.o
+[24/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_time/time.c.o
+[25/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_gpio/gpio.c.o
+[26/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_ticks/ticks.c.o
+[27/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_watchdog/watchdog.c.o
+[28/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_util/queue.c.o
+[29/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_bootrom/bootrom_lock.c.o
+[30/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_bootrom/bootrom.c.o
+[31/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_boot_lock/boot_lock.c.o
+[32/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_flash/flash.c.o
+[33/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_util/pheap.c.o
+[34/83] Building C object CMakeFiles/pico2_agent.dir/src/software_sha256.c.o
+[35/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_xosc/xosc.c.o
+[36/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_divider/divider.c.o
+[37/83] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_bit_ops/bit_ops_aeabi.S.o
+[38/83] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_float/float_single_hazard3.S.o
+[39/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_runtime/runtime.c.o
+[40/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_runtime_init/runtime_init_stack_guard.c.o
+[41/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_clocks/clocks.c.o
+[42/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_runtime_init/runtime_init_clocks.c.o
+[43/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_runtime_init/runtime_init.c.o
+[44/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_malloc/malloc.c.o
+[45/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.o
+[46/83] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_crt0/crt0_riscv.S.o
+[47/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_divider/divider_compiler.c.o
+[48/83] Building CXX object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_cxx_options/new_delete.cpp.o
+[49/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_clib_interface/cxa_guard.c.o
+[50/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_atomic/atomic.c.o
+[51/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_stdio_usb/stdio_usb_descriptors.c.o
+[52/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_unique_id/unique_id.c.o
+[53/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_clib_interface/newlib_interface.c.o
+[54/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_xip_cache/xip_cache.c.o
+[55/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_stdio_usb/stdio_usb.c.o
+[56/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_usb_reset/usb_reset.c.o
+[57/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_stdio/stdio.c.o
+[58/83] Building C object CMakeFiles/pico2_agent.dir/src/main.c.o
+[59/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_flash/flash.c.o
+[60/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/audio/audio_device.c.o
+[61/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/dfu/dfu_device.c.o
+[62/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/hid/hid_device.c.o
+[63/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/midi/midi_device.c.o
+[64/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/dfu/dfu_rt_device.c.o
+[65/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/portable/raspberrypi/rp2040/rp2040_usb.c.o
+[66/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/net/ecm_rndis_device.c.o
+[67/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/msc/msc_device.c.o
+[68/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/usbtmc/usbtmc_device.c.o
+[69/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/portable/raspberrypi/rp2040/dcd_rp2040.c.o
+[70/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/device/usbd_control.c.o
+[71/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/net/ncm_device.c.o
+[72/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/video/video_device.c.o
+[73/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_fix/rp2040_usb_device_enumeration/rp2040_usb_device_enumeration.c.o
+[74/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/vendor/vendor_device.c.o
+[75/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_sha256/sha256.c.o
+[76/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_thread_local/thread_local.c.o
+[77/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_printf/printf.c.o
+[78/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/cdc/cdc_device.c.o
+[79/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/device/usbd.c.o
+[80/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_sha256/sha256.c.o
+[81/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/common/tusb_fifo.c.o
+[82/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/tusb.c.o
+[83/83] Linking CXX executable pico2_agent.elf
+BUILD:PASS arch=riscv uf2=/home/claude/Projects/pico2_miner_codex/build/riscv/pico2_agent.uf2
+FLASH image=/home/claude/Projects/pico2_miner_codex/build/riscv/pico2_agent.uf2
+Tracking device serial number E0E14525E64AF6ED for reboot
+The device was asked to reboot into BOOTSEL mode so the command can be executed.
+Waiting for device to reboot
+
+Family ID 'rp2350-riscv' can be downloaded in absolute space:
+  00000000->02000000
+Loading into Flash:   [                              ]  0%Loading into Flash:   [                              ]  1%Loading into Flash:   [                              ]  3%Loading into Flash:   [=                             ]  5%Loading into Flash:   [==                            ]  7%Loading into Flash:   [==                            ]  9%Loading into Flash:   [===                           ]  11%Loading into Flash:   [===                           ]  13%Loading into Flash:   [====                          ]  15%Loading into Flash:   [=====                         ]  17%Loading into Flash:   [=====                         ]  19%Loading into Flash:   [======                        ]  21%Loading into Flash:   [======                        ]  23%Loading into Flash:   [=======                       ]  25%Loading into Flash:   [========                      ]  27%Loading into Flash:   [========                      ]  29%Loading into Flash:   [=========                     ]  31%Loading into Flash:   [=========                     ]  33%Loading into Flash:   [==========                    ]  35%Loading into Flash:   [===========                   ]  37%Loading into Flash:   [===========                   ]  39%Loading into Flash:   [============                  ]  41%Loading into Flash:   [============                  ]  43%Loading into Flash:   [=============                 ]  45%Loading into Flash:   [==============                ]  47%Loading into Flash:   [==============                ]  49%Loading into Flash:   [===============               ]  51%Loading into Flash:   [===============               ]  53%Loading into Flash:   [================              ]  55%Loading into Flash:   [=================             ]  57%Loading into Flash:   [=================             ]  59%Loading into Flash:   [==================            ]  61%Loading into Flash:   [==================            ]  63%Loading into Flash:   [===================           ]  65%Loading into Flash:   [====================          ]  67%Loading into Flash:   [====================          ]  69%Loading into Flash:   [=====================         ]  71%Loading into Flash:   [=====================         ]  73%Loading into Flash:   [======================        ]  75%Loading into Flash:   [=======================       ]  77%Loading into Flash:   [=======================       ]  79%Loading into Flash:   [========================      ]  81%Loading into Flash:   [========================      ]  83%Loading into Flash:   [=========================     ]  85%Loading into Flash:   [==========================    ]  87%Loading into Flash:   [==========================    ]  89%Loading into Flash:   [===========================   ]  91%Loading into Flash:   [===========================   ]  93%Loading into Flash:   [============================  ]  95%Loading into Flash:   [============================= ]  97%Loading into Flash:   [============================= ]  99%Loading into Flash:   [==============================]  100%
+Verifying Flash:      [                              ]  0%Verifying Flash:      [                              ]  1%Verifying Flash:      [                              ]  3%Verifying Flash:      [=                             ]  5%Verifying Flash:      [==                            ]  7%Verifying Flash:      [==                            ]  9%Verifying Flash:      [===                           ]  11%Verifying Flash:      [===                           ]  13%Verifying Flash:      [====                          ]  15%Verifying Flash:      [=====                         ]  17%Verifying Flash:      [=====                         ]  19%Verifying Flash:      [======                        ]  21%Verifying Flash:      [======                        ]  23%Verifying Flash:      [=======                       ]  25%Verifying Flash:      [========                      ]  27%Verifying Flash:      [========                      ]  29%Verifying Flash:      [=========                     ]  31%Verifying Flash:      [=========                     ]  33%Verifying Flash:      [==========                    ]  35%Verifying Flash:      [===========                   ]  37%Verifying Flash:      [===========                   ]  39%Verifying Flash:      [============                  ]  41%Verifying Flash:      [============                  ]  43%Verifying Flash:      [=============                 ]  45%Verifying Flash:      [==============                ]  47%Verifying Flash:      [==============                ]  49%Verifying Flash:      [===============               ]  51%Verifying Flash:      [===============               ]  53%Verifying Flash:      [================              ]  55%Verifying Flash:      [=================             ]  57%Verifying Flash:      [=================             ]  59%Verifying Flash:      [==================            ]  61%Verifying Flash:      [==================            ]  63%Verifying Flash:      [===================           ]  65%Verifying Flash:      [====================          ]  67%Verifying Flash:      [====================          ]  69%Verifying Flash:      [=====================         ]  71%Verifying Flash:      [=====================         ]  73%Verifying Flash:      [======================        ]  75%Verifying Flash:      [=======================       ]  77%Verifying Flash:      [=======================       ]  79%Verifying Flash:      [========================      ]  81%Verifying Flash:      [========================      ]  83%Verifying Flash:      [=========================     ]  85%Verifying Flash:      [==========================    ]  87%Verifying Flash:      [==========================    ]  89%Verifying Flash:      [===========================   ]  91%Verifying Flash:      [===========================   ]  93%Verifying Flash:      [============================  ]  95%Verifying Flash:      [============================= ]  97%Verifying Flash:      [============================= ]  99%Verifying Flash:      [==============================]  100%
+  OK
+
+The device was rebooted to start the application.
+FLASH:PASS arch=riscv
+SERIAL_PORT=/dev/ttyACM0
+BOOT app=pico2_bitcoin_miner board=pico2 package=RP2350A arch=RISCV-HAZARD3 engine=RP2350-SHA256 temperature=disabled source_id=23ebcc93979f run_id=30004927-0000000b mining_mode=hybrid profile=0 report_hashes=340000 window_reports=4 clock_profile=experimental-overclock requested_clock_khz=558000 actual_clock_hz=558000000 requested_vreg_mv=1600 vreg_selector=19 readback_vreg_mv=1600 unsafe_voltage_limit_disabled=1 pll_vco_hz=1116000000 pll_postdiv1=2 pll_postdiv2=1 clk_usb_hz=48000000 clk_peri_hz=48000000 requested_qmi_clkdiv=5 qmi_clkdiv=5 qmi_sck_hz=111600000 sysinfo_package_sel=1 chip_id=30004927 silicon_revision=3
+TEST:PASS kat=nist_empty engine=RP2350-SHA256
+TEST:PASS kat=nist_abc engine=RP2350-SHA256
+TEST:PASS kat=sha_error_sticky cases=3 burst_words=2500 latched=1 survived_start=1 cleared=1
+TEST:PASS kat=optimized_oracle engines=hardware,software-midstate cases=4096 fixture_sha256=4cf1f1db9d05f9208b74edec0f616497a286269e73a1e89747fed60ac5648f98
+TEST:PASS kat=target_boundaries cases=10
+TEST:PASS kat=mining_decision_paths cases=13 rejected_nonce=2083236892 rejected_high_word=3d34dc8c candidate_nonce=2083236893 candidate_hash=000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
+TEST:PASS kat=bitcoin_genesis hash=000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
+TEST:PASS kat=bitcoin_nonce_search nonce=2083236893 attempts=94 hash=000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
+TEST:SUMMARY pass=8 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=read-addr-trigger-e06-trigger arch=RISCV-HAZARD3 clock_hz=558000000 hashes=2572000 elapsed_us=2000681 hash_rate_hs=1285562 checksum=1f temperature=disabled
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=558000000 hashes=214000 elapsed_us=2009261 hash_rate_hs=106507 checksum=97 temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=558000000 hashes=237000 elapsed_us=2005182 hash_rate_hs=118194 checksum=7d50790a temperature=disabled
+MINING:START run_id=30004927-0000000b header=bitcoin-genesis target_bits=1d00ffff hardware_core=1 hardware_nonce_start=0 hardware_nonce_stride=2 software_core=0 software_nonce_start=1 software_nonce_stride=2 note=standalone-stale-work
+ERROR: incomplete validation output: five MINING:PROGRESS records (0 seen), five MEASUREMENT:WINDOW records (0 seen)

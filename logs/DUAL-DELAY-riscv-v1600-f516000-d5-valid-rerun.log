@@ -1,0 +1,435 @@
+CONFIG arch=arm platform=rp2350-arm-s
+CONFIG sdk=/home/claude/.pico-sdk/sdk/2.3.1
+CONFIG toolchain=/home/claude/.pico-sdk/toolchain/15_2_Rel1
+CONFIG miner_sys_clock_khz=516000
+CONFIG miner_vreg_mv=1600
+CONFIG miner_qmi_clkdiv=5
+CONFIG miner_source_id=23ebcc93979f
+CONFIG miner_profile=0
+CONFIG miner_hardware_only=0
+PICO_SDK_PATH is /home/claude/.pico-sdk/sdk/2.3.1
+Target board (PICO_BOARD) is 'pico2'.
+Using board configuration from /home/claude/.pico-sdk/sdk/2.3.1/src/boards/include/boards/pico2.h
+Pico Platform (PICO_PLATFORM) is 'rp2350-arm-s'.
+Build type is Debug
+Using regular optimized debug build (set PICO_DEOPTIMIZED_DEBUG=1 to de-optimize)
+Using picotool from /home/claude/.pico-sdk/picotool/2.3.1/picotool/picotool
+TinyUSB available at /home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/hw/bsp/rp2040; enabling build support for USB.
+Compiling TinyUSB with CFG_TUSB_DEBUG=1
+BTstack available at /home/claude/.pico-sdk/sdk/2.3.1/lib/btstack
+cyw43-driver available at /home/claude/.pico-sdk/sdk/2.3.1/lib/cyw43-driver
+mbedtls available at /home/claude/.pico-sdk/sdk/2.3.1/lib/mbedtls
+lwIP available at /home/claude/.pico-sdk/sdk/2.3.1/lib/lwip
+C library type is newlib
+-- Miner system clock: 516000 kHz
+-- Miner regulator selector: 1600 mV
+-- Miner QMI clock divider: 5
+-- Miner source identity: 23ebcc93979f
+-- Miner profiling mode: 0
+-- Miner hardware-only mode: 0
+-- Configuring done (0.8s)
+-- Generating done (0.2s)
+-- Build files have been written to: /home/claude/Projects/pico2_miner_codex/build/arm
+[1/91] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_platform_panic/custom_panic_function.S.o
+[2/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_platform_common/common.c.o
+[3/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2350/pico_platform/platform.c.o
+[4/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_vreg/vreg.c.o
+[5/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_sync_spin_lock/sync_spin_lock.c.o
+[6/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/hardware_claim/claim.c.o
+[7/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_platform_panic/panic.c.o
+[8/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_sync/sync.c.o
+[9/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_sync/lock_core.c.o
+[10/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_sync/critical_section.c.o
+[11/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_sync/sem.c.o
+[12/91] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_irq/irq_handler_chain.S.o
+[13/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_time/timeout_helper.c.o
+[14/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_sync/mutex.c.o
+[15/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_multicore/multicore.c.o
+[16/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_util/datetime.c.o
+[17/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_util/fixed_bitset.c.o
+[18/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_timer/timer.c.o
+[19/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_stdlib/stdlib.c.o
+[20/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_irq/irq.c.o
+[21/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_util/queue.c.o
+[22/91] Building C object CMakeFiles/pico2_agent.dir/src/software_sha256.c.o
+[23/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_pll/pll.c.o
+[24/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_util/pheap.c.o
+[25/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_time/time.c.o
+[26/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_ticks/ticks.c.o
+[27/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_bootrom/bootrom_lock.c.o
+[28/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_watchdog/watchdog.c.o
+[29/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_uart/uart.c.o
+[30/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_gpio/gpio.c.o
+[31/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_boot_lock/boot_lock.c.o
+[32/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_flash/flash.c.o
+[33/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_bootrom/bootrom.c.o
+[34/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_divider/divider.c.o
+[35/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_xosc/xosc.c.o
+[36/91] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_bit_ops/bit_ops_aeabi.S.o
+[37/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_runtime_init/runtime_init_stack_guard.c.o
+[38/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_runtime/runtime.c.o
+[39/91] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_double/double_aeabi_dcp.S.o
+[40/91] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_double/double_fma_dcp.S.o
+[41/91] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_double/double_sci_m33.S.o
+[42/91] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_double/double_conv_m33.S.o
+[43/91] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_float/float_conv32_vfp.S.o
+[44/91] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_float/float_sci_m33_vfp.S.o
+[45/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_divider/divider_compiler.c.o
+[46/91] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_float/float_common_m33.S.o
+[47/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_runtime_init/runtime_init_clocks.c.o
+[48/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_runtime_init/runtime_init.c.o
+[49/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_clocks/clocks.c.o
+[50/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.o
+[51/91] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_crt0/crt0.S.o
+[52/91] Building CXX object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_cxx_options/new_delete.cpp.o
+[53/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_malloc/malloc.c.o
+[54/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_atomic/atomic.c.o
+[55/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_clib_interface/cxa_guard.c.o
+[56/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_unique_id/unique_id.c.o
+[57/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_clib_interface/newlib_interface.c.o
+[58/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_stdio_usb/stdio_usb_descriptors.c.o
+[59/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_stdio/stdio.c.o
+[60/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_double/double_math.c.o
+[61/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_xip_cache/xip_cache.c.o
+[62/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_stdio_usb/stdio_usb.c.o
+[63/91] Building C object CMakeFiles/pico2_agent.dir/src/main.c.o
+[64/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_float/float_math.c.o
+[65/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/dfu/dfu_device.c.o
+[66/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_flash/flash.c.o
+[67/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/dfu/dfu_rt_device.c.o
+[68/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/hid/hid_device.c.o
+[69/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/portable/raspberrypi/rp2040/rp2040_usb.c.o
+[70/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_usb_reset/usb_reset.c.o
+[71/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/audio/audio_device.c.o
+[72/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/device/usbd_control.c.o
+[73/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/midi/midi_device.c.o
+[74/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/msc/msc_device.c.o
+[75/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_printf/printf.c.o
+[76/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/net/ecm_rndis_device.c.o
+[77/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/net/ncm_device.c.o
+[78/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/video/video_device.c.o
+[79/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/usbtmc/usbtmc_device.c.o
+[80/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/cdc/cdc_device.c.o
+[81/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_fix/rp2040_usb_device_enumeration/rp2040_usb_device_enumeration.c.o
+[82/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/vendor/vendor_device.c.o
+[83/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/portable/raspberrypi/rp2040/dcd_rp2040.c.o
+[84/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_sha256/sha256.c.o
+[85/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_thread_local/thread_local.c.o
+[86/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_dma/dma.c.o
+[87/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/device/usbd.c.o
+[88/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_sha256/sha256.c.o
+[89/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/common/tusb_fifo.c.o
+[90/91] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/tusb.c.o
+[91/91] Linking CXX executable pico2_agent.elf
+BUILD:PASS arch=arm uf2=/home/claude/Projects/pico2_miner_codex/build/arm/pico2_agent.uf2
+CONFIG arch=riscv platform=rp2350-riscv
+CONFIG sdk=/home/claude/.pico-sdk/sdk/2.3.1
+CONFIG toolchain=/home/claude/.pico-sdk/toolchain/RISCV_PICO_2_3_1_0
+CONFIG miner_sys_clock_khz=516000
+CONFIG miner_vreg_mv=1600
+CONFIG miner_qmi_clkdiv=5
+CONFIG miner_source_id=23ebcc93979f
+CONFIG miner_profile=0
+CONFIG miner_hardware_only=0
+PICO_SDK_PATH is /home/claude/.pico-sdk/sdk/2.3.1
+Target board (PICO_BOARD) is 'pico2'.
+Using board configuration from /home/claude/.pico-sdk/sdk/2.3.1/src/boards/include/boards/pico2.h
+Pico Platform (PICO_PLATFORM) is 'rp2350-riscv'.
+Build type is Debug
+Using regular optimized debug build (set PICO_DEOPTIMIZED_DEBUG=1 to de-optimize)
+TinyUSB available at /home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/hw/bsp/rp2040; enabling build support for USB.
+Compiling TinyUSB with CFG_TUSB_DEBUG=1
+BTstack available at /home/claude/.pico-sdk/sdk/2.3.1/lib/btstack
+cyw43-driver available at /home/claude/.pico-sdk/sdk/2.3.1/lib/cyw43-driver
+mbedtls available at /home/claude/.pico-sdk/sdk/2.3.1/lib/mbedtls
+lwIP available at /home/claude/.pico-sdk/sdk/2.3.1/lib/lwip
+C library type is newlib
+-- Miner system clock: 516000 kHz
+-- Miner regulator selector: 1600 mV
+-- Miner QMI clock divider: 5
+-- Miner source identity: 23ebcc93979f
+-- Miner profiling mode: 0
+-- Miner hardware-only mode: 0
+Using picotool from /home/claude/.pico-sdk/picotool/2.3.1/picotool/picotool
+-- Configuring done (0.8s)
+-- Generating done (0.2s)
+-- Build files have been written to: /home/claude/Projects/pico2_miner_codex/build/riscv
+[1/83] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_platform_panic/custom_panic_function.S.o
+[2/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_sync_spin_lock/sync_spin_lock.c.o
+[3/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_platform_common/common.c.o
+[4/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_vreg/vreg.c.o
+[5/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2350/pico_platform/platform.c.o
+[6/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/hardware_claim/claim.c.o
+[7/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_sync/sync.c.o
+[8/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_dma/dma.c.o
+[9/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_platform_panic/panic.c.o
+[10/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_sync/lock_core.c.o
+[11/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_sync/sem.c.o
+[12/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_sync/critical_section.c.o
+[13/83] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_irq/irq_handler_chain.S.o
+[14/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_time/timeout_helper.c.o
+[15/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_sync/mutex.c.o
+[16/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_util/fixed_bitset.c.o
+[17/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_multicore/multicore.c.o
+[18/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_util/datetime.c.o
+[19/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_timer/timer.c.o
+[20/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_stdlib/stdlib.c.o
+[21/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_util/queue.c.o
+[22/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_uart/uart.c.o
+[23/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_util/pheap.c.o
+[24/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_irq/irq.c.o
+[25/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/common/pico_time/time.c.o
+[26/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_pll/pll.c.o
+[27/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_ticks/ticks.c.o
+[28/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_gpio/gpio.c.o
+[29/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_boot_lock/boot_lock.c.o
+[30/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_bootrom/bootrom_lock.c.o
+[31/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_flash/flash.c.o
+[32/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_xosc/xosc.c.o
+[33/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_divider/divider.c.o
+[34/83] Building C object CMakeFiles/pico2_agent.dir/src/software_sha256.c.o
+[35/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_clocks/clocks.c.o
+[36/83] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_bit_ops/bit_ops_aeabi.S.o
+[37/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_watchdog/watchdog.c.o
+[38/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_bootrom/bootrom.c.o
+[39/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_runtime/runtime.c.o
+[40/83] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_float/float_single_hazard3.S.o
+[41/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_standard_binary_info/standard_binary_info.c.o
+[42/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_runtime_init/runtime_init.c.o
+[43/83] Building CXX object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_cxx_options/new_delete.cpp.o
+[44/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_runtime_init/runtime_init_stack_guard.c.o
+[45/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_runtime_init/runtime_init_clocks.c.o
+[46/83] Building ASM object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_crt0/crt0_riscv.S.o
+[47/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_malloc/malloc.c.o
+[48/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_divider/divider_compiler.c.o
+[49/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_unique_id/unique_id.c.o
+[50/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_clib_interface/newlib_interface.c.o
+[51/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_clib_interface/cxa_guard.c.o
+[52/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_flash/flash.c.o
+[53/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_atomic/atomic.c.o
+[54/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_xip_cache/xip_cache.c.o
+[55/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_stdio_usb/stdio_usb.c.o
+[56/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_stdio/stdio.c.o
+[57/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_stdio_usb/stdio_usb_descriptors.c.o
+[58/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/audio/audio_device.c.o
+[59/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_usb_reset/usb_reset.c.o
+[60/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/dfu/dfu_device.c.o
+[61/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/dfu/dfu_rt_device.c.o
+[62/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/midi/midi_device.c.o
+[63/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/hid/hid_device.c.o
+[64/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/portable/raspberrypi/rp2040/rp2040_usb.c.o
+[65/83] Building C object CMakeFiles/pico2_agent.dir/src/main.c.o
+[66/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/msc/msc_device.c.o
+[67/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/usbtmc/usbtmc_device.c.o
+[68/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/device/usbd_control.c.o
+[69/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/net/ncm_device.c.o
+[70/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/net/ecm_rndis_device.c.o
+[71/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/portable/raspberrypi/rp2040/dcd_rp2040.c.o
+[72/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/vendor/vendor_device.c.o
+[73/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/cdc/cdc_device.c.o
+[74/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_fix/rp2040_usb_device_enumeration/rp2040_usb_device_enumeration.c.o
+[75/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/class/video/video_device.c.o
+[76/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_thread_local/thread_local.c.o
+[77/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_printf/printf.c.o
+[78/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/hardware_sha256/sha256.c.o
+[79/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/device/usbd.c.o
+[80/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/tusb.c.o
+[81/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/src/rp2_common/pico_sha256/sha256.c.o
+[82/83] Building C object CMakeFiles/pico2_agent.dir/home/claude/.pico-sdk/sdk/2.3.1/lib/tinyusb/src/common/tusb_fifo.c.o
+[83/83] Linking CXX executable pico2_agent.elf
+BUILD:PASS arch=riscv uf2=/home/claude/Projects/pico2_miner_codex/build/riscv/pico2_agent.uf2
+FLASH image=/home/claude/Projects/pico2_miner_codex/build/riscv/pico2_agent.uf2
+Family ID 'rp2350-riscv' can be downloaded in absolute space:
+  00000000->02000000
+Loading into Flash:   [                              ]  0%Loading into Flash:   [                              ]  1%Loading into Flash:   [                              ]  3%Loading into Flash:   [=                             ]  5%Loading into Flash:   [==                            ]  7%Loading into Flash:   [==                            ]  9%Loading into Flash:   [===                           ]  11%Loading into Flash:   [===                           ]  13%Loading into Flash:   [====                          ]  15%Loading into Flash:   [=====                         ]  17%Loading into Flash:   [=====                         ]  19%Loading into Flash:   [======                        ]  21%Loading into Flash:   [======                        ]  23%Loading into Flash:   [=======                       ]  25%Loading into Flash:   [========                      ]  27%Loading into Flash:   [========                      ]  29%Loading into Flash:   [=========                     ]  31%Loading into Flash:   [=========                     ]  33%Loading into Flash:   [==========                    ]  35%Loading into Flash:   [===========                   ]  37%Loading into Flash:   [===========                   ]  39%Loading into Flash:   [============                  ]  41%Loading into Flash:   [============                  ]  43%Loading into Flash:   [=============                 ]  45%Loading into Flash:   [==============                ]  47%Loading into Flash:   [==============                ]  49%Loading into Flash:   [===============               ]  51%Loading into Flash:   [===============               ]  53%Loading into Flash:   [================              ]  55%Loading into Flash:   [=================             ]  57%Loading into Flash:   [=================             ]  59%Loading into Flash:   [==================            ]  61%Loading into Flash:   [==================            ]  63%Loading into Flash:   [===================           ]  65%Loading into Flash:   [====================          ]  67%Loading into Flash:   [====================          ]  69%Loading into Flash:   [=====================         ]  71%Loading into Flash:   [=====================         ]  73%Loading into Flash:   [======================        ]  75%Loading into Flash:   [=======================       ]  77%Loading into Flash:   [=======================       ]  79%Loading into Flash:   [========================      ]  81%Loading into Flash:   [========================      ]  83%Loading into Flash:   [=========================     ]  85%Loading into Flash:   [==========================    ]  87%Loading into Flash:   [==========================    ]  89%Loading into Flash:   [===========================   ]  91%Loading into Flash:   [===========================   ]  93%Loading into Flash:   [============================  ]  95%Loading into Flash:   [============================= ]  97%Loading into Flash:   [============================= ]  99%Loading into Flash:   [==============================]  100%
+Verifying Flash:      [                              ]  0%Verifying Flash:      [                              ]  1%Verifying Flash:      [                              ]  3%Verifying Flash:      [=                             ]  5%Verifying Flash:      [==                            ]  7%Verifying Flash:      [==                            ]  9%Verifying Flash:      [===                           ]  11%Verifying Flash:      [===                           ]  13%Verifying Flash:      [====                          ]  15%Verifying Flash:      [=====                         ]  17%Verifying Flash:      [=====                         ]  19%Verifying Flash:      [======                        ]  21%Verifying Flash:      [======                        ]  23%Verifying Flash:      [=======                       ]  25%Verifying Flash:      [========                      ]  27%Verifying Flash:      [========                      ]  29%Verifying Flash:      [=========                     ]  31%Verifying Flash:      [=========                     ]  33%Verifying Flash:      [==========                    ]  35%Verifying Flash:      [===========                   ]  37%Verifying Flash:      [===========                   ]  39%Verifying Flash:      [============                  ]  41%Verifying Flash:      [============                  ]  43%Verifying Flash:      [=============                 ]  45%Verifying Flash:      [==============                ]  47%Verifying Flash:      [==============                ]  49%Verifying Flash:      [===============               ]  51%Verifying Flash:      [===============               ]  53%Verifying Flash:      [================              ]  55%Verifying Flash:      [=================             ]  57%Verifying Flash:      [=================             ]  59%Verifying Flash:      [==================            ]  61%Verifying Flash:      [==================            ]  63%Verifying Flash:      [===================           ]  65%Verifying Flash:      [====================          ]  67%Verifying Flash:      [====================          ]  69%Verifying Flash:      [=====================         ]  71%Verifying Flash:      [=====================         ]  73%Verifying Flash:      [======================        ]  75%Verifying Flash:      [=======================       ]  77%Verifying Flash:      [=======================       ]  79%Verifying Flash:      [========================      ]  81%Verifying Flash:      [========================      ]  83%Verifying Flash:      [=========================     ]  85%Verifying Flash:      [==========================    ]  87%Verifying Flash:      [==========================    ]  89%Verifying Flash:      [===========================   ]  91%Verifying Flash:      [===========================   ]  93%Verifying Flash:      [============================  ]  95%Verifying Flash:      [============================= ]  97%Verifying Flash:      [============================= ]  99%Verifying Flash:      [==============================]  100%
+  OK
+
+The device was rebooted to start the application.
+FLASH:PASS arch=riscv
+SERIAL_PORT=/dev/ttyACM0
+BOOT app=pico2_bitcoin_miner board=pico2 package=RP2350A arch=RISCV-HAZARD3 engine=RP2350-SHA256 temperature=disabled source_id=23ebcc93979f run_id=30004927-00000001 mining_mode=hybrid profile=0 report_hashes=340000 window_reports=4 clock_profile=experimental-overclock requested_clock_khz=516000 actual_clock_hz=516000000 requested_vreg_mv=1600 vreg_selector=19 readback_vreg_mv=1600 unsafe_voltage_limit_disabled=1 pll_vco_hz=1548000000 pll_postdiv1=3 pll_postdiv2=1 clk_usb_hz=48000000 clk_peri_hz=48000000 requested_qmi_clkdiv=5 qmi_clkdiv=5 qmi_sck_hz=103200000 sysinfo_package_sel=1 chip_id=30004927 silicon_revision=3
+TEST:PASS kat=nist_empty engine=RP2350-SHA256
+TEST:PASS kat=nist_abc engine=RP2350-SHA256
+TEST:PASS kat=sha_error_sticky cases=3 burst_words=2500 latched=1 survived_start=1 cleared=1
+TEST:PASS kat=optimized_oracle engines=hardware,software-midstate cases=4096 fixture_sha256=4cf1f1db9d05f9208b74edec0f616497a286269e73a1e89747fed60ac5648f98
+TEST:PASS kat=target_boundaries cases=10
+TEST:PASS kat=mining_decision_paths cases=13 rejected_nonce=2083236892 rejected_high_word=3d34dc8c candidate_nonce=2083236893 candidate_hash=000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
+TEST:PASS kat=bitcoin_genesis hash=000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
+TEST:PASS kat=bitcoin_nonce_search nonce=2083236893 attempts=94 hash=000000000019d6689c085ae165831e934ff763ae46a2a6c172b3f1b60a8ce26f
+TEST:SUMMARY pass=8 fail=0
+BENCHMARK:PASS algorithm=bitcoin-double-sha256 engine=RP2350-SHA256 path=read-addr-trigger-e06-trigger arch=RISCV-HAZARD3 clock_hz=516000000 hashes=2378000 elapsed_us=2000337 hash_rate_hs=1188800 checksum=ab temperature=disabled
+SOFTWARE_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=portable-midstate-e09a arch=RISCV-HAZARD3 clock_hz=516000000 hashes=197000 elapsed_us=2000202 hash_rate_hs=98490 checksum=7d temperature=disabled
+SOFTWARE_FILTER_BENCHMARK:PASS algorithm=bitcoin-double-sha256 path=exact-round61-high-word arch=RISCV-HAZARD3 clock_hz=516000000 hashes=219000 elapsed_us=2003709 hash_rate_hs=109297 checksum=54af812b temperature=disabled
+MINING:START run_id=30004927-00000001 header=bitcoin-genesis target_bits=1d00ffff hardware_core=1 hardware_nonce_start=0 hardware_nonce_stride=2 software_core=0 software_nonce_start=1 software_nonce_stride=2 note=standalone-stale-work
+MINING:PROGRESS run_id=30004927-00000001 sequence=1 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=680000 hardware_hashes=340000 hardware_rate_hs=1163981 software_core=0 software_nonce=63553 software_hashes=31776 software_rate_hs=108776 total_hashes=371776 hash_rate_hs=1272757 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=2 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=1360000 hardware_hashes=680000 hardware_rate_hs=1163650 software_core=0 software_nonce=127063 software_hashes=63531 software_rate_hs=108730 total_hashes=743531 hash_rate_hs=1272380 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=3 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=2040000 hardware_hashes=1020000 hardware_rate_hs=1163770 software_core=0 software_nonce=190575 software_hashes=95287 software_rate_hs=108719 total_hashes=1115287 hash_rate_hs=1272489 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=1 sequence=4 elapsed_us=1168596 hardware_hashes=1360000 software_hashes=127043 total_hashes=1487043 hardware_rate_hs=1163790 software_rate_hs=108714 hash_rate_hs=1272504 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=4 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=2720000 hardware_hashes=1360000 hardware_rate_hs=1163814 software_core=0 software_nonce=254087 software_hashes=127043 software_rate_hs=108714 total_hashes=1487043 hash_rate_hs=1272528 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=5 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=3400000 hardware_hashes=1700000 hardware_rate_hs=1163328 software_core=0 software_nonce=317555 software_hashes=158777 software_rate_hs=108687 total_hashes=1858777 hash_rate_hs=1272015 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=6 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=4080000 hardware_hashes=2040000 hardware_rate_hs=1163826 software_core=0 software_nonce=381067 software_hashes=190533 software_rate_hs=108690 total_hashes=2230533 hash_rate_hs=1272516 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=7 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=4760000 hardware_hashes=2380000 hardware_rate_hs=1163838 software_core=0 software_nonce=444569 software_hashes=222284 software_rate_hs=108689 total_hashes=2602284 hash_rate_hs=1272527 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=2 sequence=8 elapsed_us=1168678 hardware_hashes=1360000 software_hashes=126994 total_hashes=1486994 hardware_rate_hs=1163708 software_rate_hs=108665 hash_rate_hs=1272373 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=8 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=5440000 hardware_hashes=2720000 hardware_rate_hs=1163830 software_core=0 software_nonce=508075 software_hashes=254037 software_rate_hs=108689 total_hashes=2974037 hash_rate_hs=1272519 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=9 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=6120000 hardware_hashes=3060000 hardware_rate_hs=1163630 software_core=0 software_nonce=571545 software_hashes=285772 software_rate_hs=108681 total_hashes=3345772 hash_rate_hs=1272311 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=10 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=6800000 hardware_hashes=3400000 hardware_rate_hs=1163630 software_core=0 software_nonce=635057 software_hashes=317528 software_rate_hs=108681 total_hashes=3717528 hash_rate_hs=1272311 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=11 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=7480000 hardware_hashes=3740000 hardware_rate_hs=1163814 software_core=0 software_nonce=698565 software_hashes=349282 software_rate_hs=108682 total_hashes=4089282 hash_rate_hs=1272496 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=3 sequence=12 elapsed_us=1168652 hardware_hashes=1360000 software_hashes=127000 total_hashes=1487000 hardware_rate_hs=1163734 software_rate_hs=108672 hash_rate_hs=1272406 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=12 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=8160000 hardware_hashes=4080000 hardware_rate_hs=1163845 software_core=0 software_nonce=762075 software_hashes=381037 software_rate_hs=108684 total_hashes=4461037 hash_rate_hs=1272529 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=13 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=8840000 hardware_hashes=4420000 hardware_rate_hs=1163658 software_core=0 software_nonce=825531 software_hashes=412765 software_rate_hs=108677 total_hashes=4832765 hash_rate_hs=1272335 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=14 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=9520000 hardware_hashes=4760000 hardware_rate_hs=1163634 software_core=0 software_nonce=889031 software_hashes=444515 software_rate_hs=108675 total_hashes=5204515 hash_rate_hs=1272309 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=15 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=10200000 hardware_hashes=5100000 hardware_rate_hs=1163841 software_core=0 software_nonce=952543 software_hashes=476271 software_rate_hs=108677 total_hashes=5576271 hash_rate_hs=1272518 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=4 sequence=16 elapsed_us=1168655 hardware_hashes=1360000 software_hashes=126990 total_hashes=1486990 hardware_rate_hs=1163731 software_rate_hs=108663 hash_rate_hs=1272394 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=16 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=10880000 hardware_hashes=5440000 hardware_rate_hs=1163822 software_core=0 software_nonce=1016055 software_hashes=508027 software_rate_hs=108679 total_hashes=5948027 hash_rate_hs=1272501 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=17 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=11560000 hardware_hashes=5780000 hardware_rate_hs=1163638 software_core=0 software_nonce=1079523 software_hashes=539761 software_rate_hs=108675 total_hashes=6319761 hash_rate_hs=1272313 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=18 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=12240000 hardware_hashes=6120000 hardware_rate_hs=1163826 software_core=0 software_nonce=1143035 software_hashes=571517 software_rate_hs=108676 total_hashes=6691517 hash_rate_hs=1272502 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=19 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=12920000 hardware_hashes=6460000 hardware_rate_hs=1163841 software_core=0 software_nonce=1206549 software_hashes=603274 software_rate_hs=108678 total_hashes=7063274 hash_rate_hs=1272519 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=5 sequence=20 elapsed_us=1168600 hardware_hashes=1360000 software_hashes=126997 total_hashes=1486997 hardware_rate_hs=1163786 software_rate_hs=108674 hash_rate_hs=1272460 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=20 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=13600000 hardware_hashes=6800000 hardware_rate_hs=1163838 software_core=0 software_nonce=1270049 software_hashes=635024 software_rate_hs=108678 total_hashes=7435024 hash_rate_hs=1272516 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=21 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=14280000 hardware_hashes=7140000 hardware_rate_hs=1163790 software_core=0 software_nonce=1333515 software_hashes=666757 software_rate_hs=108675 total_hashes=7806757 hash_rate_hs=1272465 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=22 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=14960000 hardware_hashes=7480000 hardware_rate_hs=1163838 software_core=0 software_nonce=1397029 software_hashes=698514 software_rate_hs=108676 total_hashes=8178514 hash_rate_hs=1272514 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=23 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=15640000 hardware_hashes=7820000 hardware_rate_hs=1163830 software_core=0 software_nonce=1460539 software_hashes=730269 software_rate_hs=108677 total_hashes=8550269 hash_rate_hs=1272507 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=6 sequence=24 elapsed_us=1168556 hardware_hashes=1360000 software_hashes=127001 total_hashes=1487001 hardware_rate_hs=1163830 software_rate_hs=108682 hash_rate_hs=1272512 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=24 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=16320000 hardware_hashes=8160000 hardware_rate_hs=1163838 software_core=0 software_nonce=1524051 software_hashes=762025 software_rate_hs=108678 total_hashes=8922025 hash_rate_hs=1272516 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=25 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=17000000 hardware_hashes=8500000 hardware_rate_hs=1163714 software_core=0 software_nonce=1587519 software_hashes=793759 software_rate_hs=108676 total_hashes=9293759 hash_rate_hs=1272390 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=26 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=17680000 hardware_hashes=8840000 hardware_rate_hs=1163849 software_core=0 software_nonce=1651031 software_hashes=825515 software_rate_hs=108677 total_hashes=9665515 hash_rate_hs=1272526 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=27 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=18360000 hardware_hashes=9180000 hardware_rate_hs=1163618 software_core=0 software_nonce=1714541 software_hashes=857270 software_rate_hs=108677 total_hashes=10037270 hash_rate_hs=1272295 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=7 sequence=28 elapsed_us=1168640 hardware_hashes=1360000 software_hashes=127001 total_hashes=1487001 hardware_rate_hs=1163746 software_rate_hs=108674 hash_rate_hs=1272420 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=28 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=19040000 hardware_hashes=9520000 hardware_rate_hs=1163822 software_core=0 software_nonce=1778053 software_hashes=889026 software_rate_hs=108678 total_hashes=10409026 hash_rate_hs=1272500 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=29 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=19720000 hardware_hashes=9860000 hardware_rate_hs=1163606 software_core=0 software_nonce=1841523 software_hashes=920761 software_rate_hs=108676 total_hashes=10780761 hash_rate_hs=1272282 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=30 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=20400000 hardware_hashes=10200000 hardware_rate_hs=1163606 software_core=0 software_nonce=1905035 software_hashes=952517 software_rate_hs=108676 total_hashes=11152517 hash_rate_hs=1272282 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=31 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=21080000 hardware_hashes=10540000 hardware_rate_hs=1163838 software_core=0 software_nonce=1968549 software_hashes=984274 software_rate_hs=108677 total_hashes=11524274 hash_rate_hs=1272515 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=8 sequence=32 elapsed_us=1168656 hardware_hashes=1360000 software_hashes=127005 total_hashes=1487005 hardware_rate_hs=1163730 software_rate_hs=108676 hash_rate_hs=1272406 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=32 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=21760000 hardware_hashes=10880000 hardware_rate_hs=1163857 software_core=0 software_nonce=2032063 software_hashes=1016031 software_rate_hs=108678 total_hashes=11896031 hash_rate_hs=1272535 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=33 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=22440000 hardware_hashes=11220000 hardware_rate_hs=1163638 software_core=0 software_nonce=2095515 software_hashes=1047757 software_rate_hs=108675 total_hashes=12267757 hash_rate_hs=1272313 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=34 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=23120000 hardware_hashes=11560000 hardware_rate_hs=1163599 software_core=0 software_nonce=2159029 software_hashes=1079514 software_rate_hs=108675 total_hashes=12639514 hash_rate_hs=1272274 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=35 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=23800000 hardware_hashes=11900000 hardware_rate_hs=1163798 software_core=0 software_nonce=2222539 software_hashes=1111269 software_rate_hs=108676 total_hashes=13011269 hash_rate_hs=1272474 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=9 sequence=36 elapsed_us=1168668 hardware_hashes=1360000 software_hashes=126994 total_hashes=1486994 hardware_rate_hs=1163718 software_rate_hs=108666 hash_rate_hs=1272384 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=36 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=24480000 hardware_hashes=12240000 hardware_rate_hs=1163834 software_core=0 software_nonce=2286051 software_hashes=1143025 software_rate_hs=108676 total_hashes=13383025 hash_rate_hs=1272510 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=37 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=25160000 hardware_hashes=12580000 hardware_rate_hs=1163674 software_core=0 software_nonce=2349519 software_hashes=1174759 software_rate_hs=108675 total_hashes=13754759 hash_rate_hs=1272349 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=38 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=25840000 hardware_hashes=12920000 hardware_rate_hs=1163634 software_core=0 software_nonce=2413033 software_hashes=1206516 software_rate_hs=108675 total_hashes=14126516 hash_rate_hs=1272309 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=39 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=26520000 hardware_hashes=13260000 hardware_rate_hs=1163818 software_core=0 software_nonce=2476537 software_hashes=1238268 software_rate_hs=108675 total_hashes=14498268 hash_rate_hs=1272493 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=10 sequence=40 elapsed_us=1168641 hardware_hashes=1360000 software_hashes=126999 total_hashes=1486999 hardware_rate_hs=1163745 software_rate_hs=108672 hash_rate_hs=1272417 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=40 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=27200000 hardware_hashes=13600000 hardware_rate_hs=1163845 software_core=0 software_nonce=2540049 software_hashes=1270024 software_rate_hs=108676 total_hashes=14870024 hash_rate_hs=1272521 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=41 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=27880000 hardware_hashes=13940000 hardware_rate_hs=1163435 software_core=0 software_nonce=2603519 software_hashes=1301759 software_rate_hs=108674 total_hashes=15241759 hash_rate_hs=1272109 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=42 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=28560000 hardware_hashes=14280000 hardware_rate_hs=1163798 software_core=0 software_nonce=2667029 software_hashes=1333514 software_rate_hs=108674 total_hashes=15613514 hash_rate_hs=1272472 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=43 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=29240000 hardware_hashes=14620000 hardware_rate_hs=1163834 software_core=0 software_nonce=2730543 software_hashes=1365271 software_rate_hs=108675 total_hashes=15985271 hash_rate_hs=1272509 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=11 sequence=44 elapsed_us=1168663 hardware_hashes=1360000 software_hashes=127002 total_hashes=1487002 hardware_rate_hs=1163723 software_rate_hs=108673 hash_rate_hs=1272396 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=44 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=29920000 hardware_hashes=14960000 hardware_rate_hs=1163830 software_core=0 software_nonce=2794053 software_hashes=1397026 software_rate_hs=108676 total_hashes=16357026 hash_rate_hs=1272506 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=45 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=30600000 hardware_hashes=15300000 hardware_rate_hs=1163666 software_core=0 software_nonce=2857511 software_hashes=1428755 software_rate_hs=108674 total_hashes=16728755 hash_rate_hs=1272340 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=46 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=31280000 hardware_hashes=15640000 hardware_rate_hs=1163834 software_core=0 software_nonce=2921023 software_hashes=1460511 software_rate_hs=108674 total_hashes=17100511 hash_rate_hs=1272508 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=47 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=31960000 hardware_hashes=15980000 hardware_rate_hs=1163822 software_core=0 software_nonce=2984535 software_hashes=1492267 software_rate_hs=108675 total_hashes=17472267 hash_rate_hs=1272497 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=12 sequence=48 elapsed_us=1168599 hardware_hashes=1360000 software_hashes=126998 total_hashes=1486998 hardware_rate_hs=1163787 software_rate_hs=108675 hash_rate_hs=1272462 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=48 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=32640000 hardware_hashes=16320000 hardware_rate_hs=1163841 software_core=0 software_nonce=3048049 software_hashes=1524024 software_rate_hs=108676 total_hashes=17844024 hash_rate_hs=1272517 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=49 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=33320000 hardware_hashes=16660000 hardware_rate_hs=1163447 software_core=0 software_nonce=3111517 software_hashes=1555758 software_rate_hs=108674 total_hashes=18215758 hash_rate_hs=1272121 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=50 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=34000000 hardware_hashes=17000000 hardware_rate_hs=1163818 software_core=0 software_nonce=3175029 software_hashes=1587514 software_rate_hs=108674 total_hashes=18587514 hash_rate_hs=1272492 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=51 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=34680000 hardware_hashes=17340000 hardware_rate_hs=1163810 software_core=0 software_nonce=3238541 software_hashes=1619270 software_rate_hs=108675 total_hashes=18959270 hash_rate_hs=1272485 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=13 sequence=52 elapsed_us=1168661 hardware_hashes=1360000 software_hashes=126996 total_hashes=1486996 hardware_rate_hs=1163725 software_rate_hs=108668 hash_rate_hs=1272393 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=52 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=35360000 hardware_hashes=17680000 hardware_rate_hs=1163814 software_core=0 software_nonce=3302041 software_hashes=1651020 software_rate_hs=108675 total_hashes=19331020 hash_rate_hs=1272489 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=53 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=36040000 hardware_hashes=18020000 hardware_rate_hs=1163694 software_core=0 software_nonce=3365507 software_hashes=1682753 software_rate_hs=108674 total_hashes=19702753 hash_rate_hs=1272368 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=54 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=36720000 hardware_hashes=18360000 hardware_rate_hs=1163814 software_core=0 software_nonce=3429019 software_hashes=1714509 software_rate_hs=108674 total_hashes=20074509 hash_rate_hs=1272488 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=55 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=37400000 hardware_hashes=18700000 hardware_rate_hs=1163841 software_core=0 software_nonce=3492529 software_hashes=1746264 software_rate_hs=108675 total_hashes=20446264 hash_rate_hs=1272516 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=14 sequence=56 elapsed_us=1168644 hardware_hashes=1360000 software_hashes=127000 total_hashes=1487000 hardware_rate_hs=1163742 software_rate_hs=108673 hash_rate_hs=1272415 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=56 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=38080000 hardware_hashes=19040000 hardware_rate_hs=1163603 software_core=0 software_nonce=3556041 software_hashes=1778020 software_rate_hs=108675 total_hashes=20818020 hash_rate_hs=1272278 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=57 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=38760000 hardware_hashes=19380000 hardware_rate_hs=1163435 software_core=0 software_nonce=3619505 software_hashes=1809752 software_rate_hs=108673 total_hashes=21189752 hash_rate_hs=1272108 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=58 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=39440000 hardware_hashes=19720000 hardware_rate_hs=1163826 software_core=0 software_nonce=3683011 software_hashes=1841505 software_rate_hs=108674 total_hashes=21561505 hash_rate_hs=1272500 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=59 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=40120000 hardware_hashes=20060000 hardware_rate_hs=1163845 software_core=0 software_nonce=3746525 software_hashes=1873262 software_rate_hs=108674 total_hashes=21933262 hash_rate_hs=1272519 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=15 sequence=60 elapsed_us=1168653 hardware_hashes=1360000 software_hashes=126998 total_hashes=1486998 hardware_rate_hs=1163733 software_rate_hs=108670 hash_rate_hs=1272403 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=60 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=40800000 hardware_hashes=20400000 hardware_rate_hs=1163861 software_core=0 software_nonce=3810037 software_hashes=1905018 software_rate_hs=108675 total_hashes=22305018 hash_rate_hs=1272536 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=61 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=41480000 hardware_hashes=20740000 hardware_rate_hs=1163567 software_core=0 software_nonce=3873501 software_hashes=1936750 software_rate_hs=108673 total_hashes=22676750 hash_rate_hs=1272240 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=62 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=42160000 hardware_hashes=21080000 hardware_rate_hs=1163845 software_core=0 software_nonce=3937013 software_hashes=1968506 software_rate_hs=108674 total_hashes=23048506 hash_rate_hs=1272519 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=63 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=42840000 hardware_hashes=21420000 hardware_rate_hs=1163845 software_core=0 software_nonce=4000525 software_hashes=2000262 software_rate_hs=108674 total_hashes=23420262 hash_rate_hs=1272519 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=16 sequence=64 elapsed_us=1168611 hardware_hashes=1360000 software_hashes=126998 total_hashes=1486998 hardware_rate_hs=1163775 software_rate_hs=108674 hash_rate_hs=1272449 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=64 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=43520000 hardware_hashes=21760000 hardware_rate_hs=1163834 software_core=0 software_nonce=4064033 software_hashes=2032016 software_rate_hs=108675 total_hashes=23792016 hash_rate_hs=1272509 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=65 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=44200000 hardware_hashes=22100000 hardware_rate_hs=1163626 software_core=0 software_nonce=4127499 software_hashes=2063749 software_rate_hs=108674 total_hashes=24163749 hash_rate_hs=1272300 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=66 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=44880000 hardware_hashes=22440000 hardware_rate_hs=1163857 software_core=0 software_nonce=4191009 software_hashes=2095504 software_rate_hs=108674 total_hashes=24535504 hash_rate_hs=1272531 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=67 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=45560000 hardware_hashes=22780000 hardware_rate_hs=1163650 software_core=0 software_nonce=4254521 software_hashes=2127260 software_rate_hs=108674 total_hashes=24907260 hash_rate_hs=1272324 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=17 sequence=68 elapsed_us=1168624 hardware_hashes=1360000 software_hashes=127000 total_hashes=1487000 hardware_rate_hs=1163762 software_rate_hs=108675 hash_rate_hs=1272437 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=68 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=46240000 hardware_hashes=23120000 hardware_rate_hs=1163913 software_core=0 software_nonce=4318033 software_hashes=2159016 software_rate_hs=108675 total_hashes=25279016 hash_rate_hs=1272588 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=69 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=46920000 hardware_hashes=23460000 hardware_rate_hs=1163634 software_core=0 software_nonce=4381487 software_hashes=2190743 software_rate_hs=108673 total_hashes=25650743 hash_rate_hs=1272307 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=70 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=47600000 hardware_hashes=23800000 hardware_rate_hs=1163814 software_core=0 software_nonce=4444999 software_hashes=2222499 software_rate_hs=108674 total_hashes=26022499 hash_rate_hs=1272488 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=71 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=48280000 hardware_hashes=24140000 hardware_rate_hs=1163841 software_core=0 software_nonce=4508499 software_hashes=2254249 software_rate_hs=108674 total_hashes=26394249 hash_rate_hs=1272515 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=18 sequence=72 elapsed_us=1168659 hardware_hashes=1360000 software_hashes=126989 total_hashes=1486989 hardware_rate_hs=1163727 software_rate_hs=108662 hash_rate_hs=1272389 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=72 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=48960000 hardware_hashes=24480000 hardware_rate_hs=1163618 software_core=0 software_nonce=4572011 software_hashes=2286005 software_rate_hs=108674 total_hashes=26766005 hash_rate_hs=1272292 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=73 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=49640000 hardware_hashes=24820000 hardware_rate_hs=1163642 software_core=0 software_nonce=4635481 software_hashes=2317740 software_rate_hs=108673 total_hashes=27137740 hash_rate_hs=1272315 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=74 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=50320000 hardware_hashes=25160000 hardware_rate_hs=1163818 software_core=0 software_nonce=4698993 software_hashes=2349496 software_rate_hs=108673 total_hashes=27509496 hash_rate_hs=1272491 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=75 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=51000000 hardware_hashes=25500000 hardware_rate_hs=1163937 software_core=0 software_nonce=4762505 software_hashes=2381252 software_rate_hs=108674 total_hashes=27881252 hash_rate_hs=1272611 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=19 sequence=76 elapsed_us=1168572 hardware_hashes=1360000 software_hashes=127002 total_hashes=1487002 hardware_rate_hs=1163814 software_rate_hs=108681 hash_rate_hs=1272495 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=76 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=51680000 hardware_hashes=25840000 hardware_rate_hs=1163838 software_core=0 software_nonce=4826015 software_hashes=2413007 software_rate_hs=108674 total_hashes=28253007 hash_rate_hs=1272512 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=77 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=52360000 hardware_hashes=26180000 hardware_rate_hs=1163646 software_core=0 software_nonce=4889477 software_hashes=2444738 software_rate_hs=108673 total_hashes=28624738 hash_rate_hs=1272319 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=78 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=53040000 hardware_hashes=26520000 hardware_rate_hs=1163861 software_core=0 software_nonce=4952989 software_hashes=2476494 software_rate_hs=108674 total_hashes=28996494 hash_rate_hs=1272535 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=79 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=53720000 hardware_hashes=26860000 hardware_rate_hs=1163818 software_core=0 software_nonce=5016499 software_hashes=2508249 software_rate_hs=108674 total_hashes=29368249 hash_rate_hs=1272492 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=20 sequence=80 elapsed_us=1168596 hardware_hashes=1360000 software_hashes=126998 total_hashes=1486998 hardware_rate_hs=1163790 software_rate_hs=108676 hash_rate_hs=1272465 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=80 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=54400000 hardware_hashes=27200000 hardware_rate_hs=1163853 software_core=0 software_nonce=5080011 software_hashes=2540005 software_rate_hs=108674 total_hashes=29740005 hash_rate_hs=1272527 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=81 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=55080000 hardware_hashes=27540000 hardware_rate_hs=1163682 software_core=0 software_nonce=5143479 software_hashes=2571739 software_rate_hs=108674 total_hashes=30111739 hash_rate_hs=1272356 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=82 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=55760000 hardware_hashes=27880000 hardware_rate_hs=1163710 software_core=0 software_nonce=5206991 software_hashes=2603495 software_rate_hs=108674 total_hashes=30483495 hash_rate_hs=1272384 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=83 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=56440000 hardware_hashes=28220000 hardware_rate_hs=1163830 software_core=0 software_nonce=5270503 software_hashes=2635251 software_rate_hs=108674 total_hashes=30855251 hash_rate_hs=1272504 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=21 sequence=84 elapsed_us=1168671 hardware_hashes=1360000 software_hashes=127001 total_hashes=1487001 hardware_rate_hs=1163715 software_rate_hs=108671 hash_rate_hs=1272386 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=84 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=57120000 hardware_hashes=28560000 hardware_rate_hs=1163618 software_core=0 software_nonce=5334013 software_hashes=2667006 software_rate_hs=108674 total_hashes=31227006 hash_rate_hs=1272292 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=85 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=57800000 hardware_hashes=28900000 hardware_rate_hs=1163670 software_core=0 software_nonce=5397477 software_hashes=2698738 software_rate_hs=108673 total_hashes=31598738 hash_rate_hs=1272343 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=86 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=58480000 hardware_hashes=29240000 hardware_rate_hs=1163853 software_core=0 software_nonce=5460989 software_hashes=2730494 software_rate_hs=108674 total_hashes=31970494 hash_rate_hs=1272527 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=87 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=59160000 hardware_hashes=29580000 hardware_rate_hs=1163814 software_core=0 software_nonce=5524499 software_hashes=2762249 software_rate_hs=108674 total_hashes=32342249 hash_rate_hs=1272488 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=22 sequence=88 elapsed_us=1168594 hardware_hashes=1360000 software_hashes=127000 total_hashes=1487000 hardware_rate_hs=1163792 software_rate_hs=108678 hash_rate_hs=1272469 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=88 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=59840000 hardware_hashes=29920000 hardware_rate_hs=1163849 software_core=0 software_nonce=5588013 software_hashes=2794006 software_rate_hs=108674 total_hashes=32714006 hash_rate_hs=1272523 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=89 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=60520000 hardware_hashes=30260000 hardware_rate_hs=1163698 software_core=0 software_nonce=5651473 software_hashes=2825736 software_rate_hs=108674 total_hashes=33085736 hash_rate_hs=1272372 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=90 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=61200000 hardware_hashes=30600000 hardware_rate_hs=1163838 software_core=0 software_nonce=5714973 software_hashes=2857486 software_rate_hs=108674 total_hashes=33457486 hash_rate_hs=1272512 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=91 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=61880000 hardware_hashes=30940000 hardware_rate_hs=1163595 software_core=0 software_nonce=5778487 software_hashes=2889243 software_rate_hs=108674 total_hashes=33829243 hash_rate_hs=1272269 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=23 sequence=92 elapsed_us=1168641 hardware_hashes=1360000 software_hashes=126992 total_hashes=1486992 hardware_rate_hs=1163745 software_rate_hs=108666 hash_rate_hs=1272411 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=92 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=62560000 hardware_hashes=31280000 hardware_rate_hs=1163826 software_core=0 software_nonce=5841997 software_hashes=2920998 software_rate_hs=108674 total_hashes=34200998 hash_rate_hs=1272500 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=93 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=63240000 hardware_hashes=31620000 hardware_rate_hs=1163471 software_core=0 software_nonce=5905461 software_hashes=2952730 software_rate_hs=108673 total_hashes=34572730 hash_rate_hs=1272144 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=94 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=63920000 hardware_hashes=31960000 hardware_rate_hs=1163830 software_core=0 software_nonce=5968975 software_hashes=2984487 software_rate_hs=108673 total_hashes=34944487 hash_rate_hs=1272503 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=95 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=64600000 hardware_hashes=32300000 hardware_rate_hs=1163814 software_core=0 software_nonce=6032487 software_hashes=3016243 software_rate_hs=108674 total_hashes=35316243 hash_rate_hs=1272488 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=24 sequence=96 elapsed_us=1168700 hardware_hashes=1360000 software_hashes=126999 total_hashes=1486999 hardware_rate_hs=1163686 software_rate_hs=108667 hash_rate_hs=1272353 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=96 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=65280000 hardware_hashes=32640000 hardware_rate_hs=1163630 software_core=0 software_nonce=6095995 software_hashes=3047997 software_rate_hs=108674 total_hashes=35687997 hash_rate_hs=1272304 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=97 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=65960000 hardware_hashes=32980000 hardware_rate_hs=1163674 software_core=0 software_nonce=6159461 software_hashes=3079730 software_rate_hs=108673 total_hashes=36059730 hash_rate_hs=1272347 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=98 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=66640000 hardware_hashes=33320000 hardware_rate_hs=1163595 software_core=0 software_nonce=6222975 software_hashes=3111487 software_rate_hs=108673 total_hashes=36431487 hash_rate_hs=1272268 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=99 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=67320000 hardware_hashes=33660000 hardware_rate_hs=1163614 software_core=0 software_nonce=6286487 software_hashes=3143243 software_rate_hs=108673 total_hashes=36803243 hash_rate_hs=1272287 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=25 sequence=100 elapsed_us=1168767 hardware_hashes=1360000 software_hashes=127003 total_hashes=1487003 hardware_rate_hs=1163619 software_rate_hs=108664 hash_rate_hs=1272284 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=100 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=68000000 hardware_hashes=34000000 hardware_rate_hs=1163618 software_core=0 software_nonce=6350001 software_hashes=3175000 software_rate_hs=108673 total_hashes=37175000 hash_rate_hs=1272291 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=101 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=68680000 hardware_hashes=34340000 hardware_rate_hs=1163630 software_core=0 software_nonce=6413461 software_hashes=3206730 software_rate_hs=108673 total_hashes=37546730 hash_rate_hs=1272303 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=102 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=69360000 hardware_hashes=34680000 hardware_rate_hs=1163853 software_core=0 software_nonce=6476971 software_hashes=3238485 software_rate_hs=108673 total_hashes=37918485 hash_rate_hs=1272526 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=103 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=70040000 hardware_hashes=35020000 hardware_rate_hs=1163865 software_core=0 software_nonce=6540483 software_hashes=3270241 software_rate_hs=108673 total_hashes=38290241 hash_rate_hs=1272538 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=26 sequence=104 elapsed_us=1168582 hardware_hashes=1360000 software_hashes=126997 total_hashes=1486997 hardware_rate_hs=1163804 software_rate_hs=108676 hash_rate_hs=1272480 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=104 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=70720000 hardware_hashes=35360000 hardware_rate_hs=1163845 software_core=0 software_nonce=6603995 software_hashes=3301997 software_rate_hs=108673 total_hashes=38661997 hash_rate_hs=1272518 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=105 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=71400000 hardware_hashes=35700000 hardware_rate_hs=1163666 software_core=0 software_nonce=6667465 software_hashes=3333732 software_rate_hs=108673 total_hashes=39033732 hash_rate_hs=1272339 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=106 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=72080000 hardware_hashes=36040000 hardware_rate_hs=1163826 software_core=0 software_nonce=6730975 software_hashes=3365487 software_rate_hs=108673 total_hashes=39405487 hash_rate_hs=1272499 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=107 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=72760000 hardware_hashes=36380000 hardware_rate_hs=1163830 software_core=0 software_nonce=6794489 software_hashes=3397244 software_rate_hs=108673 total_hashes=39777244 hash_rate_hs=1272503 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=27 sequence=108 elapsed_us=1168602 hardware_hashes=1360000 software_hashes=127002 total_hashes=1487002 hardware_rate_hs=1163784 software_rate_hs=108679 hash_rate_hs=1272462 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=108 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=73440000 hardware_hashes=36720000 hardware_rate_hs=1163838 software_core=0 software_nonce=6857999 software_hashes=3428999 software_rate_hs=108674 total_hashes=40148999 hash_rate_hs=1272512 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=109 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=74120000 hardware_hashes=37060000 hardware_rate_hs=1163423 software_core=0 software_nonce=6921465 software_hashes=3460732 software_rate_hs=108673 total_hashes=40520732 hash_rate_hs=1272096 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=110 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=74800000 hardware_hashes=37400000 hardware_rate_hs=1163841 software_core=0 software_nonce=6984979 software_hashes=3492489 software_rate_hs=108673 total_hashes=40892489 hash_rate_hs=1272514 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=111 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=75480000 hardware_hashes=37740000 hardware_rate_hs=1163838 software_core=0 software_nonce=7048491 software_hashes=3524245 software_rate_hs=108673 total_hashes=41264245 hash_rate_hs=1272511 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=28 sequence=112 elapsed_us=1168654 hardware_hashes=1360000 software_hashes=127002 total_hashes=1487002 hardware_rate_hs=1163732 software_rate_hs=108674 hash_rate_hs=1272406 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=112 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=76160000 hardware_hashes=38080000 hardware_rate_hs=1163818 software_core=0 software_nonce=7112003 software_hashes=3556001 software_rate_hs=108674 total_hashes=41636001 hash_rate_hs=1272492 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=113 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=76840000 hardware_hashes=38420000 hardware_rate_hs=1163682 software_core=0 software_nonce=7175463 software_hashes=3587731 software_rate_hs=108673 total_hashes=42007731 hash_rate_hs=1272355 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=114 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=77520000 hardware_hashes=38760000 hardware_rate_hs=1163814 software_core=0 software_nonce=7238967 software_hashes=3619483 software_rate_hs=108673 total_hashes=42379483 hash_rate_hs=1272487 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=115 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=78200000 hardware_hashes=39100000 hardware_rate_hs=1163818 software_core=0 software_nonce=7302475 software_hashes=3651237 software_rate_hs=108673 total_hashes=42751237 hash_rate_hs=1272491 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=29 sequence=116 elapsed_us=1168594 hardware_hashes=1360000 software_hashes=126993 total_hashes=1486993 hardware_rate_hs=1163792 software_rate_hs=108672 hash_rate_hs=1272463 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=116 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=78880000 hardware_hashes=39440000 hardware_rate_hs=1163857 software_core=0 software_nonce=7365989 software_hashes=3682994 software_rate_hs=108674 total_hashes=43122994 hash_rate_hs=1272531 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=117 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=79560000 hardware_hashes=39780000 hardware_rate_hs=1163654 software_core=0 software_nonce=7429459 software_hashes=3714729 software_rate_hs=108673 total_hashes=43494729 hash_rate_hs=1272327 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=118 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=80240000 hardware_hashes=40120000 hardware_rate_hs=1163834 software_core=0 software_nonce=7492973 software_hashes=3746486 software_rate_hs=108673 total_hashes=43866486 hash_rate_hs=1272507 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=119 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=80920000 hardware_hashes=40460000 hardware_rate_hs=1163834 software_core=0 software_nonce=7556487 software_hashes=3778243 software_rate_hs=108674 total_hashes=44238243 hash_rate_hs=1272508 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=30 sequence=120 elapsed_us=1168604 hardware_hashes=1360000 software_hashes=127005 total_hashes=1487005 hardware_rate_hs=1163782 software_rate_hs=108681 hash_rate_hs=1272463 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=120 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=81600000 hardware_hashes=40800000 hardware_rate_hs=1163802 software_core=0 software_nonce=7619999 software_hashes=3809999 software_rate_hs=108674 total_hashes=44609999 hash_rate_hs=1272476 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=121 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=82280000 hardware_hashes=41140000 hardware_rate_hs=1163698 software_core=0 software_nonce=7683465 software_hashes=3841732 software_rate_hs=108673 total_hashes=44981732 hash_rate_hs=1272371 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=122 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=82960000 hardware_hashes=41480000 hardware_rate_hs=1163861 software_core=0 software_nonce=7746979 software_hashes=3873489 software_rate_hs=108674 total_hashes=45353489 hash_rate_hs=1272535 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=123 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=83640000 hardware_hashes=41820000 hardware_rate_hs=1163822 software_core=0 software_nonce=7810493 software_hashes=3905246 software_rate_hs=108674 total_hashes=45725246 hash_rate_hs=1272496 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=31 sequence=124 elapsed_us=1168577 hardware_hashes=1360000 software_hashes=127004 total_hashes=1487004 hardware_rate_hs=1163809 software_rate_hs=108683 hash_rate_hs=1272491 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=124 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=84320000 hardware_hashes=42160000 hardware_rate_hs=1163865 software_core=0 software_nonce=7874007 software_hashes=3937003 software_rate_hs=108674 total_hashes=46097003 hash_rate_hs=1272539 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=125 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=85000000 hardware_hashes=42500000 hardware_rate_hs=1163626 software_core=0 software_nonce=7937475 software_hashes=3968737 software_rate_hs=108674 total_hashes=46468737 hash_rate_hs=1272300 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=126 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=85680000 hardware_hashes=42840000 hardware_rate_hs=1163841 software_core=0 software_nonce=8000989 software_hashes=4000494 software_rate_hs=108674 total_hashes=46840494 hash_rate_hs=1272515 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=127 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=86360000 hardware_hashes=43180000 hardware_rate_hs=1163818 software_core=0 software_nonce=8064501 software_hashes=4032250 software_rate_hs=108674 total_hashes=47212250 hash_rate_hs=1272492 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=32 sequence=128 elapsed_us=1168603 hardware_hashes=1360000 software_hashes=126999 total_hashes=1486999 hardware_rate_hs=1163783 software_rate_hs=108676 hash_rate_hs=1272459 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=128 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=87040000 hardware_hashes=43520000 hardware_rate_hs=1163841 software_core=0 software_nonce=8128005 software_hashes=4064002 software_rate_hs=108674 total_hashes=47584002 hash_rate_hs=1272515 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=129 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=87720000 hardware_hashes=43860000 hardware_rate_hs=1163443 software_core=0 software_nonce=8191473 software_hashes=4095736 software_rate_hs=108674 total_hashes=47955736 hash_rate_hs=1272117 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=130 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=88400000 hardware_hashes=44200000 hardware_rate_hs=1163630 software_core=0 software_nonce=8254985 software_hashes=4127492 software_rate_hs=108674 total_hashes=48327492 hash_rate_hs=1272304 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=131 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=89080000 hardware_hashes=44540000 hardware_rate_hs=1163845 software_core=0 software_nonce=8318497 software_hashes=4159248 software_rate_hs=108674 total_hashes=48699248 hash_rate_hs=1272519 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=33 sequence=132 elapsed_us=1168692 hardware_hashes=1360000 software_hashes=127001 total_hashes=1487001 hardware_rate_hs=1163694 software_rate_hs=108669 hash_rate_hs=1272363 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=132 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=89760000 hardware_hashes=44880000 hardware_rate_hs=1163830 software_core=0 software_nonce=8382007 software_hashes=4191003 software_rate_hs=108674 total_hashes=49071003 hash_rate_hs=1272504 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=133 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=90440000 hardware_hashes=45220000 hardware_rate_hs=1163439 software_core=0 software_nonce=8445469 software_hashes=4222734 software_rate_hs=108673 total_hashes=49442734 hash_rate_hs=1272112 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=134 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=91120000 hardware_hashes=45560000 hardware_rate_hs=1163838 software_core=0 software_nonce=8508977 software_hashes=4254488 software_rate_hs=108673 total_hashes=49814488 hash_rate_hs=1272511 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=135 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=91800000 hardware_hashes=45900000 hardware_rate_hs=1163810 software_core=0 software_nonce=8572491 software_hashes=4286245 software_rate_hs=108674 total_hashes=50186245 hash_rate_hs=1272484 temperature=disabled
+MEASUREMENT:WINDOW run_id=30004927-00000001 window=34 sequence=136 elapsed_us=1168654 hardware_hashes=1360000 software_hashes=126997 total_hashes=1486997 hardware_rate_hs=1163732 software_rate_hs=108669 hash_rate_hs=1272401 temperature=disabled
+MINING:PROGRESS run_id=30004927-00000001 sequence=136 arch=RISCV-HAZARD3 hardware_core=1 hardware_nonce=92480000 hardware_hashes=46240000 hardware_rate_hs=1163845 software_core=0 software_nonce=8636001 software_hashes=4318000 software_rate_hs=108674 total_hashes=50558000 hash_rate_hs=1272519 temperature=disabled
+CYCLE:PASS arch=riscv

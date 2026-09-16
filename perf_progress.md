@@ -7560,3 +7560,27 @@ short-run captures are represented by these measured console records; the
   results or reproduced failures.
 - Logs are retained as `logs/DUAL-DELAY-riscv-v1600-f{522,524,528,532,534,540,546,552}000-d5-rerun.log`.
   Physical BOOTSEL recovery is required before rerunning this range.
+
+### Delayed dual-core valid reruns (post-BOOTSEL recovery)
+
+The delayed core-0 software-worker implementation was rerun at every requested
+exact point, 1.60 V/readback, divider 5. Each 522–552 MHz run returned
+`CYCLE:PASS` with BOOT, oracle, benchmarks, and mining telemetry. Measured final
+rates (H/s) and dedicated logs:
+
+| MHz | H/s | Log |
+|---:|---:|---|
+|516|1,272,519|DUAL-DELAY-riscv-v1600-f516000-d5-valid-rerun.log|
+|520|1,282,162|DUAL-DELAY-riscv-v1600-f520000-d5-valid-rerun.log|
+|522|1,287,288|DUAL-DELAY-riscv-v1600-f522000-d5-valid-rerun.log|
+|524|1,292,054|DUAL-DELAY-riscv-v1600-f524000-d5-valid-rerun.log|
+|528|1,302,112|DUAL-DELAY-riscv-v1600-f528000-d5-valid-rerun.log|
+|532|1,311,991|DUAL-DELAY-riscv-v1600-f532000-d5-valid-rerun.log|
+|534|1,316,917|DUAL-DELAY-riscv-v1600-f534000-d5-valid-rerun.log|
+|540|1,331,505|DUAL-DELAY-riscv-v1600-f540000-d5-valid-rerun.log|
+|546|1,346,270|DUAL-DELAY-riscv-v1600-f546000-d5-valid-rerun.log|
+|552|1,361,048|DUAL-DELAY-riscv-v1600-f552000-d5-valid-rerun.log|
+|558|screen boot/oracle/mining; capture incomplete|DUAL-DELAY-riscv-v1600-f558000-d5-valid-rerun.log|
+
+The 516 MHz run was a full 50-second capture and passed. The 558 MHz run
+booted and validated but ended before the five-window completeness gate.
