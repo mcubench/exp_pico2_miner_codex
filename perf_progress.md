@@ -6185,3 +6185,34 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   short hardware validation to prove ordinary correctness/performance remains
   intact. Treat full-space completion as protocol/arithmetic qualified, not as
   a measured 106-minute endurance result.
+
+### D1 attempt 114b — paired hardware pass, retain
+
+- Candidate commit `b54dd2d`, clean source identity `0a0357882807`, stock
+  150 MHz, temperature disabled. Both architectures built before each flash;
+  clean ARM/RISC-V UF2 SHA-256 values are
+  `087a1b9d0a6f5deb6fcf85c059d7e0b4900fc43a2e4a7fd22b6cf881a216fa82` /
+  `c79775a1819e5c07abd339654aa343688326c6198af56f5f4b5bb6711773c6d0`.
+- ARM run `30004927-00000025` passed all eight device suites, the 4,096-case
+  oracle, the expanded 13-case decision-path test, standalone benchmarks, nine
+  synchronized windows, and strict capture without a fault. Standalone
+  hardware/full/filter rates were **331,821 / 30,364 / 31,578 H/s**.
+  First-seven medians were **360,308 aggregate / 328,871 hardware / 31,438
+  software H/s**. Versus retained candidate 105/109 ARM (360,342 / 328,912 /
+  31,430), this is **-34 (-0.009%) / -41 (-0.012%) / +8 (+0.025%) H/s**:
+  measurement-neutral, with the isolated filter exactly matching 31,578 H/s.
+  Complete log `logs/D1-tail-takeover-arm.log`, SHA-256
+  `5fbea4a43da62604ba354f1c09ea79545c89b07e41d9a6b7c3c7293888202458`.
+- Hazard3 run `30004927-00000026` passed the same correctness and capture gates.
+  Standalone hardware/full/filter rates were **343,992 / 28,429 / 31,685
+  H/s**. First-seven medians were **369,844 aggregate / 338,331 hardware /
+  31,510 software H/s**. Versus retained candidate 109 Hazard3 (369,894 /
+  338,379 / 31,515), this is **-50 (-0.014%) / -48 (-0.014%) / -5
+  (-0.016%) H/s**: measurement-neutral, with the isolated filter exactly
+  matching 31,685 H/s. Complete log `logs/D1-tail-takeover-riscv.log`, SHA-256
+  `39aff5ff47d3df740da37613c232230ceb7c96ceff2ef3d66163fe6d4b4f0f17`.
+- **Decision: retain candidate 114.** Paired evidence shows no ordinary-phase
+  performance regression and all bounded arithmetic/protocol validation passes.
+  The approximately 106-minute full nonce-space transition was deliberately
+  not exercised, so takeover completion is arithmetic/protocol-qualified, not
+  an endurance measurement. The board now runs retained candidate 114 Hazard3.

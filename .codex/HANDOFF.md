@@ -1,5 +1,32 @@
 # Pico 2 miner optimization handoff
 
+## Latest checkpoint — authoritative
+
+- Pause checkpoint after completing candidate 114 (D1 two-phase odd-tail
+  takeover). Candidate source commit `b54dd2d`, identity `0a0357882807`, is
+  **retained**. Evidence is being committed with this handoff.
+- Both architectures build warning-free and all ten host monitor tests pass.
+  Paired 150 MHz, temperature-disabled hardware runs passed all 8 device tests,
+  the 4,096-case oracle, expanded 13-case decision paths, nine windows, and
+  strict capture without faults.
+- First-seven medians: ARM **360,308 aggregate / 328,871 hardware / 31,438
+  software H/s**; Hazard3 **369,844 / 338,331 / 31,510 H/s**. Changes versus
+  retained parents are only -0.009%/-0.012%/+0.025% on ARM and
+  -0.014%/-0.014%/-0.016% on Hazard3. The isolated filter exactly matches each
+  parent. Logs are `logs/D1-tail-takeover-{arm,riscv}.log`; hashes and full
+  comparisons are at the end of `perf_progress.md`.
+- The roughly 106-minute full nonce-space transition was not run. D1 is
+  arithmetic/protocol-qualified by bounded firmware and host cases plus paired
+  ordinary-phase hardware evidence, not by an endurance completion run.
+- The board now runs retained candidate 114 Hazard3 at stock 150 MHz with
+  temperature disabled.
+- On resume, acquire `.codex/ACTIVE_SESSION`, re-read the end of
+  `perf_progress.md`, and continue with the next uncompleted item in
+  `planned_optimizations_update2.md`. Do not follow older `next actions` text
+  lower in this historical handoff if it conflicts with this checkpoint.
+- Firmware still prints package `RP2350A` with `sysinfo_package_sel=1` on the
+  user's RP2350B. This pre-existing label issue was not mixed into D1.
+
 ## Objective
 
 Continue from retained candidate 103 using the ranked remaining-options analysis
