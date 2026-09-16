@@ -5750,3 +5750,11 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   remains retained; Hazard3 remains factor 1. Commit before the final clean
   build, then require candidate-105 source identity, sizes, disassembly shape,
   host tests, and exact ARM/RISC-V UF2 hashes.
+- Restoration commit `012f03d` returns source identity to candidate 105's
+  `8b850732e27f`. Both stock builds pass warning-free and all eight host monitor
+  tests pass. Text/BSS returns to **189,504/4,708** ARM and **200,924/4,440**
+  Hazard3. ARM/RISC-V UF2 SHA-256 values exactly match retained candidate 105:
+  `0c12f2464dd682cfc91855b5051d139d0420115c3e291c7a7bf3e9564cea351f` /
+  `e8b32412926d19c609e8e72b66c6b3492d7efd2d6f650e79583d38467b00d942`.
+  No redundant restoration performance run is claimed; the board still carries
+  rejected candidate 106 ARM until the next flash.

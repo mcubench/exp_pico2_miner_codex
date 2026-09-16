@@ -47,6 +47,9 @@ changes and keep temperature disabled.
 - Candidate 106 A2 is rejected after passing correctness. ARM factor 8 measured
   359,709 aggregate / 328,281 hardware H/s, -0.176%/-0.192% versus retained
   candidate 105 factor 4. The board currently runs rejected candidate 106 ARM.
+- Restoration commit `012f03d` returns source/builds exactly to candidate 105:
+  source identity `8b850732e27f`, all 8 host tests pass, and ARM/RISC-V UF2
+  hashes are exactly `0c12f2...a351f` / `e8b324...0d942`.
 
 ## Completed work in this session
 
@@ -97,13 +100,13 @@ work was requested for the planning update. Do not repeat main-SRAM hardware-
 worker placement, software batch factor 8, scratch-X filter placement, E08 queue
 polling at 1 or 64 hashes, or rejected E14 chunk variants unchanged.
 
-Candidate 106 A2 passed all gates but regressed and is rejected. Its evidence
-is committed in `f47ac9c`; log `logs/A2-batch8-arm.log` has SHA-256
-`ea19760a...675120`. A focused source restoration now returns ARM batch/unroll
-factors to four while preserving A1. Commit it, rebuild both architectures, and
-require exact candidate-105 UF2 hashes `0c12f2...a351f` /
-`e8b324...0d942`. Do not retry factor 8 unchanged. The board currently runs
-rejected candidate 106 ARM.
+Candidate 106 is rejected and the source/build artifacts are restored exactly
+to retained candidate 105. Record/commit final restoration evidence. The next
+plan item is A3: test only `mining_worker_core1` alignment, beginning with a
+16-byte ARM-only boundary as a separate candidate. Inspect the final start
+address, padding, worker bytes/frame, and unrelated layout before flashing.
+Do not use broad label alignment. The board currently runs rejected candidate
+106 ARM until the next flash.
 
 Candidate 104 commit `6dc1941`, identity `638fe640df92`, passed correctness but
 is rejected. ARM worker-in-main-SRAM measured 358,620 aggregate / 327,806
