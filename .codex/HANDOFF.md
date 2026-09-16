@@ -2,7 +2,8 @@
 
 ## Objective
 
-Continue `planned_optimizations_update.md` one experiment at a time. Build both
+Continue from retained candidate 103 using the ranked remaining-options analysis
+in `planned_optimizations_update2.md`. For future code experiments, build both
 ISAs before flashing shared source, capture complete hardware output, archive
 logs, append every result/failure to `perf_progress.md`, and commit between
 functional attempts. Keep stock 150 MHz code experiments separate from clock
@@ -35,9 +36,10 @@ changes and keep temperature disabled.
   +0.532%/+0.582% over factor 2 and +0.845%/+0.932% over factor 1. Hazard3
   remains compile-time factor 1 at its retained size. The factor 1/2/4 study
   is complete; log `logs/E04c-hardware-batch4-arm.log`.
-- Session `01a09b3f-dda6-7701-af18-c0b3d56eb61e` owns
-  `.codex/ACTIVE_SESSION`. Preserve the newly inherited active-writer rule in
-  `.codex/SESSION_CONTINUITY.md`; do not add the transient lock to a commit.
+- `planned_optimizations_update2.md` now analyzes the viable work remaining
+  after candidate 104. It is a planning-only update; no device test or source
+  experiment was performed while preparing it. Its first recommendation is an
+  ARM factor-4 hot/cold worker split, followed conditionally by ARM factor 8.
 
 ## Completed work in this session
 
@@ -80,30 +82,38 @@ changes and keep temperature disabled.
 
 ## Work in progress / next actions
 
-Current continuation point: candidate 104 is rejected and focused restoration
-commit `093a1c2` returns source to retained candidate 103. Both builds, 8 host
-tests, and exact candidate-103 UF2 hashes pass. Record/commit this restoration
-evidence, then select the next bounded plan item. Do not repeat main-SRAM
-hardware-worker placement, software batch factor 8, scratch-X filter placement,
-E08 queue polling at 1 or 64 hashes, or rejected E14 chunk variants unchanged.
+Current continuation point: candidate 104 is rejected and restoration commit
+`093a1c2` returns source to retained candidate 103. Commit `81edb25` records the
+restoration evidence. Both builds, 8 host tests, and exact candidate-103 UF2
+hashes pass. The board still carries rejected candidate 104 ARM, but no device
+work was requested for the planning update. Do not repeat main-SRAM hardware-
+worker placement, software batch factor 8, scratch-X filter placement, E08 queue
+polling at 1 or 64 hashes, or rejected E14 chunk variants unchanged.
+
+For the next source experiment, use `planned_optimizations_update2.md`. First
+try candidate A1 by sharing only the ARM factor-4 worker's cold candidate,
+publication, fault/exhaustion, and report paths. The common no-share path must
+gain no call, load, or branch. Measure candidate A1 separately before trying
+ARM factor 8. Hazard3 remains factor 1.
 
 Candidate 104 commit `6dc1941`, identity `638fe640df92`, passed correctness but
 is rejected. ARM worker-in-main-SRAM measured 358,620 aggregate / 327,806
 hardware / 30,815 software H/s: -0.261%/-0.096%/-1.972% versus candidate 103.
 Inter-core SRAM contention outweighs XIP relief. Archive
-`logs/E07-hardware-worker-sram-arm.log`; commit the evidence, restore only the
-worker placement to XIP, rebuild both, and require candidate-103 UF2 hashes.
+`logs/E07-hardware-worker-sram-arm.log` contains the run, the evidence is
+committed, and the worker placement is restored to XIP in source/build output.
 
 The candidate-104 restoration is complete: source identity `104da455bdbb`,
 both builds and 8 host tests pass, and ARM `fae222...e67b` / RISC-V
-`fc1f13...6693` exactly match retained candidate 103 artifacts. Commit the
-restoration evidence. Board still carries rejected candidate 104 ARM.
+`fc1f13...6693` exactly match retained candidate 103 artifacts. Board still
+carries rejected candidate 104 ARM.
 
 Candidate 103 commit `b2b8dfb`, identity `104da455bdbb`, passed ARM hardware:
 359,558 aggregate / 328,122 hardware / 31,435 software H/s, +0.532%/+0.582%
 over candidate 102 factor 2. All correctness and nine windows passed. Retain
 ARM factor 4; Hazard3 remains factor 1 at its retained size. Artifact/log
-hashes are recorded in the ledger; board is running accepted candidate 103 ARM.
+hashes are recorded in the ledger. The board was subsequently flashed with the
+rejected candidate 104 ARM image and has not been reflashed after restoration.
 
 Candidate 101 is the selected E04-c factor-2 hardware-worker experiment. It
 nests exactly two complete nonce iterations inside the existing report loop;
