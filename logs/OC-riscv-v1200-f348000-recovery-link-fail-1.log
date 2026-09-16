@@ -1,0 +1,11 @@
+EXPERIMENT id=OC-riscv-v1200-f348000-recovery-1
+CONFIG source_commit=640dbca source_id=ac3e4e469db5 arch=RISCV-HAZARD3 requested_clock_khz=348000 requested_vreg_mv=1200 monitor_seconds=50
+PLL_CATALOG realized_khz=348000 vco_khz=1392000 postdiv1=4 postdiv2=1
+BUILD:PASS arch=arm uf2_sha256=011ea4f2ea8e768a7e2450f3c08ceb8cf1da09be4d5df341db2372f4b32389f2
+BUILD:PASS arch=riscv uf2_sha256=c64609beebe13f8f5e73d9af673639abde2ba8bd2d75a577721078ba09b1d42b
+FLASH:INDETERMINATE arch=riscv note=picotool_reported_success_without_normal_load_or_verify_transcript tracked_serial_empty
+SERIAL_PORT=/dev/ttyACM0
+ERROR: incomplete validation output: BOOT, eight-test summary, hardware benchmark, software benchmark, filter benchmark, MINING:START, five MINING:PROGRESS records (0 seen), five MEASUREMENT:WINDOW records (0 seen)
+CYCLE:FAIL status=5 classification=RESET_OR_LINK_FAIL
+DIAGNOSTIC tools_doctor=PASS tty_acm=/dev/ttyACM0
+NOTE This does not overturn the established 348 MHz/1.20 V pass. The automatic flash from the silent 1.40 V state lacked normal programming/verification evidence and the resulting port remained silent. Physical BOOTSEL recovery is required.

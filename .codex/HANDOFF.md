@@ -92,6 +92,11 @@
   BOOT/test bytes for 50 seconds; the Pico and tty remain present. Commit this
   RESET_OR_LINK_FAIL evidence. Per failure rule 10.3, return to the last passing
   frontier point (348 MHz/1.20 V) before attempting another voltage at 396 MHz.
+- The attempted automatic return to 348 MHz/1.20 V was not a valid device run:
+  picotool reported success without its normal load/verify transcript and with
+  an empty tracked serial, then the same tty emitted zero bytes. Host doctor
+  passes. Preserve this as RESET_OR_LINK_FAIL; it does not overturn the prior
+  348 MHz passes. Physical BOOTSEL recovery is now required.
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both

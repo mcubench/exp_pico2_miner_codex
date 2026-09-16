@@ -6582,3 +6582,18 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Annotated capture `logs/OC-riscv-v1400-f396000-reset-link-fail-2.log`,
   SHA-256
   `90ecbde6dea17088552b410476f5e24d063c96a72edf013b67ba178be7b10525`.
+
+### OC-riscv-v1200-f348000-recovery-1 — RESET_OR_LINK_FAIL, flash indeterminate
+
+- The required return to the last passing frontier point rebuilt both
+  architectures warning-free, producing the byte-identical known-good 348
+  MHz/1.20 V images. During flashing, however, picotool showed an empty tracked
+  serial and returned success without the normal load/verify transcript.
+- `/dev/ttyACM0` enumerated but emitted zero bytes for the complete capture,
+  matching the preceding silent 1.40 V state. Repository `tools/doctor` passes
+  all host checks. This is **RESET_OR_LINK_FAIL** with an indeterminate flash,
+  not evidence that the established 348 MHz/1.20 V firmware failed.
+- Annotated capture
+  `logs/OC-riscv-v1200-f348000-recovery-link-fail-1.log`, SHA-256
+  `df3db282ccbcccb70be05e530fe4eff231eddf8039e0b36ad8ab7844e78fb724`.
+  Bounded automatic recovery is exhausted; physically reconnect in BOOTSEL.
