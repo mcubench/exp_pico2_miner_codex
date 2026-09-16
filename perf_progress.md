@@ -6874,3 +6874,15 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   software H/s. Log `logs/OC-riscv-v1100-f150000-recovery-18.log`, SHA-256
   `ff2b250b6d0a2b262ab88f2ed03055f3759d79d135bdb57b52c047c2d22d795d`.
   Recovery is validated; retry 420 MHz / 1.60 V identically.
+
+### OC-riscv-v1600-f420000-bisection-2 — BOOT_FAIL, reproduced
+
+- The mandatory identical retry rebuilt both architectures warning-free and
+  flashed/verified the same 420 MHz / 1,600 mV image.
+- Runtime USB again did not appear during the 50-second strict capture; no
+  Pico USB device or `/dev/ttyACM*` was present. Classification is
+  **BOOT_FAIL** with no runtime output.
+- Empty log `logs/OC-riscv-v1600-f420000-boot-fail-2.log`, SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+  Two failures establish 420 MHz as a failing bound at 1.60 V. Recover and
+  validate stock before the next lower exact midpoint.
