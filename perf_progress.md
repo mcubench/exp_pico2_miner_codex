@@ -7548,3 +7548,15 @@ short-run captures are represented by these measured console records; the
   incomplete**, not a throughput retention result. Log:
   `logs/DUAL-DELAY-riscv-v1600-f558000-d5-rerun.log`, SHA-256
   `8d6014245fafd1b669ba91d6ebbab1a4e464ed6ae3fb241122e5deb8e300c272`.
+
+### Delayed dual-core batch attempt (invalid host flash state)
+
+- Requested reruns at 522, 524, 528, 532, 534, 540, 546, and 552 MHz were
+  launched with dedicated logs and 20-second captures.
+- The 522 MHz attempt occurred while the board was still in the prior hung
+  application state and produced no BOOT/oracle output. The wrapper reported a
+  blank serial and no visible load/verify; all subsequent points inherited the
+  same host no-op condition. These are **INVALID_HOST_FLASH_NOOP**, not clock
+  results or reproduced failures.
+- Logs are retained as `logs/DUAL-DELAY-riscv-v1600-f{522,524,528,532,534,540,546,552}000-d5-rerun.log`.
+  Physical BOOTSEL recovery is required before rerunning this range.
