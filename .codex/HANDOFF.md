@@ -2,6 +2,18 @@
 
 ## Latest checkpoint — authoritative
 
+- Final stock recovery 40 passed after the completed Hazard3 campaign. It
+  passed all eight suites, the full oracle, benchmarks, nine windows, and
+  strict capture. First-seven medians were 369,929 aggregate / 338,338
+  hardware / 31,591 software H/s. Log
+  `logs/OC-riscv-v1100-f150000-d3-recovery-40.log` has SHA-256
+  `96bf622419f69d4c45a426308d1724844c44f23e62b4d77c129e599f44456da2`.
+  Board is left on validated stock firmware.
+- Final campaign result: 516 MHz / requested and read-back 1.60 V / divider 5,
+  QMI SCK 103.2 MHz, 1,272,262 aggregate H/s (2,465.62 H/s/MHz). Three
+  matching 570 MHz link failures confirm the ceiling; reproduced 516 MHz /
+  1.40 V BOOT_FAIL establishes 1.60 V as the minimum validated selector.
+
 - Final Phase-3 570 MHz / 1.60 V / divider-5 check reproduced the same
   **RESET_OR_LINK_FAIL** after verified flash: USB serial enumerated, but no
   BOOT or firmware output appeared. Log

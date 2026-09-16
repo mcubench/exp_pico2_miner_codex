@@ -7411,3 +7411,12 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Campaign result: highest validated clock **516 MHz**, minimum validated
   selector there **1.60 V**, divider **5**, QMI SCK **103.2 MHz**, aggregate
   **1,272,262 H/s** (**2,465.62 H/s/MHz**). A final stock recovery remains.
+### OC-riscv-v1100-f150000-d3-recovery-40 — FINAL MEASURE_PASS
+
+- Final stock restoration after the ceiling confirmation passed exact identity,
+  all eight suites, the 4,096-case oracle, benchmarks, nine windows, and
+  strict capture.
+- First-seven medians were **369,929 aggregate / 338,338 hardware / 31,591
+  software H/s**. Log `logs/OC-riscv-v1100-f150000-d3-recovery-40.log`,
+  SHA-256 `96bf622419f69d4c45a426308d1724844c44f23e62b4d77c129e599f44456da2`.
+  The board is left on validated stock firmware.
