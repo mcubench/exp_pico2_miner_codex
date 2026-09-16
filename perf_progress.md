@@ -7026,3 +7026,22 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   Per explicit user direction, test 420 MHz / divider 4 at 1.60 V next and
   descend voltage only after a clean pass. This supersedes the plan's prior
   396 MHz diagnostic and low-to-high voltage order.
+
+### OC-riscv-v1600-f420000-d4-descend-1 — MEASURE_PASS
+
+- Per explicit user direction, the descending-voltage search began at
+  420 MHz / requested and read-back 1,600 mV / divider 4. Both architectures
+  built warning-free; ARM/RISC-V UF2 SHA-256 values were
+  `050b18168124b1fe644b5b06486a32b21590d0d15bf53ac80399b664af1d7fdb` /
+  `20d250b060c757cffb3205e3c8aeb2acc37932e8b6f5a25c68f70f95d9784cd0`.
+  BOOT reported exact 420 MHz, 105 MHz QMI SCK, and
+  `unsafe_voltage_limit_disabled=1`; this is an **unsafe-overvoltage** run.
+- All eight suites, the 4,096-case oracle, standalone benchmarks, 27 complete
+  windows, and the strict capture passed. Standalone hardware/full/filter
+  rates were **960,992 / 80,182 / 88,963 H/s**. First-seven progress medians
+  were **1,035,500 aggregate / 947,044 hardware / 88,469 software H/s**.
+  Aggregate scaling efficiency versus recovery 22 is approximately 99.97%
+  of the exact 2.8x clock ratio.
+- Complete log `logs/OC-riscv-v1600-f420000-d4-descend-1.log`, SHA-256
+  `0b451d6f7cdbd2a875ac2891610e780852aadbe8d56e96be42b7a2e4f889683f`.
+  Return to stock and validate recovery before descending to a lower voltage.

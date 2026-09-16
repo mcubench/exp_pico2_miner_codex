@@ -2,6 +2,17 @@
 
 ## Latest checkpoint — authoritative
 
+- The user-directed top-down voltage point passed: 420 MHz / 1.60 V /
+  divider 4 (105 MHz QMI) completed all eight suites, the 4,096-case oracle,
+  27 windows, and strict capture. First-seven medians were 1,035,500
+  aggregate / 947,044 hardware / 88,469 software H/s; standalone hardware /
+  full / filter rates were 960,992 / 80,182 / 88,963 H/s. This was an
+  unsafe-overvoltage run with unlock telemetry correctly asserted. Log
+  `logs/OC-riscv-v1600-f420000-d4-descend-1.log` has SHA-256
+  `0b451d6f7cdbd2a875ac2891610e780852aadbe8d56e96be42b7a2e4f889683f`.
+  Commit the result, return to stock and validate recovery, then continue the
+  fixed-420-MHz descending-voltage search with one voltage change at a time.
+
 - User explicitly changed the next search order: test 420 MHz / divider 4 at
   1.60 V, then descend voltage after a clean pass; do not run the previously
   planned 396 MHz / 1.20 V diagnostic first. Stock recovery 22 has passed all
