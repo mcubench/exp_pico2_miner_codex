@@ -7443,3 +7443,13 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Log `logs/HWONLY-riscv-v1100-f150000-d3-recovery-1.log`, SHA-256
   `8641f75eb9fc822342734df799afca4e3ff7d661a33ee3426991db538f941187`.
   Proceed to hardware-only 570 MHz / 1.60 V / divider 5 (114 MHz QMI SCK).
+### HWONLY-riscv-v1600-f570000-d5-link-1 — RESET_OR_LINK_FAIL
+
+- Both architectures built and the Hazard3 hardware-only image flash-verified
+  at 570 MHz / requested 1.60 V / divider 5 (114 MHz QMI SCK).
+- Runtime USB serial enumerated but emitted no BOOT or firmware output during
+  the full bounded capture. Strict validation exited 5 with all runtime gates
+  absent. This is **RESET_OR_LINK_FAIL**, not a throughput result.
+- Log `logs/HWONLY-riscv-v1600-f570000-d5-link-fail-1.log`, SHA-256
+  `eb80afa478e3223bdaac2c013a007945ae682150d4a69f4a6b1523ab4a475000`.
+  Recover and validate stock, then reproduce this point once.

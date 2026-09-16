@@ -1066,3 +1066,17 @@ RISC-V `a3d7e...3bd9`; archive hashes are recorded in the ledger.
 - Next action is exactly one changed run: hardware-only 570 MHz / 1.60 V /
   divider 5 (114 MHz QMI SCK), with a full 50-second strict capture. A failure
   must be recovered to stock and reproduced before declaring the boundary.
+
+### First hardware-only 570 MHz attempt failed
+
+- Both architectures built warning-free and the Hazard3 hardware-only image
+  flash-verified at 570 MHz / requested 1.60 V / divider 5 (114 MHz QMI SCK).
+- Runtime USB serial enumerated as `/dev/ttyACM0`, but the firmware emitted no
+  BOOT line or subsequent output during the bounded capture. Strict validation
+  exited 5 with every runtime gate absent. Classify this as
+  **RESET_OR_LINK_FAIL**, not a clean boot or performance result.
+- Failure log `logs/HWONLY-riscv-v1600-f570000-d5-link-fail-1.log`, SHA-256
+  `eb80afa478e3223bdaac2c013a007945ae682150d4a69f4a6b1523ab4a475000`.
+- The board currently enumerates as Pico application USB (`2e8a:0009`) but is
+  unresponsive. Physically recover it into BOOTSEL, validate stock, then retry
+  the identical hardware-only 570 MHz point once before setting the boundary.
