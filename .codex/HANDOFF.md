@@ -49,6 +49,15 @@
   check finds no Pico device. Record/commit this BOOT_FAIL. Physical BOOTSEL
   recovery is required; validate stock, then retry identical 396/1.20 once.
   Do not raise voltage based on only this first failure.
+- Physical recovery after 396/1.20 attempt 1 succeeded. Stock Hazard3 run
+  `30004927-00000001` passed all gates and nine windows at 369,843 aggregate /
+  338,328 hardware / 31,517 software H/s. Its log is archived as
+  `logs/OC-riscv-v1100-f150000-recovery-4.log`. Retry identical 396/1.20 now.
+- The identical 396 MHz/1.20 V retry again built/flashed/verified but produced
+  no runtime USB device or BOOT record. This reproduces BOOT_FAIL and makes
+  1.20 V a failing lower bound at 396 MHz. Commit recovery 4 and attempt 2.
+  Physical BOOTSEL recovery is again required; after stock validation test
+  396 MHz/1.30 V (two selector indices higher), then 1.25 V if 1.30 V passes.
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both

@@ -6438,3 +6438,29 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   396 MHz/1.20 V point once before changing voltage. Failure log
   `logs/OC-riscv-v1200-f396000-boot-fail-1.log`, SHA-256
   `97427887dcf38d0c8a051abf0dc532e20c7d38590c9632767e51fefd5bc5322a`.
+
+### OC-riscv-v1100-f150000-recovery-4 — MEASURE_PASS
+
+- After physical BOOTSEL recovery, both stock builds passed warning-free and
+  exactly matched the archived recovery UF2s. Hazard3 run
+  `30004927-00000001` passed strict BOOT identity, all correctness gates,
+  standalone benchmarks, and nine synchronized windows.
+- Standalone hardware/full/filter rates are **343,992 / 28,430 / 31,685
+  H/s**. First-seven medians are **369,843 aggregate / 338,328 hardware /
+  31,517 software H/s**, matching all prior stock controls. Complete log
+  `logs/OC-riscv-v1100-f150000-recovery-4.log`, SHA-256
+  `227086b8e465d5d1d7638a3d885e408a2e9b287ddff9d9581e940acd98e893d2`.
+  Recovery is validated; retry identical 396 MHz/1.20 V next.
+
+### OC-riscv-v1200-f396000-screen-2 — BOOT_FAIL, reproduced
+
+- The mandatory identical retry used byte-identical ARM/RISC-V artifacts.
+  Hazard3 flash and verification again passed, but no runtime USB serial device
+  appeared during the 50-second capture. The bounded check again found no
+  Raspberry Pi USB device and no `/dev/ttyACM*`; no BOOT or test record exists.
+- Classification is **BOOT_FAIL**. Two matching failures establish 396 MHz /
+  1.20 V as a failing lower-voltage bound. Following the no-bracket rule,
+  physically recover and validate stock, then hold 396 MHz and jump two
+  selector indices to 1.30 V. If 1.30 V passes, test skipped 1.25 V next.
+  Failure log `logs/OC-riscv-v1200-f396000-boot-fail-2.log`, SHA-256
+  `36abc9d99fbde544cc91be4b38cd63b5c6f19eba64a6b5f87f0d5e6cc69c473b`.
