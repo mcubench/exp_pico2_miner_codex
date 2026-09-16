@@ -6597,3 +6597,17 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `logs/OC-riscv-v1200-f348000-recovery-link-fail-1.log`, SHA-256
   `df3db282ccbcccb70be05e530fe4eff231eddf8039e0b36ad8ab7844e78fb724`.
   Bounded automatic recovery is exhausted; physically reconnect in BOOTSEL.
+
+### OC-riscv-v1100-f150000-recovery-9 — MEASURE_PASS
+
+- Physical BOOTSEL recovery restored the normal complete programming and
+  verification transcript. Both stock architecture builds passed warning-free
+  and matched the archived recovery images. Hazard3 run `30004927-00000001`
+  passed exact identity, all correctness gates, standalone benchmarks, nine
+  synchronized windows, and strict capture.
+- Standalone hardware/full/filter rates are **343,991 / 28,430 / 31,685
+  H/s**. First-seven medians are **369,847 aggregate / 338,330 hardware /
+  31,517 software H/s**, matching the stock baseline.
+- Complete log `logs/OC-riscv-v1100-f150000-recovery-9.log`, SHA-256
+  `e8ddd3cfe38797da822214e3899ad0a7302dbc6f7dab64f62406b585d27b39c3`.
+  Device recovery is validated; revalidate 348 MHz/1.20 V next.

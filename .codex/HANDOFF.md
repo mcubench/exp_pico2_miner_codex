@@ -97,6 +97,10 @@
   an empty tracked serial, then the same tty emitted zero bytes. Host doctor
   passes. Preserve this as RESET_OR_LINK_FAIL; it does not overturn the prior
   348 MHz passes. Physical BOOTSEL recovery is now required.
+- Physical BOOTSEL recovery restored normal stock load/verify and a clean full
+  pass. Hazard3 run `30004927-00000001` passed all gates and nine windows at
+  first-seven medians 369,847 aggregate / 338,330 hardware / 31,517 software
+  H/s. Archive/commit recovery 9, then revalidate 348 MHz/1.20 V.
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both
