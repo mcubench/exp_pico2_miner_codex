@@ -116,6 +116,11 @@
   nine windows at first-seven medians 369,845 aggregate / 338,328 hardware /
   31,517 software H/s. Archive/commit recovery 10, then run the required
   396 MHz/1.60 V Tier-B repeat; return to stock again immediately afterward.
+- The 396 MHz/1.60 V repeat passed all gates and 26 windows at first-seven
+  medians 976,344 aggregate / 893,143 hardware / 83,201 software H/s. The
+  immediate stock return then programmed normally and passed at 369,844 /
+  338,327 / 31,517 H/s. Archive/commit both. The 396 MHz transition is closed
+  at 1.40 V fail / 1.60 V pass; next run the early 570 MHz/1.60 V anchor.
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both

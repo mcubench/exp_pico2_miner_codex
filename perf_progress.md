@@ -6671,3 +6671,32 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Complete log `logs/OC-riscv-v1100-f150000-recovery-10.log`, SHA-256
   `f7c84f296610ee6b14313814b97077252ed942c041a95da61de907f4d49b6f1a`.
   Recovery is validated; repeat 396 MHz/1.60 V once for the transition.
+
+### OC-riscv-v1600-f396000-measure-2 — MEASURE_PASS, transition confirmed
+
+- The required repeat used byte-identical unsafe-overvoltage ARM/RISC-V images.
+  Hazard3 run `30004927-00000002` again reported exact 396 MHz, 1,600 mV
+  readback, selector 19, and unsafe-limit flag 1.
+- All correctness gates, standalone benchmarks, 26 synchronized windows, and
+  strict capture passed. Standalone hardware/full/filter rates are
+  **908,149 / 75,055 / 83,649 H/s**. First-seven medians are **976,344
+  aggregate / 893,143 hardware / 83,201 software H/s**; aggregate range is
+  30 H/s and MAD is 4 H/s, matching attempt 1 within measurement resolution.
+- **Frontier decision:** reproduced 1.40 V RESET_OR_LINK_FAIL and two complete
+  1.60 V Tier-B passes establish 1.60 V as the minimum validated requested
+  selector at 396 MHz. Complete log
+  `logs/OC-riscv-v1600-f396000-measure-2.log`, SHA-256
+  `9135857326ed64702669e754d0b390e37558bc8e6931fbe4593b907cacdd65d9`.
+
+### OC-riscv-v1100-f150000-recovery-11 — MEASURE_PASS
+
+- The mandatory immediate return after the 1.60 V repeat programmed and
+  verified normally. Run `30004927-00000003` passed exact stock identity, all
+  correctness gates, standalone benchmarks, nine windows, and strict capture.
+- Standalone hardware/full/filter rates are **343,986 / 28,430 / 31,685
+  H/s**. First-seven medians are **369,844 aggregate / 338,327 hardware /
+  31,517 software H/s**, matching baseline and confirming recovery.
+- Complete log `logs/OC-riscv-v1100-f150000-recovery-11.log`, SHA-256
+  `022d1ed2a361c1a29ec4da8da98a35ecc4aa88af97e5ffa57ab9d77b9fb25d48`.
+  With two intermediate frontier points complete, test the plan's early
+  Hazard3 anchor at exact 570 MHz/1.60 V next.
