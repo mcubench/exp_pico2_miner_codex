@@ -50,6 +50,9 @@ changes and keep temperature disabled.
 - Restoration commit `012f03d` returns source/builds exactly to candidate 105:
   source identity `8b850732e27f`, all 8 host tests pass, and ARM/RISC-V UF2
   hashes are exactly `0c12f2...a351f` / `e8b324...0d942`.
+- Candidate 107 A3 requests 16-byte alignment for the ARM worker only. Dirty
+  preflight passes: entry moves `0x100003c4` to `0x100003d0`, body/frame remain
+  1,452/156 bytes, ARM text adds 16 bytes, and Hazard3 remains exact.
 
 ## Completed work in this session
 
@@ -100,13 +103,11 @@ work was requested for the planning update. Do not repeat main-SRAM hardware-
 worker placement, software batch factor 8, scratch-X filter placement, E08 queue
 polling at 1 or 64 hashes, or rejected E14 chunk variants unchanged.
 
-Candidate 106 is rejected and the source/build artifacts are restored exactly
-to retained candidate 105. Record/commit final restoration evidence. The next
-plan item is A3: test only `mining_worker_core1` alignment, beginning with a
-16-byte ARM-only boundary as a separate candidate. Inspect the final start
-address, padding, worker bytes/frame, and unrelated layout before flashing.
-Do not use broad label alignment. The board currently runs rejected candidate
-106 ARM until the next flash.
+Candidate 107 A3-16 is implemented and passes dirty preflight. Commit it,
+clean-rebuild both architectures, and run a strict ARM cycle against candidate
+105's 360,342 aggregate / 328,912 hardware H/s. Reject regression or neutrality
+that does not justify fragile layout padding. Do not use broad label alignment.
+The board currently runs rejected candidate 106 ARM until the next flash.
 
 Candidate 104 commit `6dc1941`, identity `638fe640df92`, passed correctness but
 is rejected. ARM worker-in-main-SRAM measured 358,620 aggregate / 327,806

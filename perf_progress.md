@@ -5758,3 +5758,35 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `e8b32412926d19c609e8e72b66c6b3492d7efd2d6f650e79583d38467b00d942`.
   No redundant restoration performance run is claimed; the board still carries
   rejected candidate 106 ARM until the next flash.
+
+## 2026-09-16 — A3 ARM worker 16-byte alignment candidate 107 definition
+
+- Parent is retained candidate 105 at source identity `8b850732e27f`; A2 has
+  been restored exactly. Change only ARM by requesting 16-byte alignment for
+  `mining_worker_core1`. Hazard3 gets an empty architecture macro and must retain
+  its exact factor-1 code shape. This is a single-function placement experiment,
+  not the rejected global 32-byte label-alignment flag.
+- Hypothesis: A1's 0.241% hardware gain and A2's 0.192% regression demonstrate
+  sensitivity to XIP hot-code footprint/layout. Moving the settled factor-4
+  worker entry from its natural four-byte boundary to a 16-byte boundary may
+  improve fetch alignment without changing any instruction in the worker.
+- Rejection rule: preflight must preserve worker bytes, frame, four bodies, cold
+  stubs, and Hazard3 placement. Reject any correctness/strict-capture failure,
+  throughput regression, or neutral result that does not justify fragile layout
+  padding. If tested, later source/link changes must revalidate any retained win.
+
+### A3 ARM worker 16-byte alignment candidate 107 preflight — pass
+
+- Both dirty stock builds pass warning-free and all eight host monitor tests
+  pass. ARM worker entry moves from `0x100003c4` to **`0x100003d0`** and its end
+  moves equally to `0x1000097c`; the body remains **1,452 bytes**, its frame
+  remains **156 bytes**, and four rare helper calls remain out of line.
+- ARM text/BSS is **189,520/4,708**, only 16 text bytes above candidate 105's
+  dirty-layout equivalent. The helper and preceding functions keep their prior
+  addresses; the worker and following code shift by 12 bytes plus linker
+  padding. Hazard3 remains at `0x10001478..0x1000187c` and exactly
+  **200,924/4,440**.
+- Dirty ARM/RISC-V UF2 SHA-256 values are
+  `3dcc5fa4ed0fd2015ef02ea68004ce33bf1ebf012f45e636553cbdc96167707a` /
+  `ba0254b08c5fd15e8a353aa716e251776459ac29f2d03dc64798d535ea55f928`.
+  Commit and clean-rebuild both architectures before the ARM hardware run.
