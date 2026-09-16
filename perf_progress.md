@@ -7173,3 +7173,12 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `6e7976a838aa0756309a9d5038b11bb49647d59bd349da1d3227e32a98126587`.
   The 1.30 V minimum requested selector at 420 MHz/divider 4 is confirmed;
   proceed with the divider-4 upward walk at the same selector.
+### OC-riscv-v1300-f444000-d4-boot-1 — BOOT_FAIL, recovery required
+
+- Both architectures built warning-free; Hazard3 flash and verification passed
+  at 444 MHz / 1.30 V / divider 4 (111 MHz QMI SCK).
+- Runtime USB did not appear during the 50-second capture; no BOOT or runtime
+  output was captured. Classification is **BOOT_FAIL**.
+- Empty log `logs/OC-riscv-v1300-f444000-d4-boot-fail-1.log`, SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+  Recover and validate stock, then retry this point identically.

@@ -2,6 +2,12 @@
 
 ## Latest checkpoint — authoritative
 
+- First 444 MHz / 1.30 V / divider-4 attempt built and flash-verified but
+  produced no runtime USB or serial output, classified **BOOT_FAIL**. Empty log
+  `logs/OC-riscv-v1300-f444000-d4-boot-fail-1.log` has SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+  Recover and validate stock, then retry the identical point.
+
 - Required repeat of 420 MHz / 1.30 V / divider 4 passed all gates, 27 windows,
   and strict capture. First-seven medians were 1,035,719 aggregate / 947,300
   hardware / 88,421 software H/s. Log
