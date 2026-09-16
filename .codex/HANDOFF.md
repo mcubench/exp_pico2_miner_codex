@@ -106,7 +106,9 @@ changes and keep temperature disabled.
   medians are 360,164 aggregate / 328,886 hardware / 31,278 software H/s,
   -0.049%/-0.008%/-0.484% versus retained candidate 105/109. Isolated filter
   falls 0.503% to 31,419 H/s. Log `logs/B3-local-o2-arm.log`. Source is restored
-  to the retained O3 helper; rebuild exact candidate 109 and commit evidence.
+  to the retained O3 helper. Restoration commit `9439905` rebuilds both exact
+  candidate-109 UF2 hashes with all eight host tests passing. Commit this final
+  restoration evidence; the board remains on rejected candidate 112 ARM.
 
 ## Completed work in this session
 

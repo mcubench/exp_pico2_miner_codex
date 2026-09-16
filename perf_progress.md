@@ -6082,3 +6082,10 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   measurably slower on M33 despite passing every correctness gate. Restore the
   retained O3 helper and require exact candidate-109 artifacts. The board is
   currently running rejected candidate 112 ARM.
+- Restoration commit `9439905` clean-builds byte-exact retained candidate 109:
+  identity `525dd4932d37`, ARM/RISC-V text and BSS 189,504/4,708 and
+  201,692/4,440, and UF2 SHA-256
+  `81dde72e8cd7be15e26a9b436ebcb38310170e4a1c29fdd44fdc33f321ad9f3b` /
+  `8bad952bd188e6e35a0a33b677690802e782be8a97f5163c30334ed022d18612`.
+  Both builds and all eight host tests pass; no redundant restoration flash was
+  performed, so the board remains on rejected candidate 112 ARM.
