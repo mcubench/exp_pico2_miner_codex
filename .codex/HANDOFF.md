@@ -2,6 +2,13 @@
 
 ## Latest checkpoint — authoritative
 
+- Identical 480 MHz / 1.40 V / divider-4 retry reproduced BOOT_FAIL after
+  verified flash; no runtime USB or serial output appeared. Empty log
+  `logs/OC-riscv-v1400-f480000-d4-boot-fail-2.log` has SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+  Two failures establish 1.40 V as insufficient at 480 MHz/divider 4. Recover
+  and validate stock, then test 480 MHz / 1.50 V / divider 4.
+
 - Stock recovery 30 passed after the first 480 MHz / 1.40 V / divider-4
   failure. Log `logs/OC-riscv-v1100-f150000-d3-recovery-30.log` has SHA-256
   `89cab215617320a87c6542300da6f67b895175190217fd8ac611b6b1bcc57403`.

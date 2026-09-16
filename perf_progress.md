@@ -7261,3 +7261,12 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   software H/s. Log `logs/OC-riscv-v1100-f150000-d3-recovery-30.log`, SHA-256
   `89cab215617320a87c6542300da6f67b895175190217fd8ac611b6b1bcc57403`.
   Recovery is validated; retry 480 MHz / 1.40 V / divider 4.
+### OC-riscv-v1400-f480000-d4-boot-2 — BOOT_FAIL, reproduced
+
+- Identical 480 MHz / 1.40 V / divider-4 retry built and flash-verified but
+  again produced no runtime USB or serial output. Classification is
+  **BOOT_FAIL**.
+- Empty log `logs/OC-riscv-v1400-f480000-d4-boot-fail-2.log`, SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+  Two failures establish 1.40 V as insufficient at 480 MHz/divider 4.
+  Recover and validate stock, then test 480 MHz / 1.50 V / divider 4.
