@@ -5814,3 +5814,19 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - **Decision: reject candidate 107.** Do not retain 16-byte worker alignment.
   Test 32 bytes only as a separate placement; do not infer its result from this
   nonlinear layout experiment and do not combine boundaries.
+
+## 2026-09-16 — A3 ARM worker 32-byte alignment candidate 108
+
+- Parent for comparison remains unaligned retained candidate 105. Change only
+  the ARM worker alignment request from 16 to 32 bytes; Hazard3 remains on its
+  empty alignment macro and factor-1 path. Use the same rejection rule as
+  candidate 107: neutrality is insufficient for fragile padding.
+- Dirty preflight passes both warning-free builds and all eight host monitor
+  tests. ARM worker entry becomes **`0x100003e0`**, end `0x1000098c`, body
+  **1,452 bytes**, frame **156 bytes**, with the same four cold-helper stubs.
+  ARM text/BSS is **189,536/4,708**, 32 dirty text bytes above the unaligned
+  equivalent. Hazard3 remains exactly **200,924/4,440**.
+- Dirty ARM/RISC-V UF2 SHA-256 values are
+  `37856ed96099c5952f0e2ccf449fe61b128e0d068f82221417c5feed285aad12` /
+  `6f61448bded366623985a087bbc45d9c1723ed80e64673a9f1a0ba1d73922713`.
+  Commit and clean-rebuild both architectures before the ARM hardware run.

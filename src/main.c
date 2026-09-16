@@ -34,7 +34,7 @@ _Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
 #define CPU_ARCH "ARM-M33"
 #define BENCHMARK_PATH "batched-accounting-e04c"
 #define MINING_LOOP_OPTIONS __attribute__((optimize("unroll-loops")))
-#define MINING_WORKER_ALIGNMENT __attribute__((aligned(16)))
+#define MINING_WORKER_ALIGNMENT __attribute__((aligned(32)))
 #define HARDWARE_MINING_BATCH 4u
 #endif
 
