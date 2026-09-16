@@ -7381,3 +7381,9 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Empty log `logs/OC-riscv-v1400-f516000-d5-phase2-boot-fail-1.log`, SHA-256
   `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
   Recover and validate stock, then retry this point identically.
+### OC-riscv-v1100-f150000-d3-recovery-38 — MEASURE_PASS
+
+- Stock recovery after the first 516 MHz / 1.40 V failure passed all required
+  gates. Log `logs/OC-riscv-v1100-f150000-d3-recovery-38.log`, SHA-256
+  `e2d485e21514fee19d3f736d7512b62d14fee0ac371fea5c3051debf742ee2ee`.
+  Retry 516 MHz / 1.40 V / divider 5 identically.
