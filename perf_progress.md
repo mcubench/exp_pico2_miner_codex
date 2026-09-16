@@ -6371,3 +6371,20 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   test the skipped 1.15 V selector at the same 348 MHz clock next.
 - Complete log `logs/OC-riscv-v1200-f348000-measure-1.log`, SHA-256
   `4ac0ee9b1e256102397f932cd6bc4dfd0f5a99b024fd815392fc8a8b71ba7416`.
+
+### OC-riscv-v1150-f348000-screen-1 — CORRECTNESS_FAIL
+
+- Both architecture builds passed warning-free; ARM/RISC-V UF2 SHA-256 values
+  are `8517e2f0253fcf7aea72f1a32bf83cd53d6863dc267edef2a124ddb0485f7e2f` /
+  `f60f84ec39275d8ef04ff190608202b8d260bfd3420c6e6913645062b9e6b1b5`.
+  Hazard3 flash/verification passed and run `30004927-00000003` reported exact
+  348 MHz/1.15 V identity with readback selector 12 and unsafe flag 0.
+- NIST empty/ABC and SHA sticky-error tests passed, then the 4,096-case
+  optimized oracle reported `TEST:FAIL` at vector 1412, nonce 3526006413. The
+  strict monitor rejected the run immediately. Classification is
+  **CORRECTNESS_FAIL**; no benchmark or mining result is valid.
+- Complete failure log `logs/OC-riscv-v1150-f348000-correctness-fail-1.log`,
+  SHA-256
+  `9facecfed2745d1e7982c772d8f63bc2cedc788cff299d74ff8e579ba2b1d146`.
+  Runtime USB remains present. Repeat the identical point once before fixing
+  the lower-voltage boundary at 1.15 V fail / 1.20 V pass.

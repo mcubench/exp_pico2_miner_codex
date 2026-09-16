@@ -29,6 +29,11 @@
   scaling efficiency. Archive/commit this run and recovery evidence, then test
   the skipped 1.15 V selector at the same 348 MHz clock. If 1.15 V fails,
   repeat it identically before accepting 1.20 V as the minimum selector.
+- Commit `0672192` records the stock recovery and clean 348 MHz/1.20 V pass.
+  The first 348 MHz/1.15 V attempt booted with correct identity but failed the
+  optimized oracle at vector 1412/nonce 3526006413. USB remains reachable.
+  Archive/commit the CORRECTNESS_FAIL, then retry the identical 1.15 V point
+  once. A matching failure establishes 1.20 V as the minimum selector here.
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both
