@@ -2,6 +2,17 @@
 
 ## Latest checkpoint — authoritative
 
+- Repository-wide outcome synthesis is complete in new `summary.md`. It
+  documents the autonomous hardware loop, final firmware structure, retained
+  and rejected optimizations, stock and overclock tables, ISA differences,
+  deployment guidance, overclock workflow improvements, and evidence links.
+  No firmware or hardware measurement changed. Local-link and Markdown-table
+  checks pass; `git diff --check` passes. It also flags the unresolved package
+  identity conflict: the operator calls the token RP2350B, but accepted runs
+  report `SYSINFO.PACKAGE_SEL=1` (officially QFN-60/RP2350A) and current source
+  explicitly targets A. The summary checkpoint is committed; hardware state is
+  unchanged.
+
 - Documentation-only cleanup expands the `perf_progress.md` subsection
   `Delayed dual-core valid reruns (post-BOOTSEL recovery)` from a compressed
   table into eleven structured per-attempt entries. Values were recomputed
