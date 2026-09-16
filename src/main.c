@@ -68,6 +68,9 @@ _Static_assert(MINING_REPORT_INTERVAL % HARDWARE_MINING_BATCH == 0u,
 
 static uint32_t boot_run_sequence;
 static uint32_t boot_chip_id;
+// Core 0's mining loop is held until clock setup and BOOT telemetry are
+// complete.  This makes the dual software+hardware startup ordering explicit.
+static volatile bool core0_worker_start_allowed;
 
 static bool __no_inline_not_in_flash_func(configure_qmi_clkdiv)(
     uint32_t divider) {
@@ -1408,6 +1411,13 @@ static void mine_forever(uint led_pin) {
 #endif
     uint32_t message;
 
+    // The system clock transition happens in main() before BOOT is emitted.
+    // Keep this guard adjacent to worker startup so future refactors cannot
+    // accidentally launch the software worker during clock reconfiguration.
+    while (!core0_worker_start_allowed) {
+        tight_loop_contents();
+    }
+
 #if !MINER_HARDWARE_ONLY
     if (!compact_to_target_le(0x1d00ffffu, target.bytes)) {
         printf("FAULT type=invalid_compact_target worker_core=0\n");
@@ -1772,6 +1782,8 @@ int main(void) {
            clock_get_hz(clk_peri), (unsigned)MINER_QMI_CLKDIV, qmi_clkdiv,
            qmi_sck_hz, package_sel, chip_id,
            rp2350_chip_version());
+    // Publish the gate only after printf has queued the complete BOOT line.
+    core0_worker_start_allowed = true;
     if (package_sel != 1u) {
         printf("FAULT type=package_mismatch expected_sysinfo_package_sel=1"
                " actual_sysinfo_package_sel=%" PRIu32 "\n",

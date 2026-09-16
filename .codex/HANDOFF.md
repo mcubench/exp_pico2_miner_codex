@@ -1161,3 +1161,12 @@ RISC-V `a3d7e...3bd9`; archive hashes are recorded in the ledger.
   produced no BOOT or runtime output during the bounded capture. Treat as
   RESET_OR_LINK_FAIL, not a performance result. No retry yet; physical BOOTSEL
   recovery is required before any further ARM flash.
+
+### Dual-worker startup gate (2026-09-16)
+
+- Added `core0_worker_start_allowed` in `src/main.c`. Core 0's
+  `mine_forever()` now waits on this gate; main sets it only after the full
+  BOOT telemetry `printf` completes, following clock/voltage/QMI setup.
+- Both ARM and Hazard3 builds pass. Hazard3 stock flash/boot/oracle test was
+  operational; the 12-second bounded run stopped after one progress record,
+  so it is not a full capture failure.
