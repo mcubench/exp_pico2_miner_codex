@@ -2,6 +2,16 @@
 
 ## Latest checkpoint — authoritative
 
+- Final Phase-3 570 MHz / 1.60 V / divider-5 check reproduced the same
+  **RESET_OR_LINK_FAIL** after verified flash: USB serial enumerated, but no
+  BOOT or firmware output appeared. Log
+  `logs/OC-riscv-v1600-f570000-d5-phase3-link-fail-1.log` has SHA-256
+  `eb80afa478e3223bdaac2c013a007945ae682150d4a69f4a6b1523ab4a475000`.
+- Campaign result is 516 MHz / 1.60 V / divider 5, QMI SCK 103.2 MHz, at
+  1,272,262 aggregate H/s (2,465.62 H/s/MHz). The ceiling is confirmed by
+  three matching 570 MHz link failures. Physically recover and validate stock
+  once more before final handoff.
+
 - Stock recovery 39 passed after the reproduced 516 MHz / 1.40 V failure.
   Log `logs/OC-riscv-v1100-f150000-d3-recovery-39.log` has SHA-256
   `8a206fd33cb0f843855b9f5cea34b4adc7d1b7172e71ad1a93ab1cd5b0b30d85`.

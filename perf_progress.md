@@ -7401,3 +7401,13 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   required gates. Log `logs/OC-riscv-v1100-f150000-d3-recovery-39.log`,
   SHA-256 `8a206fd33cb0f843855b9f5cea34b4adc7d1b7172e71ad1a93ab1cd5b0b30d85`.
   Run the final 570 MHz / 1.60 V / divider-5 ceiling confirmation.
+### OC-riscv-v1600-f570000-d5-phase3-link-1 — RESET_OR_LINK_FAIL, ceiling confirmed
+
+- Final Phase-3 570 MHz / 1.60 V / divider-5 check flash-verified and
+  enumerated USB serial, but emitted no BOOT or firmware output.
+- Strict capture again classified **RESET_OR_LINK_FAIL**. Log
+  `logs/OC-riscv-v1600-f570000-d5-phase3-link-fail-1.log`, SHA-256
+  `eb80afa478e3223bdaac2c013a007945ae682150d4a69f4a6b1523ab4a475000`.
+- Campaign result: highest validated clock **516 MHz**, minimum validated
+  selector there **1.60 V**, divider **5**, QMI SCK **103.2 MHz**, aggregate
+  **1,272,262 H/s** (**2,465.62 H/s/MHz**). A final stock recovery remains.
