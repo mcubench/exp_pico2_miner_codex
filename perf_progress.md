@@ -6758,3 +6758,16 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `logs/OC-riscv-v1100-f150000-recovery-13.log`, SHA-256
   `5c83019e2cf05723dae0ad8420ec61def29f8f6ebcb8d50ceec2890bbb6871f8`.
   Recovery is validated; bisect the 396–570 MHz interval near 480 MHz/1.60 V.
+
+### OC-riscv-v1600-f480000-bisection-1 — BOOT_FAIL, recovery required
+
+- Both architecture builds passed warning-free; ARM/RISC-V UF2 SHA-256 values
+  are `ec62bd8fb6a8b871797d1027c7ee588b3c50402741cece7d56c3a5a44ea49977` /
+  `3a837963aafefb740b23ebe4244b0da66fe249d668c160ccb552c65aeb0c8e97`.
+  Hazard3 flash and verification passed.
+- Runtime USB did not appear during the 50-second capture; bounded checks found
+  no Pico or `/dev/ttyACM*`. No BOOT or test output exists. Classification is
+  **BOOT_FAIL**. Failure log
+  `logs/OC-riscv-v1600-f480000-boot-fail-1.log`, SHA-256
+  `4f851992d8569872bf81d3b7d95a2451c073417b0e277fe7dd78529a6e15d197`.
+  Physically recover and validate stock, then retry this point identically.

@@ -138,6 +138,9 @@
   first-seven medians 369,847 aggregate / 338,330 hardware / 31,517 software
   H/s. Recovery 13 is archived; test the exact midpoint candidate around 480 MHz
   at 1.60 V next.
+- 480 MHz/1.60 V bisection attempt 1 built/flashed/verified but produced no
+  runtime USB device. Record BOOT_FAIL, recover and validate stock, then retry
+  the identical 480 MHz/1.60 V point before narrowing toward 396 MHz.
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both
