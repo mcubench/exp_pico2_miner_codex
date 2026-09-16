@@ -6700,3 +6700,20 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `022d1ed2a361c1a29ec4da8da98a35ecc4aa88af97e5ffa57ab9d77b9fb25d48`.
   With two intermediate frontier points complete, test the plan's early
   Hazard3 anchor at exact 570 MHz/1.60 V next.
+
+### OC-riscv-v1600-f570000-anchor-1 — BOOT_FAIL, recovery required
+
+- This anchor is explicitly **unsafe-overvoltage**. Both architecture builds
+  passed warning-free; ARM/RISC-V UF2 SHA-256 values are
+  `68c327c7a0c2c7563601f9e83d4dc58f8e8eef2f950a17dfa243e2fca6200aa5` /
+  `26a438732223370cf7775ffdbc37cd1971245649e80357d711fffedb59c8f61c`.
+  Hazard3 flash and verification passed.
+- Runtime USB did not appear during the 50-second strict capture. The bounded
+  check found neither a Raspberry Pi USB device nor `/dev/ttyACM*`; no BOOT,
+  correctness, benchmark, or mining output exists. Classification is
+  **BOOT_FAIL**.
+- This first failure does not establish the 570 MHz anchor boundary. Physically
+  recover and validate stock, then retry the byte-identical 570 MHz/1.60 V
+  image once before bisection. Failure log
+  `logs/OC-riscv-v1600-f570000-boot-fail-1.log`, SHA-256
+  `2743f8e44065350c5310901255379ec5f5a5a961d3ca4fe0a0dc8226eba0a96b`.

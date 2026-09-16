@@ -1,0 +1,9 @@
+EXPERIMENT id=OC-riscv-v1600-f570000-anchor-1 label=unsafe-overvoltage
+CONFIG source_commit=640dbca source_id=ac3e4e469db5 arch=RISCV-HAZARD3 requested_clock_khz=570000 requested_vreg_mv=1600 monitor_seconds=50
+BUILD:PASS arch=arm uf2_sha256=68c327c7a0c2c7563601f9e83d4dc58f8e8eef2f950a17dfa243e2fca6200aa5
+BUILD:PASS arch=riscv uf2_sha256=26a438732223370cf7775ffdbc37cd1971245649e80357d711fffedb59c8f61c
+FLASH:PASS arch=riscv verification=OK
+ERROR: Raspberry Pi USB serial device did not appear
+CYCLE:FAIL status=2 classification=BOOT_FAIL
+RECOVERY_CHECK lsusb_vendor_2e8a=absent tty_acm=absent
+NOTE No BOOT, correctness, benchmark, or mining output was observed. This first anchor failure requires physical BOOTSEL recovery, stock validation, and one byte-identical retry before frequency bisection.

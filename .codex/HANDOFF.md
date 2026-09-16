@@ -121,6 +121,10 @@
   immediate stock return then programmed normally and passed at 369,844 /
   338,327 / 31,517 H/s. Archive/commit both. The 396 MHz transition is closed
   at 1.40 V fail / 1.60 V pass; next run the early 570 MHz/1.60 V anchor.
+- 570 MHz/1.60 V anchor attempt 1 built/flashed/verified, but runtime USB never
+  appeared and the bounded check found no Pico or tty. Record this BOOT_FAIL;
+  it is only the first failure. Physical BOOTSEL recovery and stock validation
+  are required, then retry the byte-identical 570/1.60 image once.
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both
