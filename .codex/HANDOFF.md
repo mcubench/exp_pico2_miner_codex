@@ -2,6 +2,11 @@
 
 ## Latest checkpoint — authoritative
 
+- Stock recovery 35 passed after 516 MHz / 1.60 V / divider 5. Log
+  `logs/OC-riscv-v1100-f150000-d3-recovery-35.log` has SHA-256
+  `29012f0562b1ce5c6a7cf90b6e5c605bee9e7ac0c189b5b7515dbda368e91233`.
+  Next action is 570 MHz / 1.60 V / divider 5 (114 MHz SCK).
+
 - 516 MHz / 1.60 V / divider 5 passed all gates and strict capture. First-seven
   medians were 1,272,262 aggregate / 1,163,606 hardware / 108,659 software
   H/s (2,465.62 H/s/MHz). Log

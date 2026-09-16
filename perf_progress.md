@@ -7337,3 +7337,9 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   2,465.5 slope. Log `logs/OC-riscv-v1600-f516000-d5-phase1-1.log`, SHA-256
   `5464bf145bc20ac91d696af62be0883a22148f8337e06a4eeef1e46bc952e2f6`.
   Return to stock and validate recovery before 570 MHz / divider 5 / 1.60 V.
+### OC-riscv-v1100-f150000-d3-recovery-35 — MEASURE_PASS
+
+- Stock recovery after 516 MHz / 1.60 V / divider 5 passed all required gates.
+  Log `logs/OC-riscv-v1100-f150000-d3-recovery-35.log`, SHA-256
+  `29012f0562b1ce5c6a7cf90b6e5c605bee9e7ac0c189b5b7515dbda368e91233`.
+  Proceed to 570 MHz / 1.60 V / divider 5 (114 MHz SCK).
