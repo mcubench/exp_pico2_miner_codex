@@ -5980,3 +5980,51 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `8bad952bd188e6e35a0a33b677690802e782be8a97f5163c30334ed022d18612`.
   Both wrapper builds and all eight host tests pass. No restoration flash is
   needed; the board remains on retained candidate 109 Hazard3.
+
+## 2026-09-16 — Candidate 111: B2 ARM four-word schedule/round interleave
+
+- Parent is retained candidate 109 (`71e9c28`, identity `525dd4932d37`). Scope
+  is only ARM's common exact second-hash filter; Hazard3 must retain its B1
+  implementation byte-for-byte apart from embedded identity relocation.
+- Baseline ARM expands W16-W60 before initializing/rounding the second hash.
+  Candidate 111 computes and stores exactly W16-W19 after round 15, immediately
+  consumes each still-live value in rounds 16-19, then expands W20-W60 and
+  resumes the existing pointer-style rounds at round 20. The expanded schedule
+  remains available for all later dependencies; arithmetic, padding, terminal
+  round 60, and exact fallback behavior remain unchanged.
+- Hypothesis: eliminate the four write-then-reload pairs for W16-W19. Resource
+  risk is keeping eight SHA state words live while W20-W60 are expanded, which
+  can create spills or a larger frame. Reject without flashing unless linked
+  ARM code has a concrete common-path load/store or instruction reduction, no
+  larger frame/new stack traffic, and bounded size. Reject any Hazard3 hot-path
+  change. If static gates pass, build both and validate ARM at stock 150 MHz
+  with temperature disabled against the retained ARM medians and 31,578 H/s
+  isolated filter baseline.
+
+### B2 ARM four-word interleave preflight 111a — static reject, no flash
+
+- Both wrapper builds and all eight host monitor tests passed. Dirty ARM/RISC-V
+  UF2 SHA-256 values were
+  `cb4bac1008729cf970a9d7a153176eeac5fa2351d17e931eb9e91650fc77a98c`
+  and
+  `46c1978071cf21c899a39e475a19790b44a80c215e48a74f3303c80532e071b1`.
+- ARM text grew from 189,504 to **189,984 bytes (+480)** and the exact-filter
+  helper grew from 1,712 to **2,180 bytes (+468, +27.3%)**. More importantly,
+  its saved-register/local frame grew from 56 to **72 bytes** (36-byte register
+  save plus 36-byte local allocation). Keeping the eight round-state words live
+  while expanding W20-W60 introduced the register-pressure cost predicted by
+  the rejection rule; any four avoided W16-W19 reloads are overwhelmed.
+- Hazard3 retained its 3,430-byte helper and 288-byte frame with total text
+  unchanged at 201,692 bytes. The differing dirty UF2 is embedded source
+  identity only; its B1 hot helper did not change.
+- **Decision: reject candidate 111 without flashing.** Restore retained
+  candidate 109. Do not expand this B2 shape to more groups or transplant it to
+  Hazard3: the smallest authorized group already increased frame pressure and
+  code size substantially, while the prior ARM/Hazard3 fusion result warned
+  against assuming a cross-architecture win.
+- Restoration is again exact candidate 109: identity `525dd4932d37`, helper
+  sizes 1,712/3,430 bytes, text/BSS 189,504/4,708 and 201,692/4,440, and UF2
+  SHA-256
+  `81dde72e8cd7be15e26a9b436ebcb38310170e4a1c29fdd44fdc33f321ad9f3b` /
+  `8bad952bd188e6e35a0a33b677690802e782be8a97f5163c30334ed022d18612`.
+  Both builds and all eight host tests pass; no restoration flash is needed.

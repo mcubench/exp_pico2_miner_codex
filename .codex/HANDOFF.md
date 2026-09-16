@@ -85,6 +85,16 @@ changes and keep temperature disabled.
   all eight host tests, helper sizes, text/BSS, and UF2 hashes exactly match
   retained candidate 109. Commit the rejection/restoration evidence, then
   proceed to B2.
+- Candidate 111 begins B2 as one ARM-only four-word experiment: compute/store
+  W16-W19 after round 15, consume them immediately in rounds 16-19, then expand
+  W20-W60 and resume at round 20. Hazard3 must remain unchanged. Its hypothesis,
+  resource risk, and no-flash static rejection gates are in the ledger.
+- Candidate 111 failed those gates and was not flashed: ARM's helper grew from
+  1,712 to 2,180 bytes, total text grew 480 bytes, and its frame grew from 56
+  to 72 bytes. Hazard3's helper/frame stayed unchanged. The experiment source
+  has been removed. Both rebuilt artifacts, helper sizes, source identity, and
+  all eight host tests exactly match candidate 109. Commit the rejection
+  evidence and close this B2 shape rather than expanding it.
 
 ## Completed work in this session
 
@@ -149,6 +159,10 @@ flashed. Source and both rebuilt artifacts are exact retained candidate-109
 matches. Commit the build-only rejection/restoration evidence, then begin one bounded B2 four-word
 schedule/round interleave experiment only if disassembly identifies a concrete
 reload reduction. Keep Hazard3's retained B1 path unchanged.
+Candidate 111 tested that smallest B2 shape and failed statically through ARM
+frame/code growth; exact restoration is complete. Commit its evidence, then
+advance to B3 local code-generation variants one helper and architecture at a
+time. Identical or statically worse linked code is a build-only rejection.
 
 Candidate 104 commit `6dc1941`, identity `638fe640df92`, passed correctness but
 is rejected. ARM worker-in-main-SRAM measured 358,620 aggregate / 327,806
