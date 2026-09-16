@@ -35,9 +35,17 @@ def fields(line: str) -> dict[str, str]:
 
 
 class ValidationContract:
-    def __init__(self, expected_arch: str | None, expected_source: str | None):
+    def __init__(
+        self,
+        expected_arch: str | None,
+        expected_source: str | None,
+        expected_clock_khz: int | None = None,
+        expected_vreg_mv: int | None = None,
+    ):
         self.expected_arch = expected_arch
         self.expected_source = expected_source
+        self.expected_clock_khz = expected_clock_khz
+        self.expected_vreg_mv = expected_vreg_mv
         self.boot = None
         self.kats = set()
         self.summary = False
@@ -60,6 +68,10 @@ class ValidationContract:
             required = {
                 "arch", "source_id", "run_id", "actual_clock_hz",
                 "report_hashes", "window_reports",
+                "requested_clock_khz", "requested_vreg_mv", "vreg_selector",
+                "readback_vreg_mv", "unsafe_voltage_limit_disabled",
+                "pll_vco_hz", "pll_postdiv1", "pll_postdiv2", "clk_usb_hz",
+                "clk_peri_hz", "qmi_clkdiv",
             }
             if not required.issubset(data) or not data["run_id"]:
                 return "malformed BOOT identity"
@@ -70,8 +82,39 @@ class ValidationContract:
             try:
                 if int(data["report_hashes"]) <= 0 or int(data["window_reports"]) <= 0:
                     return "invalid BOOT reporting configuration"
+                requested_clock = int(data["requested_clock_khz"])
+                actual_clock = int(data["actual_clock_hz"])
+                requested_vreg = int(data["requested_vreg_mv"])
+                readback_vreg = int(data["readback_vreg_mv"])
+                unsafe_voltage = int(data["unsafe_voltage_limit_disabled"])
+                pll_vco = int(data["pll_vco_hz"])
+                postdiv1 = int(data["pll_postdiv1"])
+                postdiv2 = int(data["pll_postdiv2"])
+                usb_clock = int(data["clk_usb_hz"])
+                peri_clock = int(data["clk_peri_hz"])
+                qmi_clkdiv = int(data["qmi_clkdiv"])
             except ValueError:
-                return "malformed BOOT reporting configuration"
+                return "malformed BOOT configuration"
+            if actual_clock != requested_clock * 1000:
+                return "actual system clock does not match request"
+            if requested_vreg != readback_vreg:
+                return "regulator readback does not match request"
+            if unsafe_voltage != int(requested_vreg > 1300):
+                return "unsafe-voltage flag does not match request"
+            if (pll_vco <= 0 or postdiv1 not in range(1, 8)
+                    or postdiv2 not in range(1, postdiv1 + 1)
+                    or pll_vco // (postdiv1 * postdiv2) != actual_clock):
+                return "invalid PLL configuration"
+            if usb_clock != 48_000_000 or peri_clock != 48_000_000:
+                return "USB/peripheral clock is not fixed at 48 MHz"
+            if qmi_clkdiv <= 0:
+                return "invalid QMI clock divider"
+            if (self.expected_clock_khz is not None
+                    and requested_clock != self.expected_clock_khz):
+                return f"wrong requested clock {requested_clock} kHz"
+            if (self.expected_vreg_mv is not None
+                    and requested_vreg != self.expected_vreg_mv):
+                return f"wrong requested regulator {requested_vreg} mV"
             self.boot = data
         elif line.startswith("TEST:PASS "):
             if self.boot is None:
@@ -237,6 +280,8 @@ def main() -> int:
     parser.add_argument("--require-pass", action="store_true")
     parser.add_argument("--expected-arch")
     parser.add_argument("--expected-source")
+    parser.add_argument("--expected-clock-khz", type=int)
+    parser.add_argument("--expected-vreg-mv", type=int)
     args = parser.parse_args()
 
     deadline = time.monotonic() + args.seconds
@@ -270,7 +315,12 @@ def main() -> int:
 
     print(f"SERIAL_PORT={port}", flush=True)
 
-    contract = ValidationContract(args.expected_arch, args.expected_source)
+    contract = ValidationContract(
+        args.expected_arch,
+        args.expected_source,
+        args.expected_clock_khz,
+        args.expected_vreg_mv,
+    )
     pending = b""
     try:
         tty.setraw(fd)

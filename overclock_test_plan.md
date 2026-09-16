@@ -73,7 +73,7 @@ measurement. It is measurement infrastructure, not a hashing optimization.
 1. Add `MINER_VREG_MV`, defaulting to `1100`.
 2. Accept only the explicit selector list above. Reject every other value in
    the wrapper and CMake configuration.
-3. Raise `tools/build`'s clock ceiling from 550,000 to exactly 570,000 kHz.
+3. Raise `tools/build`'s clock ceiling from 550,000 to exactly 590,000 kHz.
 4. Link `hardware_vreg` and map each allowed millivolt value to the matching SDK
    `VREG_VOLTAGE_*` enum. Do not write POWMAN registers directly.
 5. For values above 1.30 V only, call `vreg_disable_voltage_limit()` before
@@ -255,9 +255,9 @@ voltage-boundary failures, rather than every voltage at every frequency.
 ### 7.3 Use the user's anchors efficiently
 
 - Hazard3: after fresh 300 MHz control and one or two intermediate frontier
-  points, test 570 MHz/1.60 V early as a cap/anchor. If it passes, 590 MHz is
-  the campaign's maximum clock by definition; If it fails,
-  repeat once, then bisect frequency downward at 1.60 V.
+  points, test 570 MHz/1.60 V early as an anchor. If it passes, probe the exact
+  PLL point nearest 590 MHz without exceeding it. If 570 MHz fails, repeat
+  once, then bisect frequency downward at 1.60 V.
 - ARM: include an exact point at or adjacent to 488 MHz/1.50 V early. If it
   passes, use it as the upper bracket for minimum-voltage search and probe
   upward adaptively toward 590 MHz. If the user's 488 MHz result belonged to a

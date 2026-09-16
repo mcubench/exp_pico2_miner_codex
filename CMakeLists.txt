@@ -22,7 +22,14 @@ endif()
 set(PICO_BOARD pico2 CACHE STRING "Target board")
 set(PICO_PLATFORM rp2350-arm-s CACHE STRING "RP2350 CPU architecture")
 set(MINER_SYS_CLOCK_KHZ 150000 CACHE STRING "Miner system clock in kHz")
+set(MINER_VREG_MV 1100 CACHE STRING "Requested RP2350 core regulator selector in mV")
 set(MINER_PROFILE 0 CACHE STRING "Enable intrusive E02 profiling")
+
+set(MINER_ALLOWED_VREG_MV 1100 1150 1200 1250 1300 1350 1400 1500 1600)
+list(FIND MINER_ALLOWED_VREG_MV "${MINER_VREG_MV}" MINER_VREG_INDEX)
+if(MINER_VREG_INDEX EQUAL -1)
+    message(FATAL_ERROR "MINER_VREG_MV must be one of: ${MINER_ALLOWED_VREG_MV}")
+endif()
 
 include(pico_sdk_import.cmake)
 
@@ -60,9 +67,9 @@ add_dependencies(pico2_agent generate_oracle_vectors)
 target_include_directories(pico2_agent PRIVATE "${ORACLE_INCLUDE_DIR}")
 
 if(PICO_PLATFORM STREQUAL "rp2350-riscv")
-    target_link_libraries(pico2_agent PRIVATE hardware_dma pico_multicore pico_stdlib pico_sha256)
+    target_link_libraries(pico2_agent PRIVATE hardware_dma hardware_vreg pico_multicore pico_stdlib pico_sha256)
 else()
-    target_link_libraries(pico2_agent PRIVATE pico_multicore pico_stdlib pico_sha256)
+    target_link_libraries(pico2_agent PRIVATE hardware_vreg pico_multicore pico_stdlib pico_sha256)
 endif()
 
 target_compile_options(pico2_agent PRIVATE
@@ -79,11 +86,13 @@ pico_enable_stdio_uart(pico2_agent 0)
 target_compile_definitions(pico2_agent PRIVATE
     PICO_ENTER_USB_BOOT_ON_EXIT=1
     MINER_SYS_CLOCK_KHZ=${MINER_SYS_CLOCK_KHZ}
+    MINER_VREG_MV=${MINER_VREG_MV}
     MINER_SOURCE_ID="${MINER_SOURCE_ID}"
     MINER_PROFILE=${MINER_PROFILE}
 )
 
 message(STATUS "Miner system clock: ${MINER_SYS_CLOCK_KHZ} kHz")
+message(STATUS "Miner regulator selector: ${MINER_VREG_MV} mV")
 message(STATUS "Miner source identity: ${MINER_SOURCE_ID}")
 message(STATUS "Miner profiling mode: ${MINER_PROFILE}")
 

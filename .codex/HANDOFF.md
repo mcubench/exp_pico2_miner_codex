@@ -2,6 +2,12 @@
 
 ## Latest checkpoint — authoritative
 
+- Overclock execution has started. Phase-0 source/wrapper/monitor infrastructure
+  is implemented and stock-builds on both ISAs; 13 host monitor tests pass.
+  It adds allow-listed requested VREG, strict readback/clock identity, PLL/USB/
+  peri/QMI telemetry, and an exact PLL catalog. No device flash has occurred
+  yet. Commit the infrastructure, clean-build both recovery images, archive
+  them, then hardware-validate stock Hazard3 before any overclock point.
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both

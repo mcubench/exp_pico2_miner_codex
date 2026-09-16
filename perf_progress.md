@@ -6216,3 +6216,24 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   The approximately 106-minute full nonce-space transition was deliberately
   not exercised, so takeover completion is arithmetic/protocol-qualified, not
   an endurance measurement. The board now runs retained candidate 114 Hazard3.
+
+## 2026-09-16 — Adaptive overclock campaign Phase 0
+
+- Parent is retained candidate 114. This is measurement/recovery infrastructure
+  only: no hashing algorithm, compiler option, report cadence, temperature
+  behavior, QMI divider, or USB clock change is included.
+- Added an allow-listed `MINER_VREG_MV` build parameter (1.10 through 1.60 V),
+  requested/read-back selector telemetry, explicit unsafe-limit telemetry above
+  1.30 V, exact PLL tuple and USB/peripheral/QMI clock telemetry, and strict
+  host expectations for voltage and clock identity. The wrapper cap follows the
+  user's updated plan at 590 MHz; the nearest realizable point under that cap is
+  588 MHz. Exact 488 and 570 MHz PLL points are available.
+- Added `tools/pll_catalog.py`, matching SDK 2.3.1's 12 MHz-reference search
+  order and 750–1,600 MHz VCO limits. Monitor synthetic coverage increases from
+  10 to 13 tests, including requested clock, requested voltage, and voltage
+  readback mismatches.
+- First ARM build rejected a `PRIu32`/SDK `uint` format mismatch under `-Werror`.
+  No image was flashed. After an explicit fixed-width cast, both stock
+  150 MHz/1.10 V architecture builds pass warning-free. Hardware validation and
+  recovery-artifact creation remain pending until this infrastructure is
+  committed and rebuilt with a clean source identity.

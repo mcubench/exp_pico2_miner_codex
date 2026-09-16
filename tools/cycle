@@ -19,5 +19,7 @@ case "${arch}" in
 esac
 "${PROJECT_ROOT}/tools/monitor" --seconds "${MONITOR_SECONDS:-45}" --require-pass \
     --expected-arch "${expected_arch}" --expected-source "$(source_identity)" \
+    --expected-clock-khz "${MINER_SYS_CLOCK_KHZ:-150000}" \
+    --expected-vreg-mv "${MINER_VREG_MV:-1100}" \
     | tee "${PROJECT_ROOT}/logs/${arch}-latest.log"
 printf 'CYCLE:PASS arch=%s\n' "${arch}"

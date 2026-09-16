@@ -5,7 +5,10 @@
 #include <string.h>
 
 #include "hardware/clocks.h"
+#include "hardware/regs/qmi.h"
+#include "hardware/structs/qmi.h"
 #include "hardware/structs/xip.h"
+#include "hardware/vreg.h"
 #ifdef __riscv
 #include "hardware/dma.h"
 #include "hardware/riscv.h"
@@ -64,6 +67,49 @@ static uint32_t boot_chip_id;
 #else
 #define CLOCK_PROFILE "stock"
 #endif
+
+#if MINER_VREG_MV == 1100
+#define MINER_VREG_ENUM VREG_VOLTAGE_1_10
+#elif MINER_VREG_MV == 1150
+#define MINER_VREG_ENUM VREG_VOLTAGE_1_15
+#elif MINER_VREG_MV == 1200
+#define MINER_VREG_ENUM VREG_VOLTAGE_1_20
+#elif MINER_VREG_MV == 1250
+#define MINER_VREG_ENUM VREG_VOLTAGE_1_25
+#elif MINER_VREG_MV == 1300
+#define MINER_VREG_ENUM VREG_VOLTAGE_1_30
+#elif MINER_VREG_MV == 1350
+#define MINER_VREG_ENUM VREG_VOLTAGE_1_35
+#elif MINER_VREG_MV == 1400
+#define MINER_VREG_ENUM VREG_VOLTAGE_1_40
+#elif MINER_VREG_MV == 1500
+#define MINER_VREG_ENUM VREG_VOLTAGE_1_50
+#elif MINER_VREG_MV == 1600
+#define MINER_VREG_ENUM VREG_VOLTAGE_1_60
+#else
+#error "Unsupported MINER_VREG_MV"
+#endif
+
+#if MINER_VREG_MV > 1300
+#define MINER_UNSAFE_VOLTAGE 1
+#else
+#define MINER_UNSAFE_VOLTAGE 0
+#endif
+
+static uint32_t vreg_selector_mv(enum vreg_voltage selector) {
+    switch (selector) {
+        case VREG_VOLTAGE_1_10: return 1100u;
+        case VREG_VOLTAGE_1_15: return 1150u;
+        case VREG_VOLTAGE_1_20: return 1200u;
+        case VREG_VOLTAGE_1_25: return 1250u;
+        case VREG_VOLTAGE_1_30: return 1300u;
+        case VREG_VOLTAGE_1_35: return 1350u;
+        case VREG_VOLTAGE_1_40: return 1400u;
+        case VREG_VOLTAGE_1_50: return 1500u;
+        case VREG_VOLTAGE_1_60: return 1600u;
+        default: return 0u;
+    }
+}
 
 // Bitcoin genesis block header in the serialized byte order hashed by miners.
 static const uint8_t genesis_header[BITCOIN_HEADER_BYTES] = {
@@ -1522,7 +1568,22 @@ handle_mining_message:
 #endif
 
 int main(void) {
-    const bool clock_configured = set_sys_clock_khz(MINER_SYS_CLOCK_KHZ, false);
+    uint pll_vco_hz = 0u;
+    uint pll_postdiv1 = 0u;
+    uint pll_postdiv2 = 0u;
+    const bool clock_supported = check_sys_clock_khz(
+        MINER_SYS_CLOCK_KHZ, &pll_vco_hz, &pll_postdiv1, &pll_postdiv2);
+#if MINER_UNSAFE_VOLTAGE
+    vreg_disable_voltage_limit();
+#endif
+    vreg_set_voltage(MINER_VREG_ENUM);
+    busy_wait_us_32(1000u);
+    const enum vreg_voltage vreg_readback = vreg_get_voltage();
+    const bool voltage_configured = vreg_readback == MINER_VREG_ENUM;
+    if (clock_supported && voltage_configured) {
+        set_sys_clock_pll(pll_vco_hz, pll_postdiv1, pll_postdiv2);
+    }
+    const bool clock_configured = clock_supported && voltage_configured;
     stdio_init_all();
 
     const uint led_pin = PICO_DEFAULT_LED_PIN;
@@ -1533,8 +1594,32 @@ int main(void) {
     // Give the host time to enumerate USB CDC and attach the monitor. A fixed
     // delay also keeps headless operation independent of host DTR behaviour.
     sleep_ms(3500u);
+    if (!voltage_configured) {
+        printf("FAULT type=core_voltage requested_vreg_mv=%u"
+               " readback_selector=%u readback_vreg_mv=%" PRIu32 "\n",
+               (unsigned)MINER_VREG_MV, (unsigned)vreg_readback,
+               vreg_selector_mv(vreg_readback));
+        while (true) {
+            gpio_xor_mask(1u << led_pin);
+            sleep_ms(100u);
+        }
+    }
     if (!clock_configured) {
-        printf("FAULT type=system_clock requested_khz=%u\n", MINER_SYS_CLOCK_KHZ);
+        vreg_set_voltage(VREG_VOLTAGE_DEFAULT);
+        busy_wait_us_32(1000u);
+        printf("FAULT type=system_clock requested_khz=%u"
+               " requested_vreg_mv=%u restored_vreg_mv=%" PRIu32 "\n",
+               MINER_SYS_CLOCK_KHZ, (unsigned)MINER_VREG_MV,
+               vreg_selector_mv(vreg_get_voltage()));
+        while (true) {
+            gpio_xor_mask(1u << led_pin);
+            sleep_ms(100u);
+        }
+    }
+    if (clock_get_hz(clk_sys) != (uint32_t)MINER_SYS_CLOCK_KHZ * 1000u) {
+        printf("FAULT type=system_clock_readback requested_khz=%u"
+               " actual_hz=%" PRIu32 "\n",
+               MINER_SYS_CLOCK_KHZ, clock_get_hz(clk_sys));
         while (true) {
             gpio_xor_mask(1u << led_pin);
             sleep_ms(100u);
@@ -1553,18 +1638,30 @@ int main(void) {
     watchdog_hw->scratch[0] = RUN_SEQUENCE_MAGIC;
     watchdog_hw->scratch[1] = boot_run_sequence;
     boot_chip_id = chip_id;
+    const uint32_t qmi_clkdiv =
+        (qmi_hw->m[0].timing & QMI_M0_TIMING_CLKDIV_BITS)
+        >> QMI_M0_TIMING_CLKDIV_LSB;
     printf("BOOT app=pico2_bitcoin_miner board=pico2 package=RP2350A"
            " arch=%s engine=RP2350-SHA256 temperature=disabled"
            " source_id=%s run_id=%08" PRIx32 "-%08" PRIx32
            " profile=%u report_hashes=%u window_reports=%u"
            " clock_profile=%s requested_clock_khz=%u actual_clock_hz=%" PRIu32
+           " requested_vreg_mv=%u vreg_selector=%u readback_vreg_mv=%" PRIu32
+           " unsafe_voltage_limit_disabled=%u pll_vco_hz=%" PRIu32
+           " pll_postdiv1=%u pll_postdiv2=%u clk_usb_hz=%" PRIu32
+           " clk_peri_hz=%" PRIu32 " qmi_clkdiv=%" PRIu32
            " sysinfo_package_sel=%" PRIu32 " chip_id=%08" PRIx32
            " silicon_revision=%u\n",
            CPU_ARCH, MINER_SOURCE_ID, chip_id, boot_run_sequence,
            (unsigned)MINER_PROFILE, (unsigned)MINING_REPORT_INTERVAL,
            (unsigned)COMMON_WINDOW_REPORT_INTERVAL,
            CLOCK_PROFILE, (unsigned)MINER_SYS_CLOCK_KHZ,
-           clock_get_hz(clk_sys), package_sel, chip_id, rp2350_chip_version());
+           clock_get_hz(clk_sys), (unsigned)MINER_VREG_MV,
+           (unsigned)vreg_readback, vreg_selector_mv(vreg_readback),
+           (unsigned)MINER_UNSAFE_VOLTAGE, (uint32_t)pll_vco_hz,
+           pll_postdiv1, pll_postdiv2, clock_get_hz(clk_usb),
+           clock_get_hz(clk_peri), qmi_clkdiv, package_sel, chip_id,
+           rp2350_chip_version());
     if (package_sel != 1u) {
         printf("FAULT type=package_mismatch expected_sysinfo_package_sel=1"
                " actual_sysinfo_package_sel=%" PRIu32 "\n",

@@ -18,6 +18,10 @@ def complete_lines(source="abc123", arch="ARM-M33", run="30004927-00000001"):
     window_reports = 4
     lines = [
         f"BOOT arch={arch} source_id={source} run_id={run} actual_clock_hz=150000000"
+        f" requested_clock_khz=150000 requested_vreg_mv=1100 vreg_selector=11"
+        f" readback_vreg_mv=1100 unsafe_voltage_limit_disabled=0"
+        f" pll_vco_hz=1500000000 pll_postdiv1=5 pll_postdiv2=2"
+        f" clk_usb_hz=48000000 clk_peri_hz=48000000 qmi_clkdiv=2"
         f" report_hashes=340000 window_reports={window_reports}"
     ]
     lines.extend(f"TEST:PASS kat={kat}" for kat in sorted(monitor.EXPECTED_KATS))
@@ -72,6 +76,22 @@ class ContractTests(unittest.TestCase):
     def test_wrong_source_is_rejected(self):
         _, errors = self.validate(complete_lines(source="wrong"))
         self.assertIn("wrong source identity wrong", errors)
+
+    def test_wrong_clock_expectation_is_rejected(self):
+        contract = monitor.ValidationContract("ARM-M33", "abc123", 300000, 1100)
+        errors = [error for line in complete_lines() if (error := contract.observe(line))]
+        self.assertIn("wrong requested clock 150000 kHz", errors)
+
+    def test_wrong_voltage_expectation_is_rejected(self):
+        contract = monitor.ValidationContract("ARM-M33", "abc123", 150000, 1200)
+        errors = [error for line in complete_lines() if (error := contract.observe(line))]
+        self.assertIn("wrong requested regulator 1100 mV", errors)
+
+    def test_voltage_readback_mismatch_is_rejected(self):
+        lines = complete_lines()
+        lines[0] = lines[0].replace("readback_vreg_mv=1100", "readback_vreg_mv=1150")
+        _, errors = self.validate(lines)
+        self.assertIn("regulator readback does not match request", errors)
 
     def test_duplicate_boot_is_rejected(self):
         lines = complete_lines()
