@@ -88,6 +88,10 @@
   but emitted no BOOT or test bytes during the full 50-second capture. The port
   remains present. Classification is RESET_OR_LINK_FAIL, not a pass or voltage
   boundary. Commit the evidence, then repeat the identical 1.40 V point once.
+- The byte-identical 396 MHz/1.40 V retry reproduced USB enumeration with zero
+  BOOT/test bytes for 50 seconds; the Pico and tty remain present. Commit this
+  RESET_OR_LINK_FAIL evidence. Per failure rule 10.3, return to the last passing
+  frontier point (348 MHz/1.20 V) before attempting another voltage at 396 MHz.
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both

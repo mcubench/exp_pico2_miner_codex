@@ -6567,3 +6567,18 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `logs/OC-riscv-v1400-f396000-reset-link-fail-1.log`, SHA-256
   `fb46b9a411728ed4d6752f78b64933fe99ab2b626eec6969bd7bd656f5cd907d`.
   Repeat the identical 396 MHz/1.40 V point once before changing voltage.
+
+### OC-riscv-v1400-f396000-screen-2 — RESET_OR_LINK_FAIL, reproduced
+
+- The mandatory identical retry used byte-identical unsafe-overvoltage images.
+  Both builds passed and Hazard3 flashed; `/dev/ttyACM0` enumerated again.
+- As in attempt 1, the device emitted zero BOOT or test bytes during the full
+  50-second capture. Strict monitoring returned status 5 with every required
+  report absent. The bounded check again found Pico product `0009` and
+  `/dev/ttyACM0` present. Classification is **RESET_OR_LINK_FAIL**.
+- The reproduced failure rejects 396 MHz/1.40 V, but it is not a correctness or
+  measurement result. Before selecting another voltage, failure rule 10.3
+  requires returning to the last passing frontier point, 348 MHz/1.20 V.
+- Annotated capture `logs/OC-riscv-v1400-f396000-reset-link-fail-2.log`,
+  SHA-256
+  `90ecbde6dea17088552b410476f5e24d063c96a72edf013b67ba178be7b10525`.
