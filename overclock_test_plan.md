@@ -29,7 +29,7 @@ or the connected board.
   - Hazard3: 369,844 H/s aggregate, 338,331 hardware, 31,510 software.
 - Temperature acquisition stays disabled. The user is cooling and observing
   the board. Do not reintroduce the known-bad internal-temperature path.
-- Hard test limits for this campaign: **570 MHz** requested system clock and
+- Hard test limits for this campaign: **590 MHz** requested system clock and
   **1.60 V** requested regulator selector. Never select 1.65 V or higher.
 - Regulator values above 1.30 V require the Pico SDK's explicit unsafe-voltage
   unlock. Label every such image and result `unsafe-overvoltage`; never make it
@@ -43,7 +43,7 @@ or the connected board.
   and another implementation at 1.50 V/488 MHz yielding about 1.052 MH/s, are
   search anchors and sanity checks, not validation of this firmware.
 
-The 570 MHz cap deliberately respects the highest point already demonstrated
+The 590 MHz cap deliberately respects the highest point already demonstrated
 by the user. Any later search above it needs a new plan and explicit approval.
 
 ## 3. Why a full matrix is wasteful
@@ -255,13 +255,12 @@ voltage-boundary failures, rather than every voltage at every frequency.
 ### 7.3 Use the user's anchors efficiently
 
 - Hazard3: after fresh 300 MHz control and one or two intermediate frontier
-  points, test 570 MHz/1.60 V early as a cap/anchor. If it passes, 570 MHz is
-  the campaign's maximum clock by definition; continue only to find lower
-  voltage thresholds and the maximum-hashrate point below it. If it fails,
+  points, test 570 MHz/1.60 V early as a cap/anchor. If it passes, 590 MHz is
+  the campaign's maximum clock by definition; If it fails,
   repeat once, then bisect frequency downward at 1.60 V.
 - ARM: include an exact point at or adjacent to 488 MHz/1.50 V early. If it
   passes, use it as the upper bracket for minimum-voltage search and probe
-  upward adaptively toward 570 MHz. If the user's 488 MHz result belonged to a
+  upward adaptively toward 590 MHz. If the user's 488 MHz result belonged to a
   different architecture, it remains merely a useful performance anchor.
 
 Do not begin directly with the anchors before validating infrastructure at
@@ -328,7 +327,7 @@ changes, DMA changes, or algorithmic work.
 5. After any 1.50/1.60 V run, return to the 150 MHz/1.10 V recovery image and
    perform a short correctness check before changing architecture or ending the
    session.
-6. Stop an architecture when 570 MHz passes, or when 1.60 V has a reproduced
+6. Stop an architecture when 590 MHz passes, or when 1.60 V has a reproduced
    failure and frequency bisection identifies the highest passing PLL point.
 7. Never infer that more voltage would fix a synthesis rejection, USB-host
    problem, software fault, or performance plateau.
