@@ -7253,3 +7253,11 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Empty log `logs/OC-riscv-v1400-f480000-d4-boot-fail-1.log`, SHA-256
   `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
   Recover and validate stock, then retry this point identically.
+### OC-riscv-v1100-f150000-d3-recovery-30 — MEASURE_PASS
+
+- Stock recovery after the first 480 MHz / 1.40 V / divider-4 failure passed
+  all eight suites, the full oracle, nine windows, and strict capture.
+- First-seven medians were 369,936 aggregate / 338,343 hardware / 31,592
+  software H/s. Log `logs/OC-riscv-v1100-f150000-d3-recovery-30.log`, SHA-256
+  `89cab215617320a87c6542300da6f67b895175190217fd8ac611b6b1bcc57403`.
+  Recovery is validated; retry 480 MHz / 1.40 V / divider 4.
