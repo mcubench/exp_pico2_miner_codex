@@ -6729,3 +6729,20 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Complete log `logs/OC-riscv-v1100-f150000-recovery-12.log`, SHA-256
   `47672930d84f13296eef17b1c9e0f9b3813d4d872d9703034fcba177f434ba7e`.
   Recovery is validated; retry 570 MHz/1.60 V next.
+
+### OC-riscv-v1600-f570000-anchor-2 — BOOT_FAIL, reproduced
+
+- The mandatory identical retry used byte-identical unsafe-overvoltage images:
+  ARM/RISC-V UF2 SHA-256
+  `68c327c7a0c2c7563601f9e83d4dc58f8e8eef2f950a17dfa243e2fca6200aa5` /
+  `26a438732223370cf7775ffdbc37cd1971245649e80357d711fffedb59c8f61c`.
+  Hazard3 flash and verification passed.
+- Runtime USB again did not appear during the 50-second capture; the bounded
+  check found no Pico or `/dev/ttyACM*`. No BOOT, correctness, benchmark, or
+  mining output exists. Classification is **BOOT_FAIL**.
+- Two matching failures establish 570 MHz as a failing upper bound at the
+  1.60 V campaign cap. Failure log
+  `logs/OC-riscv-v1600-f570000-boot-fail-2.log`, SHA-256
+  `b09a08bc17c8ab4920481f2902274760a24676416c70c9e099fbaa839b269d95`.
+  After physical recovery and stock validation, bisect to the nearest exact
+  midpoint between 396 MHz pass and 570 MHz fail (target 480 MHz/1.60 V).

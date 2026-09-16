@@ -129,6 +129,11 @@
   Hazard3 passed all gates and nine windows at first-seven medians 369,847
   aggregate / 338,330 hardware / 31,517 software H/s. Recovery 12 is archived;
   retry the identical 570 MHz/1.60 V anchor now.
+- The identical 570 MHz/1.60 V retry again produced no runtime USB device after
+  verified flash. This reproduces BOOT_FAIL and establishes 570 MHz as the
+  failing upper frequency bound at the 1.60 V cap. Commit the evidence, recover
+  and validate stock, then bisect frequency between 396 MHz pass and 570 MHz
+  fail at the nearest exact midpoint (target 480 MHz/1.60 V).
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both
