@@ -6823,3 +6823,13 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Empty capture log `logs/OC-riscv-v1600-f444000-boot-fail-1.log`, SHA-256
   `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
   Physically recover and validate stock, then retry this point identically.
+
+### OC-riscv-v1100-f150000-recovery-16 — MEASURE_PASS
+
+- Physical recovery after the first 444 MHz failure produced a complete
+  verified stock flash. Hazard3 passed all correctness gates, standalone
+  benchmarks, nine windows, and strict capture.
+- First-seven medians were 369,846 aggregate / 338,329 hardware / 31,517
+  software H/s. Complete log `logs/OC-riscv-v1100-f150000-recovery-16.log`,
+  SHA-256 `7394981a86d095ef669fc2b3c00f3af6d8f5ff585e48da5f560538c2858dd9e9`.
+  Recovery is validated; retry 444 MHz / 1.60 V identically.
