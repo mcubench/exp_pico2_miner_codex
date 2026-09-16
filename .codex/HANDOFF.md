@@ -52,6 +52,11 @@
   `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
   Two failures establish 420 MHz as a failing bound at 1.60 V. Recover and
   validate stock before the next lower exact midpoint.
+- Stock recovery 19 passed after the reproduced 420 MHz failure. Log
+  `logs/OC-riscv-v1100-f150000-recovery-19.log` has SHA-256
+  `9fb27115d09df596da2ac58250645ef1194571f0c81c4e10ba33f9f895c456ce` and
+  first-seven medians 369,847 aggregate / 338,330 hardware / 31,517 software
+  H/s. Next midpoint is approximately 408 MHz / 1.60 V.
 
 - Overclock execution has started. Phase-0 source/wrapper/monitor infrastructure
   is implemented and stock-builds on both ISAs; 13 host monitor tests pass.

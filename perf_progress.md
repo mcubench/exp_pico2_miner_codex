@@ -6886,3 +6886,12 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
   Two failures establish 420 MHz as a failing bound at 1.60 V. Recover and
   validate stock before the next lower exact midpoint.
+
+### OC-riscv-v1100-f150000-recovery-19 — MEASURE_PASS
+
+- Stock recovery after the reproduced 420 MHz failure passed complete verified
+  validation: all correctness gates, benchmarks, nine windows, and capture.
+- First-seven medians were 369,847 aggregate / 338,330 hardware / 31,517
+  software H/s. Log `logs/OC-riscv-v1100-f150000-recovery-19.log`, SHA-256
+  `9fb27115d09df596da2ac58250645ef1194571f0c81c4e10ba33f9f895c456ce`.
+  Recovery is validated; next midpoint is approximately 408 MHz / 1.60 V.
