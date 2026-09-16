@@ -29,13 +29,11 @@ _Static_assert(PICO_RP2350A == 1, "miner target must use the RP2350A package");
 #define BENCHMARK_PATH "read-addr-trigger-e06-trigger"
 #define MINING_LOOP_OPTIONS __attribute__((optimize("unroll-loops")))
 #define HARDWARE_MINING_BATCH 1u
-#define HARDWARE_MINING_WORKER(name) name
 #else
 #define CPU_ARCH "ARM-M33"
 #define BENCHMARK_PATH "batched-accounting-e04c"
 #define MINING_LOOP_OPTIONS __attribute__((optimize("unroll-loops")))
 #define HARDWARE_MINING_BATCH 4u
-#define HARDWARE_MINING_WORKER(name) __not_in_flash_func(name)
 #endif
 
 #define BITCOIN_HEADER_BYTES 80u
@@ -1057,7 +1055,7 @@ static void mining_worker_fault(uint32_t code, uint32_t nonce,
     }
 }
 
-static MINING_LOOP_OPTIONS void HARDWARE_MINING_WORKER(mining_worker_core1)(void) {
+static MINING_LOOP_OPTIONS void mining_worker_core1(void) {
     sha256_result_t hash;
     sha256_result_t target;
     bitcoin_hasher_t hasher;

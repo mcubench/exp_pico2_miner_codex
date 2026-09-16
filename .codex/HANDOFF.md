@@ -95,6 +95,9 @@ Inter-core SRAM contention outweighs XIP relief. Archive
 `logs/E07-hardware-worker-sram-arm.log`; commit the evidence, restore only the
 worker placement to XIP, rebuild both, and require candidate-103 UF2 hashes.
 
+The focused candidate-104 inverse patch is applied. Commit this restoration,
+then rebuild both and require ARM `fae222...e67b` and RISC-V `fc1f13...6693`.
+
 Candidate 103 commit `b2b8dfb`, identity `104da455bdbb`, passed ARM hardware:
 359,558 aggregate / 328,122 hardware / 31,435 software H/s, +0.532%/+0.582%
 over candidate 102 factor 2. All correctness and nine windows passed. Retain
