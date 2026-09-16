@@ -25,6 +25,12 @@
   `7394981a86d095ef669fc2b3c00f3af6d8f5ff585e48da5f560538c2858dd9e9` and
   first-seven medians 369,846 aggregate / 338,329 hardware / 31,517 software
   H/s. Retry 444 MHz / 1.60 V identically now.
+- The identical 444 MHz / 1.60 V retry again produced no USB or serial output
+  after verified flash, reproducing **BOOT_FAIL**. Empty log
+  `logs/OC-riscv-v1600-f444000-boot-fail-2.log` has SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+  Two failures establish 444 MHz as a failing bound at 1.60 V. Recover and
+  validate stock before the next lower exact midpoint.
 
 - Overclock execution has started. Phase-0 source/wrapper/monitor infrastructure
   is implemented and stock-builds on both ISAs; 13 host monitor tests pass.
