@@ -10,17 +10,17 @@ changes and keep temperature disabled.
 
 ## Current status
 
-- Retained candidate 102 source commit is `e7266e6`, source identity
-  `8c8ea1cbf514`: ARM uses hardware-worker batch factor 2 and Hazard3 factor 1.
+- Retained candidate 103 source commit is `b2b8dfb`, source identity
+  `104da455bdbb`: ARM uses hardware-worker batch factor 4 and Hazard3 factor 1.
 - The Pico is accessible when hardware commands run outside the filesystem
-  sandbox. It currently runs accepted candidate 102 Hazard3 at stock 150 MHz.
+  sandbox. It currently runs accepted candidate 103 ARM at stock 150 MHz.
 - E06-trigger is retained on Hazard3. Attempt 86b passed all gates with a
   seven-window median of 368,130 H/s aggregate and 338,274 H/s hardware,
   +0.42%/+0.45% over immediate control 85e. ARM keeps its CPU feeder.
 - E09-b-pending is resolved and retained on both ISAs.
 - E01-identity is implemented, paired-hardware validated, and retained.
 - E01-rare candidate 83 and E01-window candidate 84 are retained on both ISAs.
-  E02 and the updated sequence through candidate 102 are complete.
+  E02 and the updated sequence through candidate 103 are complete.
 - Candidate 100 software batch-8 passed correctness but was rejected: ARM was
   neutral, while Hazard3 aggregate fell 0.417% because its 0.216% software
   gain accompanied a 0.474% hardware loss. Restoration commit `a38b99e`
@@ -30,6 +30,10 @@ changes and keep temperature disabled.
   357,657 H/s aggregate / 326,224 hardware, +0.312%/+0.348% over candidate 98;
   Hazard3 returned to factor-1 at 368,377 / 338,299 H/s, effectively identical
   to candidate 98. Logs are `logs/E04c-hardware-batch-split-{arm,riscv}.log`.
+- Candidate 103 ARM factor 4 passed at 359,558 H/s aggregate / 328,122 hardware,
+  +0.532%/+0.582% over factor 2 and +0.845%/+0.932% over factor 1. Hazard3
+  remains compile-time factor 1 at its retained size. The factor 1/2/4 study
+  is complete; log `logs/E04c-hardware-batch4-arm.log`.
 - Session `01a09b3f-dda6-7701-af18-c0b3d56eb61e` owns
   `.codex/ACTIVE_SESSION`. Preserve the newly inherited active-writer rule in
   `.codex/SESSION_CONTINUITY.md`; do not add the transient lock to a commit.
@@ -75,20 +79,19 @@ changes and keep temperature disabled.
 
 ## Work in progress / next actions
 
-Current continuation point: candidate 102 final split is paired-hardware
-validated, retained, and its evidence committed at `31f6e92`. Candidate 103 is
-the ARM-only E04-c factor-4 comparison against retained factor 2, leaving
-Hazard3 factor 1. Its removable branch cost, expected code-growth/fetch risk,
-parent identity, and rejection rule are recorded in the ledger. Build both,
-inspect the final body count/size/spills, and reject without hardware if the
-intended shape is not emitted. Do not repeat software batch factor 8,
-scratch-X filter placement, E08 queue polling at 1 or 64 hashes, or the
-rejected E14 chunk variants unchanged.
+Current continuation point: candidate 103 ARM factor 4 passed all hardware
+gates and is retained; record/commit its evidence. The planned current-worker
+factor 1/2/4 comparison is complete. Select the next untested bounded plan
+item from the actual hot assembly/profile, defining hypothesis, parent hashes,
+resource cost, and rejection rule before editing. Do not repeat software batch
+factor 8, scratch-X filter placement, E08 queue polling at 1 or 64 hashes, or
+the rejected E14 chunk variants unchanged.
 
-Candidate 103 dirty preflight passes: both builds are warning-free, 8 host
-tests pass, ARM emits four bodies without an inner back-edge at 190,128/4,708
-text/BSS (+936 text, unchanged 188-byte worker frame), and Hazard3 remains
-factor 1 at 200,924/4,440. Commit, clean-rebuild, then run ARM hardware only.
+Candidate 103 commit `b2b8dfb`, identity `104da455bdbb`, passed ARM hardware:
+359,558 aggregate / 328,122 hardware / 31,435 software H/s, +0.532%/+0.582%
+over candidate 102 factor 2. All correctness and nine windows passed. Retain
+ARM factor 4; Hazard3 remains factor 1 at its retained size. Artifact/log
+hashes are recorded in the ledger; board is running accepted candidate 103 ARM.
 
 Candidate 101 is the selected E04-c factor-2 hardware-worker experiment. It
 nests exactly two complete nonce iterations inside the existing report loop;

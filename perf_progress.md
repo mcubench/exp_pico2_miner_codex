@@ -5501,3 +5501,30 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `174fe3c4086b9542eb9cf43678b3ef10af93890c8d5d194139c17f9b110328e9` /
   `1ed92927ac0eeddf010f58c6fcaf4dd27542a3acb8f9f28cca55764da3a06cd0`.
   Commit and clean-rebuild before the ARM hardware comparison.
+
+### E04-c ARM hardware batch factor 4 attempt 103a — pass, retain
+
+- Candidate commit `b2b8dfb`, source identity `104da455bdbb`, normal profile,
+  stock 150 MHz, temperature disabled, run ID `30004927-0000001c`. The cycle
+  rebuilt both architectures before flashing ARM. All 8 suites, the 4,096-case
+  oracle, standalone benchmarks, nine common windows, and strict 50-second
+  capture passed without a fault.
+- Standalone hardware/full/filter rates were **331,085 / 30,364 / 31,578
+  H/s**. First-seven window medians were aggregate **359,558 H/s** (range
+  359,555–359,560), hardware **328,122 H/s** (328,120–328,124), and software
+  **31,435 H/s** (31,435–31,439).
+- Versus retained candidate 102 ARM factor 2, aggregate is **+1,901 H/s
+  (+0.532%)**, hardware **+1,898 H/s (+0.582%)**, and software **+2 H/s
+  (+0.006%)**. Versus candidate 98 factor 1, aggregate is +3,013 H/s
+  (+0.845%) and hardware +3,030 H/s (+0.932%). The gain is stable and pays
+  for the additional 936 text bytes.
+- Clean ARM/RISC-V UF2 SHA-256 values are
+  `fae22274b14d9fb3857267266635f531f05fd6ba5bf369eb780bc9f0b3c4e67b` /
+  `fc1f13304fca8b2ec620a38115f02c7c51627f1051391a35a23eb19c3b506693`.
+  Complete ARM log SHA-256 is
+  `689fef3328b399e5a8db974d77173d9022d6b99085eb39d19fde67f2e6c2c5b9`;
+  archived as `logs/E04c-hardware-batch4-arm.log`.
+- **Decision: retain candidate 103.** ARM uses factor 4; Hazard3 remains on
+  its compile-time factor-1 path and retained 200,924/4,440 text/BSS size.
+  The planned current-worker factor 1/2/4 comparison is complete. The board
+  is left running accepted candidate 103 ARM.
