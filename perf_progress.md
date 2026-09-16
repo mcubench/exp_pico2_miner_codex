@@ -7295,3 +7295,12 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `logs/OC-riscv-v1100-f150000-d3-recovery-32.log`, SHA-256
   `56fb0700f29f11db911d1c058be212eb8b9f35ce990ce9d44de018c03387f8f4`.
   Proceed to 516 MHz / 1.60 V with auto divider 4.
+### OC-riscv-v1600-f516000-d4-phase1-boot-1 — BOOT_FAIL, recovery required
+
+- Both architecture builds passed warning-free; Hazard3 flash/verification
+  passed at 516 MHz / 1.60 V / divider 4 (129 MHz SCK).
+- Runtime USB did not appear during the bounded capture; no runtime output was
+  captured. Classification is **BOOT_FAIL**.
+- Empty log `logs/OC-riscv-v1600-f516000-d4-phase1-boot-fail-1.log`, SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+  Recover and validate stock, then retry this point identically.
