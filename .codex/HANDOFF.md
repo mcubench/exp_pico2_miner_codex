@@ -10,23 +10,26 @@ changes and keep temperature disabled.
 
 ## Current status
 
-- Retained candidate 98 source commit is `e2912db`; latest evidence commit
-  before the RISC-V result is `caa008d`, source identity `1eb3d9edb2b0`.
+- Retained candidate 102 source commit is `e7266e6`, source identity
+  `8c8ea1cbf514`: ARM uses hardware-worker batch factor 2 and Hazard3 factor 1.
 - The Pico is accessible when hardware commands run outside the filesystem
-  sandbox. It currently runs rejected candidate 100 RISC-V at stock 150 MHz;
-  the working tree/build outputs are restored to retained candidate 98.
+  sandbox. It currently runs accepted candidate 102 Hazard3 at stock 150 MHz.
 - E06-trigger is retained on Hazard3. Attempt 86b passed all gates with a
   seven-window median of 368,130 H/s aggregate and 338,274 H/s hardware,
   +0.42%/+0.45% over immediate control 85e. ARM keeps its CPU feeder.
 - E09-b-pending is resolved and retained on both ISAs.
 - E01-identity is implemented, paired-hardware validated, and retained.
 - E01-rare candidate 83 and E01-window candidate 84 are retained on both ISAs.
-  E02 and the updated sequence through candidate 100 are complete.
+  E02 and the updated sequence through candidate 102 are complete.
 - Candidate 100 software batch-8 passed correctness but was rejected: ARM was
   neutral, while Hazard3 aggregate fell 0.417% because its 0.216% software
   gain accompanied a 0.474% hardware loss. Restoration commit `a38b99e`
   returns to source identity `1eb3d9edb2b0`; both rebuilt UF2 hashes exactly
   match retained candidate 98 and all eight host tests pass.
+- Candidate 102 passed final paired validation. ARM's first-seven median is
+  357,657 H/s aggregate / 326,224 hardware, +0.312%/+0.348% over candidate 98;
+  Hazard3 returned to factor-1 at 368,377 / 338,299 H/s, effectively identical
+  to candidate 98. Logs are `logs/E04c-hardware-batch-split-{arm,riscv}.log`.
 - Session `01a09b3f-dda6-7701-af18-c0b3d56eb61e` owns
   `.codex/ACTIVE_SESSION`. Preserve the newly inherited active-writer rule in
   `.codex/SESSION_CONTINUITY.md`; do not add the transient lock to a commit.
@@ -72,14 +75,13 @@ changes and keep temperature disabled.
 
 ## Work in progress / next actions
 
-Current continuation point: restoration after candidate 100 is complete and
-verified byte-identical to retained candidate 98. Record/commit the restoration
-evidence, then select the next untested bounded experiment. Do not repeat batch
-factor 8, scratch-X filter placement, E08 queue polling at 1 or 64 hashes, or
-the rejected E14 chunk variants unchanged. Prefer a one-variable E04-c hardware
-worker unroll factor (1/2/4) or another plan item whose exact current hot-loop
-assembly establishes a removable cost. Define hypothesis, parent hashes,
-resource cost, and rejection rule before editing; build both ISAs before flash.
+Current continuation point: candidate 102 final split is paired-hardware
+validated and retained; record/commit its evidence. The next bounded E04-c
+experiment may compare ARM factor 4 against retained factor 2 while leaving
+Hazard3 factor 1 unchanged, but only after defining the removable branch cost,
+expected code-growth/fetch risk, parent hashes, and rejection rule. Do not
+repeat software batch factor 8, scratch-X filter placement, E08 queue polling
+at 1 or 64 hashes, or the rejected E14 chunk variants unchanged.
 
 Candidate 101 is the selected E04-c factor-2 hardware-worker experiment. It
 nests exactly two complete nonce iterations inside the existing report loop;
@@ -104,12 +106,12 @@ versus candidate 98 despite +576 text bytes. Archive
 `logs/E04c-hardware-batch2-riscv.log`. Retain factor 2 only for ARM, restore
 Hazard3 to factor 1 in a final architecture split, rebuild both, and hardware
 validate the split before considering factor 4.
-Candidate 102 architecture split is now being prepared: ARM factor 2,
-Hazard3 factor 1. Its definition and acceptance criteria are appended to the
-ledger. Build/test and inspect both final loop shapes before committing.
-Dirty preflight passes: ARM text/BSS 189,192/4,708 with two bodies; Hazard3
-200,924/4,440 with one body, and all eight host tests pass. Commit candidate
-102, clean-rebuild, then validate ARM and Hazard3 final images.
+Candidate 102 commit `e7266e6`, source identity `8c8ea1cbf514`, passed final
+paired hardware validation. ARM run `...1a` reproduced factor 2 at 357,657
+aggregate / 326,224 hardware H/s; Hazard3 run `...1b` restored factor 1 at
+368,377 / 338,299 H/s. All 8 suites, 4,096 oracle cases, nine windows, and
+strict captures passed on both. Final UF2 hashes are ARM `6fd874...47e94` and
+RISC-V `a3d7e...3bd9`; archive hashes are recorded in the ledger.
 
 0. Candidate 97 is now defined as E04-f telemetry cadence: change only the
    hardware report interval from 100,000 to 340,000 hashes (approximately one

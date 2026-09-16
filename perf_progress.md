@@ -5414,3 +5414,48 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `e0bc079e7af0eabb3392d4b527108a054709cad59e7bc0e02095b4a68148a586` /
   `f85e3281c01a9807e95d8c44f1e37c705be7b12df353b02df83428fc78b30dc2`.
   Commit and rebuild at the final clean source identity before flashing.
+
+### E04-c hardware batch split ARM attempt 102a — pass, retain
+
+- Final split commit `e7266e6`, source identity `8c8ea1cbf514`, normal
+  profile, stock 150 MHz, temperature disabled, run ID
+  `30004927-0000001a`. Both architectures rebuilt before flash; all 8 suites,
+  the 4,096-case oracle, standalone benchmarks, nine common windows, and the
+  strict 50-second capture passed without a fault.
+- Standalone hardware/full/filter rates were **331,087 / 30,364 / 31,578
+  H/s**. First-seven window medians were aggregate **357,657 H/s** (range
+  357,653–357,660), hardware **326,224 H/s** (326,217–326,226), and software
+  **31,433 H/s** (31,433–31,436).
+- Versus retained candidate 98, aggregate is **+1,112 H/s (+0.312%)**,
+  hardware **+1,132 H/s (+0.348%)**, and software **-17 H/s (-0.054%)**.
+  This reproduces candidate 101a's ARM result and validates the final
+  conditional source shape.
+- Final ARM UF2 SHA-256 is
+  `6fd87436c6de340160c7cc80f17d4ca1f3ac55608fe5126d1b02d556fcb47e94`.
+  Complete log SHA-256 is
+  `883686e9cf0c7a5244699f4ed2e491d368c692c42fa0a203588cae6dd600ec4b`;
+  archived as `logs/E04c-hardware-batch-split-arm.log`.
+
+### E04-c hardware batch split Hazard3 attempt 102b — pass, retain
+
+- The identical final split commit ran at source identity `8c8ea1cbf514`,
+  normal profile, stock 150 MHz, temperature disabled, run ID
+  `30004927-0000001b`. Both architectures rebuilt before flash; all 8 suites,
+  the 4,096-case oracle, standalone benchmarks, nine common windows, and the
+  strict capture passed without a fault.
+- Standalone hardware/full/filter rates were **344,784 / 28,636 / 30,235
+  H/s**. First-seven window medians were aggregate **368,377 H/s** (range
+  368,376–368,380), hardware **338,299 H/s** (338,295–338,301), and software
+  **30,079 H/s** (30,078–30,082).
+- Versus retained candidate 98, aggregate and hardware are each **-1 H/s**
+  (effectively zero), while software is **+1 H/s**. Hazard3 therefore returns
+  exactly to its retained factor-1 behavior and avoids candidate 101's
+  unnecessary 576-byte text expansion.
+- Final RISC-V UF2 SHA-256 is
+  `a3d7e5f1d351d657f5b97880453c88121cd20d47e54041210767e26b235f3bd9`.
+  Complete log SHA-256 is
+  `c3161dacecb120e5059fd8f358ba7fbb6d8d32a774826331193cc36d0a495518`;
+  archived as `logs/E04c-hardware-batch-split-riscv.log`.
+- **Decision: retain candidate 102.** ARM uses explicit factor 2 and Hazard3
+  factor 1. The board is left running this accepted Hazard3 image. Candidate
+  102 is the new parent for any factor-4 ARM comparison.
