@@ -1150,3 +1150,14 @@ RISC-V `a3d7e...3bd9`; archive hashes are recorded in the ledger.
   `2e8a:000f`, then perform a visibly loading/verifying ARM flash and first
   establish an operational safe-clock ARM control before resuming the ARM
   hardware-only frontier. Do not use any of the silent logs as boundary data.
+
+### ARM-M33 post-recovery frontier (2026-09-16)
+
+- Physical recovery to BOOTSEL (`2e8a:000f`) succeeded. Real ARM-M33
+  hardware-only runs: 150 MHz control operational; 516 MHz full capture passed
+  (1,132,023 H/s median); screen checks at 528/532/534/540/546/552 MHz all
+  produced visible load/verify, BOOT, oracle, and mining output.
+- Real ARM 558 MHz / 1.60 V / divider 5 visibly loaded and verified but then
+  produced no BOOT or runtime output during the bounded capture. Treat as
+  RESET_OR_LINK_FAIL, not a performance result. No retry yet; physical BOOTSEL
+  recovery is required before any further ARM flash.

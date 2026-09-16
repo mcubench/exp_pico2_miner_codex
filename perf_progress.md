@@ -7496,3 +7496,13 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `60fb3ed1b680751aa58d31a1b94d81c0499c9378f0a2331e6b2f440658ce501e`,
   but no ARM runtime was observed. Require a physical BOOTSEL recovery and
   visible load/verify progress before restarting ARM hardware tests.
+
+### ARM-M33 post-recovery results — 558 MHz RESET_OR_LINK_FAIL
+
+- After physical BOOTSEL recovery, ARM-M33 hardware-only control at 150 MHz
+  booted and passed oracle; 516 MHz full capture also passed (1,132,023 H/s
+  median). Screen runs at 528, 532, 534, 540, 546, and 552 MHz all showed
+  visible flash verification, BOOT, complete oracle, and mining output.
+- The real 558 MHz / 1.60 V / divider-5 attempt visibly loaded and verified,
+  then emitted no BOOT or runtime output. Classify as RESET_OR_LINK_FAIL;
+  no throughput result. Log pending archival from `logs/arm-latest.log`.
