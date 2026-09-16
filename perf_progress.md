@@ -7227,3 +7227,12 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   software H/s. Log `logs/OC-riscv-v1100-f150000-d3-recovery-28.log`, SHA-256
   `05a544876b62bd545d477677bb6393b7c2649311827242cf555104ef03c6e92b`.
   Recovery is validated; repeat 444 MHz / 1.40 V / divider 4.
+### OC-riscv-v1400-f444000-d4-walk-2 — MEASURE_PASS, highest-clock repeat
+
+- Required repeat at 444 MHz / 1.40 V / divider 4 passed exact identity,
+  all eight suites, the 4,096-case oracle, 13 decision paths, 30 windows,
+  and strict capture.
+- First-seven medians were **1,094,633 aggregate / 1,001,137 hardware /
+  93,496 software H/s**. Log `logs/OC-riscv-v1400-f444000-d4-walk-2.log`,
+  SHA-256 `029084a1c90a7b955e43cf8c84fca1c3339c69109cb50f8079a453e118fba05f`.
+  Return to stock and validate recovery before advancing to 480 MHz/divider 4.
