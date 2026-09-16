@@ -2,6 +2,12 @@
 
 ## Latest checkpoint — authoritative
 
+- Stock recovery 26 after the first 444 MHz / 1.30 V / divider-4 failure
+  passed all required gates. Log `logs/OC-riscv-v1100-f150000-d3-recovery-26.log`
+  has SHA-256 `d4691a657c0e00fd832f786035cca2e76a5b64182310c9b3192d6583fdabaa42`.
+  First-seven medians were 369,936 aggregate / 338,344 hardware / 31,596
+  software H/s. Retry the identical 444 MHz / 1.30 V / divider-4 point.
+
 - First 444 MHz / 1.30 V / divider-4 attempt built and flash-verified but
   produced no runtime USB or serial output, classified **BOOT_FAIL**. Empty log
   `logs/OC-riscv-v1300-f444000-d4-boot-fail-1.log` has SHA-256
