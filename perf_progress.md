@@ -5856,3 +5856,10 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   more padding and fragility without a new mechanism, so it is rejected without
   a device run. Restore the natural unaligned candidate-105 placement and require
   exact artifacts. Broad label alignment remains closed.
+
+### A3 natural-alignment restoration
+
+- Focused restoration removes only the architecture alignment macro and returns
+  `mining_worker_core1` to its natural placement. It preserves retained A1 and
+  ARM factor 4/Hazard3 factor 1. Commit before clean builds, then require exact
+  candidate-105 source identity, sizes, worker addresses, and UF2 hashes.
