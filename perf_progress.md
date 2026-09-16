@@ -6028,3 +6028,32 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `81dde72e8cd7be15e26a9b436ebcb38310170e4a1c29fdd44fdc33f321ad9f3b` /
   `8bad952bd188e6e35a0a33b677690802e782be8a97f5163c30334ed022d18612`.
   Both builds and all eight host tests pass; no restoration flash is needed.
+
+## 2026-09-16 — Candidate 112: B3 ARM exact-filter local `O2`
+
+- Parent is retained candidate 109. The translation unit already compiles with
+  `-O3`; change only ARM's exact-filter helper to local `O2` while preserving
+  its existing `unroll-loops` request. Hazard3 keeps its current attributes and
+  retained B1 implementation.
+- Hypothesis: disabling O3-only transformations for this register-constrained
+  helper may reduce spills or code size without changing its useful loop shape.
+  This is a static search first. Byte-identical code, a larger frame, more hot
+  loads/stores/instructions, or size reduction obtained by adding common-path
+  branches is a no-flash rejection. Only a clear linked-code improvement may
+  advance to ARM hardware validation at stock 150 MHz, temperature disabled.
+
+### B3 ARM local-O2 preflight 112a — static pass
+
+- Both dirty wrapper builds and all eight host tests pass. ARM exact-filter
+  size falls from 1,712 to **1,620 bytes (-92, -5.4%)** and linked instruction
+  count falls from 543 to **517 (-26, -4.8%)**. Its saved-register/local frame
+  remains exactly **56 bytes**. Total ARM text falls from 189,504 to **189,424
+  bytes (-80)**; BSS stays 4,708 bytes.
+- Hazard3 remains at 201,692 text bytes with the same 3,430-byte helper and
+  288-byte frame. Dirty ARM/RISC-V UF2 SHA-256 values are
+  `cab4595cf8a3223e18374fb86c14a83798ea74a9a2155792405133d51f7ccc20` /
+  `46c1978071cf21c899a39e475a19790b44a80c215e48a74f3303c80532e071b1`.
+- The variant has fewer linked instructions and bytes without frame growth, so
+  it passes the static gate. Commit it, clean-build both architectures, recheck
+  the final linked shape, then flash only ARM for strict stock-clock hardware
+  validation.

@@ -95,6 +95,13 @@ changes and keep temperature disabled.
   has been removed. Both rebuilt artifacts, helper sizes, source identity, and
   all eight host tests exactly match candidate 109. Commit the rejection
   evidence and close this B2 shape rather than expanding it.
+- Candidate 112 starts B3 with a local ARM-only `O2` attribute on the exact
+  filter, retaining loop unrolling and leaving Hazard3 on its existing code.
+  The ledger defines static no-op/regression gates before any possible flash.
+- Candidate 112 static preflight passes: ARM's exact filter shrinks 1,712 to
+  1,620 bytes and 543 to 517 instructions, total text falls 80 bytes, and the
+  56-byte frame is unchanged. Hazard3 remains unchanged. Commit the candidate,
+  clean-build both, then run strict ARM hardware validation at stock 150 MHz.
 
 ## Completed work in this session
 
