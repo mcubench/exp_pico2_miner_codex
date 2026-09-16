@@ -2,6 +2,16 @@
 
 ## Latest checkpoint — authoritative
 
+- User revised the objective to maximize Hazard3 hashrate using a one-variable
+  upward clock walk at fixed 1.60 V, auto-selecting the smallest QMI divider
+  with SCK <=120 MHz. SCREEN mode is not implemented; strict monitor remains
+  the active gate. Existing firmware ceiling is 590 MHz, so 624 MHz is out of
+  scope until explicitly supported.
+- Stock recovery 31 after the failed 480 MHz / 1.40 V run passed all required
+  gates. Log `logs/OC-riscv-v1100-f150000-d3-recovery-31.log` has SHA-256
+  `ebfe5b7d44d9da77b593ab7b1046a2d54ae70bd674705f1601ca9934187b49f3`.
+  Next action: Phase 1 at 468 MHz / 1.60 V / divider 4.
+
 - Identical 480 MHz / 1.40 V / divider-4 retry reproduced BOOT_FAIL after
   verified flash; no runtime USB or serial output appeared. Empty log
   `logs/OC-riscv-v1400-f480000-d4-boot-fail-2.log` has SHA-256

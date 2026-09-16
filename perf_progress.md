@@ -7270,3 +7270,10 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
   Two failures establish 1.40 V as insufficient at 480 MHz/divider 4.
   Recover and validate stock, then test 480 MHz / 1.50 V / divider 4.
+### OC-riscv-v1100-f150000-d3-recovery-31 — MEASURE_PASS
+
+- Stock recovery after the failed 480 MHz / 1.40 V run passed all eight
+  suites, the full oracle, nine windows, and strict capture.
+- Log `logs/OC-riscv-v1100-f150000-d3-recovery-31.log`, SHA-256
+  `ebfe5b7d44d9da77b593ab7b1046a2d54ae70bd674705f1601ca9934187b49f3`.
+  The revised campaign now starts Phase 1 at 468 MHz / 1.60 V / divider 4.
