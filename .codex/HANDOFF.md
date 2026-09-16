@@ -69,6 +69,11 @@
   built/flashed/verified but again produced no runtime USB device or BOOT.
   Record/commit the BOOT_FAIL. Physical recovery and an identical 396/1.30
   retry are required; do not change voltage or clock before that retry.
+- Physical recovery after 396 MHz/1.30 V attempt 1 is complete. Stock Hazard3
+  run `30004927-00000001` passed all correctness gates and nine windows at
+  first-seven medians 369,846 aggregate / 338,329 hardware / 31,517 software
+  H/s. It is archived as `logs/OC-riscv-v1100-f150000-recovery-7.log`.
+  Retry the identical 396 MHz/1.30 V point now; do not change voltage or clock.
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both

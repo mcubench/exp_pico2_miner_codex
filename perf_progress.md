@@ -6504,3 +6504,17 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   selecting another voltage or changing frequency. Failure log
   `logs/OC-riscv-v1300-f396000-boot-fail-1.log`, SHA-256
   `2c5f03ade6d6898252469406ff829ec61a8ffff3a89c3e2cd4b67ad44a03c9ab`.
+
+### OC-riscv-v1100-f150000-recovery-7 — MEASURE_PASS
+
+- After the required physical BOOTSEL reconnect, both stock architecture
+  builds passed warning-free and matched the archived recovery images.
+  Hazard3 run `30004927-00000001` passed exact BOOT identity, all eight device
+  suites, the 4,096-case oracle, 13 decision paths, standalone benchmarks,
+  nine synchronized windows, and strict capture without a fault or reset.
+- Standalone hardware/full/filter rates are **343,994 / 28,430 / 31,685
+  H/s**. First-seven medians are **369,846 aggregate / 338,329 hardware /
+  31,517 software H/s**, matching the retained stock controls.
+- Complete log `logs/OC-riscv-v1100-f150000-recovery-7.log`, SHA-256
+  `71a923c87f43b53a46a4fb5f3443e2f6d329169306376ec5c0bc1c3b2e4c4b3b`.
+  Stock recovery is validated; retry the identical 396 MHz/1.30 V point next.
