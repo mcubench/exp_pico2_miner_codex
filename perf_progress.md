@@ -7563,24 +7563,133 @@ short-run captures are represented by these measured console records; the
 
 ### Delayed dual-core valid reruns (post-BOOTSEL recovery)
 
-The delayed core-0 software-worker implementation was rerun at every requested
-exact point, 1.60 V/readback, divider 5. Each 522–552 MHz run returned
-`CYCLE:PASS` with BOOT, oracle, benchmarks, and mining telemetry. Measured final
-rates (H/s) and dedicated logs:
+All entries below use the delayed core-0 software-worker implementation at
+source identity `23ebcc93979f`, hybrid mining mode, requested/read-back 1.60 V,
+and QMI divider 5. They are **unsafe-overvoltage** runs. Sustained figures are
+first-seven `MINING:PROGRESS` medians, consistent with the rest of this ledger;
+the former compressed table's final-record figures are not used as medians.
 
-| MHz | H/s | Log |
-|---:|---:|---|
-|516|1,272,519|DUAL-DELAY-riscv-v1600-f516000-d5-valid-rerun.log|
-|520|1,282,162|DUAL-DELAY-riscv-v1600-f520000-d5-valid-rerun.log|
-|522|1,287,288|DUAL-DELAY-riscv-v1600-f522000-d5-valid-rerun.log|
-|524|1,292,054|DUAL-DELAY-riscv-v1600-f524000-d5-valid-rerun.log|
-|528|1,302,112|DUAL-DELAY-riscv-v1600-f528000-d5-valid-rerun.log|
-|532|1,311,991|DUAL-DELAY-riscv-v1600-f532000-d5-valid-rerun.log|
-|534|1,316,917|DUAL-DELAY-riscv-v1600-f534000-d5-valid-rerun.log|
-|540|1,331,505|DUAL-DELAY-riscv-v1600-f540000-d5-valid-rerun.log|
-|546|1,346,270|DUAL-DELAY-riscv-v1600-f546000-d5-valid-rerun.log|
-|552|1,361,048|DUAL-DELAY-riscv-v1600-f552000-d5-valid-rerun.log|
-|558|screen boot/oracle/mining; capture incomplete|DUAL-DELAY-riscv-v1600-f558000-d5-valid-rerun.log|
+### DUAL-DELAY-riscv-v1600-f516000-d5-valid-rerun — MEASURE_PASS
 
-The 516 MHz run was a full 50-second capture and passed. The 558 MHz run
-booted and validated but ended before the five-window completeness gate.
+- Both architectures built successfully; Hazard3 flash verification and BOOT
+  identity passed at exact 516 MHz / 1.60 V / divider 5 / 103.2 MHz QMI SCK.
+  Run `30004927-00000001` passed all eight suites, the 4,096-case oracle,
+  standalone benchmarks, 34 complete windows, and `CYCLE:PASS`.
+- Standalone hardware/full/filter rates were **1,188,800 / 98,490 / 109,297
+  H/s**. First-seven medians were **1,272,516 aggregate / 1,163,814 hardware /
+  108,714 software H/s**; aggregate range was 1,272,015–1,272,757 H/s with
+  median absolute deviation (MAD) 27 H/s.
+- Complete log `logs/DUAL-DELAY-riscv-v1600-f516000-d5-valid-rerun.log`,
+  SHA-256 `43c931afe68b3a57dc08848ad2a272d801020609585ed5e41fbbd6ad409139e1`.
+
+### DUAL-DELAY-riscv-v1600-f520000-d5-valid-rerun — MEASURE_PASS
+
+- Both builds, flash verification, exact 520 MHz / 1.60 V / divider 5 /
+  104.0 MHz QMI identity, all eight suites, the 4,096-case oracle, 17 windows,
+  and `CYCLE:PASS` completed for run `30004927-00000002`.
+- Standalone hardware/full/filter rates were **1,198,017 / 99,254 / 110,144
+  H/s**. First-seven medians were **1,282,393 aggregate / 1,172,859 hardware /
+  109,552 software H/s**; aggregate range 1,282,013–1,282,618, MAD 36 H/s.
+- Complete log `logs/DUAL-DELAY-riscv-v1600-f520000-d5-valid-rerun.log`,
+  SHA-256 `8a5dab0d659e45c909db44629dacd0ccd024034bba1e97ec68f2c6baae162534`.
+
+### DUAL-DELAY-riscv-v1600-f522000-d5-valid-rerun — MEASURE_PASS
+
+- Both builds, flash verification, exact 522 MHz / 1.60 V / divider 5 /
+  104.4 MHz QMI identity, all eight suites, the 4,096-case oracle, 17 windows,
+  and `CYCLE:PASS` completed for run `30004927-00000003`.
+- Standalone hardware/full/filter rates were **1,202,624 / 99,635 / 110,568
+  H/s**. First-seven medians were **1,287,312 aggregate / 1,177,363 hardware /
+  109,971 software H/s**; aggregate range 1,286,812–1,287,551, MAD 128 H/s.
+- Complete log `logs/DUAL-DELAY-riscv-v1600-f522000-d5-valid-rerun.log`,
+  SHA-256 `6c4e8763bcb3dfe52d500ba0b2e5dda93c7b469f5cbf37db91d3f0359adb36f4`.
+
+### DUAL-DELAY-riscv-v1600-f524000-d5-valid-rerun — MEASURE_PASS
+
+- Both builds, flash verification, exact 524 MHz / 1.60 V / divider 5 /
+  104.8 MHz QMI identity, all eight suites, the 4,096-case oracle, 17 windows,
+  and `CYCLE:PASS` completed for run `30004927-00000004`.
+- Standalone hardware/full/filter rates were **1,207,234 / 100,017 / 110,992
+  H/s**. First-seven medians were **1,292,257 aggregate / 1,181,869 hardware /
+  110,400 software H/s**; aggregate range 1,292,018–1,292,496, MAD 24 H/s.
+- Complete log `logs/DUAL-DELAY-riscv-v1600-f524000-d5-valid-rerun.log`,
+  SHA-256 `a9c17ab49b30b782e455764aa4f0246077778cfdd6b69d674b26f23fdc9fe241`.
+
+### DUAL-DELAY-riscv-v1600-f528000-d5-valid-rerun — MEASURE_PASS
+
+- Both builds, flash verification, exact 528 MHz / 1.60 V / divider 5 /
+  105.6 MHz QMI identity, all eight suites, the 4,096-case oracle, 17 windows,
+  and `CYCLE:PASS` completed for run `30004927-00000005`.
+- Standalone hardware/full/filter rates were **1,216,454 / 100,781 / 111,839
+  H/s**. First-seven medians were **1,302,088 aggregate / 1,190,822 hardware /
+  111,239 software H/s**; aggregate range 1,301,867–1,302,112, MAD 24 H/s.
+- Complete log `logs/DUAL-DELAY-riscv-v1600-f528000-d5-valid-rerun.log`,
+  SHA-256 `78ba7435a69eca9ff2620726c3a56d20f2d8b9771c67f5a09e639b2b27a5e86e`.
+
+### DUAL-DELAY-riscv-v1600-f532000-d5-valid-rerun — MEASURE_PASS
+
+- Both builds, flash verification, exact 532 MHz / 1.60 V / divider 5 /
+  106.4 MHz QMI identity, all eight suites, the 4,096-case oracle, 17 windows,
+  and `CYCLE:PASS` completed for run `30004927-00000006`.
+- Standalone hardware/full/filter rates were **1,225,668 / 101,544 / 112,686
+  H/s**. First-seven medians were **1,311,982 aggregate / 1,199,896 hardware /
+  112,070 software H/s**; aggregate range 1,311,609–1,312,222, MAD 232 H/s.
+- Complete log `logs/DUAL-DELAY-riscv-v1600-f532000-d5-valid-rerun.log`,
+  SHA-256 `f55d06e8b10024e6af04d7d34126e4664ff8ff4c53517c40902defc09c55c915`.
+
+### DUAL-DELAY-riscv-v1600-f534000-d5-valid-rerun — MEASURE_PASS
+
+- Both builds, flash verification, exact 534 MHz / 1.60 V / divider 5 /
+  106.8 MHz QMI identity, all eight suites, the 4,096-case oracle, 17 windows,
+  and `CYCLE:PASS` completed for run `30004927-00000007`.
+- Standalone hardware/full/filter rates were **1,230,272 / 101,926 / 113,110
+  H/s**. First-seven medians were **1,316,923 aggregate / 1,204,439 hardware /
+  112,505 software H/s**; aggregate range 1,316,634–1,317,151, MAD 62 H/s.
+- Complete log `logs/DUAL-DELAY-riscv-v1600-f534000-d5-valid-rerun.log`,
+  SHA-256 `f0b741fc8ac7d44f79e8f0092121fac7235776480ad7ee19127cdfe3763fa3cc`.
+
+### DUAL-DELAY-riscv-v1600-f540000-d5-valid-rerun — MEASURE_PASS
+
+- Both builds, flash verification, exact 540 MHz / 1.60 V / divider 5 /
+  108.0 MHz QMI identity, all eight suites, the 4,096-case oracle, 18 windows,
+  and `CYCLE:PASS` completed for run `30004927-00000008`.
+- Standalone hardware/full/filter rates were **1,244,099 / 103,071 / 114,381
+  H/s**. First-seven medians were **1,331,592 aggregate / 1,217,804 hardware /
+  113,760 software H/s**; aggregate range 1,331,445–1,331,960, MAD 137 H/s.
+- Complete log `logs/DUAL-DELAY-riscv-v1600-f540000-d5-valid-rerun.log`,
+  SHA-256 `df6f5beac6b8216591e45ba4fd2b5cf49e2ada7a48ecf1b45af9c79a12016d5d`.
+
+### DUAL-DELAY-riscv-v1600-f546000-d5-valid-rerun — MEASURE_PASS
+
+- Both builds, flash verification, exact 546 MHz / 1.60 V / divider 5 /
+  109.2 MHz QMI identity, all eight suites, the 4,096-case oracle, 18 windows,
+  and `CYCLE:PASS` completed for run `30004927-00000009`.
+- Standalone hardware/full/filter rates were **1,257,927 / 104,216 / 115,652
+  H/s**. First-seven medians were **1,346,493 aggregate / 1,231,487 hardware /
+  115,029 software H/s**; aggregate range 1,346,023–1,346,758, MAD 109 H/s.
+- Complete log `logs/DUAL-DELAY-riscv-v1600-f546000-d5-valid-rerun.log`,
+  SHA-256 `d8257d4a9645ee23272a2660afac45d64e43272ecfd8deea4e3056ef9bdd5dc3`.
+
+### DUAL-DELAY-riscv-v1600-f552000-d5-valid-rerun — MEASURE_PASS
+
+- Both builds, flash verification, exact 552 MHz / 1.60 V / divider 5 /
+  110.4 MHz QMI identity, all eight suites, the 4,096-case oracle, 18 windows,
+  and `CYCLE:PASS` completed for run `30004927-0000000a`.
+- Standalone hardware/full/filter rates were **1,271,741 / 105,362 / 116,923
+  H/s**. First-seven medians were **1,361,295 aggregate / 1,245,011 hardware /
+  116,297 software H/s**; aggregate range 1,360,759–1,361,565, MAD 27 H/s.
+- Complete log `logs/DUAL-DELAY-riscv-v1600-f552000-d5-valid-rerun.log`,
+  SHA-256 `f28db74d4c8e2be6c7ac77e8b6d7223bce53a4013ed32f6fd83b75aa0190a9fb`.
+
+### DUAL-DELAY-riscv-v1600-f558000-d5-valid-rerun — SCREEN_PASS, CAPTURE_INCOMPLETE
+
+- Both architectures built and Hazard3 flash verification passed. BOOT
+  reported exact 558 MHz / 1.60 V / divider 5 / 111.6 MHz QMI SCK for run
+  `30004927-0000000b`; all eight suites and the full 4,096-case oracle passed.
+- Standalone hardware/full/filter rates were **1,285,562 / 106,507 / 118,194
+  H/s**. The capture ended before any `MINING:PROGRESS` or
+  `MEASUREMENT:WINDOW` record, so strict validation failed its five-progress /
+  five-window completeness gates. No sustained hashrate may be reported from
+  this log and this is not `CYCLE:PASS`.
+- Complete log `logs/DUAL-DELAY-riscv-v1600-f558000-d5-valid-rerun.log`,
+  SHA-256 `316256c2da45f083f609ef37f3ba837467e0aa97e7e48977003692d971455a57`.

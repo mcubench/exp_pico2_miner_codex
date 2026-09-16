@@ -2,6 +2,15 @@
 
 ## Latest checkpoint — authoritative
 
+- Documentation-only cleanup expands the `perf_progress.md` subsection
+  `Delayed dual-core valid reruns (post-BOOTSEL recovery)` from a compressed
+  table into eleven structured per-attempt entries. Values were recomputed
+  from existing archived logs: first-seven sustained medians, component and
+  standalone rates, variability, window counts, identities, and log hashes.
+  No hardware measurement was made. The 558 MHz entry is explicitly
+  `SCREEN_PASS, CAPTURE_INCOMPLETE` with no sustained-rate claim. Commit this
+  ledger-only change; hardware state and campaign decisions are unchanged.
+
 - Hardware-only 516 MHz / 1.60 V / divider-5 run passed all gates, 34 windows,
   and strict capture. First-seven median sustained hardware/aggregate rate was
   1,162,045 H/s (2,252.03 H/s/MHz), with software correctly zero. Standalone
