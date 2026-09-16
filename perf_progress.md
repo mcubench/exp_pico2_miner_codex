@@ -7482,3 +7482,17 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Per the no-repeat instruction, this failure was not retried. Since no exact
   PLL point exists between 558 MHz pass and 564 MHz fail, the hardware-only
   clock ceiling is **558 MHz** at requested/read-back 1.60 V and divider 5.
+### ARM post-failure attempts — INVALID_HOST_FLASH_NOOP
+
+- Apparent ARM attempts at 558, 552, 546, 540, 534, 532, 516, and diagnostic
+  150 MHz are invalid; the 528 MHz attempt was also interrupted. None may be
+  used as an ARM stability boundary.
+- At each point `picotool load -f -u -v -x` reported a blank tracked serial,
+  waited, and returned zero without displaying flash loading or verification.
+  The wrapper printed `FLASH:PASS`, but the Pico stayed at the same application
+  USB bus address and retained the silent hung state. A forced read-only
+  `picotool info -a -f` reproduced this false-success/no-reboot behavior.
+- The ARM builds are valid, including expected 150 MHz hardware-only UF2 hash
+  `60fb3ed1b680751aa58d31a1b94d81c0499c9378f0a2331e6b2f440658ce501e`,
+  but no ARM runtime was observed. Require a physical BOOTSEL recovery and
+  visible load/verify progress before restarting ARM hardware tests.

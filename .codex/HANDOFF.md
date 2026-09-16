@@ -1127,3 +1127,26 @@ RISC-V `a3d7e...3bd9`; archive hashes are recorded in the ledger.
 - The board currently exposes application USB (`2e8a:0009`, `/dev/ttyACM0`)
   but emits no output under the failing 564 MHz image. A physical BOOTSEL
   recovery is required before another flash.
+
+### ARM test attempts after the Hazard3 failure are invalid
+
+- Do **not** classify the attempted ARM 558/552/546/540/534/532/516/150 MHz
+  runs as ARM clock failures. The 528 MHz attempt was additionally interrupted.
+- Investigation after the user questioned device operation showed that the
+  Pico remained at the same application USB address (`2e8a:0009`, bus 1
+  address 40) and emitted no output throughout. For each apparent ARM cycle,
+  `picotool load -f -u -v -x` printed `Tracking device serial number  for
+  reboot` with a blank serial, waited, then returned status zero without any
+  `Loading into Flash` or `Verifying Flash` output. `tools/flash` therefore
+  printed `FLASH:PASS`, but there is no evidence that it uploaded the ARM UF2.
+- A read-only `picotool info -a -f` reproduced the same blank-serial wait and
+  zero exit without rebooting the USB device or returning image metadata.
+  This confirms a host/tool false-success path against the hung runtime USB
+  interface, not an ARM runtime result.
+- ARM compilation itself is valid. The diagnostic 150 MHz hardware-only ARM
+  UF2 SHA-256 is the expected
+  `60fb3ed1b680751aa58d31a1b94d81c0499c9378f0a2331e6b2f440658ce501e`.
+- Physical BOOTSEL recovery is now mandatory. Confirm USB identity
+  `2e8a:000f`, then perform a visibly loading/verifying ARM flash and first
+  establish an operational safe-clock ARM control before resuming the ARM
+  hardware-only frontier. Do not use any of the silent logs as boundary data.
