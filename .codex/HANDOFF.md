@@ -2,6 +2,18 @@
 
 ## Latest checkpoint — authoritative
 
+- User-directed planning pivot: stop the divider-3 frequency bisection and do
+  not perform the pending identical 408 MHz retry. Analysis shows successful
+  runs use QMI divider 3, putting flash at 132 MHz for the barely viable
+  396 MHz point and 136--190 MHz for the silent 408--570 MHz failures. New
+  execution plan `overclock_test_plan_divider_update.md` starts with divider
+  infrastructure, then 420 MHz / 1.20 V / divider 4 (105 MHz flash), followed
+  by divider 4 through 516 MHz and divider 5 above it. The 4,096-case oracle
+  remains mandatory because 348 MHz / 1.15 V produced two silent logic errors.
+  The plan also defines a separate, gated SRAM-placement experiment; no divider
+  or placement implementation has been made yet. Board was last validated at
+  stock by recovery 20.
+
 - Physical BOOTSEL recovery after 408 MHz attempt 1 passed stock validation.
   Recovery 20 passed all correctness gates and ten complete windows, with
   first-seven medians 369,845 aggregate / 338,328 hardware / 31,517 software
