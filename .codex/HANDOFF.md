@@ -11,6 +11,12 @@
   builds pass warning-free. Commit this isolated implementation, rebuild both
   architectures for a clean source identity, then test only the current
   maximum configuration: 516 MHz / 1.60 V / divider 5.
+- Implementation commit `51f18ea`, source identity `fc6c76ed3474`. Clean
+  hardware-only ARM/RISC-V UF2 SHA-256 values are
+  `60fb3ed1b680751aa58d31a1b94d81c0499c9378f0a2331e6b2f440658ce501e` /
+  `1d906c1ebffe273cc93a55130def615a025084a477a351ac56c9cc6f9632f456`.
+  All 18 host tests and both clean builds pass; run 516 MHz / 1.60 V /
+  divider 5 with `MINER_HARDWARE_ONLY=1` next.
 
 - Final stock recovery 40 passed after the completed Hazard3 campaign. It
   passed all eight suites, the full oracle, benchmarks, nine windows, and
