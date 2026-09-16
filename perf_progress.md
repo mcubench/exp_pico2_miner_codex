@@ -7288,3 +7288,10 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `d9ed320b1380349049d960c1d44595b839ec3e6fec90ad2ee400a361ebc4088d`.
   Return to stock and validate recovery before the next step, 516 MHz /
   divider 4 at 1.60 V.
+### OC-riscv-v1100-f150000-d3-recovery-32 — MEASURE_PASS
+
+- Stock recovery after 468 MHz / 1.60 V passed all eight suites, full oracle,
+  nine windows, and strict capture. Log
+  `logs/OC-riscv-v1100-f150000-d3-recovery-32.log`, SHA-256
+  `56fb0700f29f11db911d1c058be212eb8b9f35ce990ce9d44de018c03387f8f4`.
+  Proceed to 516 MHz / 1.60 V with auto divider 4.
