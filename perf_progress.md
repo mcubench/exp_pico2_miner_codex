@@ -6403,3 +6403,21 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
 - Complete failure log `logs/OC-riscv-v1150-f348000-correctness-fail-2.log`,
   SHA-256
   `d54e003bf175860e6f79b0e7237bbc6215daae58fc201cec65a361de9f10a55d`.
+
+### OC-riscv-v1200-f348000-measure-2 — MEASURE_PASS, transition confirmed
+
+- Required Tier-B repeat using the same commit/identity and byte-identical
+  1.20 V artifacts. Run `30004927-00000005` passed exact BOOT identity, all
+  correctness gates, standalone benchmarks, 23 synchronized windows, and
+  strict capture without a reset or fault.
+- Standalone hardware/full/filter rates are **798,071 / 65,958 / 73,510
+  H/s**. First-seven medians are **857,995 aggregate / 784,895 hardware /
+  73,099 software H/s**; aggregate range is 28 H/s and MAD is 3 H/s. These are
+  -1 / -1 / +1 H/s versus attempt 1, confirming the point within measurement
+  resolution and with essentially perfect linear scaling.
+- **Frontier decision:** at 348 MHz, requested 1.15 V reproducibly fails the
+  optimized oracle while requested/read-back 1.20 V passes Tier B twice.
+  Therefore 1.20 V is the minimum validated requested selector at this clock.
+  Continue upward from 1.20 V at the next roughly +48 MHz exact PLL point.
+- Complete log `logs/OC-riscv-v1200-f348000-measure-2.log`, SHA-256
+  `10dda84b9eb36d476186cf78f751f894e9770d79ccc934f4558874aad6f1d3ed`.

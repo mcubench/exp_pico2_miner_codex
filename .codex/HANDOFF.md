@@ -39,6 +39,11 @@
   firmware. Thus 348 MHz is bracketed by 1.15 V fail and 1.20 V pass. Commit
   attempt 2, repeat the 1.20 V Tier-B pass once as required for a voltage
   transition, then continue upward from the 1.20 V selector.
+- Commit `cf9e10a` records the reproduced 1.15 V failure. The required 1.20 V
+  transition repeat passed all gates and 23 windows at 857,995 aggregate /
+  784,895 hardware / 73,099 software H/s, matching attempt 1. Archive/commit
+  this repeat. The 348 MHz frontier is closed at minimum requested 1.20 V;
+  select the next exact roughly +48 MHz PLL point and start at 1.20 V.
 - Planning checkpoint: `overclock_test_plan.md` defines the next campaign. It
   is planning-only; no voltage, clock, firmware, or device state was changed.
   The plan adaptively traces the minimum-voltage stability frontier for both
