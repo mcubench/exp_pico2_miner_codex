@@ -7321,3 +7321,9 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   Two failures establish 516 MHz as the failing upper bound at divider 4.
   Recover and validate stock before testing the paired 516 MHz / divider-5
   control at 1.60 V.
+### OC-riscv-v1100-f150000-d3-recovery-34 — MEASURE_PASS
+
+- Stock recovery after the reproduced 516 MHz/divider-4 failure passed all
+  required gates. Log `logs/OC-riscv-v1100-f150000-d3-recovery-34.log`,
+  SHA-256 `eb1d8eec6caaf20f4b5e96719f28fd5232b136a793de1f5a3cff587d55e4c908`.
+  Test 516 MHz / 1.60 V using auto-selected divider 5 (103.2 MHz SCK).
