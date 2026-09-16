@@ -6811,3 +6811,15 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `37f4c0420aebee09eba1dde7923590c7ac3e120cacb7effe048f2259b2b0b126`.
   Recovery is validated; select the next lower exact PLL midpoint in the
   396 MHz pass / 480 MHz fail interval (approximately 444 MHz) at 1.60 V.
+
+### OC-riscv-v1600-f444000-bisection-1 — BOOT_FAIL, recovery required
+
+- Both architecture builds passed warning-free; the Hazard3 444 MHz / 1,600
+  mV image flashed and verified successfully.
+- Runtime USB did not appear during the 50-second strict capture; bounded
+  checks found no Raspberry Pi USB device or `/dev/ttyACM*`. No BOOT,
+  correctness, benchmark, or mining output exists. Classification is
+  **BOOT_FAIL**.
+- Empty capture log `logs/OC-riscv-v1600-f444000-boot-fail-1.log`, SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+  Physically recover and validate stock, then retry this point identically.

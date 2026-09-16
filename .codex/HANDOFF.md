@@ -15,6 +15,11 @@
   first-seven medians 369,847 aggregate / 338,330 hardware / 31,517 software
   H/s. Select the next lower exact PLL midpoint in the 396–480 MHz interval
   (approximately 444 MHz) at 1.60 V.
+- The first 444 MHz / 1.60 V bisection image built and verified but produced
+  no runtime USB or serial output, classified **BOOT_FAIL**. Empty log
+  `logs/OC-riscv-v1600-f444000-boot-fail-1.log` has SHA-256
+  `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`.
+  Physically recover and validate stock, then retry 444 MHz identically.
 
 - Overclock execution has started. Phase-0 source/wrapper/monitor infrastructure
   is implemented and stock-builds on both ISAs; 13 host monitor tests pass.
