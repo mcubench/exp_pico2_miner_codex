@@ -7208,3 +7208,14 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   software H/s. Log `logs/OC-riscv-v1100-f150000-d3-recovery-27.log`, SHA-256
   `8a8cfcf402def102a8f10073a5b5df72eb4552172a4782bc9a98e58d167922d4`.
   Recovery is validated; test 444 MHz / 1.40 V / divider 4.
+### OC-riscv-v1400-f444000-d4-walk-1 — MEASURE_PASS
+
+- After the 1.30 V failures, 444 MHz / 1.40 V / divider 4 (111 MHz QMI SCK)
+  passed exact BOOT identity, all eight suites, the 4,096-case oracle, 13
+  decision paths, 30 windows, and strict capture.
+- First-seven medians were **1,094,627 aggregate / 1,001,131 hardware /
+  93,495 software H/s**. Complete log
+  `logs/OC-riscv-v1400-f444000-d4-walk-1.log`, SHA-256
+  `d4bfd0e7877170434ef758b05ff919232b0615abdd4360d4f1b9610d4404c23d`.
+  Return to stock and validate recovery before the required repeat of this
+  new highest passing clock.

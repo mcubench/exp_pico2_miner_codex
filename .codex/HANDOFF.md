@@ -2,6 +2,15 @@
 
 ## Latest checkpoint — authoritative
 
+- 444 MHz / 1.40 V / divider 4 passed all gates, 30 windows, and strict
+  capture. First-seven medians were 1,094,627 aggregate / 1,001,131 hardware /
+  93,495 software H/s. Log
+  `logs/OC-riscv-v1400-f444000-d4-walk-1.log` has SHA-256
+  `d4bfd0e7877170434ef758b05ff919232b0615abdd4360d4f1b9610d4404c23d`.
+  Because this is an unsafe-voltage run and the new highest passing clock,
+  return to stock and validate recovery, then repeat 444 MHz / 1.40 V /
+  divider 4.
+
 - Stock recovery 27 passed after the reproduced 444 MHz / 1.30 V / divider-4
   failure. Log `logs/OC-riscv-v1100-f150000-d3-recovery-27.log` has SHA-256
   `8a8cfcf402def102a8f10073a5b5df72eb4552172a4782bc9a98e58d167922d4`;
