@@ -5863,3 +5863,12 @@ MEASUREMENT:WINDOW run_id=30004927-00000007 window=7 sequence=112 elapsed_us=475
   `mining_worker_core1` to its natural placement. It preserves retained A1 and
   ARM factor 4/Hazard3 factor 1. Commit before clean builds, then require exact
   candidate-105 source identity, sizes, worker addresses, and UF2 hashes.
+- Restoration commit `70c31a0` is verified exact. Source identity is again
+  `8b850732e27f`; all eight monitor host tests pass; clean ARM/RISC-V builds
+  report 189,504/200,924 text bytes and 4,708/4,440 data+BSS bytes; and their
+  UF2 SHA-256 hashes exactly match retained candidate 105:
+  `0c12f2464dd682cfc91855b5051d139d0420115c3e291c7a7bf3e9564cea351f`
+  (ARM) and
+  `e8b32412926d19c609e8e72b66c6b3492d7efd2d6f650e79583d38467b00d942`
+  (RISC-V). No redundant restoration flash was performed; the board still
+  carries rejected candidate 108 ARM.

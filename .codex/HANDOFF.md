@@ -62,6 +62,10 @@ changes and keep temperature disabled.
 - Candidate 108 is rejected: 360,301 aggregate / 328,864 hardware H/s,
   -0.011%/-0.015% versus candidate 105. With candidate 107 also neutral/slightly
   negative, A3 is closed without a 64-byte run. Board runs rejected 108 ARM.
+- Restoration commit `70c31a0` returns exactly to retained candidate 105:
+  identity `8b850732e27f`, all 8 host tests pass, and clean ARM/RISC-V UF2
+  hashes are `0c12f2...a351f` / `e8b324...0d942`. Source and build output are
+  ready for B1; the board still carries rejected candidate 108 ARM.
 
 ## Completed work in this session
 
@@ -112,10 +116,12 @@ work was requested for the planning update. Do not repeat main-SRAM hardware-
 worker placement, software batch factor 8, scratch-X filter placement, E08 queue
 polling at 1 or 64 hashes, or rejected E14 chunk variants unchanged.
 
-Candidate 108 rejection evidence is committed in `eec17b6`; A3 is closed. A
-focused source restoration now removes the alignment macro entirely while
-preserving A1. Commit it, rebuild both architectures, and require exact
-candidate-105 UF2 hashes. The board runs rejected candidate 108.
+Candidate 108 rejection evidence is committed in `eec17b6`; A3 is closed.
+Restoration commit `70c31a0` has been clean-built and verified byte-exact to
+retained candidate 105 on both architectures, with all host tests passing.
+Proceed to B1's bounded rotated-role four-round software-SHA experiment. Start
+with source/disassembly analysis and enforce its static gates before flashing.
+The board still runs rejected candidate 108 ARM.
 
 Candidate 104 commit `6dc1941`, identity `638fe640df92`, passed correctness but
 is rejected. ARM worker-in-main-SRAM measured 358,620 aggregate / 327,806
