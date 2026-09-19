@@ -2,6 +2,14 @@
 
 ## Latest checkpoint — authoritative
 
+- Added `SKILLS.md`, a concise application-neutral Pico 2 development guide.
+  It covers dual-ISA workflow, bounded autonomous hardware cycles, structured
+  serial validation, independent correctness oracles, sound measurement,
+  evidence-led optimization, SRAM/XIP/multicore tradeoffs, clock/voltage/QMI
+  testing, USB recovery, experiment records, and a final checklist. No source,
+  firmware, hardware state, or measurement changed. Local links and
+  `git diff --check` pass.
+
 - Repository-wide outcome synthesis is complete in new `summary.md`. It
   documents the autonomous hardware loop, final firmware structure, retained
   and rejected optimizations, stock and overclock tables, ISA differences,
