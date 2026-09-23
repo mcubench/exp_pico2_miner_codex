@@ -1,6 +1,6 @@
 # Experiment: Pico 2 agentic development loop (bitcoin miner)
 
-This experimental project project builds a hardware-accelerated Bitcoin proof-of-work engine for both RP2350 CPU architectures by giving VS Code/Codex finite commands for build, flash, and hardware feedback. If you just want resulting optimized Pico2 miner, visit [pico2-btcminer](https://github.com/mcubench/pico2-btcminer).
+This experimental project project builds a hardware-accelerated Bitcoin proof-of-work engine for both RP2350 CPU architectures by giving Codex finite commands for build, flash, and hardware feedback. GPT-6 Astra (for planning) and GPT-5-6 Sol (coding and testing) was used, mostly autonomously - after initial setup a human had to only occasionally (~10x) reinsert token and specify general requirements. If you just want the resulting optimized Pico2 miner, visit [pico2-btcminer](https://github.com/mcubench/pico2-btcminer) instead.
 
 See the [summary.md](summary.md), step-by-step progress report in [perf_progress.md](perf_progress.md), with visualized [optimization progress](/docs/pico2_sha256_hashrate_evolution_v9_unroll_and_filter.html) and [overclocking trends](/docs/overclock_frontier_hazard3_vs_cortex_m33_labelled.html).
 
