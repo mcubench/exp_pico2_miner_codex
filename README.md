@@ -4,7 +4,7 @@ This experimental project project builds a hardware-accelerated Bitcoin proof-of
 
 See the [summary.md](summary.md), step-by-step progress report in [perf_progress.md](perf_progress.md), with visualized [optimization progress](/docs/pico2_sha256_hashrate_evolution_v9_unroll_and_filter.html) and [overclocking trends](/docs/overclock_frontier_hazard3_vs_cortex_m33_labelled.html).
 
-<img width="1956" height="1078" alt="image" src="https://github.com/user-attachments/assets/54d94af9-0327-45de-8a5e-4c5d5c9bc557" />
+[<img width="1956" height="1078" alt="image" src="https://github.com/user-attachments/assets/54d94af9-0327-45de-8a5e-4c5d5c9bc557" />](/docs/pico2_sha256_hashrate_evolution_v9_unroll_and_filter.html)
 
 It uses RP2350's native SHA-256 peripheral for both rounds of every Bitcoin header hash. The mining loop retains the SHA peripheral lock and directly feeds three pre-padded 64-byte blocks per nonce, avoiding high-level API setup and padding overhead inside the hot path.
 At boot the firmware validates the engine against SHA-256 known-answer vectors, the Bitcoin genesis block hash, and a real compact-target nonce search. It then measures double-SHA-256 hashes per second and continuously scans the genesis header's difficulty-1 nonce space. The ongoing work is deliberately standalone and stale; it demonstrates genuine proof-of-work calculations but does not connect to a pool or the Bitcoin peer-to-peer network.
