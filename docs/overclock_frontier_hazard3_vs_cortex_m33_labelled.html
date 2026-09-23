@@ -1,0 +1,34 @@
+<div>
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Charts of RP2350 mining throughput versus clock, with Hazard3 RISC-V and Cortex-M33 series named explicitly, peaking at 1,361,295 hash per second at 552 megahertz.</h2>
+<div style="font-size:12px;color:var(--text-secondary);margin-bottom:8px;">Throughput vs clock, all series named by core. Every configuration holds 2,466 H/s/MHz on Hazard3; the Cortex-M33 point is 2.6% lower per MHz.</div>
+<div style="position:relative;width:100%;height:430px;">
+  <canvas id="n1" role="img" aria-label="Aggregate hash rate versus clock by core type">Hazard3 hybrid with delayed core-0 start reaches 1,361,295 H/s at 552 MHz.</canvas>
+</div>
+<div style="margin-top:18px;font-size:12px;color:var(--text-secondary);margin-bottom:8px;">Efficiency per MHz by core and mining mode — the clock-independent comparison.</div>
+<div style="position:relative;width:100%;height:250px;">
+  <canvas id="n2" role="img" aria-label="Hash rate per MHz by core and mode">Hazard3 hybrid 2466.1, Hazard3 hardware-only 2252.0, Cortex-M33 hardware-only 2193.8 H/s per MHz.</canvas>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const d=[[516,1272516],[520,1282393],[522,1287312],[524,1292257],[528,1302088],[532,1311982],[534,1316923],[540,1331592],[546,1346493],[552,1361295]];
+new Chart(document.getElementById('n1'),{type:'scatter',data:{datasets:[
+ {label:'Hazard3 RISC-V — hybrid, delayed core-0 start',data:d.map(p=>({x:p[0],y:p[1]})),backgroundColor:'#1baf7a',borderColor:'#1baf7a',pointRadius:6,showLine:true,borderWidth:2},
+ {label:'Hazard3 RISC-V — hybrid, original startup',data:[{x:150,y:369930},{x:300,y:739679},{x:348,y:857996},{x:396,y:976340},{x:420,y:1035719},{x:444,y:1094633},{x:468,y:1153797},{x:516,y:1272262}],backgroundColor:'#6250d6',borderColor:'#6250d6',pointRadius:5,showLine:true,borderWidth:2,borderDash:[6,4]},
+ {label:'Hazard3 RISC-V — hardware-only',data:[{x:516,y:1162045},{x:558,y:1256632}],backgroundColor:'#eb6834',borderColor:'#eb6834',pointRadius:7,showLine:true,borderWidth:2,borderDash:[3,3],pointStyle:'triangle'},
+ {label:'Cortex-M33 — hardware-only',data:[{x:516,y:1132023}],backgroundColor:'#2a78d6',borderColor:'#2a78d6',pointRadius:8,pointStyle:'rect'},
+ {label:'Cortex-M33 — hybrid, E11 older kernel',data:[{x:200,y:469460},{x:250,y:586868},{x:300,y:703987}],backgroundColor:'rgba(42,120,214,.45)',borderColor:'rgba(42,120,214,.6)',pointRadius:5,showLine:true,borderDash:[5,4],borderWidth:1.5,pointStyle:'rect'},
+ {label:'Hazard3 RISC-V — peak (552 MHz)',data:[{x:552,y:1361295}],backgroundColor:'#0a5c3f',borderColor:'#0a5c3f',pointRadius:13,pointStyle:'rectRot'},
+ {label:'Hazard3 RISC-V — 564 MHz FAIL',data:[{x:564,y:1376000}],backgroundColor:'#e34948',borderColor:'#e34948',pointRadius:8,pointStyle:'crossRot',borderWidth:2},
+ {label:'your other firmware (core unstated)',data:[{x:488,y:1052000},{x:570,y:1261000}],backgroundColor:'#8a8a8a',borderColor:'#8a8a8a',pointRadius:6}]},
+ options:{responsive:true,maintainAspectRatio:false,
+  plugins:{legend:{display:true,position:'bottom',labels:{boxWidth:11,font:{size:9},color:'#898781',padding:8}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.parsed.x+' MHz, '+c.parsed.y.toLocaleString()+' H/s'}}},
+  scales:{x:{title:{display:true,text:'system clock (MHz)',color:'#898781'},min:120,max:610,ticks:{color:'#898781'},grid:{color:'#e1e0d9'}},
+   y:{title:{display:true,text:'aggregate H/s',color:'#898781'},beginAtZero:true,max:1450000,ticks:{color:'#898781',callback:v=>(v/1000)+'k'},grid:{color:'#e1e0d9'}}}}});
+new Chart(document.getElementById('n2'),{type:'bar',data:{labels:['Hazard3 RISC-V — hybrid','Hazard3 RISC-V — hardware-only','Cortex-M33 — hardware-only','other firmware @570 MHz'],datasets:[
+ {data:[2466.1,2252.0,2193.8,2212.3],backgroundColor:['#1baf7a','#eb6834','#2a78d6','#8a8a8a']}]},
+ options:{responsive:true,maintainAspectRatio:false,indexAxis:'y',
+  plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.parsed.x.toFixed(1)+' H/s per MHz'}}},
+  scales:{x:{title:{display:true,text:'H/s per MHz',color:'#898781'},beginAtZero:true,max:2600,ticks:{color:'#898781'},grid:{color:'#e1e0d9'}},
+   y:{ticks:{color:'#898781',font:{size:10}},grid:{display:false}}}}});
+</script>
+</div>

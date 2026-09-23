@@ -1,7 +1,11 @@
-# Pico 2 agentic development loop
+# Experiment: Pico 2 agentic development loop (bitcoin miner)
 
-This project builds a hardware-accelerated Bitcoin proof-of-work engine for both RP2350 CPU architectures and gives VS Code/Codex finite commands for build, flash, and hardware feedback. It uses RP2350's native SHA-256 peripheral for both rounds of every Bitcoin header hash. The mining loop retains the SHA peripheral lock and directly feeds three pre-padded 64-byte blocks per nonce, avoiding high-level API setup and padding overhead inside the hot path.
+This experimental project project builds a hardware-accelerated Bitcoin proof-of-work engine for both RP2350 CPU architectures by giving VS Code/Codex finite commands for build, flash, and hardware feedback. If you just want resulting optimized Pico2 miner, visit [pico2-btcminer](https://github.com/mcubench/pico2-btcminer).
 
+
+See the [summary.md](summary.md), step-by-step progress report in [perf_progress.md](perf_progress.md), with visualized [optimization progress](/docs/pico2_sha256_hashrate_evolution_v9_unroll_and_filter.html) and [overclocking trends](overclock_frontier_hazard3_vs_cortex_m33_labelled.html).
+
+It uses RP2350's native SHA-256 peripheral for both rounds of every Bitcoin header hash. The mining loop retains the SHA peripheral lock and directly feeds three pre-padded 64-byte blocks per nonce, avoiding high-level API setup and padding overhead inside the hot path.
 At boot the firmware validates the engine against SHA-256 known-answer vectors, the Bitcoin genesis block hash, and a real compact-target nonce search. It then measures double-SHA-256 hashes per second and continuously scans the genesis header's difficulty-1 nonce space. The ongoing work is deliberately standalone and stale; it demonstrates genuine proof-of-work calculations but does not connect to a pool or the Bitcoin peer-to-peer network.
 
 ## Commands

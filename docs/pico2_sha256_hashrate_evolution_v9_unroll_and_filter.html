@@ -1,0 +1,49 @@
+<div>
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Line charts of RP2350 Bitcoin double-SHA-256 hash rate at 150 MHz across sixty stages, showing accepted and rejected candidates for ARM Cortex-M33 and Hazard3 RISC-V.</h2>
+<div style="display:flex;flex-wrap:wrap;gap:14px;margin-bottom:8px;font-size:12px;color:var(--text-secondary);">
+  <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#2a78d6;"></span>ARM — hardware kernel</span>
+  <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#eb6834;"></span>Hazard3 — hardware kernel (dashed)</span>
+  <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#1baf7a;"></span>ARM — dual-core total</span>
+  <span style="display:flex;align-items:center;gap:6px;"><span style="width:10px;height:10px;border-radius:2px;background:#6250d6;"></span>Hazard3 — dual-core total (dashed)</span>
+  <span style="display:flex;align-items:center;gap:6px;"><span style="width:11px;height:11px;border-radius:2px;background:#e34948;"></span>rejected ARM (×) / Hazard3 (+)</span>
+</div>
+<div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">Totals left of the “E01 common window” stage are mixed-time-base sustained medians; from there on they are synchronized common-window medians. Most late stages are ISA-specific, so one line moves while the other holds.</div>
+<div style="position:relative;width:100%;height:480px;">
+  <canvas id="hr9" role="img" aria-label="Hash rate by stage, accepted and rejected">ARM total reaches 360,342 H/s and Hazard3 369,894 H/s.</canvas>
+</div>
+<div style="margin-top:14px;">
+  <div style="font-size:12px;color:var(--text-secondary);margin-bottom:6px;">Software worker alone (isolated exact-filter rate):</div>
+  <div style="position:relative;width:100%;height:220px;">
+    <canvas id="sw9" role="img" aria-label="Software worker isolated filter rate by stage">Hazard3's filter jumps to 31,685 H/s, overtaking ARM's 31,578 H/s.</canvas>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const labels=["pico_sha256 API","direct padded blocks","unrolled block feed","inline digest transfer","-O3","lazy final result","E01 oracle gate","E03-a numeric words","E03-b register handoff","E04-a constant tail","E04-c batched accounting","E04-e sticky batching","E04 post-START poll cut","E05 targeted unroll","E06a first-block DMA","E08 core-1 worker","E09-b2 sw expanded sched","E10-a dual worker","E07-b sw compress in SRAM","E09-b round-3 + W16/W17","E09-b fixed 2nd block","E09-c round-61 filter","E09-c trim filter sched","E09-b round-3 partial","E09-b W18/W19 partial","E09-b W31/W32 partial","E03 direct header digest","E03 fused 2nd sched (ARM)","E09-c native high word","E09-b K16/K17 addends","E09-b fixed pad (filter)","E09-b fixed pad (full)","E01 identity contract","E01 rare-path coverage","▏E01 common window","E06-trigger DMA (RV)","E09-b header-tail fixed (ARM)","E09-c terminal live result","E14 chunks 4096","E14 32-bit local loop","E14 chunks 65536","E14 nested chunk loop","E08 telemetry SPSC queue","E08 queue poll /64","E04 32-bit sw counter","E04-f 1s cadence 16/win","E04-f 1s cadence 4/win","E07 filter in scratch X","E03 software batch-8","E04-c hw factor 2 (ARM)","E04-c hw factor 4 (ARM)","E07 hw worker in SRAM","A1 cold share path (ARM)","A2 hw factor 8 (ARM)","A3 align 16 (ARM)","A3 align 32 (ARM)","B1 rotated filter (RV)","B3 filter local -O2 (ARM)","D1 odd-tail takeover"];
+const N=labels.length,pad=a=>a.concat(Array(N-a.length).fill(null));
+const armK=pad([34427,103800,169096,207736,281929,294091,294091,303003,308608,317088,324632,323934,331819,331820,null,331084,330356,331083,331085]);
+const rvK=pad([32084,86300,null,null,null,null,290667,298774,313774,321161,325341,330357,339327,339327,344783,343994,344782,342420,342420]);
+const armA=Array(17).fill(null).concat([348487,351958,351950,352188,352919,353014,353430,353424,354046,354002,354160,354196,355230,356300,356300,356309,356326,355640,355640,355924,356531,356531,356531,356531,356531,356531,356531,356531,null,356545,356545,356545,357655,359558,359558,360342,360342,360342,360342,360342,360342,360308]);
+const rvA=Array(17).fill(null).concat([356366,361993,363138,363300,364453,365228,365313,365548,365965,367128,null,367282,368126,368729,368834,368837,368925,366556,368130,368130,368488,368488,368488,368488,368488,368488,368488,368488,null,368378,368378,368378,368377,368377,368377,368377,368377,368377,368377,369894,369894,369844]);
+const rA=Array(N).fill(null);rA[11]=317074;rA[14]=331087;rA[22]=352975;rA[37]=356450;rA[38]=263860;rA[39]=345302;rA[40]=345308;rA[41]=355003;rA[42]=285615;rA[43]=272198;rA[44]=356521;rA[45]=356602;rA[47]=356146;rA[48]=356553;rA[51]=358620;rA[53]=359709;rA[54]=360299;rA[55]=360301;rA[57]=360164;
+const rR=Array(N).fill(null);rR[15]=335527;rR[22]=365030;rR[26]=366457;rR[28]=366164;rR[36]=368057;rR[37]=368321;rR[38]=361682;rR[39]=360017;rR[40]=357198;rR[41]=363813;rR[42]=368259;rR[43]=368281;rR[44]=368316;rR[45]=368426;rR[48]=366841;rR[49]=368408;
+const opts=(max,title)=>({responsive:true,maintainAspectRatio:false,
+ plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.dataset.label+': '+(c.parsed.y?c.parsed.y.toLocaleString():'n/a')+' H/s'}}},
+ scales:{y:{beginAtZero:true,max:max,title:{display:true,text:title,color:'#898781'},ticks:{color:'#898781',callback:v=>(v/1000)+'k'},grid:{color:'#e1e0d9'}},
+  x:{ticks:{color:'#898781',autoSkip:false,maxRotation:80,minRotation:70,font:{size:7}},grid:{display:false}}}});
+new Chart(document.getElementById('hr9'),{type:'line',data:{labels:labels,datasets:[
+ {label:'ARM kernel',data:armK,borderColor:'#2a78d6',backgroundColor:'#2a78d6',borderWidth:2,pointRadius:2.5,tension:.15},
+ {label:'Hazard3 kernel',data:rvK,borderColor:'#eb6834',backgroundColor:'#eb6834',borderWidth:2,borderDash:[6,4],pointStyle:'triangle',pointRadius:4,tension:.15},
+ {label:'ARM total',data:armA,borderColor:'#1baf7a',backgroundColor:'#1baf7a',borderWidth:2,pointStyle:'rect',pointRadius:3,tension:.15,spanGaps:true},
+ {label:'Hazard3 total',data:rvA,borderColor:'#6250d6',backgroundColor:'#6250d6',borderWidth:2,borderDash:[6,4],pointStyle:'rectRot',pointRadius:4,tension:.15,spanGaps:true},
+ {label:'rejected ARM',data:rA,borderColor:'#e34948',backgroundColor:'#e34948',showLine:false,pointStyle:'crossRot',pointRadius:7,borderWidth:2.5},
+ {label:'rejected Hazard3',data:rR,borderColor:'#e34948',backgroundColor:'#e34948',showLine:false,pointStyle:'cross',pointRadius:7,borderWidth:2.5}]},
+ options:opts(400000,'hash rate at 150 MHz (H/s)')});
+const swA=Array(17).fill(null).concat(Array(13).fill(null).map((_,i)=>[26440,26444,26613,26727,26905,27376,27447,27844,27911,28441,28446,28598,28609][i])).concat([29708,30718,30718,30718,30718,30718,30718,31087,31578,31578,31578,31578,31578,31578,31578,31578,31578,31578,31578,31578,31578,31578,31578,31578,31578,31578,31578,31578,31419,31578]).slice(0,N);
+const swR=Array(17).fill(null).concat([24126,23972,24357,25530,25927,26333,26548,26694,26968,27331,28328,null,28500,29353,29909,30041,30041,30041,30041,30041,30041,30235,30235,30235,30235,30235,30235,30235,30235,30235,30235,30235,30235,30235,30235,30235,30235,30235,30235,30235,31685,31685,31685]).slice(0,N);
+new Chart(document.getElementById('sw9'),{type:'line',data:{labels:labels,datasets:[
+ {label:'ARM software',data:swA,borderColor:'#1baf7a',backgroundColor:'#1baf7a',borderWidth:2,pointRadius:2.5,tension:.15},
+ {label:'Hazard3 software',data:swR,borderColor:'#6250d6',backgroundColor:'#6250d6',borderWidth:2,borderDash:[6,4],pointStyle:'rectRot',pointRadius:3.5,tension:.15}]},
+ options:opts(34000,'software worker (H/s)')});
+</script>
+</div>
